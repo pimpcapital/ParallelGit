@@ -3,9 +3,7 @@ package com.beijunyi.parallelgit.utils;
 import java.io.File;
 import java.io.IOException;
 import javax.annotation.Nonnull;
-import javax.annotation.Nullable;
 
-import com.beijunyi.parallelgit.ParallelGitException;
 import org.eclipse.jgit.internal.storage.file.FileRepository;
 import org.eclipse.jgit.lib.*;
 
@@ -20,17 +18,13 @@ public final class RepositoryHelper {
    * @return a new git repository
    */
   @Nonnull
-  public static Repository newRepository(@Nonnull File repoDir, boolean bare) {
-    try {
-      RepositoryBuilder builder = new RepositoryBuilder();
-      builder.readEnvironment();
-      builder.setGitDir(bare ? repoDir : new File(repoDir, Constants.DOT_GIT));
-      Repository repo = builder.build();
-      repo.create(bare);
-      return repo;
-    } catch(IOException e) {
-      throw new ParallelGitException("Could not create repository at " + repoDir, e);
-    }
+  public static Repository createRepository(@Nonnull File repoDir, boolean bare) throws IOException {
+    RepositoryBuilder builder = new RepositoryBuilder();
+    builder.readEnvironment();
+    builder.setGitDir(bare ? repoDir : new File(repoDir, Constants.DOT_GIT));
+    Repository repo = builder.build();
+    repo.create(bare);
+    return repo;
   }
 
   /**
@@ -40,12 +34,8 @@ public final class RepositoryHelper {
    * @return the repository at the given path
    */
   @Nonnull
-  public static Repository openRepository(@Nonnull File repoDir, boolean bare) {
-    try {
-      return new FileRepository(bare ? repoDir : new File(repoDir, Constants.DOT_GIT));
-    } catch(IOException e) {
-      throw new ParallelGitException("Could not open repository at " + repoDir, e);
-    }
+  public static Repository openRepository(@Nonnull File repoDir, boolean bare) throws IOException {
+    return new FileRepository(bare ? repoDir : new File(repoDir, Constants.DOT_GIT));
   }
 
 
@@ -57,65 +47,26 @@ public final class RepositoryHelper {
    * @param repo a git repository
    * @param revision a revision reference
    */
-  public static void setRepositoryHead(@Nonnull Repository repo, @Nonnull String revision) {
+  public static void setRepositoryHead(@Nonnull Repository repo, @Nonnull String revision) throws IOException {
     if(repo.isBare())
       return;
-    try {
-      Ref ref = repo.getRef(revision);
-      if (ref != null && !ref.getName().startsWith(Constants.R_HEADS))
-        ref = null;
+    Ref ref = repo.getRef(revision);
+    if (ref != null && !ref.getName().startsWith(Constants.R_HEADS))
+      ref = null;
 
-      Ref headRef = repo.getRef(Constants.HEAD);
-      String shortHeadRef = Repository.shortenRefName(headRef.getName());
-      String refLogMessage = "checkout: moving from " + shortHeadRef;
+    Ref headRef = repo.getRef(Constants.HEAD);
+    String shortHeadRef = Repository.shortenRefName(headRef.getName());
+    String refLogMessage = "checkout: moving from " + shortHeadRef;
 
-      RefUpdate refUpdate = repo.updateRef(Constants.HEAD, ref == null);
-      refUpdate.setForceUpdate(true);
-      refUpdate.setRefLogMessage(refLogMessage + " to " + Repository.shortenRefName(revision), false);
+    RefUpdate refUpdate = repo.updateRef(Constants.HEAD, ref == null);
+    refUpdate.setForceUpdate(true);
+    refUpdate.setRefLogMessage(refLogMessage + " to " + Repository.shortenRefName(revision), false);
 
-      if(ref != null)
-        refUpdate.link(ref.getName());
-      else {
-        refUpdate.setNewObjectId(repo.resolve(revision));
-        refUpdate.forceUpdate();
-      }
-
-    } catch(IOException e) {
-      throw new ParallelGitException("Could not update current branch to " + revision, e);
-    }
-  }
-
-  @Nullable
-  public static ObjectId getRevisionId(@Nonnull Repository repo, @Nonnull String revision) {
-    try {
-      return repo.resolve(revision);
-    } catch(IOException e) {
-      throw new ParallelGitException("Could not get the object id for revision " + revision, e);
-    }
-  }
-
-  public static long getObjectSize(@Nonnull ObjectReader reader, @Nonnull AnyObjectId objectId, int typeHint) {
-    try {
-      return reader.getObjectSize(objectId, typeHint);
-    } catch(IOException e) {
-      throw new ParallelGitException("Could not get the size of object " + objectId.getName(), e);
-    }
-  }
-
-  @Nonnull
-  public static ObjectLoader open(@Nonnull ObjectReader reader, @Nonnull AnyObjectId objectId) {
-    try {
-      return reader.open(objectId);
-    } catch(IOException e) {
-      throw new ParallelGitException("Could not open " + objectId, e);
-    }
-  }
-
-  public static void flush(@Nonnull ObjectInserter inserter) {
-    try {
-      inserter.flush();
-    } catch(IOException e) {
-      throw new ParallelGitException("Could not flush inserter", e);
+    if(ref != null)
+      refUpdate.link(ref.getName());
+    else {
+      refUpdate.setNewObjectId(repo.resolve(revision));
+      refUpdate.forceUpdate();
     }
   }
 

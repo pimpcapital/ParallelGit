@@ -1,5 +1,6 @@
 package com.beijunyi.parallelgit.utils;
 
+import java.io.IOException;
 import javax.annotation.Nonnull;
 
 import org.eclipse.jgit.lib.ObjectId;
@@ -17,7 +18,7 @@ public class RevTreeHelper {
    * @return the rev tree of the given commit
    */
   @Nonnull
-  public static RevTree getTree(@Nonnull ObjectReader reader, @Nonnull ObjectId commitId) {
+  public static RevTree getRootTree(@Nonnull ObjectReader reader, @Nonnull ObjectId commitId) throws IOException {
     return CommitHelper.getCommit(reader, commitId).getTree();
   }
 
@@ -29,7 +30,7 @@ public class RevTreeHelper {
    * @return the rev tree of the given commit
    */
   @Nonnull
-  public static RevTree getTree(@Nonnull Repository repo, @Nonnull ObjectId commitId) {
+  public static RevTree getRootTree(@Nonnull Repository repo, @Nonnull ObjectId commitId) throws IOException {
     return CommitHelper.getCommit(repo, commitId).getTree();
   }
 

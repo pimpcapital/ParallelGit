@@ -1,5 +1,6 @@
 package com.beijunyi.parallelgit.gfs;
 
+import java.io.IOException;
 import java.nio.file.NoSuchFileException;
 import java.nio.file.attribute.BasicFileAttributeView;
 import java.nio.file.attribute.FileTime;
@@ -65,12 +66,12 @@ public class GitFileAttributeView implements BasicFileAttributeView {
 
   @Nonnull
   @Override
-  public GitFileAttributes readAttributes() throws NoSuchFileException {
+  public GitFileAttributes readAttributes() throws IOException {
     return new GitFileAttributes(readAttributes(ALL_NAMES));
   }
 
   @Nonnull
-  private Map<String, Object> readAttributes(@Nonnull String[] attributes) throws NoSuchFileException, IllegalArgumentException {
+  private Map<String, Object> readAttributes(@Nonnull String[] attributes) throws IOException, IllegalArgumentException {
     boolean isRegularFile = store.isRegularFile(pathStr);
     boolean isDirectory = !isRegularFile && store.isDirectory(pathStr);
     if(!isRegularFile && !isDirectory)
@@ -114,7 +115,7 @@ public class GitFileAttributeView implements BasicFileAttributeView {
   }
 
   @Nonnull
-  public Map<String, Object> readAttributes(@Nonnull String attributes) throws NoSuchFileException, IllegalArgumentException {
+  public Map<String, Object> readAttributes(@Nonnull String attributes) throws IOException, IllegalArgumentException {
     return readAttributes(attributes.split(","));
   }
 }

@@ -6,11 +6,9 @@ import java.nio.file.NotDirectoryException;
 import java.nio.file.Path;
 import java.util.Iterator;
 import java.util.NoSuchElementException;
-
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 
-import com.beijunyi.parallelgit.ParallelGitException;
 import com.beijunyi.parallelgit.utils.TreeWalkHelper;
 import org.eclipse.jgit.lib.AnyObjectId;
 import org.eclipse.jgit.lib.ObjectReader;
@@ -27,20 +25,29 @@ public class TreeWalkGitDirectoryStream extends GitDirectoryStream {
     this.filter = filter;
   }
 
-  TreeWalkGitDirectoryStream(@Nonnull String pathStr, @Nonnull GitFileStore store, @Nonnull ObjectReader reader, @Nonnull AnyObjectId tree, @Nullable DirectoryStream.Filter<? super Path> filter) throws NotDirectoryException {
+  TreeWalkGitDirectoryStream(@Nonnull String pathStr, @Nonnull GitFileStore store, @Nonnull ObjectReader reader, @Nonnull AnyObjectId tree, @Nullable DirectoryStream.Filter<? super Path> filter) throws IOException {
     this(pathStr, store, newDirectoryTreeWalk(reader, pathStr, tree), filter);
   }
 
+  /**
+   *
+   * @param reader
+   * @param pathStr
+   * @param tree
+   * @return
+   * @throws IOException
+   * @throws NotDirectoryException
+   */
   @Nonnull
-  private static TreeWalk newDirectoryTreeWalk(@Nonnull ObjectReader reader, @Nonnull String pathStr, @Nonnull AnyObjectId tree) throws NotDirectoryException {
+  private static TreeWalk newDirectoryTreeWalk(@Nonnull ObjectReader reader, @Nonnull String pathStr, @Nonnull AnyObjectId tree) throws IOException {
     TreeWalk treeWalk;
     if(pathStr.isEmpty())
       treeWalk = TreeWalkHelper.newTreeWalk(reader, tree);
     else {
-      treeWalk = TreeWalkHelper.forPath(reader, pathStr, tree);
+      treeWalk = TreeWalk.forPath(reader, pathStr, tree);
       if(treeWalk == null || !treeWalk.isSubtree())
         throw new NotDirectoryException(pathStr);
-      TreeWalkHelper.enterSubtree(treeWalk);
+      treeWalk.enterSubtree();
     }
     return treeWalk;
   }
@@ -51,16 +58,12 @@ public class TreeWalkGitDirectoryStream extends GitDirectoryStream {
     return new Iterator<Path>() {
       private GitPath next;
 
-      private boolean findNext() {
-        while(TreeWalkHelper.next(treeWalk)) {
+      private boolean findNext() throws IOException {
+        while(treeWalk.next()) {
           GitPath childPath = store.getRoot().resolve(treeWalk.getPathString());
-          try {
-            if(filter == null || filter.accept(childPath)) {
-              next = childPath;
-              return true;
-            }
-          } catch(IOException e) {
-            throw new ParallelGitException("Filter could not decide whether to accept path " + childPath, e);
+          if(filter == null || filter.accept(childPath)) {
+            next = childPath;
+            return true;
           }
         }
         return false;
@@ -68,7 +71,11 @@ public class TreeWalkGitDirectoryStream extends GitDirectoryStream {
 
       @Override
       public boolean hasNext() {
-        return next != null || findNext();
+        try {
+          return next != null || findNext();
+        } catch(IOException e) {
+          return false;
+        }
       }
 
       @Nonnull

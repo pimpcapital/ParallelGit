@@ -1,5 +1,6 @@
 package com.beijunyi.parallelgit.gfs;
 
+import java.io.IOException;
 import java.nio.file.Path;
 import java.util.Iterator;
 import java.util.NoSuchElementException;
@@ -11,7 +12,7 @@ import org.junit.Test;
 public class GitPathIteratorTest extends AbstractGitFileSystemTest {
 
   @Before
-  public void setupFileSystem() {
+  public void setupFileSystem() throws IOException {
     initGitFileSystem();
     preventDestroyFileSystem();
   }

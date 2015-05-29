@@ -1,5 +1,7 @@
 package com.beijunyi.parallelgit.utils;
 
+import java.io.IOException;
+
 import com.beijunyi.parallelgit.AbstractParallelGitTest;
 import org.eclipse.jgit.lib.ObjectId;
 import org.junit.Assert;
@@ -8,7 +10,7 @@ import org.junit.Test;
 public class BlobHelperTest extends AbstractParallelGitTest {
 
   @Test
-  public void findFileBlobIdTest() {
+  public void findFileBlobIdTest() throws IOException {
     initRepository();
     String file = "a.txt";
     ObjectId fileBlob = writeFile(file);
@@ -17,7 +19,7 @@ public class BlobHelperTest extends AbstractParallelGitTest {
   }
 
   @Test
-  public void findNonExistentFileBlobIdTest() {
+  public void findNonExistentFileBlobIdTest() throws IOException {
     ObjectId commit = initRepository();
     Assert.assertNull(BlobHelper.findBlobId(repo, "non-existent.txt", commit));
   }

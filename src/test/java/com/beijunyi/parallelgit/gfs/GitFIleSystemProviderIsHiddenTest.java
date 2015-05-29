@@ -10,7 +10,7 @@ import org.junit.Test;
 public class GitFIleSystemProviderIsHiddenTest extends AbstractGitFileSystemTest {
 
   @Before
-  public void setupFileSystem() {
+  public void setupFileSystem() throws IOException {
     initGitFileSystem();
     preventDestroyFileSystem();
   }

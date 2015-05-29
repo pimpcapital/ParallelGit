@@ -1,6 +1,5 @@
 package com.beijunyi.parallelgit.utils;
 
-import com.beijunyi.parallelgit.ParallelGitException;
 import org.junit.Assert;
 import org.junit.Test;
 
@@ -12,7 +11,7 @@ public class RefHelperTest {
     Assert.assertEquals("refs/heads/test", RefHelper.getBranchRefName("refs/heads/test"));
   }
 
-  @Test(expected = ParallelGitException.class)
+  @Test(expected = Exception.class)
   public void getInvalidBranchRefNameTest() {
     RefHelper.getBranchRefName("test?");
   }

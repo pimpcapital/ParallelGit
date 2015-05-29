@@ -1,5 +1,7 @@
 package com.beijunyi.parallelgit.gfs;
 
+import java.io.IOException;
+
 import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
@@ -7,7 +9,7 @@ import org.junit.Test;
 public class GitPathResolveSiblingTest extends AbstractGitFileSystemTest {
 
   @Before
-  public void setupFileSystem() {
+  public void setupFileSystem() throws IOException {
     initGitFileSystem();
     preventDestroyFileSystem();
   }

@@ -292,8 +292,8 @@ public class GitFileSystemProviderCopyTest extends AbstractGitFileSystemTest {
     initRepositoryDir();
     File repoDir1 = new File(repoDir, "rd1");
     File repoDir2 = new File(repoDir, "rd2");
-    Repository repo1 = RepositoryHelper.newRepository(repoDir1, true);
-    Repository repo2 = RepositoryHelper.newRepository(repoDir2, true);
+    Repository repo1 = RepositoryHelper.createRepository(repoDir1, true);
+    Repository repo2 = RepositoryHelper.createRepository(repoDir2, true);
     GitFileSystem sourceFs = GitFileSystems.newFileSystem(repo1);
     GitFileSystem targetFs = GitFileSystems.newFileSystem(repo2);
     GitPath source = sourceFs.getPath("/a.txt");

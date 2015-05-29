@@ -1,5 +1,6 @@
 package com.beijunyi.parallelgit.gfs;
 
+import java.io.IOException;
 import java.net.URI;
 import java.nio.file.FileSystems;
 
@@ -9,7 +10,7 @@ import org.junit.Test;
 public class GitFileSystemCloseTest extends AbstractGitFileSystemTest {
 
   @Test
-  public void closedFileSystemIsOpenTest() {
+  public void closedFileSystemIsOpenTest() throws IOException {
     initGitFileSystem();
     String sessionId = gfs.getSessionId();
     URI uri = root.toUri();
@@ -19,7 +20,7 @@ public class GitFileSystemCloseTest extends AbstractGitFileSystemTest {
   }
 
   @Test
-  public void closedFileSystemFileStoreIsOpenTest() {
+  public void closedFileSystemFileStoreIsOpenTest() throws IOException {
     initGitFileSystem();
     GitFileStore store = gfs.getFileStore();
     gfs.close();
@@ -27,7 +28,7 @@ public class GitFileSystemCloseTest extends AbstractGitFileSystemTest {
   }
 
   @Test
-  public void closedFileSystemGetWithSessionIdTest() {
+  public void closedFileSystemGetWithSessionIdTest() throws IOException {
     initGitFileSystem();
     String sessionId = gfs.getSessionId();
     gfs.close();
@@ -35,7 +36,7 @@ public class GitFileSystemCloseTest extends AbstractGitFileSystemTest {
   }
 
   @Test
-  public void closedFileSystemGetWithUriTest() {
+  public void closedFileSystemGetWithUriTest() throws IOException {
     initGitFileSystem();
     URI uri = root.toUri();
     gfs.close();

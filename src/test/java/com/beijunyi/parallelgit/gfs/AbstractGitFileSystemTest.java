@@ -1,5 +1,6 @@
 package com.beijunyi.parallelgit.gfs;
 
+import java.io.IOException;
 import javax.annotation.Nonnull;
 
 import com.beijunyi.parallelgit.AbstractParallelGitTest;
@@ -25,25 +26,25 @@ public abstract class AbstractGitFileSystemTest extends AbstractParallelGitTest 
     }
   }
 
-  protected void initGitFileSystemForBranch(@Nonnull String branch) {
+  protected void initGitFileSystemForBranch(@Nonnull String branch) throws IOException {
     assert repo != null;
     if(gfs == null)
       injectGitFileSystem(GitFileSystems.newFileSystem(repo, branch));
   }
 
-  protected void initGitFileSystemForRevision(@Nonnull ObjectId revision) {
+  protected void initGitFileSystemForRevision(@Nonnull ObjectId revision) throws IOException {
     assert repo != null;
     if(gfs == null)
       injectGitFileSystem(GitFileSystems.newFileSystem(repo, null, revision));
   }
 
-  protected void initGitFileSystemForTree(@Nonnull ObjectId tree) {
+  protected void initGitFileSystemForTree(@Nonnull ObjectId tree) throws IOException {
     assert repo != null;
     if(gfs == null)
       injectGitFileSystem(GitFileSystems.newFileSystem(repo, null, null, tree));
   }
 
-  protected void initGitFileSystem() {
+  protected void initGitFileSystem() throws IOException {
     if(repo == null)
       initRepository();
     initGitFileSystemForBranch(Constants.MASTER);
@@ -59,7 +60,7 @@ public abstract class AbstractGitFileSystemTest extends AbstractParallelGitTest 
     keepFileSystem = true;
   }
 
-  protected void loadCache() {
+  protected void loadCache() throws IOException {
     gfs.getFileStore().initializeCache();
   }
 

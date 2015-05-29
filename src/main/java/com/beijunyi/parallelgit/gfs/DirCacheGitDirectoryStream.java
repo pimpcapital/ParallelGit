@@ -1,5 +1,6 @@
 package com.beijunyi.parallelgit.gfs;
 
+import java.io.IOException;
 import java.nio.file.DirectoryStream;
 import java.nio.file.NotDirectoryException;
 import java.nio.file.Path;
@@ -48,8 +49,8 @@ public class DirCacheGitDirectoryStream extends GitDirectoryStream {
               next = childPath;
               return true;
             }
-          } catch(Exception e) {
-            throw new GitFileSystemException("Could not test " + childPath, e);
+          } catch(IOException e) {
+            throw new RuntimeException(e);
           }
         }
         return false;

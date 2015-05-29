@@ -1,5 +1,6 @@
 package com.beijunyi.parallelgit.gfs;
 
+import java.io.IOException;
 import java.net.URI;
 import java.nio.file.Paths;
 
@@ -10,7 +11,7 @@ import org.junit.Test;
 public class GitFileSystemProviderGetPathTest extends AbstractGitFileSystemTest {
 
   @Before
-  public void setupFileSystem() {
+  public void setupFileSystem() throws IOException {
     initGitFileSystem();
     preventDestroyFileSystem();
   }

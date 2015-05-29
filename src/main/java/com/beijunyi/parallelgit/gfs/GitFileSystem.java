@@ -1,5 +1,6 @@
 package com.beijunyi.parallelgit.gfs;
 
+import java.io.IOException;
 import java.nio.file.*;
 import java.nio.file.attribute.UserPrincipalLookupService;
 import java.util.*;
@@ -23,7 +24,7 @@ public class GitFileSystem extends FileSystem {
 
   private boolean closed = false;
 
-  GitFileSystem(@Nonnull GitFileSystemProvider provider, @Nonnull String session, @Nonnull Repository repo, @Nullable String branch, @Nullable ObjectId baseCommit, @Nullable ObjectId baseTree) {
+  GitFileSystem(@Nonnull GitFileSystemProvider provider, @Nonnull String session, @Nonnull Repository repo, @Nullable String branch, @Nullable ObjectId baseCommit, @Nullable ObjectId baseTree) throws IOException {
     this.provider = provider;
     this.session = session;
     this.root = new GitPath(this, "/");

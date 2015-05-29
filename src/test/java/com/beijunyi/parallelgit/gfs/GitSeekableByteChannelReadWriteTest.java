@@ -15,7 +15,7 @@ public class GitSeekableByteChannelReadWriteTest extends AbstractGitFileSystemTe
   private static final byte[] ORIGINAL_TEXT_BYTES = "some plain text data".getBytes();
 
   @Before
-  public void setupFileSystem() {
+  public void setupFileSystem() throws IOException {
     initRepository();
     writeFile("file.txt", ORIGINAL_TEXT_BYTES);
     commitToMaster();

@@ -1,5 +1,6 @@
 package com.beijunyi.parallelgit.gfs;
 
+import java.io.IOException;
 import java.net.URI;
 import java.nio.file.ProviderMismatchException;
 import javax.annotation.Nonnull;
@@ -35,7 +36,7 @@ public class GitPaths {
    * @return a git path
    */
   @Nonnull
-  public static GitPath get(@Nonnull Repository repo, @Nullable String revision, @Nonnull String fileInRepo, @Nonnull String... more) {
+  public static GitPath get(@Nonnull Repository repo, @Nullable String revision, @Nonnull String fileInRepo, @Nonnull String... more) throws IOException {
     return GitFileSystems.newFileSystem(null, repo, null, revision).getPath(fileInRepo, more).toAbsolutePath();
   }
 
@@ -48,7 +49,7 @@ public class GitPaths {
    * @return a git path
    */
   @Nonnull
-  public static GitPath get(@Nonnull Repository repo, @Nonnull String fileInRepo) {
+  public static GitPath get(@Nonnull Repository repo, @Nonnull String fileInRepo) throws IOException {
     return get(repo, null, fileInRepo);
   }
 

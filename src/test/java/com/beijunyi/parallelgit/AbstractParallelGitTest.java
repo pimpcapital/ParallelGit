@@ -2,7 +2,6 @@ package com.beijunyi.parallelgit;
 
 import java.io.File;
 import java.io.IOException;
-
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 
@@ -39,33 +38,33 @@ public abstract class AbstractParallelGitTest {
   }
 
   @Nonnull
-  protected ObjectId writeFile(@Nonnull String path, @Nonnull byte[] content) {
+  protected ObjectId writeFile(@Nonnull String path, @Nonnull byte[] content) throws IOException {
     ObjectId blobId = BlobHelper.insert(repo, content);
     DirCacheHelper.addFile(cache, path, blobId);
     return blobId;
   }
 
   @Nonnull
-  protected ObjectId writeFile(@Nonnull String path, @Nonnull String content) {
+  protected ObjectId writeFile(@Nonnull String path, @Nonnull String content) throws IOException {
     return writeFile(path, Constants.encode(content));
   }
 
   @Nonnull
-  protected ObjectId writeFile(@Nonnull String path) {
+  protected ObjectId writeFile(@Nonnull String path) throws IOException {
     return writeFile(path, path + "'s unique content");
   }
 
   @Nonnull
-  protected ObjectId commit(@Nonnull String message, @Nullable ObjectId parent) {
+  protected ObjectId commit(@Nonnull String message, @Nullable ObjectId parent) throws IOException {
     return CommitHelper.createCommit(repo, cache, new PersonIdent(getClass().getSimpleName(), ""), message, parent);
   }
 
-  protected void updateBranchHead(@Nonnull String branch, @Nonnull ObjectId commitId) {
+  protected void updateBranchHead(@Nonnull String branch, @Nonnull ObjectId commitId) throws IOException {
     BranchHelper.commitBranchHead(repo, branch, commitId, CommitHelper.getCommit(repo, commitId).getShortMessage());
   }
 
   @Nonnull
-  protected ObjectId commitToBranch(@Nonnull String branch, @Nonnull String message, @Nullable ObjectId parent) {
+  protected ObjectId commitToBranch(@Nonnull String branch, @Nonnull String message, @Nullable ObjectId parent) throws IOException {
     if(parent == null)
       parent = BranchHelper.getBranchHeadCommitId(repo, branch);
     ObjectId commitId = commit(message, parent);
@@ -74,27 +73,27 @@ public abstract class AbstractParallelGitTest {
   }
 
   @Nonnull
-  protected ObjectId commitToBranch(@Nonnull String branch, @Nullable ObjectId parent) {
+  protected ObjectId commitToBranch(@Nonnull String branch, @Nullable ObjectId parent) throws IOException {
     return commitToBranch(branch, getClass().getSimpleName() + " test commit: " + System.currentTimeMillis(), parent);
   }
 
   @Nonnull
-  protected ObjectId commitToBranch(@Nonnull String branch) {
+  protected ObjectId commitToBranch(@Nonnull String branch) throws IOException {
     return commitToBranch(branch, getClass().getSimpleName() + " test commit: " + System.currentTimeMillis(), null);
   }
 
   @Nonnull
-  protected ObjectId commitToMaster(@Nonnull String message, @Nullable ObjectId parent) {
+  protected ObjectId commitToMaster(@Nonnull String message, @Nullable ObjectId parent) throws IOException {
     return commitToBranch(Constants.MASTER, message, parent);
   }
 
   @Nonnull
-  protected ObjectId commitToMaster(@Nonnull String message) {
+  protected ObjectId commitToMaster(@Nonnull String message) throws IOException {
     return commitToBranch(Constants.MASTER, message, null);
   }
 
   @Nonnull
-  protected ObjectId commitToMaster() {
+  protected ObjectId commitToMaster() throws IOException {
     return commitToBranch(Constants.MASTER);
   }
 
@@ -111,16 +110,16 @@ public abstract class AbstractParallelGitTest {
   }
 
   @Nonnull
-  protected ObjectId initRepository(boolean bare) {
+  protected ObjectId initRepository(boolean bare) throws IOException {
     if(repoDir == null)
       initRepositoryDir();
-    repo = RepositoryHelper.newRepository(repoDir, bare);
+    repo = RepositoryHelper.createRepository(repoDir, bare);
     cache = DirCacheHelper.newCache();
     return commitToMaster();
   }
 
   @Nonnull
-  protected ObjectId initRepository() {
+  protected ObjectId initRepository() throws IOException {
     return initRepository(true);
   }
 

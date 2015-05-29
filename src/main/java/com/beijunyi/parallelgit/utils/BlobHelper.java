@@ -4,7 +4,6 @@ import java.io.IOException;
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 
-import com.beijunyi.parallelgit.ParallelGitException;
 import org.eclipse.jgit.lib.*;
 
 public final class BlobHelper {
@@ -43,8 +42,8 @@ public final class BlobHelper {
    * @return a blob id
    */
   @Nullable
-  public static ObjectId findBlobId(@Nonnull ObjectReader reader, @Nonnull String path, @Nonnull ObjectId commitId) {
-    return TreeWalkHelper.getObjectId(reader, path, RevTreeHelper.getTree(reader, commitId));
+  public static ObjectId findBlobId(@Nonnull ObjectReader reader, @Nonnull String path, @Nonnull ObjectId commitId) throws IOException {
+    return TreeWalkHelper.getObjectId(reader, path, RevTreeHelper.getRootTree(reader, commitId));
   }
 
   /**
@@ -59,7 +58,7 @@ public final class BlobHelper {
    * @return a blob id
    */
   @Nullable
-  public static ObjectId findBlobId(@Nonnull Repository repo, @Nonnull String path, @Nonnull ObjectId commitId) {
+  public static ObjectId findBlobId(@Nonnull Repository repo, @Nonnull String path, @Nonnull ObjectId commitId) throws IOException {
     ObjectReader reader = repo.newObjectReader();
     try {
       return findBlobId(reader, path, commitId);
@@ -76,12 +75,8 @@ public final class BlobHelper {
    * @return a byte array
    */
   @Nonnull
-  public static byte[] getBytes(@Nonnull ObjectReader reader, @Nonnull ObjectId blobId) {
-    try {
-      return reader.open(blobId).getBytes();
-    } catch(IOException e) {
-      throw new ParallelGitException("Could not get data mapped from " + blobId, e);
-    }
+  public static byte[] getBytes(@Nonnull ObjectReader reader, @Nonnull ObjectId blobId) throws IOException {
+    return reader.open(blobId).getBytes();
   }
 
   /**
@@ -95,7 +90,7 @@ public final class BlobHelper {
    * @return a byte array
    */
   @Nonnull
-  public static byte[] getBytes(@Nonnull Repository repo, @Nonnull ObjectId blobId) {
+  public static byte[] getBytes(@Nonnull Repository repo, @Nonnull ObjectId blobId) throws IOException {
     ObjectReader reader = repo.newObjectReader();
     try {
       return getBytes(reader, blobId);
@@ -105,41 +100,17 @@ public final class BlobHelper {
   }
 
   /**
-   * Inserts the given byte array into the repository via the provided {@link ObjectInserter}
-   *
-   * This method behaves similarly to {@link ObjectInserter#insert(int, byte[])} except the object type is always {@link
-   * Constants#OBJ_BLOB}. To be exception friendly, this method does not throw any checked exception. In the case that
-   * an {@link IOException} does occur, the source exception can be retrieved from {@link
-   * ParallelGitException#getCause()}.
-   *
-   * @param inserter an object inserter
-   * @param blob a byte array
-   * @return a blob id which maps to the inserted blob object
-   */
-  @Nonnull
-  public static ObjectId insert(@Nonnull ObjectInserter inserter, @Nonnull byte[] blob) {
-    try {
-      return inserter.insert(Constants.OBJ_BLOB, blob);
-    } catch(IOException e) {
-      throw new ParallelGitException("Could not insert blob", e);
-    }
-  }
-
-  /**
    * Inserts the given byte array into the provided repository.
-   *
-   * This method creates a temporary {@link ObjectInserter} and then invokes {@link #insert(ObjectInserter, byte[])}.
-   * The temporary inserter will be flushed and released at the end of this method..
    *
    * @param repo a git repository
    * @param blob a byte array
    * @return a blob id which maps to the inserted blob object
    */
   @Nonnull
-  public static ObjectId insert(@Nonnull Repository repo, @Nonnull byte[] blob) {
+  public static ObjectId insert(@Nonnull Repository repo, @Nonnull byte[] blob) throws IOException {
     ObjectInserter inserter = repo.newObjectInserter();
-    ObjectId blobId = insert(inserter, blob);
-    RepositoryHelper.flush(inserter);
+    ObjectId blobId = inserter.insert(Constants.OBJ_BLOB, blob);
+    inserter.flush();
     inserter.release();
     return blobId;
   }
@@ -155,7 +126,7 @@ public final class BlobHelper {
    * @return a blob id which maps to the inserted blob object
    */
   @Nonnull
-  public static ObjectId insert(@Nonnull Repository repo, @Nonnull String content) {
+  public static ObjectId insert(@Nonnull Repository repo, @Nonnull String content) throws IOException {
     return insert(repo, Constants.encode(content));
   }
 

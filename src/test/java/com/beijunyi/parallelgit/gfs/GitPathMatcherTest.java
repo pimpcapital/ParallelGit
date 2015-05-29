@@ -1,5 +1,6 @@
 package com.beijunyi.parallelgit.gfs;
 
+import java.io.IOException;
 import java.util.regex.PatternSyntaxException;
 
 import org.junit.Assert;
@@ -9,7 +10,7 @@ import org.junit.Test;
 public class GitPathMatcherTest extends AbstractGitFileSystemTest {
 
   @Before
-  public void setupFs() {
+  public void setupFs() throws IOException {
     initGitFileSystem();
   }
 
