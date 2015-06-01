@@ -313,7 +313,7 @@ public final class DirCacheHelper {
         while(index < entries.length) {
           DirCacheEntry entry = entries[index++];
           String path = entry.getPathString();
-          if(prev != null && prev.isDirectory() && path.startsWith(prev.getPath()))
+          if(prev != null && prev.hasChild(path))
             continue;
           int end = path.indexOf('/', childrenMinLength);
           next = end != -1 ? VirtualDirCacheEntry.directory(path.substring(0, end)) : VirtualDirCacheEntry.file(path);
