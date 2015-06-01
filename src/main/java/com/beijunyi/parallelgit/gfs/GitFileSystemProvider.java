@@ -108,7 +108,7 @@ public class GitFileSystemProvider extends FileSystemProvider {
       treeStr = treeValue == null ? null : treeValue instanceof AnyObjectId ? ((AnyObjectId) treeValue).getName() : treeValue.toString();
     }
 
-    Repository repo = create ? RepositoryHelper.createRepository(repoDir, bare) : RepositoryHelper.openRepository(repoDir, bare);
+    Repository repo = create ? RepositoryHelper.createRepository(repoDir, bare) : RepositoryHelper.openRepository(repoDir);
     ObjectId revision = revisionStr != null ? repo.resolve(revisionStr) : null;
     ObjectId tree = treeStr != null ? repo.resolve(treeStr) : null;
 

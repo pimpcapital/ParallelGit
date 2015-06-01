@@ -14,7 +14,7 @@ import org.eclipse.jgit.revwalk.RevWalk;
 public final class CommitHelper {
 
   @Nonnull
-  public static RevCommit getCommit(@Nonnull ObjectReader reader, @Nonnull ObjectId commitId) throws IOException {
+  public static RevCommit getCommit(@Nonnull ObjectReader reader, @Nonnull AnyObjectId commitId) throws IOException {
       RevWalk revWalk = new RevWalk(reader);
       RevCommit commit = revWalk.parseCommit(commitId);
       revWalk.release();
@@ -22,7 +22,7 @@ public final class CommitHelper {
     }
 
   @Nonnull
-  public static RevCommit getCommit(@Nonnull Repository repo, @Nonnull ObjectId commitId) throws IOException {
+  public static RevCommit getCommit(@Nonnull Repository repo, @Nonnull AnyObjectId commitId) throws IOException {
     ObjectReader reader = repo.newObjectReader();
     RevCommit commit = getCommit(reader, commitId);
     reader.release();

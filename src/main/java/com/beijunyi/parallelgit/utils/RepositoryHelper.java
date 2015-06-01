@@ -10,32 +10,38 @@ import org.eclipse.jgit.lib.*;
 public final class RepositoryHelper {
 
   /**
-   * Creates a new git repository at the specified path or at ".git" under this path if the repository to be created is
-   * bare.
+   * Creates a new {@code Repository} in the given directory.
    *
-   * @param repoDir the directory that the new repository bases on
-   * @param bare whether the repository to be created is bare
-   * @return a new git repository
+   * @param   repoDir
+   *          the directory of the git repository to create
+   * @param   bare
+   *          whether to create a {@code BARE} repository
+   * @return  the result {@code Repository}
    */
   @Nonnull
   public static Repository createRepository(@Nonnull File repoDir, boolean bare) throws IOException {
-    RepositoryBuilder builder = new RepositoryBuilder();
-    builder.readEnvironment();
-    builder.setGitDir(bare ? repoDir : new File(repoDir, Constants.DOT_GIT));
-    Repository repo = builder.build();
+    Repository repo = new RepositoryBuilder()
+                        .readEnvironment()
+                        .setGitDir(bare ? repoDir : new File(repoDir, Constants.DOT_GIT))
+                        .build();
     repo.create(bare);
     return repo;
   }
 
   /**
-   * Opens a file repository at the given path or at {@code .git} under the given path if the repository to be opened is bare.
+   * Opens a {@code Repository} from the given directory.
    *
-   * @param repoDir the directory of a git repository
-   * @return the repository at the given path
+   * @param   repoDir
+   *          the directory of the git repository to open
+   * @return  the result {@code Repository}
    */
   @Nonnull
-  public static Repository openRepository(@Nonnull File repoDir, boolean bare) throws IOException {
-    return new FileRepository(bare ? repoDir : new File(repoDir, Constants.DOT_GIT));
+  public static Repository openRepository(@Nonnull File repoDir) throws IOException {
+    File dotGit = new File(repoDir, Constants.DOT_GIT);
+    if(dotGit.exists())
+      return new FileRepository(dotGit);
+    else
+      return new FileRepository(repoDir);
   }
 
 
@@ -47,11 +53,11 @@ public final class RepositoryHelper {
    * @param repo a git repository
    * @param revision a revision reference
    */
-  public static void setRepositoryHead(@Nonnull Repository repo, @Nonnull String revision) throws IOException {
+  public static RefUpdate.Result setRepositoryHead(@Nonnull Repository repo, @Nonnull String revision) throws IOException {
     if(repo.isBare())
-      return;
+      throw new IllegalArgumentException(repo + " is a bare repository.");
     Ref ref = repo.getRef(revision);
-    if (ref != null && !ref.getName().startsWith(Constants.R_HEADS))
+    if(ref != null && !ref.getName().startsWith(Constants.R_HEADS))
       ref = null;
 
     Ref headRef = repo.getRef(Constants.HEAD);
@@ -63,10 +69,10 @@ public final class RepositoryHelper {
     refUpdate.setRefLogMessage(refLogMessage + " to " + Repository.shortenRefName(revision), false);
 
     if(ref != null)
-      refUpdate.link(ref.getName());
+      return refUpdate.link(ref.getName());
     else {
       refUpdate.setNewObjectId(repo.resolve(revision));
-      refUpdate.forceUpdate();
+      return refUpdate.forceUpdate();
     }
   }
 
