@@ -2,6 +2,8 @@ package com.beijunyi.parallelgit.utils;
 
 import java.io.IOException;
 
+import javax.annotation.Nonnull;
+
 import com.beijunyi.parallelgit.AbstractParallelGitTest;
 import org.eclipse.jgit.lib.ObjectId;
 import org.eclipse.jgit.revwalk.RevTree;
@@ -11,53 +13,69 @@ import org.junit.Test;
 
 public class TreeWalkHelperTest extends AbstractParallelGitTest {
 
+  private static void assertNextEntry(@Nonnull TreeWalk treeWalk, @Nonnull String path) throws IOException {
+    Assert.assertTrue(treeWalk.next());
+    Assert.assertEquals(path, treeWalk.getPathString());
+  }
+
   @Test
   public void newTreeWalkTest() throws IOException {
     initRepository();
-    String[] files = new String[] {"a.txt", "b.txt", "c/d.txt", "c/e.txt", "f/g.txt"};
-    for(String file : files)
-      writeFile(file);
+    writeFiles("a.txt", "b.txt", "c/d.txt", "c/e.txt", "f/g.txt");
     ObjectId commitId = commitToMaster();
     RevTree tree = RevTreeHelper.getRootTree(repo, commitId);
     TreeWalk treeWalk = TreeWalkHelper.newTreeWalk(repo, tree);
-    String[] rootFiles = new String[] {"a.txt", "b.txt", "c", "f"};
-    for(String rootFile : rootFiles) {
-      Assert.assertTrue(treeWalk.next());
-      Assert.assertEquals(rootFile, treeWalk.getPathString());
-    }
+
+    assertNextEntry(treeWalk, "a.txt");
+    assertNextEntry(treeWalk, "b.txt");
+    assertNextEntry(treeWalk, "c");
+    assertNextEntry(treeWalk, "f");
     Assert.assertFalse(treeWalk.next());
   }
 
   @Test
-  public void forPathTest() throws IOException {
+  public void existsTest() throws IOException {
     initRepository();
     writeFile("a/b.txt");
     ObjectId commit = commitToMaster();
-    RevTree root = RevTreeHelper.getRootTree(repo, commit);
-    Assert.assertTrue(TreeWalkHelper.exists(repo, "a", root));
-    Assert.assertTrue(TreeWalkHelper.exists(repo, "a/b.txt", root));
-    Assert.assertFalse(TreeWalkHelper.exists(repo, "a/b", root));
+
+    RevTree tree = RevTreeHelper.getRootTree(repo, commit);
+    Assert.assertTrue(TreeWalkHelper.exists(repo, "a", tree));
+    Assert.assertTrue(TreeWalkHelper.exists(repo, "a/b.txt", tree));
+    Assert.assertFalse(TreeWalkHelper.exists(repo, "a/b", tree));
   }
 
   @Test
-  public void isFileTest() throws IOException {
+  public void getObjectTest() throws IOException {
     initRepository();
-    writeFile("a/b.txt");
+    ObjectId objectId = writeFile("a/b.txt");
     ObjectId commit = commitToMaster();
-    RevTree root = RevTreeHelper.getRootTree(repo, commit);
-    Assert.assertFalse(TreeWalkHelper.isFile(repo, "a", root));
-    Assert.assertTrue(TreeWalkHelper.isFile(repo, "a/b.txt", root));
-    Assert.assertFalse(TreeWalkHelper.isFile(repo, "a/b", root));
+
+    RevTree tree = RevTreeHelper.getRootTree(repo, commit);
+    Assert.assertEquals(objectId, TreeWalkHelper.getObject(repo, "a/b.txt", tree));
   }
 
   @Test
-  public void isDirectoryTest() throws IOException {
+  public void isBlobTest() throws IOException {
     initRepository();
     writeFile("a/b.txt");
     ObjectId commit = commitToMaster();
-    RevTree root = RevTreeHelper.getRootTree(repo, commit);
-    Assert.assertTrue(TreeWalkHelper.isDirectory(repo, "a", root));
-    Assert.assertFalse(TreeWalkHelper.isDirectory(repo, "a/b.txt", root));
-    Assert.assertFalse(TreeWalkHelper.isDirectory(repo, "a/b", root));
+
+    RevTree tree = RevTreeHelper.getRootTree(repo, commit);
+    Assert.assertFalse(TreeWalkHelper.isBlob(repo, "a", tree));
+    Assert.assertTrue(TreeWalkHelper.isBlob(repo, "a/b.txt", tree));
+    Assert.assertFalse(TreeWalkHelper.isBlob(repo, "a/b", tree));
+  }
+
+  @Test
+  public void isTreeTest() throws IOException {
+    initRepository();
+    writeFile("a/b.txt");
+    ObjectId commit = commitToMaster();
+
+    RevTree tree = RevTreeHelper.getRootTree(repo, commit);
+    Assert.assertTrue(TreeWalkHelper.isTree(repo, "a", tree));
+    Assert.assertFalse(TreeWalkHelper.isTree(repo, "a/b.txt", tree));
+    Assert.assertFalse(TreeWalkHelper.isTree(repo, "a/b", tree));
   }
 }

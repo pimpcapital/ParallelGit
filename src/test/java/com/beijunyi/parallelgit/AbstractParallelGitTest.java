@@ -54,6 +54,11 @@ public abstract class AbstractParallelGitTest {
     return writeFile(path, path + "'s unique content");
   }
 
+  protected void writeFiles(@Nonnull String... paths) throws IOException {
+    for(String path : paths)
+      writeFile(path);
+  }
+
   @Nonnull
   protected ObjectId commit(@Nonnull String message, @Nullable ObjectId parent) throws IOException {
     return CommitHelper.createCommit(repo, cache, new PersonIdent(getClass().getSimpleName(), ""), message, parent);

@@ -43,7 +43,7 @@ public final class BlobHelper {
    */
   @Nullable
   public static ObjectId findBlobId(@Nonnull ObjectReader reader, @Nonnull String path, @Nonnull ObjectId commitId) throws IOException {
-    return TreeWalkHelper.getObjectId(reader, path, RevTreeHelper.getRootTree(reader, commitId));
+    return TreeWalkHelper.getObject(reader, path, RevTreeHelper.getRootTree(reader, commitId));
   }
 
   /**

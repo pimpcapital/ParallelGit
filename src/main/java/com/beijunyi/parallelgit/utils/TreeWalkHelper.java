@@ -10,11 +10,13 @@ import org.eclipse.jgit.treewalk.TreeWalk;
 public class TreeWalkHelper {
 
   /**
-   * Creates a new {@code TreeWalk} to run over the given tree.
+   * Creates a new {@code TreeWalk} to walk through the given tree.
    *
-   * @param reader an object reader
-   * @param treeId a tree id
-   * @return a new tree walk to run over the given tree.
+   * @param   reader
+   *          an object reader
+   * @param   treeId
+   *          the id of the tree to walk through
+   * @return  a new {@code TreeWalk} to walk through the given tree.
    */
   @Nonnull
   public static TreeWalk newTreeWalk(@Nonnull ObjectReader reader, @Nonnull AnyObjectId treeId) throws IOException {
@@ -24,175 +26,212 @@ public class TreeWalkHelper {
   }
 
   /**
-   * Creates a new {@code TreeWalk} of the given tree.
+   * Creates a new {@code TreeWalk} to walk through the given tree.
    *
-   * @param repo a git repository
-   * @param treeId a tree id
-   * @return a new tree walk of the given tree.
+   * @param   repo
+   *          a git repository
+   * @param   treeId
+   *          the id the tree to walk through
+   * @return  a new {@code TreeWalk} to walk through the given tree.
    */
   @Nonnull
   public static TreeWalk newTreeWalk(@Nonnull Repository repo, @Nonnull AnyObjectId treeId) throws IOException {
     return newTreeWalk(repo.newObjectReader(), treeId);
   }
 
+  /**
+   * Tests if the given path exists in the given tree.
+   *
+   * @param   reader
+   *          an object reader
+   * @param   path
+   *          the path to test
+   * @param   treeId
+   *          the id of a file tree
+   * @return  {@code true} if the given path exists in the given tree.
+   */
   public static boolean exists(@Nonnull ObjectReader reader, @Nonnull String path, @Nonnull AnyObjectId treeId) throws IOException {
     return TreeWalk.forPath(reader, path, treeId) != null;
   }
 
   /**
-   * Tests if a node (either file or directory) exists at the specified path.
+   * Tests if the given path exists in the given tree.
    *
-   * @param repo a git repository
-   * @param path a path
-   * @param treeId a tree id
-   * @return {@code true} if a node exists at the specified path
+   * @param   repo
+   *          a git repository
+   * @param   path
+   *          the path to test
+   * @param   treeId
+   *          the id a file tree
+   * @return  {@code true} if the given path exists in the given tree.
    */
   public static boolean exists(@Nonnull Repository repo, @Nonnull String path, @Nonnull AnyObjectId treeId) throws IOException {
     return TreeWalk.forPath(repo, path, treeId) != null;
   }
 
   /**
-   * Gets the first object id of the current node.
+   * Gets the first attached object of the given {@code TreeWalk} entry.
    *
-   * @param treeWalk a tree walk
-   * @return the first object id of the current node
+   * @param   treeWalk
+   *          an open {@code TreeWalk}
+   * @return  the first attached object of the current node.
    */
   @Nullable
-  public static ObjectId getObjectId(@Nonnull TreeWalk treeWalk) {
+  public static ObjectId getObject(@Nonnull TreeWalk treeWalk) {
     return treeWalk.getObjectId(0);
   }
 
   /**
-   * Gets the object id of the node at the specified path.
+   * Gets first attached object of the entry at the given path within the given tree.
    *
-   * @param reader an object reader
-   * @param path a file path
-   * @param treeId a tree id
-   * @return the object id of the node at the specified path
+   * @param   reader
+   *          an object reader
+   * @param   path
+   *          a file path
+   * @param   treeId
+   *          the id of a file tree
+   * @return  the first attached object of the entry at the given path within the given tree.
    */
   @Nullable
-  public static ObjectId getObjectId(@Nonnull ObjectReader reader, @Nonnull String path, @Nonnull AnyObjectId treeId) throws IOException {
+  public static ObjectId getObject(@Nonnull ObjectReader reader, @Nonnull String path, @Nonnull AnyObjectId treeId) throws IOException {
     TreeWalk treeWalk = TreeWalk.forPath(reader, path, treeId);
     if(treeWalk == null)
       return null;
     try {
-      return getObjectId(treeWalk);
+      return getObject(treeWalk);
     } finally {
       treeWalk.release();
     }
   }
 
   /**
-   * Gets the object id of the node at the specified path.
+   * Gets first attached object of the entry at the given path within the given tree.
    *
-   * @param repo a git repository
-   * @param path a file path
-   * @param treeId a tree id
-   * @return the object id of the node at the specified path
+   * @param   repo
+   *          a git repository
+   * @param   path
+   *          a file path
+   * @param   treeId
+   *          the id of a file tree
+   * @return  the first attached object of the entry at the given path within the given tree.
    */
   @Nullable
-  public static ObjectId getObjectId(@Nonnull Repository repo, @Nonnull String path, @Nonnull AnyObjectId treeId) throws IOException {
+  public static ObjectId getObject(@Nonnull Repository repo, @Nonnull String path, @Nonnull AnyObjectId treeId) throws IOException {
     TreeWalk treeWalk = TreeWalk.forPath(repo, path, treeId);
     if(treeWalk == null)
       return null;
     try {
-      return getObjectId(treeWalk);
+      return getObject(treeWalk);
     } finally {
       treeWalk.release();
     }
   }
 
   /**
-   * Tests if the current node of the given {@link TreeWalk} is a blob object.
+   * Tests if the object type of the given {@link TreeWalk} entry is {@code OBJ_BLOB}.
    *
-   * @param treeWalk a tree walk
-   * @return {@code true} if the current node is a blob object
+   * @param   treeWalk
+   *          an open {@code TreeWalk}
+   * @return  {@code true} if the object type of the given {@link TreeWalk} entry is {@code OBJ_BLOB}
    */
-  public static boolean isFile(@Nonnull TreeWalk treeWalk) {
+  public static boolean isBlob(@Nonnull TreeWalk treeWalk) {
     return treeWalk.getFileMode(0).getObjectType() == Constants.OBJ_BLOB;
   }
 
   /**
-   * Tests if the specified path points to a file in the given tree.
+   * Tests if the object type of the entry at the given path within the given tree is {@code OBJ_BLOB}.
    *
-   * @param reader an object reader
-   * @param path a file path
-   * @param treeId a tree id
-   * @return {@code true} if the specified path points to a file
+   * @param   reader
+   *          an object reader
+   * @param   path
+   *          a file path
+   * @param   treeId
+   *          the id of a file tree
+   * @return  {@code true} if the object type of the entry at the given path within the given tree is {@code OBJ_BLOB}.
    */
-  public static boolean isFile(@Nonnull ObjectReader reader, @Nonnull String path, @Nonnull AnyObjectId treeId) throws IOException {
+  public static boolean isBlob(@Nonnull ObjectReader reader, @Nonnull String path, @Nonnull AnyObjectId treeId) throws IOException {
     TreeWalk treeWalk = TreeWalk.forPath(reader, path, treeId);
     if(treeWalk == null)
       return false;
     try {
-      return isFile(treeWalk);
+      return isBlob(treeWalk);
     } finally {
       treeWalk.release();
     }
   }
 
   /**
-   * Tests if the specified path points to a file in the given tree.
+   * Tests if the object type of the entry at the given path within the given tree is {@code OBJ_BLOB}.
    *
-   * @param repo a git repository
-   * @param path a file path
-   * @param treeId a tree id
-   * @return {@code true} if the specified path points to a file
+   * @param   repo
+   *          a git repository
+   * @param   path
+   *          a file path
+   * @param   treeId
+   *          the id of a file tree
+   * @return  {@code true} if the object type of the entry at the given path within the given tree is {@code OBJ_BLOB}.
    */
-  public static boolean isFile(@Nonnull Repository repo, @Nonnull String path, @Nonnull AnyObjectId treeId) throws IOException {
+  public static boolean isBlob(@Nonnull Repository repo, @Nonnull String path, @Nonnull AnyObjectId treeId) throws IOException {
     TreeWalk treeWalk = TreeWalk.forPath(repo, path, treeId);
     if(treeWalk == null)
       return false;
     try {
-      return isFile(treeWalk);
+      return isBlob(treeWalk);
     } finally {
       treeWalk.release();
     }
   }
 
   /**
-   * Tests if the current node of the given {@link TreeWalk} is a tree object.
+   * Tests if the object type of the given {@link TreeWalk} entry is {@code OBJ_TREE}.
    *
-   * @param treeWalk a tree walk
-   * @return {@code true} if the current node is a tree object
+   * @param   treeWalk
+   *          an open {@code TreeWalk}
+   * @return  {@code true} if the object type of the given {@link TreeWalk} entry is {@code OBJ_TREE}
    */
-  public static boolean isDirectory(@Nonnull TreeWalk treeWalk) {
+  public static boolean isTree(@Nonnull TreeWalk treeWalk) {
     return treeWalk.getFileMode(0).getObjectType() == Constants.OBJ_TREE;
   }
 
   /**
-   * Tests if the specified path points to a directory in the given tree.
+   * Tests if the object type of the entry at the given path within the given tree is {@code OBJ_TREE}.
    *
-   * @param reader an object reader
-   * @param path a file path
-   * @param treeId a tree id
-   * @return {@code true} if the specified path points to a directory
+   * @param   reader
+   *          an object reader
+   * @param   path
+   *          a file path
+   * @param   treeId
+   *          the id of a file tree
+   * @return  {@code true} if the object type of the entry at the given path within the given tree is {@code OBJ_TREE}.
    */
-  public static boolean isDirectory(@Nonnull ObjectReader reader, @Nonnull String path, @Nonnull AnyObjectId treeId) throws IOException {
+  public static boolean isTree(@Nonnull ObjectReader reader, @Nonnull String path, @Nonnull AnyObjectId treeId) throws IOException {
     TreeWalk treeWalk = TreeWalk.forPath(reader, path, treeId);
     if(treeWalk == null)
       return false;
     try {
-      return isDirectory(treeWalk);
+      return isTree(treeWalk);
     } finally {
       treeWalk.release();
     }
   }
 
   /**
-   * Tests if the specified path points to a directory in the given tree.
+   * Tests if the object type of the entry at the given path within the given tree is {@code OBJ_TREE}.
    *
-   * @param repo a git repository
-   * @param path a file path
-   * @param treeId a tree id
-   * @return {@code true} if the specified path points to a directory
+   * @param   repo
+   *          a git repository
+   * @param   path
+   *          a file path
+   * @param   treeId
+   *          the id of a file tree
+   * @return  {@code true} if the object type of the entry at the given path within the given tree is {@code OBJ_TREE}.
    */
-  public static boolean isDirectory(@Nonnull Repository repo, @Nonnull String path, @Nonnull AnyObjectId treeId) throws IOException {
+  public static boolean isTree(@Nonnull Repository repo, @Nonnull String path, @Nonnull AnyObjectId treeId) throws IOException {
     TreeWalk treeWalk = TreeWalk.forPath(repo, path, treeId);
     if(treeWalk == null)
       return false;
     try {
-      return isDirectory(treeWalk);
+      return isTree(treeWalk);
     } finally {
       treeWalk.release();
     }

@@ -398,7 +398,7 @@ public class GitFileStore extends FileStore implements Closeable {
         return insertions.get(pathStr);
       if(isDirectory(pathStr))
         return null;
-      ObjectId result = cache != null ? DirCacheHelper.getBlobId(cache, pathStr) : TreeWalkHelper.getObjectId(reader, pathStr, baseTree);
+      ObjectId result = cache != null ? DirCacheHelper.getBlobId(cache, pathStr) : TreeWalkHelper.getObject(reader, pathStr, baseTree);
       if(result == null)
         throw new NoSuchFileException(pathStr);
       return result;
@@ -537,7 +537,7 @@ public class GitFileStore extends FileStore implements Closeable {
         return true;
       if(cache != null)
         return DirCacheHelper.fileExists(cache, pathStr);
-      return TreeWalkHelper.isFile(reader, pathStr, baseTree);
+      return TreeWalkHelper.isBlob(reader, pathStr, baseTree);
     }
   }
 
@@ -559,7 +559,7 @@ public class GitFileStore extends FileStore implements Closeable {
         return true;
       if(cache != null)
         return DirCacheHelper.isNonTrivialDirectory(cache, pathStr);
-      return TreeWalkHelper.isDirectory(reader, pathStr, baseTree);
+      return TreeWalkHelper.isTree(reader, pathStr, baseTree);
     }
   }
 
@@ -835,7 +835,7 @@ public class GitFileStore extends FileStore implements Closeable {
           TreeWalk treeWalk = TreeWalk.forPath(reader, pathStr, baseTree);
           if(treeWalk == null)
             throw new NoSuchFileException(pathStr);
-          if(TreeWalkHelper.isDirectory(treeWalk))
+          if(TreeWalkHelper.isTree(treeWalk))
             throw new AccessDeniedException(pathStr);
           blobId = treeWalk.getObjectId(0);
         } else {
