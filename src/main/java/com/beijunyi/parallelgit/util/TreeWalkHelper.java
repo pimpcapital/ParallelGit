@@ -7,7 +7,7 @@ import javax.annotation.Nullable;
 import org.eclipse.jgit.lib.*;
 import org.eclipse.jgit.treewalk.TreeWalk;
 
-public class TreeWalkHelper {
+public final class TreeWalkHelper {
 
   /**
    * Creates a new {@code TreeWalk} to walk through the given tree.

@@ -8,7 +8,7 @@ import org.eclipse.jgit.lib.ObjectReader;
 import org.eclipse.jgit.lib.Repository;
 import org.eclipse.jgit.revwalk.RevTree;
 
-public class RevTreeHelper {
+public final class RevTreeHelper {
 
   /**
    * Gets the root {@code RevTree} of the given commit.

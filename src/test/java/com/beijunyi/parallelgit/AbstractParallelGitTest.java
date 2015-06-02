@@ -103,7 +103,7 @@ public abstract class AbstractParallelGitTest {
   }
 
   protected void clearCache() {
-    cache = DirCacheHelper.newCache();
+    cache = DirCache.newInCore();
   }
 
   protected void initRepositoryDir() {
@@ -119,7 +119,7 @@ public abstract class AbstractParallelGitTest {
     if(repoDir == null)
       initRepositoryDir();
     repo = RepositoryHelper.createRepository(repoDir, bare);
-    cache = DirCacheHelper.newCache();
+    cache = DirCache.newInCore();
     return commitToMaster();
   }
 

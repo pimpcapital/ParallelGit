@@ -21,12 +21,20 @@ public final class ParallelCommitter extends ParallelBuilder<ObjectId> {
   private String message;
   private List<AnyObjectId> parents;
 
-  public void setTreeId(@Nullable AnyObjectId treeId) {
-    this.treeId = treeId;
+  private ParallelCommitter(@Nonnull Repository repository) {
+    super(repository);
   }
 
-  public void setCache(@Nullable DirCache cache) {
+  @Nonnull
+  public ParallelCommitter setTreeId(@Nullable AnyObjectId treeId) {
+    this.treeId = treeId;
+    return this;
+  }
+
+  @Nonnull
+  public ParallelCommitter setCache(@Nullable DirCache cache) {
     this.cache = cache;
+    return this;
   }
 
   private void ensureContent(@Nonnull ObjectInserter inserter) throws IOException {
@@ -38,16 +46,22 @@ public final class ParallelCommitter extends ParallelBuilder<ObjectId> {
     }
   }
 
-  public void setAuthor(@Nullable PersonIdent author) {
+  @Nonnull
+  public ParallelCommitter setAuthor(@Nullable PersonIdent author) {
     this.author = author;
+    return this;
   }
 
-  public void setAuthorName(@Nullable String authorName) {
+  @Nonnull
+  public ParallelCommitter setAuthorName(@Nullable String authorName) {
     this.authorName = authorName;
+    return this;
   }
 
-  public void setAuthorEmail(@Nullable String authorEmail) {
+  @Nonnull
+  public ParallelCommitter setAuthorEmail(@Nullable String authorEmail) {
     this.authorEmail = authorEmail;
+    return this;
   }
 
   private void ensureAuthor() {
@@ -62,16 +76,22 @@ public final class ParallelCommitter extends ParallelBuilder<ObjectId> {
     }
   }
 
-  public void setCommitter(@Nullable PersonIdent committer) {
+  @Nonnull
+  public ParallelCommitter setCommitter(@Nullable PersonIdent committer) {
     this.committer = committer;
+    return this;
   }
 
-  public void setCommitterName(@Nullable String committerName) {
+  @Nonnull
+  public ParallelCommitter setCommitterName(@Nullable String committerName) {
     this.committerName = committerName;
+    return this;
   }
 
-  public void setCommitterEmail(@Nullable String committerEmail) {
+  @Nonnull
+  public ParallelCommitter setCommitterEmail(@Nullable String committerEmail) {
     this.committerEmail = committerEmail;
+    return this;
   }
 
   private void ensureCommitter() {
@@ -90,8 +110,10 @@ public final class ParallelCommitter extends ParallelBuilder<ObjectId> {
     }
   }
 
-  public void setMessage(@Nullable String message) {
+  @Nonnull
+  public ParallelCommitter setMessage(@Nullable String message) {
     this.message = message;
+    return this;
   }
 
   private void ensureMessage() {
@@ -101,20 +123,26 @@ public final class ParallelCommitter extends ParallelBuilder<ObjectId> {
       throw new IllegalArgumentException("message must not be empty");
   }
 
-  public void setParents(@Nullable List<AnyObjectId> parents) {
+  @Nonnull
+  public ParallelCommitter setParents(@Nullable List<AnyObjectId> parents) {
     this.parents = parents;
+    return this;
   }
 
-  public void addParent(@Nonnull AnyObjectId parent) {
+  @Nonnull
+  public ParallelCommitter addParent(@Nonnull AnyObjectId parent) {
     if(parents == null)
       parents = new ArrayList<>();
     parents.add(parent);
+    return this;
   }
 
-  public void addParent(@Nonnull AnyObjectId parent, int index) {
+  @Nonnull
+  public ParallelCommitter addParent(@Nonnull AnyObjectId parent, int index) {
     if(parents == null)
       parents = new ArrayList<>();
     parents.add(index, parent);
+    return this;
   }
 
   private void ensureParents() {
@@ -132,7 +160,6 @@ public final class ParallelCommitter extends ParallelBuilder<ObjectId> {
   @Nullable
   @Override
   public ObjectId doBuild() throws IOException {
-    assert repository != null;
     ObjectInserter inserter = repository.newObjectInserter();
     try {
       ensureContent(inserter);
@@ -147,4 +174,10 @@ public final class ParallelCommitter extends ParallelBuilder<ObjectId> {
       inserter.release();
     }
   }
+
+  @Nonnull
+  public static ParallelCommitter prepare(@Nonnull Repository repository) {
+    return new ParallelCommitter(repository);
+  }
+
 }

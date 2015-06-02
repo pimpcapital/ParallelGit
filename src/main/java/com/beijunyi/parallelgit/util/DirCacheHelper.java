@@ -12,25 +12,13 @@ import org.eclipse.jgit.lib.*;
 public final class DirCacheHelper {
 
   /**
-   * Creates a new in-core {@code DirCache}.
-   *
-   * This method behaves exactly the same as {@code DirCache.newInCore()}.
-   *
-   * @return a new in-core dir cache.
-   */
-  @Nonnull
-  public static DirCache newCache() {
-    return DirCache.newInCore();
-  }
-
-  /**
    * Loads the specified tree into the given {@code DirCache}.
    *
    * @param cache a dir cache
    * @param reader an object reader
    * @param treeId a tree id
    */
-  public static void loadTree(@Nonnull DirCache cache, @Nonnull ObjectReader reader, @Nonnull ObjectId treeId) throws IOException {
+  public static void loadTree(@Nonnull DirCache cache, @Nonnull ObjectReader reader, @Nonnull AnyObjectId treeId) throws IOException {
     addTree(cache, reader, "", treeId);
   }
 
@@ -41,7 +29,7 @@ public final class DirCacheHelper {
    * @param reader an object reader
    * @param commitId an object id that points to a commit
    */
-  public static void loadRevision(@Nonnull DirCache cache, @Nonnull ObjectReader reader, @Nonnull ObjectId commitId) throws IOException {
+  public static void loadRevision(@Nonnull DirCache cache, @Nonnull ObjectReader reader, @Nonnull AnyObjectId commitId) throws IOException {
     loadTree(cache, reader, RevTreeHelper.getRootTree(reader, commitId));
   }
 
@@ -52,8 +40,8 @@ public final class DirCacheHelper {
    * @param treeId a tree id
    * @return a new dir cache with content loaded from the given tree
    */
-  public static DirCache forTree(@Nonnull ObjectReader reader, @Nonnull ObjectId treeId) throws IOException {
-    DirCache cache = newCache();
+  public static DirCache forTree(@Nonnull ObjectReader reader, @Nonnull AnyObjectId treeId) throws IOException {
+    DirCache cache = DirCache.newInCore();
     loadTree(cache, reader, treeId);
     return cache;
   }
@@ -66,8 +54,8 @@ public final class DirCacheHelper {
    * @return a new dir cache
    */
   @Nonnull
-  public static DirCache forRevision(@Nonnull ObjectReader reader, @Nonnull ObjectId commitId) throws IOException {
-    DirCache cache = newCache();
+  public static DirCache forRevision(@Nonnull ObjectReader reader, @Nonnull AnyObjectId commitId) throws IOException {
+    DirCache cache = DirCache.newInCore();
     loadRevision(cache, reader, commitId);
     return cache;
   }
@@ -75,7 +63,7 @@ public final class DirCacheHelper {
   /**
    * Creates a new {@code DirCache} with content loaded from the given commit's root tree.
    *
-   * This method creates a temporary {@code ObjectReader} and then invokes {@link #forRevision(ObjectReader, ObjectId)}.
+   * This method creates a temporary {@code ObjectReader} and then invokes {@link #forRevision(ObjectReader, AnyObjectId)}.
    * The temporary reader will be released at the end of this method.
    *
    * @param repo a git repository
@@ -83,7 +71,7 @@ public final class DirCacheHelper {
    * @return a new dir cache
    */
   @Nonnull
-  public static DirCache forRevision(@Nonnull Repository repo, @Nonnull ObjectId commitId) throws IOException {
+  public static DirCache forRevision(@Nonnull Repository repo, @Nonnull AnyObjectId commitId) throws IOException {
     ObjectReader reader = repo.newObjectReader();
     try {
       return forRevision(reader, commitId);
@@ -96,7 +84,7 @@ public final class DirCacheHelper {
    * Creates a new {@code DirCache} with content from the specified commit's root tree.
    *
    * This method finds the {@code ObjectId} of the commit represented by the specified revision string and then invokes
-   * {@link #forRevision(Repository, ObjectId)}.
+   * {@link #forRevision(Repository, AnyObjectId)}.
    *
    * @param repo a git repository
    * @param revision a revision string
@@ -135,7 +123,7 @@ public final class DirCacheHelper {
    * @param path a directory path
    * @param treeId an object id that points to a tree
    */
-  public static void addTree(@Nonnull DirCacheBuilder builder, @Nonnull ObjectReader reader, @Nonnull String path, @Nonnull ObjectId treeId) throws IOException {
+  public static void addTree(@Nonnull DirCacheBuilder builder, @Nonnull ObjectReader reader, @Nonnull String path, @Nonnull AnyObjectId treeId) throws IOException {
     builder.addTree(path.getBytes(), DirCacheEntry.STAGE_0, reader, treeId);
   }
 
@@ -143,14 +131,14 @@ public final class DirCacheHelper {
    * Adds the specified tree into the given {@code DirCache}.
    *
    * This method creates a temporary {@code DirCacheBuilder} and then invokes {@link #addTree(DirCacheBuilder,
-   * ObjectReader, String, ObjectId)}. The temporary builder will be finished/flushed at the end of this method..
+   * ObjectReader, String, AnyObjectId)}. The temporary builder will be finished/flushed at the end of this method..
    *
    * @param cache a dir cache
    * @param reader an object reader
    * @param path a directory path
    * @param treeId an object id that points to a tree
    */
-  public static void addTree(@Nonnull DirCache cache, @Nonnull ObjectReader reader, @Nonnull String path, @Nonnull ObjectId treeId) throws IOException {
+  public static void addTree(@Nonnull DirCache cache, @Nonnull ObjectReader reader, @Nonnull String path, @Nonnull AnyObjectId treeId) throws IOException {
     DirCacheBuilder builder = keepEverything(cache);
     addTree(builder, reader, path, treeId);
     builder.finish();
@@ -167,7 +155,7 @@ public final class DirCacheHelper {
    * @param path a file path
    * @param blobId an object id that points to a blob
    */
-  public static void addFile(@Nonnull DirCacheBuilder builder, @Nonnull FileMode mode, @Nonnull String path, @Nonnull ObjectId blobId) {
+  public static void addFile(@Nonnull DirCacheBuilder builder, @Nonnull FileMode mode, @Nonnull String path, @Nonnull AnyObjectId blobId) {
     DirCacheEntry entry = new DirCacheEntry(path, DirCacheEntry.STAGE_0);
     entry.setFileMode(mode);
     entry.setObjectId(blobId);
@@ -178,14 +166,14 @@ public final class DirCacheHelper {
    * Adds a new {@code DirCacheEntry} with the provided blob id into the given {@code DirCache} at the specified path.
    *
    * This method creates a temporary {@code DirCacheBuilder} and then invokes {@link #addFile(DirCacheBuilder, FileMode,
-   * String, ObjectId)}. The temporary builder will be finished/flushed at the end of this method..
+   * String, AnyObjectId)}. The temporary builder will be finished/flushed at the end of this method..
    *
    * @param cache a dir cache
    * @param mode a file mode
    * @param path a file path
    * @param blobId an object id that points to a blob
    */
-  public static void addFile(@Nonnull DirCache cache, @Nonnull FileMode mode, @Nonnull String path, @Nonnull ObjectId blobId) {
+  public static void addFile(@Nonnull DirCache cache, @Nonnull FileMode mode, @Nonnull String path, @Nonnull AnyObjectId blobId) {
     DirCacheBuilder builder = keepEverything(cache);
     addFile(builder, mode, path, blobId);
     builder.finish();
@@ -194,14 +182,14 @@ public final class DirCacheHelper {
   /**
    * Adds a new {@code DirCacheEntry} with the provided blob id into the given {@code DirCache} at the specified path.
    *
-   * This method behaves similarly to {@link #addFile(DirCache, FileMode, String, ObjectId)} except the new entry's file
+   * This method behaves similarly to {@link #addFile(DirCache, FileMode, String, AnyObjectId)} except the new entry's file
    * mode is always {@code FileMode.REGULAR_FILE}.
    *
    * @param cache a dir cache
    * @param path a file path
    * @param blobId an object id that points to a blob
    */
-  public static void addFile(@Nonnull DirCache cache, @Nonnull String path, @Nonnull ObjectId blobId) {
+  public static void addFile(@Nonnull DirCache cache, @Nonnull String path, @Nonnull AnyObjectId blobId) {
     addFile(cache, FileMode.REGULAR_FILE, path, blobId);
   }
 
@@ -327,6 +315,7 @@ public final class DirCacheHelper {
         return next != null || findNext();
       }
 
+      @Nonnull
       @Override
       public VirtualDirCacheEntry next() {
         if(next != null || findNext()) {

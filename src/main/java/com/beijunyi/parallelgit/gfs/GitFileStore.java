@@ -50,7 +50,7 @@ public class GitFileStore extends FileStore implements Closeable {
     if(basedRevision != null)
       baseCommit = CommitHelper.getCommit(reader, basedRevision);
     else
-      cache = DirCacheHelper.newCache();
+      cache = DirCache.newInCore();
 
     if(baseTree == null && baseCommit != null)
       this.baseTree = baseCommit.getTree();
@@ -1021,7 +1021,7 @@ public class GitFileStore extends FileStore implements Closeable {
       if(newTreeId == null)
         return null;
 
-      List<ObjectId> parents = new ArrayList<>();
+      List<AnyObjectId> parents = new ArrayList<>();
       if(amend) {
         if(baseCommit == null)
           throw new IllegalArgumentException("Could not amend without base commit");
