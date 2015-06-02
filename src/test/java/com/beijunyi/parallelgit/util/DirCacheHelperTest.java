@@ -1,7 +1,6 @@
-package com.beijunyi.parallelgit.utils;
+package com.beijunyi.parallelgit.util;
 
-import java.util.*;
-
+import java.util.Iterator;
 import javax.annotation.Nonnull;
 
 import org.eclipse.jgit.dircache.*;

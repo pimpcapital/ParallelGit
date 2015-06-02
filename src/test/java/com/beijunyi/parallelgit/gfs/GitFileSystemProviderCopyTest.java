@@ -5,7 +5,7 @@ import java.io.IOException;
 import java.nio.channels.SeekableByteChannel;
 import java.nio.file.*;
 
-import com.beijunyi.parallelgit.utils.RepositoryHelper;
+import com.beijunyi.parallelgit.util.RepositoryHelper;
 import org.eclipse.jgit.lib.Repository;
 import org.junit.Assert;
 import org.junit.Test;

@@ -2,9 +2,9 @@ package com.beijunyi.parallelgit.gfs;
 
 import java.io.IOException;
 
-import com.beijunyi.parallelgit.utils.CommitHelper;
-import com.beijunyi.parallelgit.utils.RefHelper;
-import com.beijunyi.parallelgit.utils.RevTreeHelper;
+import com.beijunyi.parallelgit.util.CommitHelper;
+import com.beijunyi.parallelgit.util.RefHelper;
+import com.beijunyi.parallelgit.util.RevTreeHelper;
 import org.eclipse.jgit.lib.ObjectId;
 import org.junit.Assert;
 import org.junit.Test;

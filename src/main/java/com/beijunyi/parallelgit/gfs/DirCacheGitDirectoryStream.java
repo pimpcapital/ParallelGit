@@ -9,8 +9,8 @@ import java.util.NoSuchElementException;
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 
-import com.beijunyi.parallelgit.utils.DirCacheHelper;
-import com.beijunyi.parallelgit.utils.VirtualDirCacheEntry;
+import com.beijunyi.parallelgit.util.DirCacheHelper;
+import com.beijunyi.parallelgit.util.VirtualDirCacheEntry;
 import org.eclipse.jgit.dircache.DirCache;
 
 public class DirCacheGitDirectoryStream extends GitDirectoryStream {

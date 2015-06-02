@@ -9,7 +9,7 @@ import java.util.NoSuchElementException;
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 
-import com.beijunyi.parallelgit.utils.TreeWalkHelper;
+import com.beijunyi.parallelgit.util.TreeWalkHelper;
 import org.eclipse.jgit.lib.AnyObjectId;
 import org.eclipse.jgit.lib.ObjectReader;
 import org.eclipse.jgit.treewalk.TreeWalk;

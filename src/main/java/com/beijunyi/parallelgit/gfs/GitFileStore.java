@@ -9,7 +9,7 @@ import java.util.*;
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 
-import com.beijunyi.parallelgit.utils.*;
+import com.beijunyi.parallelgit.util.*;
 import org.eclipse.jgit.dircache.*;
 import org.eclipse.jgit.lib.*;
 import org.eclipse.jgit.revwalk.RevCommit;

@@ -1,9 +1,11 @@
-package com.beijunyi.parallelgit.utils;
+package com.beijunyi.parallelgit.util;
 
 import java.io.IOException;
 import javax.annotation.Nonnull;
 
-import org.eclipse.jgit.lib.*;
+import org.eclipse.jgit.lib.AnyObjectId;
+import org.eclipse.jgit.lib.ObjectReader;
+import org.eclipse.jgit.lib.Repository;
 import org.eclipse.jgit.revwalk.RevTree;
 
 public class RevTreeHelper {

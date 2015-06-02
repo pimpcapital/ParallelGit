@@ -2,11 +2,12 @@ package com.beijunyi.parallelgit.gfs;
 
 import java.io.IOException;
 import java.net.URI;
-import java.nio.file.*;
+import java.nio.file.FileSystem;
+import java.nio.file.FileSystems;
 import java.util.HashMap;
 import java.util.Map;
 
-import com.beijunyi.parallelgit.utils.CommitHelper;
+import com.beijunyi.parallelgit.util.CommitHelper;
 import org.eclipse.jgit.lib.ObjectId;
 import org.eclipse.jgit.lib.Repository;
 import org.eclipse.jgit.revwalk.RevCommit;

@@ -1,4 +1,4 @@
-package com.beijunyi.parallelgit.utils;
+package com.beijunyi.parallelgit.util;
 
 import java.io.IOException;
 import javax.annotation.Nonnull;
@@ -34,6 +34,7 @@ public final class BranchHelper {
     return repo.resolve(RefHelper.getBranchRefName(name));
   }
 
+  @Nonnull
   public static RefUpdate.Result createBranch(@Nonnull Repository repo, @Nonnull String name, @Nonnull String revision, boolean force) throws IOException {
     String branchRef = RefHelper.getBranchRefName(name);
     boolean exists = existsBranch(repo, branchRef);
@@ -283,12 +284,13 @@ public final class BranchHelper {
    * @param repo a git repository
    * @param name the name of the branch to be deleted
    */
-  public static void deleteBranch(@Nonnull Repository repo, @Nonnull String name) throws IOException {
+  @Nonnull
+  public static RefUpdate.Result deleteBranch(@Nonnull Repository repo, @Nonnull String name) throws IOException {
     String refName = RefHelper.getBranchRefName(name);
     RefUpdate update = repo.updateRef(refName);
     update.setRefLogMessage("branch deleted", false);
     update.setForceUpdate(true);
-    update.delete();
+    return update.delete();
   }
 
 }

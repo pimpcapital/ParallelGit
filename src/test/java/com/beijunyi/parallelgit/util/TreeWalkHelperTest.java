@@ -1,7 +1,6 @@
-package com.beijunyi.parallelgit.utils;
+package com.beijunyi.parallelgit.util;
 
 import java.io.IOException;
-
 import javax.annotation.Nonnull;
 
 import com.beijunyi.parallelgit.AbstractParallelGitTest;

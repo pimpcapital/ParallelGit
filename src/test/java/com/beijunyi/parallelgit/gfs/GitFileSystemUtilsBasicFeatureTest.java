@@ -2,7 +2,7 @@ package com.beijunyi.parallelgit.gfs;
 
 import java.io.IOException;
 
-import com.beijunyi.parallelgit.utils.RevTreeHelper;
+import com.beijunyi.parallelgit.util.RevTreeHelper;
 import org.eclipse.jgit.lib.ObjectId;
 import org.eclipse.jgit.revwalk.RevTree;
 import org.junit.Assert;

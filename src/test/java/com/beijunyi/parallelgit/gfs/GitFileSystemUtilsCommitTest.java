@@ -3,8 +3,8 @@ package com.beijunyi.parallelgit.gfs;
 import java.io.IOException;
 import java.nio.file.Files;
 
-import com.beijunyi.parallelgit.utils.BlobHelper;
-import com.beijunyi.parallelgit.utils.CommitHelper;
+import com.beijunyi.parallelgit.util.BlobHelper;
+import com.beijunyi.parallelgit.util.CommitHelper;
 import org.eclipse.jgit.lib.ObjectId;
 import org.eclipse.jgit.lib.PersonIdent;
 import org.eclipse.jgit.revwalk.RevCommit;

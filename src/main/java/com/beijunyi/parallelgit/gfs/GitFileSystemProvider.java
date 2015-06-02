@@ -13,8 +13,8 @@ import java.util.*;
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 
-import com.beijunyi.parallelgit.utils.RefHelper;
-import com.beijunyi.parallelgit.utils.RepositoryHelper;
+import com.beijunyi.parallelgit.util.RefHelper;
+import com.beijunyi.parallelgit.util.RepositoryHelper;
 import org.eclipse.jgit.lib.*;
 
 import static java.nio.file.StandardCopyOption.*;

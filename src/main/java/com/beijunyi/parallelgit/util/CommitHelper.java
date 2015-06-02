@@ -1,4 +1,4 @@
-package com.beijunyi.parallelgit.utils;
+package com.beijunyi.parallelgit.util;
 
 import java.io.IOException;
 import java.util.Collections;
@@ -65,7 +65,7 @@ public final class CommitHelper {
    * @return a {@link org.eclipse.jgit.lib.ObjectId} object representing the successful commit.
    */
   @Nonnull
-  public static ObjectId createCommit(@Nonnull ObjectInserter inserter, @Nonnull ObjectId treeId, @Nonnull PersonIdent author, @Nonnull PersonIdent committer, @Nonnull String message, @Nullable List<ObjectId> parents) throws IOException {
+  public static ObjectId createCommit(@Nonnull ObjectInserter inserter, @Nonnull AnyObjectId treeId, @Nonnull PersonIdent author, @Nonnull PersonIdent committer, @Nonnull String message, @Nullable List<AnyObjectId> parents) throws IOException {
     CommitBuilder commit = new CommitBuilder();
     commit.setCommitter(committer);
     commit.setAuthor(author);
@@ -78,25 +78,25 @@ public final class CommitHelper {
   }
 
   @Nonnull
-  public static ObjectId createCommit(@Nonnull ObjectInserter inserter, @Nonnull ObjectId treeId, @Nonnull PersonIdent author, @Nonnull PersonIdent committer, @Nonnull String message, @Nullable ObjectId parent) throws IOException {
-    List<ObjectId> parents = parent != null ? Collections.singletonList(parent) : null;
+  public static ObjectId createCommit(@Nonnull ObjectInserter inserter, @Nonnull AnyObjectId treeId, @Nonnull PersonIdent author, @Nonnull PersonIdent committer, @Nonnull String message, @Nullable AnyObjectId parent) throws IOException {
+    List<AnyObjectId> parents = parent != null ? Collections.singletonList(parent) : null;
     return createCommit(inserter, treeId, author, committer, message, parents);
   }
 
   @Nonnull
-  public static ObjectId createCommit(@Nonnull ObjectInserter inserter, @Nonnull DirCache cache, @Nonnull PersonIdent author, @Nonnull PersonIdent committer, @Nonnull String message, @Nullable List<ObjectId> parents) throws IOException {
+  public static ObjectId createCommit(@Nonnull ObjectInserter inserter, @Nonnull DirCache cache, @Nonnull PersonIdent author, @Nonnull PersonIdent committer, @Nonnull String message, @Nullable List<AnyObjectId> parents) throws IOException {
     ObjectId treeId = cache.writeTree(inserter);
     return createCommit(inserter, treeId, author, committer, message, parents);
   }
 
   @Nonnull
-  public static ObjectId createCommit(@Nonnull ObjectInserter inserter, @Nonnull DirCache cache, @Nonnull PersonIdent author, @Nonnull PersonIdent committer, @Nonnull String message, @Nullable ObjectId parent) throws IOException {
-    List<ObjectId> parents = parent != null ? Collections.singletonList(parent) : null;
+  public static ObjectId createCommit(@Nonnull ObjectInserter inserter, @Nonnull DirCache cache, @Nonnull PersonIdent author, @Nonnull PersonIdent committer, @Nonnull String message, @Nullable AnyObjectId parent) throws IOException {
+    List<AnyObjectId> parents = parent != null ? Collections.singletonList(parent) : null;
     return createCommit(inserter, cache, author, committer, message, parents);
   }
 
   @Nonnull
-  public static ObjectId createCommit(@Nonnull Repository repo, @Nonnull DirCache cache, @Nonnull PersonIdent author, @Nonnull PersonIdent committer, @Nonnull String message, @Nullable ObjectId parent) throws IOException {
+  public static ObjectId createCommit(@Nonnull Repository repo, @Nonnull DirCache cache, @Nonnull PersonIdent author, @Nonnull PersonIdent committer, @Nonnull String message, @Nullable AnyObjectId parent) throws IOException {
     ObjectInserter inserter = repo.newObjectInserter();
     try {
       ObjectId resultCommitId = createCommit(inserter, cache, author, committer, message, parent);

@@ -1,4 +1,4 @@
-package com.beijunyi.parallelgit.utils;
+package com.beijunyi.parallelgit.util;
 
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
