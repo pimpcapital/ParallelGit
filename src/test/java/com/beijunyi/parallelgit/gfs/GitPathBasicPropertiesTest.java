@@ -11,7 +11,6 @@ public class GitPathBasicPropertiesTest extends AbstractGitFileSystemTest {
   @Before
   public void setupFileSystem() throws IOException {
     initGitFileSystem();
-    preventDestroyFileSystem();
   }
 
   @Test(expected = UnsupportedOperationException.class)

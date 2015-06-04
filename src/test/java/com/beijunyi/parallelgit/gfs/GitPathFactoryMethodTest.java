@@ -30,7 +30,7 @@ public class GitPathFactoryMethodTest extends AbstractGitFileSystemTest {
 
   @Test
   public void createGitPathFromUriTest() throws IOException {
-    initRepository(false);
+    initRepository(false, false);
     URI uri = GitUriUtils.createUri(repoDir, "/some_path", null);
     GitPath path = GitPaths.get(uri);
     Assert.assertEquals("/some_path", path.toString());

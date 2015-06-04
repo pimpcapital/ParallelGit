@@ -12,7 +12,6 @@ public class GitFileSystemProviderBasicPropertiesTest extends AbstractGitFileSys
   @Before
   public void setupFileSystem() throws IOException {
     initGitFileSystem();
-    preventDestroyFileSystem();
   }
 
   @Test

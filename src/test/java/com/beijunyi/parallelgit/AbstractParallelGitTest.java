@@ -7,34 +7,25 @@ import javax.annotation.Nullable;
 
 import com.beijunyi.parallelgit.util.*;
 import org.eclipse.jgit.dircache.DirCache;
+import org.eclipse.jgit.errors.NoWorkTreeException;
+import org.eclipse.jgit.internal.storage.dfs.DfsRepositoryDescription;
+import org.eclipse.jgit.internal.storage.dfs.InMemoryRepository;
 import org.eclipse.jgit.lib.*;
 import org.eclipse.jgit.util.FileUtils;
 import org.junit.After;
 
 public abstract class AbstractParallelGitTest {
-  private boolean keepRepo = true;
+
   protected File repoDir;
   protected Repository repo;
   protected DirCache cache;
 
   @After
-  public void destroyRepoDir() throws IOException {
-    if(!keepRepo) {
-      if(cache != null) {
-        cache.clear();
-        cache = null;
-      }
-      if(repo != null) {
-        repo.close();
-        repo = null;
-      }
+  public void closeRepository() throws IOException {
+    if(repo != null)
+      repo.close();
+    if(repoDir != null && repoDir.exists())
       FileUtils.delete(repoDir, FileUtils.RECURSIVE);
-      repoDir = null;
-    }
-  }
-
-  protected void preventDestroyRepo() {
-    keepRepo = true;
   }
 
   @Nonnull
@@ -106,26 +97,53 @@ public abstract class AbstractParallelGitTest {
     cache = DirCache.newInCore();
   }
 
-  protected void initRepositoryDir() {
-    try {
-      repoDir = FileUtils.createTempDir(getClass().getSimpleName(), null, null);
-    } catch(IOException e) {
-      throw new RuntimeException(e);
-    }
+  protected void initRepositoryDir(boolean memory) throws IOException {
+    repoDir = memory ? new File("/memory").getAbsoluteFile() : FileUtils.createTempDir(getClass().getSimpleName(), null, null);
   }
 
   @Nonnull
-  protected ObjectId initRepository(boolean bare) throws IOException {
-    if(repoDir == null)
-      initRepositoryDir();
-    repo = RepositoryHelper.createRepository(repoDir, bare);
+  protected ObjectId initRepository(boolean memory, boolean bare) throws IOException {
+    initRepositoryDir(memory);
+    repo = memory ? new TestRepository(getClass().getName(), repoDir, bare) : RepositoryHelper.createRepository(repoDir, bare);
     cache = DirCache.newInCore();
     return commitToMaster();
   }
 
   @Nonnull
   protected ObjectId initRepository() throws IOException {
-    return initRepository(true);
+    return initRepository(true, true);
+  }
+
+  protected class TestRepository extends InMemoryRepository {
+
+    private final File directory;
+    private final File workTree;
+
+    public TestRepository(@Nonnull String name, @Nonnull File mockLocation, boolean bare) {
+      super(new DfsRepositoryDescription(name));
+      directory = bare ? mockLocation : new File(mockLocation, Constants.DOT_GIT);
+      workTree = bare ? null : mockLocation;
+    }
+
+    @Override
+    public boolean isBare() {
+      return workTree == null;
+    }
+
+    @Nonnull
+    @Override
+    public File getWorkTree() throws NoWorkTreeException {
+      if(workTree == null)
+        throw new NoWorkTreeException();
+      return workTree;
+    }
+
+    @Nonnull
+    @Override
+    public File getDirectory() {
+      return directory;
+    }
+
   }
 
 }

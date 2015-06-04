@@ -5,7 +5,6 @@ import java.io.IOException;
 import java.nio.channels.SeekableByteChannel;
 import java.nio.file.*;
 
-import com.beijunyi.parallelgit.util.RepositoryHelper;
 import org.eclipse.jgit.lib.Repository;
 import org.junit.Assert;
 import org.junit.Test;
@@ -289,11 +288,8 @@ public class GitFileSystemProviderCopyTest extends AbstractGitFileSystemTest {
 
   @Test
   public void copyFileToForeignGitFileSystemBasedOnDifferentRepositoryTest() throws IOException {
-    initRepositoryDir();
-    File repoDir1 = new File(repoDir, "rd1");
-    File repoDir2 = new File(repoDir, "rd2");
-    Repository repo1 = RepositoryHelper.createRepository(repoDir1, true);
-    Repository repo2 = RepositoryHelper.createRepository(repoDir2, true);
+    Repository repo1 = new TestRepository(getClass().getName(), new File("/repo1"), true);
+    Repository repo2 = new TestRepository(getClass().getName(), new File("/repo2"), true);
     GitFileSystem sourceFs = GitFileSystems.newFileSystem(repo1);
     GitFileSystem targetFs = GitFileSystems.newFileSystem(repo2);
     GitPath source = sourceFs.getPath("/a.txt");

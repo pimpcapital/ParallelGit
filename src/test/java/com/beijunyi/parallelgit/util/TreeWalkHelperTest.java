@@ -8,6 +8,7 @@ import org.eclipse.jgit.lib.ObjectId;
 import org.eclipse.jgit.revwalk.RevTree;
 import org.eclipse.jgit.treewalk.TreeWalk;
 import org.junit.Assert;
+import org.junit.Before;
 import org.junit.Test;
 
 public class TreeWalkHelperTest extends AbstractParallelGitTest {
@@ -17,9 +18,13 @@ public class TreeWalkHelperTest extends AbstractParallelGitTest {
     Assert.assertEquals(path, treeWalk.getPathString());
   }
 
+  @Before
+  public void setUp() throws Exception {
+    initRepository();
+  }
+
   @Test
   public void newTreeWalkTest() throws IOException {
-    initRepository();
     writeFiles("a.txt", "b.txt", "c/d.txt", "c/e.txt", "f/g.txt");
     ObjectId commitId = commitToMaster();
     RevTree tree = RevTreeHelper.getRootTree(repo, commitId);
@@ -34,7 +39,6 @@ public class TreeWalkHelperTest extends AbstractParallelGitTest {
 
   @Test
   public void existsTest() throws IOException {
-    initRepository();
     writeFile("a/b.txt");
     ObjectId commit = commitToMaster();
 
@@ -46,7 +50,6 @@ public class TreeWalkHelperTest extends AbstractParallelGitTest {
 
   @Test
   public void getObjectTest() throws IOException {
-    initRepository();
     ObjectId objectId = writeFile("a/b.txt");
     ObjectId commit = commitToMaster();
 
@@ -56,7 +59,6 @@ public class TreeWalkHelperTest extends AbstractParallelGitTest {
 
   @Test
   public void isBlobTest() throws IOException {
-    initRepository();
     writeFile("a/b.txt");
     ObjectId commit = commitToMaster();
 
@@ -68,7 +70,6 @@ public class TreeWalkHelperTest extends AbstractParallelGitTest {
 
   @Test
   public void isTreeTest() throws IOException {
-    initRepository();
     writeFile("a/b.txt");
     ObjectId commit = commitToMaster();
 

@@ -15,7 +15,6 @@ public class GitFileSystemProviderCheckAccessTest extends AbstractGitFileSystemT
     writeFile("dir/file.txt");
     commitToMaster();
     initGitFileSystem();
-    preventDestroyFileSystem();
   }
 
   @Test

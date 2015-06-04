@@ -11,7 +11,6 @@ public class GitPathResolveSiblingTest extends AbstractGitFileSystemTest {
   @Before
   public void setupFileSystem() throws IOException {
     initGitFileSystem();
-    preventDestroyFileSystem();
   }
 
   @Test

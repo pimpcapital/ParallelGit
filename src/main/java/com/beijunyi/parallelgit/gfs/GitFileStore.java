@@ -1032,6 +1032,8 @@ public class GitFileStore extends FileStore implements Closeable {
         parents.add(baseCommit);
 
       ObjectId newCommitId = CommitHelper.createCommit(getInserter(), newTreeId, author, committer, message, parents);
+      getInserter().flush();
+
       RevCommit newCommit = CommitHelper.getCommit(reader, newCommitId);
       if(branch != null) {
         if(baseCommit == null)
@@ -1041,7 +1043,6 @@ public class GitFileStore extends FileStore implements Closeable {
         else
           BranchHelper.commitBranchHead(repo, branch, newCommit, newCommit.getShortMessage());
       }
-      inserter.flush();
       baseCommit = newCommit;
 
       return baseCommit;
