@@ -2,13 +2,14 @@ package com.beijunyi.parallelgit.util.builder;
 
 import java.io.IOException;
 import javax.annotation.Nonnull;
+import javax.annotation.Nullable;
 
 import org.eclipse.jgit.dircache.DirCache;
 import org.eclipse.jgit.lib.Repository;
 
 public class ParallelCacheBuilder extends CacheBasedBuilder<ParallelCacheBuilder, DirCache> {
 
-  private ParallelCacheBuilder(@Nonnull Repository repository) {
+  private ParallelCacheBuilder(@Nullable Repository repository) {
     super(repository);
   }
 
@@ -18,14 +19,28 @@ public class ParallelCacheBuilder extends CacheBasedBuilder<ParallelCacheBuilder
     return this;
   }
 
+  @Nonnull
   @Override
   protected DirCache doBuild() throws IOException {
-    return buildCache(repository);
+    return buildCache();
   }
 
   @Nonnull
-  public static ParallelCacheBuilder prepare(@Nonnull Repository repository) {
+  @Override
+  public DirCache build() throws IOException {
+    DirCache cache = super.build();
+    assert cache != null;
+    return cache;
+  }
+
+  @Nonnull
+  public static ParallelCacheBuilder prepare(@Nullable Repository repository) {
     return new ParallelCacheBuilder(repository);
+  }
+
+  @Nonnull
+  public static ParallelCacheBuilder prepare() {
+    return prepare(null);
   }
 
 }

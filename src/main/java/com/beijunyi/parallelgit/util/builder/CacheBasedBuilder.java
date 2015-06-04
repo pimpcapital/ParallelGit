@@ -15,9 +15,10 @@ import org.eclipse.jgit.lib.*;
 public abstract class CacheBasedBuilder<B extends CacheBasedBuilder, T> extends ParallelBuilder<T> {
 
   private final List<CacheEditor> editors = new ArrayList<>();
+  protected final Repository repository;
 
-  protected CacheBasedBuilder(@Nonnull Repository repository) {
-    super(repository);
+  protected CacheBasedBuilder(@Nullable Repository repository) {
+    this.repository = repository;
   }
 
   @Nonnull
@@ -109,31 +110,37 @@ public abstract class CacheBasedBuilder<B extends CacheBasedBuilder, T> extends 
   }
 
   @Nonnull
-  protected DirCache buildCache(@Nonnull Repository repository) throws IOException {
-    DirCache cache = DirCache.newInCore();
-    try(BuildStateProvider provider = new BuildStateProvider(repository, cache)) {
+  private Repository ensureRepository() {
+    if(repository == null)
+      throw new IllegalArgumentException("repository must be configured");
+    return repository;
+  }
+
+  @Nonnull
+  protected DirCache buildCache() throws IOException {
+    try(BuildStateProvider provider = new BuildStateProvider()) {
       for(CacheEditor editor : editors) {
         editor.doEdit(provider);
       }
+      return provider.getCache();
     }
-    return cache;
   }
 
   private class BuildStateProvider implements Closeable {
-    private final Repository repository;
-    private final DirCache cache;
+    private DirCache cache;
     private ObjectReader reader;
     private DirCacheBuilder builder;
     private DirCacheEditor editor;
 
-    private BuildStateProvider(@Nonnull Repository repository, @Nonnull DirCache cache) {
-      this.repository = repository;
-      this.cache = cache;
+    @Nonnull
+    private DirCache ensureCache() {
+      if(cache == null)
+        cache = DirCache.newInCore();
+      return cache;
     }
 
-    @Nonnull
-    public Repository getRepository() {
-      return repository;
+    private boolean isInitialised() {
+      return cache != null;
     }
 
     @Nonnull
@@ -146,13 +153,13 @@ public abstract class CacheBasedBuilder<B extends CacheBasedBuilder, T> extends 
         editor.finish();
         editor = null;
       }
-      return cache;
+      return ensureCache();
     }
 
     @Nonnull
     public ObjectReader getReader() {
       if(reader == null)
-        reader = repository.newObjectReader();
+        reader = ensureRepository().newObjectReader();
       return reader;
     }
 
@@ -163,7 +170,7 @@ public abstract class CacheBasedBuilder<B extends CacheBasedBuilder, T> extends 
         editor = null;
       }
       if(builder == null)
-        builder = DirCacheHelper.keepEverything(cache);
+        builder = DirCacheHelper.keepEverything(ensureCache());
       return builder;
     }
 
@@ -174,7 +181,7 @@ public abstract class CacheBasedBuilder<B extends CacheBasedBuilder, T> extends 
         builder = null;
       }
       if(editor == null)
-        editor = cache.editor();
+        editor = ensureCache().editor();
       return editor;
     }
 
@@ -182,17 +189,13 @@ public abstract class CacheBasedBuilder<B extends CacheBasedBuilder, T> extends 
     public void close() {
       if(reader != null)
         reader.release();
-      if(builder != null)
-        builder.finish();
-      if(editor != null)
-        editor.finish();
     }
   }
 
   private abstract class CacheEditor {
     protected final String path;
 
-    protected CacheEditor(String path) {
+    protected CacheEditor(@Nonnull String path) {
       this.path = path;
     }
 
@@ -225,22 +228,25 @@ public abstract class CacheBasedBuilder<B extends CacheBasedBuilder, T> extends 
       this.revisionIdStr = revisionIdStr;
     }
 
+
+
     @Override
     protected void doEdit(@Nonnull BuildStateProvider provider) throws IOException {
       ObjectReader reader = provider.getReader();
-      DirCacheBuilder builder = provider.getBuilder();
-      if(path == null)
-        throw new IllegalArgumentException("path must be configured");
       if(treeId == null) {
         if(treeIdStr != null)
-          treeId = repository.resolve(treeIdStr);
-        else if(revisionId != null)
-          treeId = RevTreeHelper.getRootTree(reader, revisionId);
-        else if(revisionIdStr != null)
-          treeId = RevTreeHelper.getRootTree(reader, repository.resolve(revisionIdStr));
-        else
+          treeId = ensureRepository().resolve(treeIdStr);
+        else if(revisionId != null || revisionIdStr != null) {
+          if(provider.isInitialised())
+            throw new IllegalArgumentException("cache is already initialized");
+          if(revisionId != null)
+            treeId = RevTreeHelper.getRootTree(reader, revisionId);
+          else
+            treeId = RevTreeHelper.getRootTree(reader, ensureRepository().resolve(revisionIdStr));
+        } else
           throw new IllegalArgumentException("either of treeId of revisionId must be configured");
       }
+      DirCacheBuilder builder = provider.getBuilder();
       DirCacheHelper.addTree(builder, reader, path, treeId);
     }
   }
@@ -266,8 +272,6 @@ public abstract class CacheBasedBuilder<B extends CacheBasedBuilder, T> extends 
       DirCacheBuilder builder = provider.getBuilder();
       if(blobId == null)
         throw new IllegalArgumentException("blobId must be configured");
-      if(path == null)
-        throw new IllegalArgumentException("path must be configured");
       if(mode == null)
         throw new IllegalArgumentException("mode must be configured");
       DirCacheHelper.addFile(builder, mode, path, blobId);

@@ -15,7 +15,7 @@ public final class BlobHelper {
    * @return a blob id
    */
   @Nonnull
-  public static ObjectId calculateBlobId(@Nonnull byte[] blob) {
+  public static ObjectId getBlobId(@Nonnull byte[] blob) {
     return new ObjectInserter.Formatter().idFor(Constants.OBJ_BLOB, blob);
   }
 
@@ -23,14 +23,14 @@ public final class BlobHelper {
    * Calculates the blob id of the given string.
    *
    * This method invokes {@link Constants#encode(String)}, which uses utf-8 to convert the given string into a byte
-   * array. The result byte array is processed by {@link #calculateBlobId(byte[])}.
+   * array. The result byte array is processed by {@link #getBlobId(byte[])}.
    *
    * @param content a string
    * @return a blob id
    */
   @Nonnull
-  public static ObjectId calculateBlobId(@Nonnull String content) {
-    return calculateBlobId(Constants.encode(content));
+  public static ObjectId getBlobId(@Nonnull String content) {
+    return getBlobId(Constants.encode(content));
   }
 
   /**

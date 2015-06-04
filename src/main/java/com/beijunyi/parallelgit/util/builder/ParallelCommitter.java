@@ -9,7 +9,7 @@ import com.beijunyi.parallelgit.util.CommitHelper;
 import org.eclipse.jgit.dircache.DirCache;
 import org.eclipse.jgit.lib.*;
 
-public final class ParallelCommitter extends ParallelBuilder<ObjectId> {
+public final class ParallelCommitter extends CacheBasedBuilder<ParallelCommitter, ObjectId> {
   private AnyObjectId treeId;
   private DirCache cache;
   private PersonIdent author;
@@ -23,6 +23,12 @@ public final class ParallelCommitter extends ParallelBuilder<ObjectId> {
 
   private ParallelCommitter(@Nonnull Repository repository) {
     super(repository);
+  }
+
+  @Nonnull
+  @Override
+  protected ParallelCommitter self() {
+    return this;
   }
 
   @Nonnull
@@ -160,6 +166,7 @@ public final class ParallelCommitter extends ParallelBuilder<ObjectId> {
   @Nullable
   @Override
   public ObjectId doBuild() throws IOException {
+    assert repository != null;
     ObjectInserter inserter = repository.newObjectInserter();
     try {
       ensureContent(inserter);
