@@ -168,4 +168,34 @@ public class ParallelCacheBuilderTest extends AbstractParallelGitTest {
     Assert.assertEquals(newFileMode, entry.getFileMode());
   }
 
+  @Test
+  public void updateBlobIdTest() throws IOException {
+    initRepository();
+    writeFile("1.txt", "some content");
+    ObjectId revisionId = commitToMaster();
+    ObjectId newBlobId = BlobHelper.getBlobId("some other content");
+    DirCache cache = ParallelCacheBuilder
+                       .prepare(repo)
+                       .loadRevision(revisionId)
+                       .updateBlob(newBlobId, "1.txt")
+                       .build();
+    DirCacheEntry entry = cache.getEntry("1.txt");
+    Assert.assertEquals(newBlobId, entry.getObjectId());
+  }
+
+  @Test
+  public void updateBlobFileModeTest() throws IOException {
+    initRepository();
+    writeFile("1.txt", "some content");
+    ObjectId revisionId = commitToMaster();
+    FileMode newFileMode = FileMode.EXECUTABLE_FILE;
+    DirCache cache = ParallelCacheBuilder
+                       .prepare(repo)
+                       .loadRevision(revisionId)
+                       .updateBlob(newFileMode, "1.txt")
+                       .build();
+    DirCacheEntry entry = cache.getEntry("1.txt");
+    Assert.assertEquals(newFileMode, entry.getFileMode());
+  }
+
 }
