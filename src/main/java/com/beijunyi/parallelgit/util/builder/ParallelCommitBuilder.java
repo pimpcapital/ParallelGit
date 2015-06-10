@@ -13,7 +13,7 @@ import org.eclipse.jgit.dircache.DirCache;
 import org.eclipse.jgit.lib.*;
 import org.eclipse.jgit.revwalk.RevCommit;
 
-public final class ParallelCommitter extends CacheBasedBuilder<ParallelCommitter, ObjectId> {
+public final class ParallelCommitBuilder extends CacheBasedBuilder<ParallelCommitBuilder, ObjectId> {
   private String branch;
   private boolean orphan;
   private boolean amend;
@@ -29,18 +29,18 @@ public final class ParallelCommitter extends CacheBasedBuilder<ParallelCommitter
   private String message;
   private List<AnyObjectId> parents;
 
-  private ParallelCommitter(@Nonnull Repository repository) {
+  private ParallelCommitBuilder(@Nonnull Repository repository) {
     super(repository);
   }
 
   @Nonnull
   @Override
-  protected ParallelCommitter self() {
+  protected ParallelCommitBuilder self() {
     return this;
   }
 
   @Nonnull
-  public ParallelCommitter branch(@Nonnull String branch) {
+  public ParallelCommitBuilder branch(@Nonnull String branch) {
     this.branch = branch;
     return this;
   }
@@ -58,13 +58,13 @@ public final class ParallelCommitter extends CacheBasedBuilder<ParallelCommitter
   }
 
   @Nonnull
-  public ParallelCommitter withTree(@Nonnull AnyObjectId treeId) {
+  public ParallelCommitBuilder withTree(@Nonnull AnyObjectId treeId) {
     this.treeId = treeId;
     return this;
   }
 
   @Nonnull
-  public ParallelCommitter withCache(@Nonnull DirCache cache) {
+  public ParallelCommitBuilder withCache(@Nonnull DirCache cache) {
     this.cache = cache;
     return this;
   }
@@ -75,13 +75,13 @@ public final class ParallelCommitter extends CacheBasedBuilder<ParallelCommitter
   }
 
   @Nonnull
-  public ParallelCommitter withAuthor(@Nonnull PersonIdent author) {
+  public ParallelCommitBuilder withAuthor(@Nonnull PersonIdent author) {
     this.author = author;
     return this;
   }
 
   @Nonnull
-  public ParallelCommitter withAuthor(@Nonnull String authorName, @Nonnull String authorEmail) {
+  public ParallelCommitBuilder withAuthor(@Nonnull String authorName, @Nonnull String authorEmail) {
     this.authorName = authorName;
     this.authorEmail = authorEmail;
     return this;
@@ -99,13 +99,13 @@ public final class ParallelCommitter extends CacheBasedBuilder<ParallelCommitter
   }
 
   @Nonnull
-  public ParallelCommitter withCommitter(@Nonnull PersonIdent committer) {
+  public ParallelCommitBuilder withCommitter(@Nonnull PersonIdent committer) {
     this.committer = committer;
     return this;
   }
 
   @Nonnull
-  public ParallelCommitter withCommitter(@Nonnull String committerName, @Nonnull String committerEmail) {
+  public ParallelCommitBuilder withCommitter(@Nonnull String committerName, @Nonnull String committerEmail) {
     this.committerName = committerName;
     this.committerEmail = committerEmail;
     return this;
@@ -119,7 +119,7 @@ public final class ParallelCommitter extends CacheBasedBuilder<ParallelCommitter
   }
 
   @Nonnull
-  public ParallelCommitter withMessage(@Nonnull String message) {
+  public ParallelCommitBuilder withMessage(@Nonnull String message) {
     this.message = message;
     return this;
   }
@@ -134,13 +134,13 @@ public final class ParallelCommitter extends CacheBasedBuilder<ParallelCommitter
   }
 
   @Nonnull
-  public ParallelCommitter setParents(@Nonnull List<AnyObjectId> parents) {
+  public ParallelCommitBuilder setParents(@Nonnull List<AnyObjectId> parents) {
     this.parents = parents;
     return this;
   }
 
   @Nonnull
-  public ParallelCommitter addParent(@Nonnull AnyObjectId parent) {
+  public ParallelCommitBuilder addParent(@Nonnull AnyObjectId parent) {
     if(parents == null)
       parents = new ArrayList<>();
     parents.add(parent);
@@ -148,7 +148,7 @@ public final class ParallelCommitter extends CacheBasedBuilder<ParallelCommitter
   }
 
   @Nonnull
-  public ParallelCommitter addParent(@Nonnull AnyObjectId parent, int index) {
+  public ParallelCommitBuilder addParent(@Nonnull AnyObjectId parent, int index) {
     if(parents == null)
       parents = new ArrayList<>();
     parents.add(index, parent);
@@ -258,8 +258,8 @@ public final class ParallelCommitter extends CacheBasedBuilder<ParallelCommitter
   }
 
   @Nonnull
-  public static ParallelCommitter prepare(@Nonnull Repository repository) {
-    return new ParallelCommitter(repository);
+  public static ParallelCommitBuilder prepare(@Nonnull Repository repository) {
+    return new ParallelCommitBuilder(repository);
   }
 
 }
