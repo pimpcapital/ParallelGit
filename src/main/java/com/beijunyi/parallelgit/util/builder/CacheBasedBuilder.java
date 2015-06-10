@@ -14,7 +14,7 @@ import org.eclipse.jgit.lib.*;
 
 public abstract class CacheBasedBuilder<B extends CacheBasedBuilder, T> extends ParallelBuilder<T> {
 
-  private final List<CacheEditor> editors = new ArrayList<>();
+  protected final List<CacheEditor> editors = new ArrayList<>();
   protected final Repository repository;
 
   protected CacheBasedBuilder(@Nullable Repository repository) {
