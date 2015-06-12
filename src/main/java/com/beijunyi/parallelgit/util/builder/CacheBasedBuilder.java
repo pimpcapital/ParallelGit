@@ -44,7 +44,7 @@ public abstract class CacheBasedBuilder<B extends CacheBasedBuilder, T> extends 
   public B loadRevision(@Nonnull AnyObjectId revisionId) {
     AddTree editor = new AddTree("");
     editor.setRevisionId(revisionId);
-    editors.add(editor);
+    editors.add(0, editor);
     return self();
   }
 
@@ -52,7 +52,7 @@ public abstract class CacheBasedBuilder<B extends CacheBasedBuilder, T> extends 
   public B loadRevision(@Nonnull String revisionIdStr) {
     AddTree editor = new AddTree("");
     editor.setRevisionIdStr(revisionIdStr);
-    editors.add(editor);
+    editors.add(0, editor);
     return self();
   }
 

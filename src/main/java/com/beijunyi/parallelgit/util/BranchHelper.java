@@ -104,27 +104,11 @@ public final class BranchHelper {
    * @param name a branch name
    * @param commitId a commit id
    * @param shortMessage the first line of the commit message
-   * @param falseUpdate whether to false update the branch ref
-   * @return a ref update result
-   */
-  @Nonnull
-  public static RefUpdate.Result commitBranchHead(@Nonnull Repository repo, @Nonnull String name, @Nonnull ObjectId commitId, @Nonnull String shortMessage, boolean falseUpdate) throws IOException {
-    return setBranchHead(repo, name, commitId, "commit: " + shortMessage, falseUpdate);
-  }
-
-  /**
-   * Sets the {@code HEAD} of the specified branch to the given commit with {@code reflog} message starting with
-   * "commit: ".
-   *
-   * @param repo a git repository
-   * @param name a branch name
-   * @param commitId a commit id
-   * @param shortMessage the first line of the commit message
    * @return a ref update result
    */
   @Nonnull
   public static RefUpdate.Result commitBranchHead(@Nonnull Repository repo, @Nonnull String name, @Nonnull ObjectId commitId, @Nonnull String shortMessage) throws IOException {
-    return commitBranchHead(repo, name, commitId, shortMessage, false);
+    return setBranchHead(repo, name, commitId, "commit: " + shortMessage, true);
   }
 
   /**
@@ -149,27 +133,11 @@ public final class BranchHelper {
    * @param name a branch name
    * @param commitId a commit id
    * @param shortMessage the first line of the commit message
-   * @param falseUpdate whether to false update the branch ref
-   * @return a ref update result
-   */
-  @Nonnull
-  public static RefUpdate.Result amendBranchHead(@Nonnull Repository repo, @Nonnull String name, @Nonnull ObjectId commitId, @Nonnull String shortMessage, boolean falseUpdate) throws IOException {
-    return setBranchHead(repo, name, commitId, "commit (amend): " + shortMessage, falseUpdate);
-  }
-
-  /**
-   * Sets the {@code HEAD} of the specified branch to the given commit with {@code reflog} message starting with
-   * "commit (amend): ".
-   *
-   * @param repo a git repository
-   * @param name a branch name
-   * @param commitId a commit id
-   * @param shortMessage the first line of the commit message
    * @return a ref update result
    */
   @Nonnull
   public static RefUpdate.Result amendBranchHead(@Nonnull Repository repo, @Nonnull String name, @Nonnull ObjectId commitId, @Nonnull String shortMessage) throws IOException {
-    return amendBranchHead(repo, name, commitId, shortMessage, false);
+    return setBranchHead(repo, name, commitId, "commit (amend): " + shortMessage, true);
   }
 
   /**
@@ -194,27 +162,11 @@ public final class BranchHelper {
    * @param name a branch name
    * @param commitId a commit id
    * @param shortMessage the first line of the commit message
-   * @param falseUpdate whether to false update the branch ref
-   * @return a ref update result
-   */
-  @Nonnull
-  public static RefUpdate.Result cherryPickBranchHead(@Nonnull Repository repo, @Nonnull String name, @Nonnull ObjectId commitId, @Nonnull String shortMessage, boolean falseUpdate) throws IOException {
-    return setBranchHead(repo, name, commitId, "cherry-pick: " + shortMessage, falseUpdate);
-  }
-
-  /**
-   * Sets the {@code HEAD} of the specified branch to the given commit with {@code reflog} message starting with
-   * "cherry-pick: ".
-   *
-   * @param repo a git repository
-   * @param name a branch name
-   * @param commitId a commit id
-   * @param shortMessage the first line of the commit message
    * @return a ref update result
    */
   @Nonnull
   public static RefUpdate.Result cherryPickBranchHead(@Nonnull Repository repo, @Nonnull String name, @Nonnull ObjectId commitId, @Nonnull String shortMessage) throws IOException {
-    return cherryPickBranchHead(repo, name, commitId, shortMessage, false);
+    return setBranchHead(repo, name, commitId, "cherry-pick: " + shortMessage, true);
   }
 
   /**

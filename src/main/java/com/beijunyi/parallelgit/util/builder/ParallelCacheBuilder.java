@@ -7,7 +7,7 @@ import javax.annotation.Nullable;
 import org.eclipse.jgit.dircache.DirCache;
 import org.eclipse.jgit.lib.Repository;
 
-public class ParallelCacheBuilder extends CacheBasedBuilder<ParallelCacheBuilder, DirCache> {
+public final class ParallelCacheBuilder extends CacheBasedBuilder<ParallelCacheBuilder, DirCache> {
 
   private ParallelCacheBuilder(@Nullable Repository repository) {
     super(repository);

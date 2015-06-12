@@ -1,6 +1,10 @@
 package com.beijunyi.parallelgit.util.builder;
 
+import java.io.File;
 import java.io.IOException;
+import java.io.InputStream;
+import java.nio.file.DirectoryStream;
+import java.nio.file.Path;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
@@ -9,6 +13,8 @@ import javax.annotation.Nullable;
 
 import com.beijunyi.parallelgit.util.BranchHelper;
 import com.beijunyi.parallelgit.util.CommitHelper;
+import com.beijunyi.parallelgit.util.RevTreeHelper;
+import com.beijunyi.parallelgit.util.exception.RefUpdateValidator;
 import org.eclipse.jgit.dircache.DirCache;
 import org.eclipse.jgit.lib.*;
 import org.eclipse.jgit.revwalk.RevCommit;
@@ -18,17 +24,18 @@ public final class ParallelCommitBuilder extends CacheBasedBuilder<ParallelCommi
   private boolean orphan;
   private boolean amend;
   private boolean allowEmptyCommit;
+  private boolean fromScratch;
   private AnyObjectId treeId;
   private DirCache cache;
+  private RevCommit head;
+  private List<AnyObjectId> parents;
   private PersonIdent author;
   private String authorName;
   private String authorEmail;
   private PersonIdent committer;
   private String committerName;
   private String committerEmail;
-  private RevCommit head;
   private String message;
-  private List<AnyObjectId> parents;
 
   private ParallelCommitBuilder(@Nonnull Repository repository) {
     super(repository);
@@ -61,6 +68,12 @@ public final class ParallelCommitBuilder extends CacheBasedBuilder<ParallelCommi
   @Nonnull
   public ParallelCommitBuilder allowEmptyCommit(boolean allowEmptyCommit) {
     this.allowEmptyCommit = allowEmptyCommit;
+    return this;
+  }
+
+  @Nonnull
+  public ParallelCommitBuilder fromScratch(boolean fromScratch) {
+    this.fromScratch = fromScratch;
     return this;
   }
 
@@ -119,39 +132,79 @@ public final class ParallelCommitBuilder extends CacheBasedBuilder<ParallelCommi
     return parents(Arrays.asList(parents));
   }
 
-  private void prepareCache() throws IOException {
-    if(cache == null)
-      cache = buildCache();
+  @Nonnull
+  public ParallelCommitBuilder addFile(@Nonnull File file, @Nonnull String path) {
+    return this;
   }
 
-  private void prepareTree(@Nonnull ObjectInserter inserter) throws IOException {
-    if(treeId == null) {
-      prepareCache();
-      treeId = cache.writeTree(inserter);
-    }
+  @Nonnull
+  public ParallelCommitBuilder addFile(@Nonnull Path file, @Nonnull String path) {
+    return this;
   }
 
-  private void prepareAuthor() {
-    if(author == null) {
-      if(authorName != null && authorEmail != null)
-        author = new PersonIdent(authorName, authorEmail);
-      else
-        author = new PersonIdent(repository);
-    }
+  @Nonnull
+  public ParallelCommitBuilder addFile(@Nonnull InputStream file, @Nonnull String path) {
+    return this;
   }
 
-  private void prepareCommitter() {
-    if(committer == null) {
-      if(committerName != null && committerEmail != null)
-        committer = new PersonIdent(committerName, committerEmail);
-      else
-        committer = author;
-    }
+  @Nonnull
+  public ParallelCommitBuilder addFile(@Nonnull byte[] file, @Nonnull String path) {
+    return this;
   }
 
-  private void prepareMessage() {
-    if(message == null && amend && head != null)
-      message = head.getFullMessage();
+  @Nonnull
+  public ParallelCommitBuilder addFile(@Nonnull String file, @Nonnull String path) {
+    return this;
+  }
+
+  @Nonnull
+  public ParallelCommitBuilder deleteFile(@Nonnull String path) {
+    return this;
+  }
+
+  @Nonnull
+  public ParallelCommitBuilder addDirectory(@Nonnull File file, @Nonnull String path) {
+    return this;
+  }
+
+  @Nonnull
+  public ParallelCommitBuilder addDirectory(@Nonnull Path file, @Nonnull String path) {
+    return this;
+  }
+
+  @Nonnull
+  public ParallelCommitBuilder addDirectory(@Nonnull DirectoryStream<Path> file, @Nonnull String path) {
+    return this;
+  }
+
+  @Nonnull
+  public ParallelCommitBuilder deleteDirectory(@Nonnull String path) {
+    return this;
+  }
+
+  @Nonnull
+  public ParallelCommitBuilder updateFile(@Nonnull File file, @Nonnull String path) {
+    return this;
+  }
+
+  @Nonnull
+  public ParallelCommitBuilder updateFile(@Nonnull Path file, @Nonnull String path) {
+    return this;
+  }
+
+  @Nonnull
+  public ParallelCommitBuilder updateFile(@Nonnull InputStream file, @Nonnull String path) {
+    return this;
+  }
+
+  @Nonnull
+  public ParallelCommitBuilder updateFile(@Nonnull byte[] file, @Nonnull String path) {
+    return this;
+  }
+
+  @Nonnull
+  public ParallelCommitBuilder updateFile(@Nonnull String file, @Nonnull String path) {
+    return this;
   }
 
   private void prepareHead() throws IOException {
@@ -176,6 +229,61 @@ public final class ParallelCommitBuilder extends CacheBasedBuilder<ParallelCommi
     }
   }
 
+  private void prepareBase() throws IOException {
+    if(treeId == null && cache == null && !fromScratch) {
+      if(amend) {
+        if(editors.isEmpty())
+          treeId = head.getTree();
+        else
+          loadRevision(head);
+      } else {
+        if(editors.isEmpty()) {
+          if(!allowEmptyCommit)
+            throw new IllegalArgumentException("Nothing to commit");
+          assert repository != null;
+          treeId = !parents.isEmpty() ? RevTreeHelper.getRootTree(repository, parents.get(0)) : null;
+        } else if(!parents.isEmpty())
+          loadRevision(parents.get(0));
+      }
+    }
+  }
+
+  private void prepareCache() throws IOException {
+    if(cache == null) {
+      cache = buildCache();
+    }
+  }
+
+  private void prepareTree(@Nonnull ObjectInserter inserter) throws IOException {
+    if(treeId == null) {
+      prepareCache();
+      treeId = cache.writeTree(inserter);
+    }
+  }
+
+  private void prepareCommitter() {
+    if(committer == null) {
+      if(committerName != null && committerEmail != null)
+        committer = new PersonIdent(committerName, committerEmail);
+      else
+        committer = new PersonIdent(repository);
+    }
+  }
+
+  private void prepareAuthor() {
+    if(author == null) {
+      if(authorName != null && authorEmail != null)
+        author = new PersonIdent(authorName, authorEmail);
+      else
+        author = committer;
+    }
+  }
+
+  private void prepareMessage() {
+    if(message == null && amend && head != null)
+      message = head.getFullMessage();
+  }
+
   private boolean isDifferentTree() throws IOException {
     if(allowEmptyCommit || parents.isEmpty())
       return true;
@@ -187,12 +295,14 @@ public final class ParallelCommitBuilder extends CacheBasedBuilder<ParallelCommi
     if(branch != null) {
       assert repository != null;
       RevCommit newCommit = CommitHelper.getCommit(repository, newCommitId);
+      RefUpdate.Result result;
       if(head == null)
-        BranchHelper.initBranchHead(repository, branch, newCommit, newCommit.getShortMessage());
+        result = BranchHelper.initBranchHead(repository, branch, newCommit);
       else if(amend)
-        BranchHelper.amendBranchHead(repository, branch, newCommit, newCommit.getShortMessage());
+        result = BranchHelper.amendBranchHead(repository, branch, newCommit);
       else
-        BranchHelper.commitBranchHead(repository, branch, newCommit, newCommit.getShortMessage());
+        result = BranchHelper.commitBranchHead(repository, branch, newCommit);
+      RefUpdateValidator.validate(branch, result);
     }
   }
 
@@ -202,12 +312,13 @@ public final class ParallelCommitBuilder extends CacheBasedBuilder<ParallelCommi
     assert repository != null;
     ObjectInserter inserter = repository.newObjectInserter();
     try {
-      prepareTree(inserter);
-      prepareAuthor();
-      prepareCommitter();
-      prepareMessage();
       prepareHead();
       prepareParents();
+      prepareBase();
+      prepareTree(inserter);
+      prepareCommitter();
+      prepareAuthor();
+      prepareMessage();
       if(!isDifferentTree())
         return null;
       ObjectId commit = CommitHelper.createCommit(inserter, treeId, author, committer, message, parents);
