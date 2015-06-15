@@ -8,6 +8,7 @@ import com.beijunyi.parallelgit.util.DirCacheHelper;
 import org.eclipse.jgit.dircache.DirCache;
 import org.eclipse.jgit.dircache.DirCacheBuilder;
 import org.eclipse.jgit.dircache.DirCacheEditor;
+import org.eclipse.jgit.lib.ObjectInserter;
 import org.eclipse.jgit.lib.ObjectReader;
 import org.eclipse.jgit.lib.Repository;
 
@@ -15,6 +16,7 @@ class BuildStateProvider implements Closeable {
   private final DirCache cache = DirCache.newInCore();
   private final Repository repository;
   private ObjectReader reader;
+  private ObjectInserter inserter;
   private DirCacheBuilder builder;
   private DirCacheEditor editor;
 
@@ -43,10 +45,17 @@ class BuildStateProvider implements Closeable {
   }
 
   @Nonnull
-  ObjectReader getCurrentReader() {
+  ObjectReader getReader() {
     if(reader == null)
       reader = getRepository().newObjectReader();
     return reader;
+  }
+
+  @Nonnull
+  ObjectInserter getInserter() {
+    if(inserter == null)
+      inserter = getRepository().newObjectInserter();
+    return inserter;
   }
 
   @Nonnull
@@ -75,5 +84,7 @@ class BuildStateProvider implements Closeable {
   public void close() {
     if(reader != null)
       reader.release();
+    if(inserter != null)
+      inserter.release();
   }
 }

@@ -133,33 +133,92 @@ public final class ParallelCommitBuilder extends CacheBasedBuilder<ParallelCommi
   }
 
   @Nonnull
-  public ParallelCommitBuilder addFile(@Nonnull File file, @Nonnull String path) {
+  public ParallelCommitBuilder addFile(@Nonnull byte[] bytes, @Nonnull String path) {
+    AddFile editor = new AddFile(path);
+    editor.setBytes(bytes);
+    editors.add(editor);
     return this;
   }
 
   @Nonnull
-  public ParallelCommitBuilder addFile(@Nonnull Path file, @Nonnull String path) {
+  public ParallelCommitBuilder addFile(@Nonnull byte[] bytes, @Nonnull FileMode mode, @Nonnull String path) {
+    AddFile editor = new AddFile(path);
+    editor.setBytes(bytes);
+    editor.setMode(mode);
+    editors.add(editor);
     return this;
   }
 
   @Nonnull
-  public ParallelCommitBuilder addFile(@Nonnull InputStream file, @Nonnull String path) {
+  public ParallelCommitBuilder addFile(@Nonnull String content, @Nonnull String path) {
+    AddFile editor = new AddFile(path);
+    editor.setContent(content);
+    editors.add(editor);
     return this;
   }
 
   @Nonnull
-  public ParallelCommitBuilder addFile(@Nonnull byte[] file, @Nonnull String path) {
+  public ParallelCommitBuilder addFile(@Nonnull String content, @Nonnull FileMode mode, @Nonnull String path) {
+    AddFile editor = new AddFile(path);
+    editor.setContent(content);
+    editor.setMode(mode);
+    editors.add(editor);
     return this;
   }
 
   @Nonnull
-  public ParallelCommitBuilder addFile(@Nonnull String file, @Nonnull String path) {
+  public ParallelCommitBuilder addFile(@Nonnull InputStream inputStream, @Nonnull String path) {
+    AddFile editor = new AddFile(path);
+    editor.setInputStream(inputStream);
+    editors.add(editor);
+    return this;
+  }
+
+  @Nonnull
+  public ParallelCommitBuilder addFile(@Nonnull InputStream inputStream, @Nonnull FileMode mode, @Nonnull String path) {
+    AddFile editor = new AddFile(path);
+    editor.setInputStream(inputStream);
+    editor.setMode(mode);
+    editors.add(editor);
+    return this;
+  }
+
+  @Nonnull
+  public ParallelCommitBuilder addFile(@Nonnull Path sourcePath, @Nonnull String path) {
+    AddFile editor = new AddFile(path);
+    editor.setSourcePath(sourcePath);
+    editors.add(editor);
+    return this;
+  }
+
+  @Nonnull
+  public ParallelCommitBuilder addFile(@Nonnull Path sourcePath, @Nonnull FileMode mode, @Nonnull String path) {
+    AddFile editor = new AddFile(path);
+    editor.setSourcePath(sourcePath);
+    editor.setMode(mode);
+    editors.add(editor);
+    return this;
+  }
+
+  @Nonnull
+  public ParallelCommitBuilder addFile(@Nonnull File sourceFile, @Nonnull String path) {
+    AddFile editor = new AddFile(path);
+    editor.setSourceFile(sourceFile);
+    editors.add(editor);
+    return this;
+  }
+
+  @Nonnull
+  public ParallelCommitBuilder addFile(@Nonnull File sourceFile, @Nonnull FileMode mode, @Nonnull String path) {
+    AddFile editor = new AddFile(path);
+    editor.setSourceFile(sourceFile);
+    editors.add(editor);
     return this;
   }
 
   @Nonnull
   public ParallelCommitBuilder deleteFile(@Nonnull String path) {
-    return this;
+    return deleteBlob(path);
   }
 
   @Nonnull
@@ -179,7 +238,7 @@ public final class ParallelCommitBuilder extends CacheBasedBuilder<ParallelCommi
 
   @Nonnull
   public ParallelCommitBuilder deleteDirectory(@Nonnull String path) {
-    return this;
+    return deleteTree(path);
   }
 
   @Nonnull

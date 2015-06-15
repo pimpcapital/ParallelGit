@@ -27,7 +27,7 @@ class AddTree extends CacheEditor {
 
   @Override
   protected void doEdit(@Nonnull BuildStateProvider provider) throws IOException {
-    ObjectReader reader = provider.getCurrentReader();
+    ObjectReader reader = provider.getReader();
     if(treeId == null)
       treeId = provider.getRepository().resolve(treeIdStr);
     DirCacheBuilder builder = provider.getCurrentBuilder();

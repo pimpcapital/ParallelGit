@@ -130,10 +130,10 @@ public abstract class CacheBasedBuilder<B extends CacheBasedBuilder, T> extends 
         else {
           if(baseCommitId == null)
             baseCommitId = provider.getRepository().resolve(baseCommitIdStr);
-          baseTreeId = RevTreeHelper.getRootTree(provider.getCurrentReader(), baseCommitId);
+          baseTreeId = RevTreeHelper.getRootTree(provider.getReader(), baseCommitId);
         }
       }
-      DirCacheHelper.addTree(provider.getCurrentCache(), provider.getCurrentReader(), "", baseTreeId);
+      DirCacheHelper.addTree(provider.getCurrentCache(), provider.getReader(), "", baseTreeId);
     }
   }
 
