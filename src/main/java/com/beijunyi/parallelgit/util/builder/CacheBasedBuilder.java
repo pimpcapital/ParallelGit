@@ -1,6 +1,5 @@
 package com.beijunyi.parallelgit.util.builder;
 
-import java.io.Closeable;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
@@ -9,8 +8,10 @@ import javax.annotation.Nullable;
 
 import com.beijunyi.parallelgit.util.DirCacheHelper;
 import com.beijunyi.parallelgit.util.RevTreeHelper;
-import org.eclipse.jgit.dircache.*;
-import org.eclipse.jgit.lib.*;
+import org.eclipse.jgit.dircache.DirCache;
+import org.eclipse.jgit.lib.AnyObjectId;
+import org.eclipse.jgit.lib.FileMode;
+import org.eclipse.jgit.lib.Repository;
 
 public abstract class CacheBasedBuilder<B extends CacheBasedBuilder, T> extends ParallelBuilder<T> {
 
@@ -121,218 +122,29 @@ public abstract class CacheBasedBuilder<B extends CacheBasedBuilder, T> extends 
     return self();
   }
 
-  @Nonnull
-  private Repository ensureRepository() {
-    if(repository == null)
-      throw new IllegalArgumentException("repository must be configured");
-    return repository;
-  }
-
-  private void setupBase(@Nonnull DirCache cache) throws IOException {
+  private void setupBase(@Nonnull BuildStateProvider provider) throws IOException {
     if(baseTreeId != null || baseTreeIdStr != null || baseCommitId != null || baseCommitIdStr != null) {
-      Repository repository = ensureRepository();
-      ObjectReader reader = repository.newObjectReader();
-      try {
-        if(baseTreeId == null) {
-          if(baseTreeIdStr != null)
-            baseTreeId = repository.resolve(baseTreeIdStr);
-          else {
-            if(baseCommitId == null)
-              baseCommitId = repository.resolve(baseCommitIdStr);
-            baseTreeId = RevTreeHelper.getRootTree(reader, baseCommitId);
-          }
+      if(baseTreeId == null) {
+        if(baseTreeIdStr != null)
+          baseTreeId = provider.getRepository().resolve(baseTreeIdStr);
+        else {
+          if(baseCommitId == null)
+            baseCommitId = provider.getRepository().resolve(baseCommitIdStr);
+          baseTreeId = RevTreeHelper.getRootTree(provider.getCurrentReader(), baseCommitId);
         }
-        DirCacheHelper.addTree(cache, reader, "", baseTreeId);
-      } finally {
-        reader.release();
       }
+      DirCacheHelper.addTree(provider.getCurrentCache(), provider.getCurrentReader(), "", baseTreeId);
     }
   }
 
   @Nonnull
-  private DirCache setupCache() throws IOException {
-    DirCache cache = DirCache.newInCore();
-    setupBase(cache);
-    return cache;
-  }
-
-  @Nonnull
   protected DirCache buildCache() throws IOException {
-    DirCache cache = setupCache();
-    try(BuildStateProvider provider = new BuildStateProvider(cache)) {
+    try(BuildStateProvider provider = new BuildStateProvider(repository)) {
+      setupBase(provider);
       for(CacheEditor editor : editors) {
         editor.doEdit(provider);
       }
       return provider.getCurrentCache();
     }
   }
-
-  private class BuildStateProvider implements Closeable {
-    private final DirCache cache;
-    private ObjectReader reader;
-    private DirCacheBuilder builder;
-    private DirCacheEditor editor;
-
-    private BuildStateProvider(@Nonnull DirCache cache) {
-      this.cache = cache;
-    }
-
-    @Nonnull
-    public DirCache getCurrentCache() {
-      if(builder != null) {
-        builder.finish();
-        builder = null;
-      }
-      if(editor != null) {
-        editor.finish();
-        editor = null;
-      }
-      return cache;
-    }
-
-    @Nonnull
-    public ObjectReader getCurrentReader() {
-      if(reader == null)
-        reader = ensureRepository().newObjectReader();
-      return reader;
-    }
-
-    @Nonnull
-    public DirCacheBuilder getCurrentBuilder() {
-      if(editor != null) {
-        editor.finish();
-        editor = null;
-      }
-      if(builder == null)
-        builder = DirCacheHelper.keepEverything(cache);
-      return builder;
-    }
-
-    @Nonnull
-    public DirCacheEditor getEditor() {
-      if(builder != null) {
-        builder.finish();
-        builder = null;
-      }
-      if(editor == null)
-        editor = cache.editor();
-      return editor;
-    }
-
-    @Override
-    public void close() {
-      if(reader != null)
-        reader.release();
-    }
-  }
-
-  private abstract class CacheEditor {
-    protected final String path;
-
-    protected CacheEditor(@Nonnull String path) {
-      this.path = path;
-    }
-
-    protected abstract void doEdit(@Nonnull BuildStateProvider provider) throws IOException;
-  }
-
-  private class AddTree extends CacheEditor {
-    private AnyObjectId treeId;
-    private String treeIdStr;
-
-    private AddTree(@Nonnull String path) {
-      super(path);
-    }
-
-    private void setTreeId(@Nullable AnyObjectId treeId) {
-      this.treeId = treeId;
-    }
-
-    private void setTreeIdStr(@Nullable String treeIdStr) {
-      this.treeIdStr = treeIdStr;
-    }
-
-    @Override
-    protected void doEdit(@Nonnull BuildStateProvider provider) throws IOException {
-      ObjectReader reader = provider.getCurrentReader();
-      if(treeId == null)
-        treeId = ensureRepository().resolve(treeIdStr);
-      DirCacheBuilder builder = provider.getCurrentBuilder();
-      DirCacheHelper.addTree(builder, reader, path, treeId);
-    }
-  }
-
-  private class AddBlob extends CacheEditor {
-    private AnyObjectId blobId;
-    private FileMode mode;
-
-    private AddBlob(@Nonnull String path) {
-      super(path);
-    }
-
-    public void setBlobId(@Nonnull AnyObjectId blobId) {
-      this.blobId = blobId;
-    }
-
-    public void setMode(@Nonnull FileMode mode) {
-      this.mode = mode;
-    }
-
-    @Override
-    protected void doEdit(@Nonnull BuildStateProvider provider) throws IOException {
-      DirCacheHelper.addFile(provider.getCurrentBuilder(), mode, path, blobId);
-    }
-  }
-
-  private class DeleteTree extends CacheEditor {
-    private DeleteTree(@Nonnull String path) {
-      super(path);
-    }
-
-    @Override
-    protected void doEdit(@Nonnull BuildStateProvider provider) throws IOException {
-      DirCacheHelper.deleteDirectory(provider.getEditor(), path);
-    }
-  }
-
-  private class DeleteBlob extends CacheEditor {
-    private DeleteBlob(@Nonnull String path) {
-      super(path);
-    }
-
-    @Override
-    protected void doEdit(@Nonnull BuildStateProvider provider) throws IOException {
-      DirCacheHelper.deleteFile(provider.getEditor(), path);
-    }
-  }
-
-  private class UpdateBlob extends CacheEditor {
-    private AnyObjectId blobId;
-    private FileMode mode;
-
-    private UpdateBlob(@Nonnull String path) {
-      super(path);
-    }
-
-    public void setBlobId(@Nonnull AnyObjectId blobId) {
-      this.blobId = blobId;
-    }
-
-    public void setMode(@Nonnull FileMode mode) {
-      this.mode = mode;
-    }
-
-    @Override
-    protected void doEdit(@Nonnull BuildStateProvider provider) throws IOException {
-      DirCache cache = provider.getCurrentCache();
-      DirCacheEntry entry = cache.getEntry(path);
-      if(entry == null)
-        throw new IllegalArgumentException("blob not found: " + path);
-      if(blobId != null)
-        entry.setObjectId(blobId);
-      if(mode != null)
-        entry.setFileMode(mode);
-    }
-  }
-
 }

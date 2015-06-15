@@ -130,7 +130,10 @@ public class ParallelCacheBuilderTest extends AbstractParallelGitTest {
 
   @Test(expected = IllegalArgumentException.class)
   public void addTreeWithoutRepositoryTest() throws IOException {
-    ParallelCacheBuilder.prepare().addTree(ObjectId.zeroId(), "somepath").build();
+    ParallelCacheBuilder
+      .prepare()
+      .addTree(ObjectId.zeroId(), "somepath")
+      .build();
   }
 
   @Test
