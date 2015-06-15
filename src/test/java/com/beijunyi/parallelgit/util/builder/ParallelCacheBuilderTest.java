@@ -27,7 +27,7 @@ public class ParallelCacheBuilderTest extends AbstractParallelGitTest {
     ObjectId blob2 = writeFile("2.txt");
     ObjectId revisionId = commitToMaster();
     DirCache cache = ParallelCacheBuilder.prepare(repo)
-                       .loadRevision(revisionId)
+                       .baseCommit(revisionId)
                        .build();
     Assert.assertEquals(2, cache.getEntryCount());
     Assert.assertEquals(blob1, cache.getEntry("1.txt").getObjectId());
@@ -41,19 +41,11 @@ public class ParallelCacheBuilderTest extends AbstractParallelGitTest {
     ObjectId blob2 = writeFile("2.txt");
     String revisionIdStr = commitToMaster().getName();
     DirCache cache = ParallelCacheBuilder.prepare(repo)
-                       .loadRevision(revisionIdStr)
+                       .baseCommit(revisionIdStr)
                        .build();
     Assert.assertEquals(2, cache.getEntryCount());
     Assert.assertEquals(blob1, cache.getEntry("1.txt").getObjectId());
     Assert.assertEquals(blob2, cache.getEntry("2.txt").getObjectId());
-  }
-
-  @Test(expected = IllegalArgumentException.class)
-  public void tryLoadingRevisionToInitializedCacheTest() throws IOException {
-    initRepository();
-    ObjectId blob1 = writeFile("1.txt");
-    ObjectId revisionId = commitToMaster();
-    ParallelCacheBuilder.prepare(repo).addBlob(blob1, "1.txt").loadRevision(revisionId).build();
   }
 
   @Test
@@ -125,7 +117,7 @@ public class ParallelCacheBuilderTest extends AbstractParallelGitTest {
     ObjectId revisionId = commitToMaster();
     DirCache cache = ParallelCacheBuilder
                        .prepare(repo)
-                       .loadRevision(revisionId)
+                       .baseCommit(revisionId)
                        .deleteBlob("1.txt")
                        .build();
     Assert.assertEquals(1, cache.getEntryCount());
@@ -142,7 +134,7 @@ public class ParallelCacheBuilderTest extends AbstractParallelGitTest {
     ObjectId revisionId = commitToMaster();
     DirCache cache = ParallelCacheBuilder
                        .prepare(repo)
-                       .loadRevision(revisionId)
+                       .baseCommit(revisionId)
                        .deleteTree("a/b")
                        .build();
     Assert.assertEquals(1, cache.getEntryCount());
@@ -160,7 +152,7 @@ public class ParallelCacheBuilderTest extends AbstractParallelGitTest {
     FileMode newFileMode = FileMode.EXECUTABLE_FILE;
     DirCache cache = ParallelCacheBuilder
                        .prepare(repo)
-                       .loadRevision(revisionId)
+                       .baseCommit(revisionId)
                        .updateBlob(newBlobId, newFileMode, "1.txt")
                        .build();
     DirCacheEntry entry = cache.getEntry("1.txt");
@@ -176,7 +168,7 @@ public class ParallelCacheBuilderTest extends AbstractParallelGitTest {
     ObjectId newBlobId = BlobHelper.getBlobId("some other content");
     DirCache cache = ParallelCacheBuilder
                        .prepare(repo)
-                       .loadRevision(revisionId)
+                       .baseCommit(revisionId)
                        .updateBlob(newBlobId, "1.txt")
                        .build();
     DirCacheEntry entry = cache.getEntry("1.txt");
@@ -191,7 +183,7 @@ public class ParallelCacheBuilderTest extends AbstractParallelGitTest {
     FileMode newFileMode = FileMode.EXECUTABLE_FILE;
     DirCache cache = ParallelCacheBuilder
                        .prepare(repo)
-                       .loadRevision(revisionId)
+                       .baseCommit(revisionId)
                        .updateBlob(newFileMode, "1.txt")
                        .build();
     DirCacheEntry entry = cache.getEntry("1.txt");

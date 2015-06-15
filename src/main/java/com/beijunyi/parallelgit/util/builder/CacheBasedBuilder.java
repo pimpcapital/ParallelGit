@@ -14,6 +14,10 @@ import org.eclipse.jgit.lib.*;
 
 public abstract class CacheBasedBuilder<B extends CacheBasedBuilder, T> extends ParallelBuilder<T> {
 
+  protected AnyObjectId baseCommitId;
+  protected String baseCommitIdStr;
+  protected AnyObjectId baseTreeId;
+  protected String baseTreeIdStr;
   protected final List<CacheEditor> editors = new ArrayList<>();
   protected final Repository repository;
 
@@ -23,6 +27,30 @@ public abstract class CacheBasedBuilder<B extends CacheBasedBuilder, T> extends 
 
   @Nonnull
   protected abstract B self();
+
+  @Nonnull
+  public B baseCommit(@Nonnull AnyObjectId commitId) {
+    this.baseCommitId = commitId;
+    return self();
+  }
+
+  @Nonnull
+  public B baseCommit(@Nonnull String commitIdStr) {
+    this.baseCommitIdStr = commitIdStr;
+    return self();
+  }
+
+  @Nonnull
+  public B baseTree(@Nonnull AnyObjectId treeId) {
+    this.baseTreeId = treeId;
+    return self();
+  }
+
+  @Nonnull
+  public B baseTree(@Nonnull String treeIdStr) {
+    this.baseTreeIdStr = treeIdStr;
+    return self();
+  }
 
   @Nonnull
   public B addTree(@Nonnull AnyObjectId treeId, @Nonnull String path) {
@@ -37,22 +65,6 @@ public abstract class CacheBasedBuilder<B extends CacheBasedBuilder, T> extends 
     AddTree editor = new AddTree(path);
     editor.setTreeIdStr(treeIdStr);
     editors.add(editor);
-    return self();
-  }
-
-  @Nonnull
-  public B loadRevision(@Nonnull AnyObjectId revisionId) {
-    AddTree editor = new AddTree("");
-    editor.setRevisionId(revisionId);
-    editors.add(0, editor);
-    return self();
-  }
-
-  @Nonnull
-  public B loadRevision(@Nonnull String revisionIdStr) {
-    AddTree editor = new AddTree("");
-    editor.setRevisionIdStr(revisionIdStr);
-    editors.add(0, editor);
     return self();
   }
 
@@ -116,35 +128,57 @@ public abstract class CacheBasedBuilder<B extends CacheBasedBuilder, T> extends 
     return repository;
   }
 
+  private void setupBase(@Nonnull DirCache cache) throws IOException {
+    if(baseTreeId != null || baseTreeIdStr != null || baseCommitId != null || baseCommitIdStr != null) {
+      Repository repository = ensureRepository();
+      ObjectReader reader = repository.newObjectReader();
+      try {
+        if(baseTreeId == null) {
+          if(baseTreeIdStr != null)
+            baseTreeId = repository.resolve(baseTreeIdStr);
+          else {
+            if(baseCommitId == null)
+              baseCommitId = repository.resolve(baseCommitIdStr);
+            baseTreeId = RevTreeHelper.getRootTree(reader, baseCommitId);
+          }
+        }
+        DirCacheHelper.addTree(cache, reader, "", baseTreeId);
+      } finally {
+        reader.release();
+      }
+    }
+  }
+
+  @Nonnull
+  private DirCache setupCache() throws IOException {
+    DirCache cache = DirCache.newInCore();
+    setupBase(cache);
+    return cache;
+  }
+
   @Nonnull
   protected DirCache buildCache() throws IOException {
-    try(BuildStateProvider provider = new BuildStateProvider()) {
+    DirCache cache = setupCache();
+    try(BuildStateProvider provider = new BuildStateProvider(cache)) {
       for(CacheEditor editor : editors) {
         editor.doEdit(provider);
       }
-      return provider.getCache();
+      return provider.getCurrentCache();
     }
   }
 
   private class BuildStateProvider implements Closeable {
-    private DirCache cache;
+    private final DirCache cache;
     private ObjectReader reader;
     private DirCacheBuilder builder;
     private DirCacheEditor editor;
 
-    @Nonnull
-    private DirCache ensureCache() {
-      if(cache == null)
-        cache = DirCache.newInCore();
-      return cache;
-    }
-
-    private boolean isInitialised() {
-      return cache != null;
+    private BuildStateProvider(@Nonnull DirCache cache) {
+      this.cache = cache;
     }
 
     @Nonnull
-    public DirCache getCache() {
+    public DirCache getCurrentCache() {
       if(builder != null) {
         builder.finish();
         builder = null;
@@ -153,24 +187,24 @@ public abstract class CacheBasedBuilder<B extends CacheBasedBuilder, T> extends 
         editor.finish();
         editor = null;
       }
-      return ensureCache();
+      return cache;
     }
 
     @Nonnull
-    public ObjectReader getReader() {
+    public ObjectReader getCurrentReader() {
       if(reader == null)
         reader = ensureRepository().newObjectReader();
       return reader;
     }
 
     @Nonnull
-    public DirCacheBuilder getBuilder() {
+    public DirCacheBuilder getCurrentBuilder() {
       if(editor != null) {
         editor.finish();
         editor = null;
       }
       if(builder == null)
-        builder = DirCacheHelper.keepEverything(ensureCache());
+        builder = DirCacheHelper.keepEverything(cache);
       return builder;
     }
 
@@ -181,7 +215,7 @@ public abstract class CacheBasedBuilder<B extends CacheBasedBuilder, T> extends 
         builder = null;
       }
       if(editor == null)
-        editor = ensureCache().editor();
+        editor = cache.editor();
       return editor;
     }
 
@@ -205,8 +239,6 @@ public abstract class CacheBasedBuilder<B extends CacheBasedBuilder, T> extends 
   private class AddTree extends CacheEditor {
     private AnyObjectId treeId;
     private String treeIdStr;
-    private AnyObjectId revisionId;
-    private String revisionIdStr;
 
     private AddTree(@Nonnull String path) {
       super(path);
@@ -220,33 +252,12 @@ public abstract class CacheBasedBuilder<B extends CacheBasedBuilder, T> extends 
       this.treeIdStr = treeIdStr;
     }
 
-    private void setRevisionId(@Nullable AnyObjectId revisionId) {
-      this.revisionId = revisionId;
-    }
-
-    private void setRevisionIdStr(@Nullable String revisionIdStr) {
-      this.revisionIdStr = revisionIdStr;
-    }
-
-
-
     @Override
     protected void doEdit(@Nonnull BuildStateProvider provider) throws IOException {
-      ObjectReader reader = provider.getReader();
-      if(treeId == null) {
-        if(treeIdStr != null)
-          treeId = ensureRepository().resolve(treeIdStr);
-        else if(revisionId != null || revisionIdStr != null) {
-          if(provider.isInitialised())
-            throw new IllegalArgumentException("cache is already initialized");
-          if(revisionId != null)
-            treeId = RevTreeHelper.getRootTree(reader, revisionId);
-          else
-            treeId = RevTreeHelper.getRootTree(reader, ensureRepository().resolve(revisionIdStr));
-        } else
-          throw new IllegalArgumentException("either of treeId of revisionId must be configured");
-      }
-      DirCacheBuilder builder = provider.getBuilder();
+      ObjectReader reader = provider.getCurrentReader();
+      if(treeId == null)
+        treeId = ensureRepository().resolve(treeIdStr);
+      DirCacheBuilder builder = provider.getCurrentBuilder();
       DirCacheHelper.addTree(builder, reader, path, treeId);
     }
   }
@@ -269,7 +280,7 @@ public abstract class CacheBasedBuilder<B extends CacheBasedBuilder, T> extends 
 
     @Override
     protected void doEdit(@Nonnull BuildStateProvider provider) throws IOException {
-      DirCacheBuilder builder = provider.getBuilder();
+      DirCacheBuilder builder = provider.getCurrentBuilder();
       if(blobId == null)
         throw new IllegalArgumentException("blobId must be configured");
       if(mode == null)
@@ -320,7 +331,7 @@ public abstract class CacheBasedBuilder<B extends CacheBasedBuilder, T> extends 
     protected void doEdit(@Nonnull BuildStateProvider provider) throws IOException {
       if(blobId == null && mode == null)
         throw new IllegalArgumentException("either of blobId or mode must be configured");
-      DirCache cache = provider.getCache();
+      DirCache cache = provider.getCurrentCache();
       DirCacheEntry entry = cache.getEntry(path);
       if(entry == null)
         throw new IllegalArgumentException("blob not found at " + path);

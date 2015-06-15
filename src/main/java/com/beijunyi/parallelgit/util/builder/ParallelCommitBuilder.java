@@ -235,7 +235,7 @@ public final class ParallelCommitBuilder extends CacheBasedBuilder<ParallelCommi
         if(editors.isEmpty())
           treeId = head.getTree();
         else
-          loadRevision(head);
+          baseCommit(head);
       } else {
         if(editors.isEmpty()) {
           if(!allowEmptyCommit)
@@ -243,7 +243,7 @@ public final class ParallelCommitBuilder extends CacheBasedBuilder<ParallelCommi
           assert repository != null;
           treeId = !parents.isEmpty() ? RevTreeHelper.getRootTree(repository, parents.get(0)) : null;
         } else if(!parents.isEmpty())
-          loadRevision(parents.get(0));
+          baseCommit(parents.get(0));
       }
     }
   }

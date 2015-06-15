@@ -38,4 +38,18 @@ public final class RevTreeHelper {
     return CommitHelper.getCommit(repo, commitId).getTree();
   }
 
+  /**
+   * Gets the root {@code RevTree} of the given commit.
+   *
+   * @param   repo
+   *          a git repo
+   * @param   commitIdStr
+   *          the id of a commit
+   * @return  root {@code RevTree} of the given commit.
+   */
+  @Nonnull
+  public static RevTree getRootTree(@Nonnull Repository repo, @Nonnull String commitIdStr) throws IOException {
+    return CommitHelper.getCommit(repo, repo.resolve(commitIdStr)).getTree();
+  }
+
 }
