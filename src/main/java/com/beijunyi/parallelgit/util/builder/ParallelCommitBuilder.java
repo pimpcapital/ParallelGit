@@ -226,7 +226,8 @@ public final class ParallelCommitBuilder extends CacheBasedBuilder<ParallelCommi
     AddDirectory editor = new AddDirectory(path);
     editor.setDirectoryStream(directoryStream);
     editors.add(editor);
-    return this;  }
+    return this;
+  }
 
   @Nonnull
   public ParallelCommitBuilder addDirectory(@Nonnull Path sourcePath, @Nonnull String path) {
@@ -250,28 +251,53 @@ public final class ParallelCommitBuilder extends CacheBasedBuilder<ParallelCommi
   }
 
   @Nonnull
+  public ParallelCommitBuilder updateFile(@Nonnull File sourceFile, @Nonnull String path, boolean create) {
+    return this;
+  }
+
+  @Nonnull
   public ParallelCommitBuilder updateFile(@Nonnull File sourceFile, @Nonnull String path) {
+    return updateFile(sourceFile, path, true);
+  }
+
+  @Nonnull
+  public ParallelCommitBuilder updateFile(@Nonnull Path sourcePath, @Nonnull String path, boolean create) {
     return this;
   }
 
   @Nonnull
   public ParallelCommitBuilder updateFile(@Nonnull Path sourcePath, @Nonnull String path) {
+    return updateFile(sourcePath, path, true);
+  }
+
+  @Nonnull
+  public ParallelCommitBuilder updateFile(@Nonnull InputStream inputStream, @Nonnull String path, boolean create) {
     return this;
   }
 
   @Nonnull
   public ParallelCommitBuilder updateFile(@Nonnull InputStream inputStream, @Nonnull String path) {
+    return updateFile(inputStream, path, true);
+  }
+
+  @Nonnull
+  public ParallelCommitBuilder updateFile(@Nonnull byte[] bytes, @Nonnull String path, boolean create) {
     return this;
   }
 
   @Nonnull
   public ParallelCommitBuilder updateFile(@Nonnull byte[] bytes, @Nonnull String path) {
+    return updateFile(bytes, path, true);
+  }
+
+  @Nonnull
+  public ParallelCommitBuilder updateFile(@Nonnull String content, @Nonnull String path, boolean create) {
     return this;
   }
 
   @Nonnull
   public ParallelCommitBuilder updateFile(@Nonnull String content, @Nonnull String path) {
-    return this;
+    return updateFile(content, path, true);
   }
 
   private void prepareHead() throws IOException {
@@ -332,8 +358,10 @@ public final class ParallelCommitBuilder extends CacheBasedBuilder<ParallelCommi
     if(committer == null) {
       if(committerName != null && committerEmail != null)
         committer = new PersonIdent(committerName, committerEmail);
-      else
+      else {
+        assert repository != null;
         committer = new PersonIdent(repository);
+      }
     }
   }
 
