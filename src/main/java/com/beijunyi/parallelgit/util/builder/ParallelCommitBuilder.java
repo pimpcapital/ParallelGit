@@ -222,17 +222,25 @@ public final class ParallelCommitBuilder extends CacheBasedBuilder<ParallelCommi
   }
 
   @Nonnull
-  public ParallelCommitBuilder addDirectory(@Nonnull File file, @Nonnull String path) {
+  public ParallelCommitBuilder addDirectory(@Nonnull DirectoryStream<Path> directoryStream, @Nonnull String path) {
+    AddDirectory editor = new AddDirectory(path);
+    editor.setDirectoryStream(directoryStream);
+    editors.add(editor);
+    return this;  }
+
+  @Nonnull
+  public ParallelCommitBuilder addDirectory(@Nonnull Path sourcePath, @Nonnull String path) {
+    AddDirectory editor = new AddDirectory(path);
+    editor.setSourcePath(sourcePath);
+    editors.add(editor);
     return this;
   }
 
   @Nonnull
-  public ParallelCommitBuilder addDirectory(@Nonnull Path file, @Nonnull String path) {
-    return this;
-  }
-
-  @Nonnull
-  public ParallelCommitBuilder addDirectory(@Nonnull DirectoryStream<Path> file, @Nonnull String path) {
+  public ParallelCommitBuilder addDirectory(@Nonnull File sourceFile, @Nonnull String path) {
+    AddDirectory editor = new AddDirectory(path);
+    editor.setSourceFile(sourceFile);
+    editors.add(editor);
     return this;
   }
 
@@ -242,27 +250,27 @@ public final class ParallelCommitBuilder extends CacheBasedBuilder<ParallelCommi
   }
 
   @Nonnull
-  public ParallelCommitBuilder updateFile(@Nonnull File file, @Nonnull String path) {
+  public ParallelCommitBuilder updateFile(@Nonnull File sourceFile, @Nonnull String path) {
     return this;
   }
 
   @Nonnull
-  public ParallelCommitBuilder updateFile(@Nonnull Path file, @Nonnull String path) {
+  public ParallelCommitBuilder updateFile(@Nonnull Path sourcePath, @Nonnull String path) {
     return this;
   }
 
   @Nonnull
-  public ParallelCommitBuilder updateFile(@Nonnull InputStream file, @Nonnull String path) {
+  public ParallelCommitBuilder updateFile(@Nonnull InputStream inputStream, @Nonnull String path) {
     return this;
   }
 
   @Nonnull
-  public ParallelCommitBuilder updateFile(@Nonnull byte[] file, @Nonnull String path) {
+  public ParallelCommitBuilder updateFile(@Nonnull byte[] bytes, @Nonnull String path) {
     return this;
   }
 
   @Nonnull
-  public ParallelCommitBuilder updateFile(@Nonnull String file, @Nonnull String path) {
+  public ParallelCommitBuilder updateFile(@Nonnull String content, @Nonnull String path) {
     return this;
   }
 
