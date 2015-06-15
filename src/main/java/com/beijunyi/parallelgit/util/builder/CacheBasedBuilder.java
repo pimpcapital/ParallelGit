@@ -270,7 +270,7 @@ public abstract class CacheBasedBuilder<B extends CacheBasedBuilder, T> extends 
       super(path);
     }
 
-    public void setBlobId(@Nullable AnyObjectId blobId) {
+    public void setBlobId(@Nonnull AnyObjectId blobId) {
       this.blobId = blobId;
     }
 
@@ -280,12 +280,7 @@ public abstract class CacheBasedBuilder<B extends CacheBasedBuilder, T> extends 
 
     @Override
     protected void doEdit(@Nonnull BuildStateProvider provider) throws IOException {
-      DirCacheBuilder builder = provider.getCurrentBuilder();
-      if(blobId == null)
-        throw new IllegalArgumentException("blobId must be configured");
-      if(mode == null)
-        throw new IllegalArgumentException("mode must be configured");
-      DirCacheHelper.addFile(builder, mode, path, blobId);
+      DirCacheHelper.addFile(provider.getCurrentBuilder(), mode, path, blobId);
     }
   }
 
@@ -329,12 +324,10 @@ public abstract class CacheBasedBuilder<B extends CacheBasedBuilder, T> extends 
 
     @Override
     protected void doEdit(@Nonnull BuildStateProvider provider) throws IOException {
-      if(blobId == null && mode == null)
-        throw new IllegalArgumentException("either of blobId or mode must be configured");
       DirCache cache = provider.getCurrentCache();
       DirCacheEntry entry = cache.getEntry(path);
       if(entry == null)
-        throw new IllegalArgumentException("blob not found at " + path);
+        throw new IllegalArgumentException("blob not found: " + path);
       if(blobId != null)
         entry.setObjectId(blobId);
       if(mode != null)

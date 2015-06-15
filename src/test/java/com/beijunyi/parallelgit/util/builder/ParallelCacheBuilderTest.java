@@ -21,31 +21,55 @@ public class ParallelCacheBuilderTest extends AbstractParallelGitTest {
   }
 
   @Test
-  public void buildCacheFromRevisionTest() throws IOException {
+  public void buildCacheFromCommitIdTest() throws IOException {
     initRepository();
-    ObjectId blob1 = writeFile("1.txt");
-    ObjectId blob2 = writeFile("2.txt");
-    ObjectId revisionId = commitToMaster();
+    String expectedFilePath = "expected_file.txt";
+    ObjectId expectedFileBlob = writeFile(expectedFilePath);
+    ObjectId commitId = commitToMaster();
     DirCache cache = ParallelCacheBuilder.prepare(repo)
-                       .baseCommit(revisionId)
+                       .baseCommit(commitId)
                        .build();
-    Assert.assertEquals(2, cache.getEntryCount());
-    Assert.assertEquals(blob1, cache.getEntry("1.txt").getObjectId());
-    Assert.assertEquals(blob2, cache.getEntry("2.txt").getObjectId());
+    Assert.assertEquals(1, cache.getEntryCount());
+    Assert.assertEquals(expectedFileBlob, cache.getEntry(expectedFilePath).getObjectId());
   }
 
   @Test
-  public void buildCacheFromRevisionStringTest() throws IOException {
+  public void buildCacheFromCommitIdStringTest() throws IOException {
     initRepository();
-    ObjectId blob1 = writeFile("1.txt");
-    ObjectId blob2 = writeFile("2.txt");
-    String revisionIdStr = commitToMaster().getName();
+    String expectedFilePath = "expected_file.txt";
+    ObjectId expectedFileBlob = writeFile(expectedFilePath);
+    String commitIdStr = commitToMaster().getName();
     DirCache cache = ParallelCacheBuilder.prepare(repo)
-                       .baseCommit(revisionIdStr)
+                       .baseCommit(commitIdStr)
                        .build();
-    Assert.assertEquals(2, cache.getEntryCount());
-    Assert.assertEquals(blob1, cache.getEntry("1.txt").getObjectId());
-    Assert.assertEquals(blob2, cache.getEntry("2.txt").getObjectId());
+    Assert.assertEquals(1, cache.getEntryCount());
+    Assert.assertEquals(expectedFileBlob, cache.getEntry(expectedFilePath).getObjectId());
+  }
+
+  @Test
+  public void buildCacheFromTreeIdTest() throws IOException {
+    initRepository();
+    String expectedFilePath = "expected_file.txt";
+    ObjectId expectedFileBlob = writeFile(expectedFilePath);
+    ObjectId treeId = RevTreeHelper.getRootTree(repo, commitToMaster());
+    DirCache cache = ParallelCacheBuilder.prepare(repo)
+                       .baseTree(treeId)
+                       .build();
+    Assert.assertEquals(1, cache.getEntryCount());
+    Assert.assertEquals(expectedFileBlob, cache.getEntry(expectedFilePath).getObjectId());
+  }
+
+  @Test
+  public void buildCacheFromTreeIdStringTest() throws IOException {
+    initRepository();
+    String expectedFilePath = "expected_file.txt";
+    ObjectId expectedFileBlob = writeFile(expectedFilePath);
+    String treeIdStr = RevTreeHelper.getRootTree(repo, commitToMaster()).getName();
+    DirCache cache = ParallelCacheBuilder.prepare(repo)
+                       .baseTree(treeIdStr)
+                       .build();
+    Assert.assertEquals(1, cache.getEntryCount());
+    Assert.assertEquals(expectedFileBlob, cache.getEntry(expectedFilePath).getObjectId());
   }
 
   @Test
@@ -114,10 +138,10 @@ public class ParallelCacheBuilderTest extends AbstractParallelGitTest {
     initRepository();
     writeFile("1.txt");
     writeFile("2.txt");
-    ObjectId revisionId = commitToMaster();
+    ObjectId commitId = commitToMaster();
     DirCache cache = ParallelCacheBuilder
                        .prepare(repo)
-                       .baseCommit(revisionId)
+                       .baseCommit(commitId)
                        .deleteBlob("1.txt")
                        .build();
     Assert.assertEquals(1, cache.getEntryCount());
@@ -131,10 +155,10 @@ public class ParallelCacheBuilderTest extends AbstractParallelGitTest {
     writeFile("a/b/1.txt");
     writeFile("a/b/2.txt");
     writeFile("a/3.txt");
-    ObjectId revisionId = commitToMaster();
+    ObjectId commitId = commitToMaster();
     DirCache cache = ParallelCacheBuilder
                        .prepare(repo)
-                       .baseCommit(revisionId)
+                       .baseCommit(commitId)
                        .deleteTree("a/b")
                        .build();
     Assert.assertEquals(1, cache.getEntryCount());
@@ -147,12 +171,12 @@ public class ParallelCacheBuilderTest extends AbstractParallelGitTest {
   public void updateBlobTest() throws IOException {
     initRepository();
     writeFile("1.txt", "some content");
-    ObjectId revisionId = commitToMaster();
+    ObjectId commitId = commitToMaster();
     ObjectId newBlobId = BlobHelper.getBlobId("some other content");
     FileMode newFileMode = FileMode.EXECUTABLE_FILE;
     DirCache cache = ParallelCacheBuilder
                        .prepare(repo)
-                       .baseCommit(revisionId)
+                       .baseCommit(commitId)
                        .updateBlob(newBlobId, newFileMode, "1.txt")
                        .build();
     DirCacheEntry entry = cache.getEntry("1.txt");
@@ -164,11 +188,11 @@ public class ParallelCacheBuilderTest extends AbstractParallelGitTest {
   public void updateBlobIdTest() throws IOException {
     initRepository();
     writeFile("1.txt", "some content");
-    ObjectId revisionId = commitToMaster();
+    ObjectId commitId = commitToMaster();
     ObjectId newBlobId = BlobHelper.getBlobId("some other content");
     DirCache cache = ParallelCacheBuilder
                        .prepare(repo)
-                       .baseCommit(revisionId)
+                       .baseCommit(commitId)
                        .updateBlob(newBlobId, "1.txt")
                        .build();
     DirCacheEntry entry = cache.getEntry("1.txt");
@@ -179,11 +203,11 @@ public class ParallelCacheBuilderTest extends AbstractParallelGitTest {
   public void updateBlobFileModeTest() throws IOException {
     initRepository();
     writeFile("1.txt", "some content");
-    ObjectId revisionId = commitToMaster();
+    ObjectId commitId = commitToMaster();
     FileMode newFileMode = FileMode.EXECUTABLE_FILE;
     DirCache cache = ParallelCacheBuilder
                        .prepare(repo)
-                       .baseCommit(revisionId)
+                       .baseCommit(commitId)
                        .updateBlob(newFileMode, "1.txt")
                        .build();
     DirCacheEntry entry = cache.getEntry("1.txt");
