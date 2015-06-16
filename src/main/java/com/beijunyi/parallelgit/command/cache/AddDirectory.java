@@ -79,7 +79,7 @@ public class AddDirectory extends CacheEditor {
   CacheStateProvider provider) throws IOException {
     for(Path child : directoryStream) {
       String filename = normalizeFilename(child.getFileName().toString());
-      String fullPath = base += filename;
+      String fullPath = base + filename;
       if(Files.isRegularFile(child))
         addFile(child, fullPath, provider);
       else if(Files.isDirectory(child))
@@ -102,7 +102,7 @@ public class AddDirectory extends CacheEditor {
     if(children == null)
       throw new IllegalArgumentException(base + " is not a valid directory");
     for(File child : children) {
-      String fullPath = base += child.getName();
+      String fullPath = base + child.getName();
       if(child.isFile())
         addFile(child, fullPath, provider);
       else if(child.isDirectory())

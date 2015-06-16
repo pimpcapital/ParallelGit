@@ -15,13 +15,13 @@ public class BlobHelperTest extends AbstractParallelGitTest {
     String file = "a.txt";
     ObjectId fileBlob = writeFile(file);
     ObjectId commit = commitToMaster();
-    Assert.assertEquals(fileBlob, BlobHelper.findBlobId(repo, file, commit));
+    Assert.assertEquals(fileBlob, BlobHelper.findBlobId(repo, commit, file));
   }
 
   @Test
   public void findNonExistentFileBlobIdTest() throws IOException {
     ObjectId commit = initRepository();
-    Assert.assertNull(BlobHelper.findBlobId(repo, "non-existent.txt", commit));
+    Assert.assertNull(BlobHelper.findBlobId(repo, commit, "non-existent.txt"));
   }
 
 }

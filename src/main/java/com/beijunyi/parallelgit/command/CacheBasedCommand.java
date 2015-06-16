@@ -142,9 +142,8 @@ public abstract class CacheBasedCommand<B extends CacheBasedCommand, T> extends 
   protected DirCache buildCache() throws IOException {
     try(CacheStateProvider provider = new CacheStateProvider(repository)) {
       setupBase(provider);
-      for(CacheEditor editor : editors) {
+      for(CacheEditor editor : editors)
         editor.edit(provider);
-      }
       return provider.getCurrentCache();
     }
   }

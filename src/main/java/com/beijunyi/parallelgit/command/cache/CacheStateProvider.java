@@ -1,6 +1,7 @@
 package com.beijunyi.parallelgit.command.cache;
 
 import java.io.Closeable;
+import java.io.IOException;
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 
@@ -81,10 +82,12 @@ public class CacheStateProvider implements Closeable {
   }
 
   @Override
-  public void close() {
+  public void close() throws IOException {
     if(reader != null)
       reader.release();
-    if(inserter != null)
+    if(inserter != null) {
+      inserter.flush();
       inserter.release();
+    }
   }
 }

@@ -37,20 +37,20 @@ public final class BlobHelper {
    * Finds the blob id of the specified file in the given commit.
    *
    * @param reader an object reader
-   * @param path a file path
    * @param commitId a commit id
+   * @param path a file path
    * @return a blob id
    */
   @Nullable
-  public static ObjectId findBlobId(@Nonnull ObjectReader reader, @Nonnull String path, @Nonnull ObjectId commitId) throws IOException {
+  public static ObjectId findBlobId(@Nonnull ObjectReader reader, @Nonnull AnyObjectId commitId, @Nonnull String path) throws IOException {
     return TreeWalkHelper.getObject(reader, path, RevTreeHelper.getRootTree(reader, commitId));
   }
 
   /**
    * Finds the blob id of the specified file in the given commit.
    *
-   * This method creates a temporary {@link ObjectReader} and then invokes {@link #findBlobId(ObjectReader, String,
-   * ObjectId)}. The temporary reader will be released at the end of this method..
+   * This method creates a temporary {@link ObjectReader} and then invokes {@link #findBlobId(ObjectReader, AnyObjectId,
+   * String)}. The temporary reader will be released at the end of this method..
    *
    * @param repo a git repository
    * @param path a file path
@@ -58,10 +58,10 @@ public final class BlobHelper {
    * @return a blob id
    */
   @Nullable
-  public static ObjectId findBlobId(@Nonnull Repository repo, @Nonnull String path, @Nonnull ObjectId commitId) throws IOException {
+  public static ObjectId findBlobId(@Nonnull Repository repo, @Nonnull AnyObjectId commitId, @Nonnull String path) throws IOException {
     ObjectReader reader = repo.newObjectReader();
     try {
-      return findBlobId(reader, path, commitId);
+      return findBlobId(reader, commitId, path);
     } finally {
       reader.release();
     }
@@ -75,14 +75,14 @@ public final class BlobHelper {
    * @return a byte array
    */
   @Nonnull
-  public static byte[] getBytes(@Nonnull ObjectReader reader, @Nonnull ObjectId blobId) throws IOException {
+  public static byte[] getBytes(@Nonnull ObjectReader reader, @Nonnull AnyObjectId blobId) throws IOException {
     return reader.open(blobId).getBytes();
   }
 
   /**
    * Gets the byte array mapped from the blob id.
    *
-   * This method creates a temporary {@link ObjectReader} and then invokes {@link #getBytes(ObjectReader, ObjectId)}.
+   * This method creates a temporary {@link ObjectReader} and then invokes {@link #getBytes(ObjectReader, AnyObjectId)}.
    * The temporary reader will be released at the end of this method.
    *
    * @param repo a git repository
@@ -90,10 +90,28 @@ public final class BlobHelper {
    * @return a byte array
    */
   @Nonnull
-  public static byte[] getBytes(@Nonnull Repository repo, @Nonnull ObjectId blobId) throws IOException {
+  public static byte[] getBytes(@Nonnull Repository repo, @Nonnull AnyObjectId blobId) throws IOException {
     ObjectReader reader = repo.newObjectReader();
     try {
       return getBytes(reader, blobId);
+    } finally {
+      reader.release();
+    }
+  }
+
+  @Nullable
+  public static byte[] getBytes(@Nonnull ObjectReader reader, @Nonnull AnyObjectId commitId, @Nonnull String path) throws IOException {
+    ObjectId blobId = findBlobId(reader, commitId, path);
+    if(blobId == null)
+      return null;
+    return getBytes(reader, blobId);
+  }
+
+  @Nullable
+  public static byte[] getBytes(@Nonnull Repository repo, @Nonnull AnyObjectId commitId, @Nonnull String path) throws IOException {
+    ObjectReader reader = repo.newObjectReader();
+    try {
+      return getBytes(reader, commitId, path);
     } finally {
       reader.release();
     }

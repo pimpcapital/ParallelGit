@@ -24,8 +24,8 @@ import org.eclipse.jgit.revwalk.RevCommit;
 
 public final class ParallelCommitCommand extends CacheBasedCommand<ParallelCommitCommand, ObjectId> {
   private String branch;
-  private boolean orphan;
   private boolean amend;
+  private boolean orphan;
   private boolean allowEmptyCommit;
   private boolean fromScratch;
   private AnyObjectId treeId;
@@ -57,14 +57,14 @@ public final class ParallelCommitCommand extends CacheBasedCommand<ParallelCommi
   }
 
   @Nonnull
-  public ParallelCommitCommand orphan(boolean orphan) {
-    this.orphan = orphan;
+  public ParallelCommitCommand amend(boolean amend) {
+    this.amend = amend;
     return this;
   }
 
   @Nonnull
-  public ParallelCommitCommand amend(boolean amend) {
-    this.amend = amend;
+  public ParallelCommitCommand orphan(boolean orphan) {
+    this.orphan = orphan;
     return this;
   }
 
@@ -136,14 +136,6 @@ public final class ParallelCommitCommand extends CacheBasedCommand<ParallelCommi
   }
 
   @Nonnull
-  public ParallelCommitCommand addFile(@Nonnull byte[] bytes, @Nonnull String path) {
-    AddFile editor = new AddFile(path);
-    editor.setBytes(bytes);
-    editors.add(editor);
-    return this;
-  }
-
-  @Nonnull
   public ParallelCommitCommand addFile(@Nonnull byte[] bytes, @Nonnull FileMode mode, @Nonnull String path) {
     AddFile editor = new AddFile(path);
     editor.setBytes(bytes);
@@ -153,11 +145,8 @@ public final class ParallelCommitCommand extends CacheBasedCommand<ParallelCommi
   }
 
   @Nonnull
-  public ParallelCommitCommand addFile(@Nonnull String content, @Nonnull String path) {
-    AddFile editor = new AddFile(path);
-    editor.setContent(content);
-    editors.add(editor);
-    return this;
+  public ParallelCommitCommand addFile(@Nonnull byte[] bytes, @Nonnull String path) {
+    return addFile(bytes, FileMode.REGULAR_FILE, path);
   }
 
   @Nonnull
@@ -170,11 +159,8 @@ public final class ParallelCommitCommand extends CacheBasedCommand<ParallelCommi
   }
 
   @Nonnull
-  public ParallelCommitCommand addFile(@Nonnull InputStream inputStream, @Nonnull String path) {
-    AddFile editor = new AddFile(path);
-    editor.setInputStream(inputStream);
-    editors.add(editor);
-    return this;
+  public ParallelCommitCommand addFile(@Nonnull String content, @Nonnull String path) {
+    return addFile(content, FileMode.REGULAR_FILE, path);
   }
 
   @Nonnull
@@ -187,11 +173,8 @@ public final class ParallelCommitCommand extends CacheBasedCommand<ParallelCommi
   }
 
   @Nonnull
-  public ParallelCommitCommand addFile(@Nonnull Path sourcePath, @Nonnull String path) {
-    AddFile editor = new AddFile(path);
-    editor.setSourcePath(sourcePath);
-    editors.add(editor);
-    return this;
+  public ParallelCommitCommand addFile(@Nonnull InputStream inputStream, @Nonnull String path) {
+    return addFile(inputStream, FileMode.REGULAR_FILE, path);
   }
 
   @Nonnull
@@ -204,19 +187,22 @@ public final class ParallelCommitCommand extends CacheBasedCommand<ParallelCommi
   }
 
   @Nonnull
-  public ParallelCommitCommand addFile(@Nonnull File sourceFile, @Nonnull String path) {
-    AddFile editor = new AddFile(path);
-    editor.setSourceFile(sourceFile);
-    editors.add(editor);
-    return this;
+  public ParallelCommitCommand addFile(@Nonnull Path sourcePath, @Nonnull String path) {
+    return addFile(sourcePath, FileMode.REGULAR_FILE, path);
   }
 
   @Nonnull
   public ParallelCommitCommand addFile(@Nonnull File sourceFile, @Nonnull FileMode mode, @Nonnull String path) {
     AddFile editor = new AddFile(path);
     editor.setSourceFile(sourceFile);
+    editor.setMode(mode);
     editors.add(editor);
     return this;
+  }
+
+  @Nonnull
+  public ParallelCommitCommand addFile(@Nonnull File sourceFile, @Nonnull String path) {
+    return addFile(sourceFile, FileMode.REGULAR_FILE, path);
   }
 
   @Nonnull
@@ -342,7 +328,7 @@ public final class ParallelCommitCommand extends CacheBasedCommand<ParallelCommi
 
   private void prepareBase() throws IOException {
     if(treeId == null && cache == null && !fromScratch) {
-      if(amend) {
+      if(amend || orphan) {
         if(editors.isEmpty())
           treeId = head.getTree();
         else
