@@ -12,7 +12,7 @@ import org.eclipse.jgit.revwalk.RevCommit;
 import org.junit.Assert;
 import org.junit.Test;
 
-public class ParallelCommitBuilderTest extends AbstractParallelGitTest {
+public class ParallelCommitCommandTest extends AbstractParallelGitTest {
 
   private void writeSomethingToCache() throws IOException {
     writeFile("something.txt");

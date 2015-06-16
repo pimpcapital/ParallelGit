@@ -12,7 +12,7 @@ import org.eclipse.jgit.lib.ObjectId;
 import org.junit.Assert;
 import org.junit.Test;
 
-public class ParallelCacheBuilderTest extends AbstractParallelGitTest {
+public class ParallelCacheCommandTest extends AbstractParallelGitTest {
 
   @Test
   public void buildEmptyCacheTest() throws IOException {
