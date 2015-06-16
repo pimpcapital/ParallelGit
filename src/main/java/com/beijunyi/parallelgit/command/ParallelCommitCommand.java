@@ -13,6 +13,7 @@ import javax.annotation.Nullable;
 
 import com.beijunyi.parallelgit.command.cache.AddDirectory;
 import com.beijunyi.parallelgit.command.cache.AddFile;
+import com.beijunyi.parallelgit.command.cache.UpdateFile;
 import com.beijunyi.parallelgit.util.BranchHelper;
 import com.beijunyi.parallelgit.util.CommitHelper;
 import com.beijunyi.parallelgit.util.RevTreeHelper;
@@ -253,37 +254,10 @@ public final class ParallelCommitCommand extends CacheBasedCommand<ParallelCommi
   }
 
   @Nonnull
-  public ParallelCommitCommand updateFile(@Nonnull File sourceFile, @Nonnull String path, boolean create) {
-    return this;
-  }
-
-  @Nonnull
-  public ParallelCommitCommand updateFile(@Nonnull File sourceFile, @Nonnull String path) {
-    return updateFile(sourceFile, path, true);
-  }
-
-  @Nonnull
-  public ParallelCommitCommand updateFile(@Nonnull Path sourcePath, @Nonnull String path, boolean create) {
-    return this;
-  }
-
-  @Nonnull
-  public ParallelCommitCommand updateFile(@Nonnull Path sourcePath, @Nonnull String path) {
-    return updateFile(sourcePath, path, true);
-  }
-
-  @Nonnull
-  public ParallelCommitCommand updateFile(@Nonnull InputStream inputStream, @Nonnull String path, boolean create) {
-    return this;
-  }
-
-  @Nonnull
-  public ParallelCommitCommand updateFile(@Nonnull InputStream inputStream, @Nonnull String path) {
-    return updateFile(inputStream, path, true);
-  }
-
-  @Nonnull
   public ParallelCommitCommand updateFile(@Nonnull byte[] bytes, @Nonnull String path, boolean create) {
+    UpdateFile editor = new UpdateFile(path);
+    editor.setBytes(bytes);
+    editor.setCreate(create);
     return this;
   }
 
@@ -294,12 +268,54 @@ public final class ParallelCommitCommand extends CacheBasedCommand<ParallelCommi
 
   @Nonnull
   public ParallelCommitCommand updateFile(@Nonnull String content, @Nonnull String path, boolean create) {
+    UpdateFile editor = new UpdateFile(path);
+    editor.setContent(content);
+    editor.setCreate(create);
     return this;
   }
 
   @Nonnull
   public ParallelCommitCommand updateFile(@Nonnull String content, @Nonnull String path) {
     return updateFile(content, path, true);
+  }
+
+  @Nonnull
+  public ParallelCommitCommand updateFile(@Nonnull InputStream inputStream, @Nonnull String path, boolean create) {
+    UpdateFile editor = new UpdateFile(path);
+    editor.setInputStream(inputStream);
+    editor.setCreate(create);
+    return this;
+  }
+
+  @Nonnull
+  public ParallelCommitCommand updateFile(@Nonnull InputStream inputStream, @Nonnull String path) {
+    return updateFile(inputStream, path, true);
+  }
+
+  @Nonnull
+  public ParallelCommitCommand updateFile(@Nonnull Path sourcePath, @Nonnull String path, boolean create) {
+    UpdateFile editor = new UpdateFile(path);
+    editor.setSourcePath(sourcePath);
+    editor.setCreate(create);
+    return this;
+  }
+
+  @Nonnull
+  public ParallelCommitCommand updateFile(@Nonnull Path sourcePath, @Nonnull String path) {
+    return updateFile(sourcePath, path, true);
+  }
+
+  @Nonnull
+  public ParallelCommitCommand updateFile(@Nonnull File sourceFile, @Nonnull String path, boolean create) {
+    UpdateFile editor = new UpdateFile(path);
+    editor.setSourceFile(sourceFile);
+    editor.setCreate(create);
+    return this;
+  }
+
+  @Nonnull
+  public ParallelCommitCommand updateFile(@Nonnull File sourceFile, @Nonnull String path) {
+    return updateFile(sourceFile, path, true);
   }
 
   private void prepareHead() throws IOException {
