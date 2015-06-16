@@ -1,4 +1,4 @@
-package com.beijunyi.parallelgit.util.builder;
+package com.beijunyi.parallelgit.command;
 
 import java.io.*;
 import java.nio.file.DirectoryStream;

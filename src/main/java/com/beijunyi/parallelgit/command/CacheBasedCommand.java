@@ -1,4 +1,4 @@
-package com.beijunyi.parallelgit.util.builder;
+package com.beijunyi.parallelgit.command;
 
 import java.io.IOException;
 import java.util.ArrayList;
@@ -13,7 +13,7 @@ import org.eclipse.jgit.lib.AnyObjectId;
 import org.eclipse.jgit.lib.FileMode;
 import org.eclipse.jgit.lib.Repository;
 
-public abstract class CacheBasedBuilder<B extends CacheBasedBuilder, T> extends ParallelBuilder<T> {
+public abstract class CacheBasedCommand<B extends CacheBasedCommand, T> extends ParallelCommand<T> {
 
   protected AnyObjectId baseCommitId;
   protected String baseCommitIdStr;
@@ -22,7 +22,7 @@ public abstract class CacheBasedBuilder<B extends CacheBasedBuilder, T> extends 
   protected final List<CacheEditor> editors = new ArrayList<>();
   protected final Repository repository;
 
-  protected CacheBasedBuilder(@Nullable Repository repository) {
+  protected CacheBasedCommand(@Nullable Repository repository) {
     this.repository = repository;
   }
 

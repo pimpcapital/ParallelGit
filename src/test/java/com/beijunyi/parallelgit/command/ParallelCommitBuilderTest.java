@@ -1,4 +1,4 @@
-package com.beijunyi.parallelgit.util.builder;
+package com.beijunyi.parallelgit.command;
 
 import java.io.IOException;
 
@@ -29,9 +29,9 @@ public class ParallelCommitBuilderTest extends AbstractParallelGitTest {
     } finally {
       inserter.release();
     }
-    ObjectId commitId = ParallelCommitBuilder.prepare(repo)
+    ObjectId commitId = ParallelCommitCommand.prepare(repo)
                           .withTree(treeId)
-                          .build();
+                          .call();
     Assert.assertNotNull(commitId);
     RevCommit commit = CommitHelper.getCommit(repo, commitId);
     Assert.assertEquals(treeId, commit.getTree());
@@ -42,9 +42,9 @@ public class ParallelCommitBuilderTest extends AbstractParallelGitTest {
     initRepository();
     String testFile = "testfile.txt";
     ObjectId blobId = writeFile(testFile);
-    ObjectId commitId = ParallelCommitBuilder.prepare(repo)
+    ObjectId commitId = ParallelCommitCommand.prepare(repo)
                           .fromCache(cache)
-                          .build();
+                          .call();
     Assert.assertNotNull(commitId);
     DirCache cache = DirCacheHelper.forRevision(repo, commitId);
     Assert.assertEquals(1, cache.getEntryCount());
@@ -55,10 +55,10 @@ public class ParallelCommitBuilderTest extends AbstractParallelGitTest {
   public void createEmptyCommitTest() throws IOException {
     ObjectId currentHeadId = initRepository();
     RevCommit currentHead = CommitHelper.getCommit(repo, currentHeadId);
-    ObjectId commitId = ParallelCommitBuilder.prepare(repo)
+    ObjectId commitId = ParallelCommitCommand.prepare(repo)
                           .withTree(currentHead.getTree())
                           .parents(currentHead)
-                          .build();
+                          .call();
     Assert.assertNull(commitId);
   }
 
@@ -67,11 +67,11 @@ public class ParallelCommitBuilderTest extends AbstractParallelGitTest {
     ObjectId currentHeadId = initRepository();
     RevCommit currentHead = CommitHelper.getCommit(repo, currentHeadId);
     AnyObjectId treeId = currentHead.getTree();
-    ObjectId commitId = ParallelCommitBuilder.prepare(repo)
+    ObjectId commitId = ParallelCommitCommand.prepare(repo)
                           .withTree(currentHead.getTree())
                           .allowEmptyCommit(true)
                           .parents(currentHead)
-                          .build();
+                          .call();
     Assert.assertNotNull(commitId);
     RevCommit commit = CommitHelper.getCommit(repo, commitId);
     Assert.assertEquals(treeId, commit.getTree());
@@ -82,10 +82,10 @@ public class ParallelCommitBuilderTest extends AbstractParallelGitTest {
     initRepository();
     writeSomethingToCache();
     PersonIdent author = new PersonIdent("testuser", "testuser@email.com");
-    ObjectId commitId = ParallelCommitBuilder.prepare(repo)
+    ObjectId commitId = ParallelCommitCommand.prepare(repo)
                           .fromCache(cache)
                           .author(author)
-                          .build();
+                          .call();
     Assert.assertNotNull(commitId);
     RevCommit commit = CommitHelper.getCommit(repo, commitId);
     Assert.assertEquals(author, commit.getAuthorIdent());
@@ -97,10 +97,10 @@ public class ParallelCommitBuilderTest extends AbstractParallelGitTest {
     writeSomethingToCache();
     String authorName = "testuser";
     String authorEmail = "testuser@email.com";
-    ObjectId commitId = ParallelCommitBuilder.prepare(repo)
+    ObjectId commitId = ParallelCommitCommand.prepare(repo)
                           .fromCache(cache)
                           .author(authorName, authorEmail)
-                          .build();
+                          .call();
     Assert.assertNotNull(commitId);
     RevCommit commit = CommitHelper.getCommit(repo, commitId);
     PersonIdent author = commit.getAuthorIdent();
@@ -113,10 +113,10 @@ public class ParallelCommitBuilderTest extends AbstractParallelGitTest {
     initRepository();
     writeSomethingToCache();
     PersonIdent committer = new PersonIdent("testuser", "testuser@email.com");
-    ObjectId commitId = ParallelCommitBuilder.prepare(repo)
+    ObjectId commitId = ParallelCommitCommand.prepare(repo)
                           .fromCache(cache)
                           .committer(committer)
-                          .build();
+                          .call();
     Assert.assertNotNull(commitId);
     RevCommit commit = CommitHelper.getCommit(repo, commitId);
     Assert.assertEquals(committer, commit.getCommitterIdent());
@@ -129,10 +129,10 @@ public class ParallelCommitBuilderTest extends AbstractParallelGitTest {
     writeSomethingToCache();
     String committerName = "testuser";
     String committerEmail = "testuser@email.com";
-    ObjectId commitId = ParallelCommitBuilder.prepare(repo)
+    ObjectId commitId = ParallelCommitCommand.prepare(repo)
                           .fromCache(cache)
                           .committer(committerName, committerEmail)
-                          .build();
+                          .call();
     Assert.assertNotNull(commitId);
     RevCommit commit = CommitHelper.getCommit(repo, commitId);
     PersonIdent committer = commit.getCommitterIdent();
@@ -147,11 +147,11 @@ public class ParallelCommitBuilderTest extends AbstractParallelGitTest {
     writeSomethingToCache();
     PersonIdent author = new PersonIdent("author", "author@email.com");
     PersonIdent committer = new PersonIdent("committer", "committer@email.com");
-    ObjectId commitId = ParallelCommitBuilder.prepare(repo)
+    ObjectId commitId = ParallelCommitCommand.prepare(repo)
                           .fromCache(cache)
                           .author(author)
                           .committer(committer)
-                          .build();
+                          .call();
     Assert.assertNotNull(commitId);
     RevCommit commit = CommitHelper.getCommit(repo, commitId);
     Assert.assertEquals(author, commit.getAuthorIdent());
@@ -162,9 +162,9 @@ public class ParallelCommitBuilderTest extends AbstractParallelGitTest {
   public void createCommitWithDefaultAuthorTest() throws IOException {
     initRepository();
     writeSomethingToCache();
-    ObjectId commitId = ParallelCommitBuilder.prepare(repo)
+    ObjectId commitId = ParallelCommitCommand.prepare(repo)
                           .fromCache(cache)
-                          .build();
+                          .call();
     Assert.assertNotNull(commitId);
     RevCommit commit = CommitHelper.getCommit(repo, commitId);
     PersonIdent committer = commit.getCommitterIdent();
@@ -178,10 +178,10 @@ public class ParallelCommitBuilderTest extends AbstractParallelGitTest {
     initRepository();
     writeSomethingToCache();
     String commitMessage = "test message";
-    ObjectId commitId = ParallelCommitBuilder.prepare(repo)
+    ObjectId commitId = ParallelCommitCommand.prepare(repo)
                           .fromCache(cache)
                           .message(commitMessage)
-                          .build();
+                          .call();
     Assert.assertNotNull(commitId);
     RevCommit commit = CommitHelper.getCommit(repo, commitId);
     Assert.assertEquals(commitMessage, commit.getFullMessage());
@@ -194,11 +194,11 @@ public class ParallelCommitBuilderTest extends AbstractParallelGitTest {
     String branch = "test_branch";
     AnyObjectId treeId = RevTreeHelper.getRootTree(repo, commitToBranch(branch));
     String amendedMessage = "amended message";
-    ObjectId commitId = ParallelCommitBuilder.prepare(repo)
+    ObjectId commitId = ParallelCommitCommand.prepare(repo)
                           .branch(branch)
                           .amend(true)
                           .message(amendedMessage)
-                          .build();
+                          .call();
     Assert.assertNotNull(commitId);
     RevCommit branchHead = CommitHelper.getCommit(repo, branch);
     Assert.assertNotNull(branchHead);
@@ -213,11 +213,11 @@ public class ParallelCommitBuilderTest extends AbstractParallelGitTest {
     String branch = "test_branch";
     AnyObjectId treeId = RevTreeHelper.getRootTree(repo, commitToBranch(branch));
     String amendedMessage = "amended message";
-    ObjectId commitId = ParallelCommitBuilder.prepare(repo)
+    ObjectId commitId = ParallelCommitCommand.prepare(repo)
                           .branch(branch)
                           .amend(true)
                           .message(amendedMessage)
-                          .build();
+                          .call();
     Assert.assertNotNull(commitId);
     RevCommit branchHead = CommitHelper.getCommit(repo, branch);
     Assert.assertNotNull(branchHead);

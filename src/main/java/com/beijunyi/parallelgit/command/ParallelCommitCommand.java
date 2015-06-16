@@ -1,4 +1,4 @@
-package com.beijunyi.parallelgit.util.builder;
+package com.beijunyi.parallelgit.command;
 
 import java.io.File;
 import java.io.IOException;
@@ -19,7 +19,7 @@ import org.eclipse.jgit.dircache.DirCache;
 import org.eclipse.jgit.lib.*;
 import org.eclipse.jgit.revwalk.RevCommit;
 
-public final class ParallelCommitBuilder extends CacheBasedBuilder<ParallelCommitBuilder, ObjectId> {
+public final class ParallelCommitCommand extends CacheBasedCommand<ParallelCommitCommand, ObjectId> {
   private String branch;
   private boolean orphan;
   private boolean amend;
@@ -37,103 +37,103 @@ public final class ParallelCommitBuilder extends CacheBasedBuilder<ParallelCommi
   private String committerEmail;
   private String message;
 
-  private ParallelCommitBuilder(@Nonnull Repository repository) {
+  private ParallelCommitCommand(@Nonnull Repository repository) {
     super(repository);
   }
 
   @Nonnull
   @Override
-  protected ParallelCommitBuilder self() {
+  protected ParallelCommitCommand self() {
     return this;
   }
 
   @Nonnull
-  public ParallelCommitBuilder branch(@Nonnull String branch) {
+  public ParallelCommitCommand branch(@Nonnull String branch) {
     this.branch = branch;
     return this;
   }
 
   @Nonnull
-  public ParallelCommitBuilder orphan(boolean orphan) {
+  public ParallelCommitCommand orphan(boolean orphan) {
     this.orphan = orphan;
     return this;
   }
 
   @Nonnull
-  public ParallelCommitBuilder amend(boolean amend) {
+  public ParallelCommitCommand amend(boolean amend) {
     this.amend = amend;
     return this;
   }
 
   @Nonnull
-  public ParallelCommitBuilder allowEmptyCommit(boolean allowEmptyCommit) {
+  public ParallelCommitCommand allowEmptyCommit(boolean allowEmptyCommit) {
     this.allowEmptyCommit = allowEmptyCommit;
     return this;
   }
 
   @Nonnull
-  public ParallelCommitBuilder fromScratch(boolean fromScratch) {
+  public ParallelCommitCommand fromScratch(boolean fromScratch) {
     this.fromScratch = fromScratch;
     return this;
   }
 
   @Nonnull
-  public ParallelCommitBuilder withTree(@Nonnull AnyObjectId treeId) {
+  public ParallelCommitCommand withTree(@Nonnull AnyObjectId treeId) {
     this.treeId = treeId;
     return this;
   }
 
   @Nonnull
-  public ParallelCommitBuilder fromCache(@Nonnull DirCache cache) {
+  public ParallelCommitCommand fromCache(@Nonnull DirCache cache) {
     this.cache = cache;
     return this;
   }
 
   @Nonnull
-  public ParallelCommitBuilder author(@Nonnull PersonIdent author) {
+  public ParallelCommitCommand author(@Nonnull PersonIdent author) {
     this.author = author;
     return this;
   }
 
   @Nonnull
-  public ParallelCommitBuilder author(@Nonnull String authorName, @Nonnull String authorEmail) {
+  public ParallelCommitCommand author(@Nonnull String authorName, @Nonnull String authorEmail) {
     this.authorName = authorName;
     this.authorEmail = authorEmail;
     return this;
   }
 
   @Nonnull
-  public ParallelCommitBuilder committer(@Nonnull PersonIdent committer) {
+  public ParallelCommitCommand committer(@Nonnull PersonIdent committer) {
     this.committer = committer;
     return this;
   }
 
   @Nonnull
-  public ParallelCommitBuilder committer(@Nonnull String committerName, @Nonnull String committerEmail) {
+  public ParallelCommitCommand committer(@Nonnull String committerName, @Nonnull String committerEmail) {
     this.committerName = committerName;
     this.committerEmail = committerEmail;
     return this;
   }
 
   @Nonnull
-  public ParallelCommitBuilder message(@Nonnull String message) {
+  public ParallelCommitCommand message(@Nonnull String message) {
     this.message = message;
     return this;
   }
 
   @Nonnull
-  public ParallelCommitBuilder parents(@Nonnull List<AnyObjectId> parents) {
+  public ParallelCommitCommand parents(@Nonnull List<AnyObjectId> parents) {
     this.parents = parents;
     return this;
   }
 
   @Nonnull
-  public ParallelCommitBuilder parents(@Nonnull AnyObjectId... parents) {
+  public ParallelCommitCommand parents(@Nonnull AnyObjectId... parents) {
     return parents(Arrays.asList(parents));
   }
 
   @Nonnull
-  public ParallelCommitBuilder addFile(@Nonnull byte[] bytes, @Nonnull String path) {
+  public ParallelCommitCommand addFile(@Nonnull byte[] bytes, @Nonnull String path) {
     AddFile editor = new AddFile(path);
     editor.setBytes(bytes);
     editors.add(editor);
@@ -141,7 +141,7 @@ public final class ParallelCommitBuilder extends CacheBasedBuilder<ParallelCommi
   }
 
   @Nonnull
-  public ParallelCommitBuilder addFile(@Nonnull byte[] bytes, @Nonnull FileMode mode, @Nonnull String path) {
+  public ParallelCommitCommand addFile(@Nonnull byte[] bytes, @Nonnull FileMode mode, @Nonnull String path) {
     AddFile editor = new AddFile(path);
     editor.setBytes(bytes);
     editor.setMode(mode);
@@ -150,7 +150,7 @@ public final class ParallelCommitBuilder extends CacheBasedBuilder<ParallelCommi
   }
 
   @Nonnull
-  public ParallelCommitBuilder addFile(@Nonnull String content, @Nonnull String path) {
+  public ParallelCommitCommand addFile(@Nonnull String content, @Nonnull String path) {
     AddFile editor = new AddFile(path);
     editor.setContent(content);
     editors.add(editor);
@@ -158,7 +158,7 @@ public final class ParallelCommitBuilder extends CacheBasedBuilder<ParallelCommi
   }
 
   @Nonnull
-  public ParallelCommitBuilder addFile(@Nonnull String content, @Nonnull FileMode mode, @Nonnull String path) {
+  public ParallelCommitCommand addFile(@Nonnull String content, @Nonnull FileMode mode, @Nonnull String path) {
     AddFile editor = new AddFile(path);
     editor.setContent(content);
     editor.setMode(mode);
@@ -167,7 +167,7 @@ public final class ParallelCommitBuilder extends CacheBasedBuilder<ParallelCommi
   }
 
   @Nonnull
-  public ParallelCommitBuilder addFile(@Nonnull InputStream inputStream, @Nonnull String path) {
+  public ParallelCommitCommand addFile(@Nonnull InputStream inputStream, @Nonnull String path) {
     AddFile editor = new AddFile(path);
     editor.setInputStream(inputStream);
     editors.add(editor);
@@ -175,7 +175,7 @@ public final class ParallelCommitBuilder extends CacheBasedBuilder<ParallelCommi
   }
 
   @Nonnull
-  public ParallelCommitBuilder addFile(@Nonnull InputStream inputStream, @Nonnull FileMode mode, @Nonnull String path) {
+  public ParallelCommitCommand addFile(@Nonnull InputStream inputStream, @Nonnull FileMode mode, @Nonnull String path) {
     AddFile editor = new AddFile(path);
     editor.setInputStream(inputStream);
     editor.setMode(mode);
@@ -184,7 +184,7 @@ public final class ParallelCommitBuilder extends CacheBasedBuilder<ParallelCommi
   }
 
   @Nonnull
-  public ParallelCommitBuilder addFile(@Nonnull Path sourcePath, @Nonnull String path) {
+  public ParallelCommitCommand addFile(@Nonnull Path sourcePath, @Nonnull String path) {
     AddFile editor = new AddFile(path);
     editor.setSourcePath(sourcePath);
     editors.add(editor);
@@ -192,7 +192,7 @@ public final class ParallelCommitBuilder extends CacheBasedBuilder<ParallelCommi
   }
 
   @Nonnull
-  public ParallelCommitBuilder addFile(@Nonnull Path sourcePath, @Nonnull FileMode mode, @Nonnull String path) {
+  public ParallelCommitCommand addFile(@Nonnull Path sourcePath, @Nonnull FileMode mode, @Nonnull String path) {
     AddFile editor = new AddFile(path);
     editor.setSourcePath(sourcePath);
     editor.setMode(mode);
@@ -201,7 +201,7 @@ public final class ParallelCommitBuilder extends CacheBasedBuilder<ParallelCommi
   }
 
   @Nonnull
-  public ParallelCommitBuilder addFile(@Nonnull File sourceFile, @Nonnull String path) {
+  public ParallelCommitCommand addFile(@Nonnull File sourceFile, @Nonnull String path) {
     AddFile editor = new AddFile(path);
     editor.setSourceFile(sourceFile);
     editors.add(editor);
@@ -209,7 +209,7 @@ public final class ParallelCommitBuilder extends CacheBasedBuilder<ParallelCommi
   }
 
   @Nonnull
-  public ParallelCommitBuilder addFile(@Nonnull File sourceFile, @Nonnull FileMode mode, @Nonnull String path) {
+  public ParallelCommitCommand addFile(@Nonnull File sourceFile, @Nonnull FileMode mode, @Nonnull String path) {
     AddFile editor = new AddFile(path);
     editor.setSourceFile(sourceFile);
     editors.add(editor);
@@ -217,12 +217,12 @@ public final class ParallelCommitBuilder extends CacheBasedBuilder<ParallelCommi
   }
 
   @Nonnull
-  public ParallelCommitBuilder deleteFile(@Nonnull String path) {
+  public ParallelCommitCommand deleteFile(@Nonnull String path) {
     return deleteBlob(path);
   }
 
   @Nonnull
-  public ParallelCommitBuilder addDirectory(@Nonnull DirectoryStream<Path> directoryStream, @Nonnull String path) {
+  public ParallelCommitCommand addDirectory(@Nonnull DirectoryStream<Path> directoryStream, @Nonnull String path) {
     AddDirectory editor = new AddDirectory(path);
     editor.setDirectoryStream(directoryStream);
     editors.add(editor);
@@ -230,7 +230,7 @@ public final class ParallelCommitBuilder extends CacheBasedBuilder<ParallelCommi
   }
 
   @Nonnull
-  public ParallelCommitBuilder addDirectory(@Nonnull Path sourcePath, @Nonnull String path) {
+  public ParallelCommitCommand addDirectory(@Nonnull Path sourcePath, @Nonnull String path) {
     AddDirectory editor = new AddDirectory(path);
     editor.setSourcePath(sourcePath);
     editors.add(editor);
@@ -238,7 +238,7 @@ public final class ParallelCommitBuilder extends CacheBasedBuilder<ParallelCommi
   }
 
   @Nonnull
-  public ParallelCommitBuilder addDirectory(@Nonnull File sourceFile, @Nonnull String path) {
+  public ParallelCommitCommand addDirectory(@Nonnull File sourceFile, @Nonnull String path) {
     AddDirectory editor = new AddDirectory(path);
     editor.setSourceFile(sourceFile);
     editors.add(editor);
@@ -246,57 +246,57 @@ public final class ParallelCommitBuilder extends CacheBasedBuilder<ParallelCommi
   }
 
   @Nonnull
-  public ParallelCommitBuilder deleteDirectory(@Nonnull String path) {
+  public ParallelCommitCommand deleteDirectory(@Nonnull String path) {
     return deleteTree(path);
   }
 
   @Nonnull
-  public ParallelCommitBuilder updateFile(@Nonnull File sourceFile, @Nonnull String path, boolean create) {
+  public ParallelCommitCommand updateFile(@Nonnull File sourceFile, @Nonnull String path, boolean create) {
     return this;
   }
 
   @Nonnull
-  public ParallelCommitBuilder updateFile(@Nonnull File sourceFile, @Nonnull String path) {
+  public ParallelCommitCommand updateFile(@Nonnull File sourceFile, @Nonnull String path) {
     return updateFile(sourceFile, path, true);
   }
 
   @Nonnull
-  public ParallelCommitBuilder updateFile(@Nonnull Path sourcePath, @Nonnull String path, boolean create) {
+  public ParallelCommitCommand updateFile(@Nonnull Path sourcePath, @Nonnull String path, boolean create) {
     return this;
   }
 
   @Nonnull
-  public ParallelCommitBuilder updateFile(@Nonnull Path sourcePath, @Nonnull String path) {
+  public ParallelCommitCommand updateFile(@Nonnull Path sourcePath, @Nonnull String path) {
     return updateFile(sourcePath, path, true);
   }
 
   @Nonnull
-  public ParallelCommitBuilder updateFile(@Nonnull InputStream inputStream, @Nonnull String path, boolean create) {
+  public ParallelCommitCommand updateFile(@Nonnull InputStream inputStream, @Nonnull String path, boolean create) {
     return this;
   }
 
   @Nonnull
-  public ParallelCommitBuilder updateFile(@Nonnull InputStream inputStream, @Nonnull String path) {
+  public ParallelCommitCommand updateFile(@Nonnull InputStream inputStream, @Nonnull String path) {
     return updateFile(inputStream, path, true);
   }
 
   @Nonnull
-  public ParallelCommitBuilder updateFile(@Nonnull byte[] bytes, @Nonnull String path, boolean create) {
+  public ParallelCommitCommand updateFile(@Nonnull byte[] bytes, @Nonnull String path, boolean create) {
     return this;
   }
 
   @Nonnull
-  public ParallelCommitBuilder updateFile(@Nonnull byte[] bytes, @Nonnull String path) {
+  public ParallelCommitCommand updateFile(@Nonnull byte[] bytes, @Nonnull String path) {
     return updateFile(bytes, path, true);
   }
 
   @Nonnull
-  public ParallelCommitBuilder updateFile(@Nonnull String content, @Nonnull String path, boolean create) {
+  public ParallelCommitCommand updateFile(@Nonnull String content, @Nonnull String path, boolean create) {
     return this;
   }
 
   @Nonnull
-  public ParallelCommitBuilder updateFile(@Nonnull String content, @Nonnull String path) {
+  public ParallelCommitCommand updateFile(@Nonnull String content, @Nonnull String path) {
     return updateFile(content, path, true);
   }
 
@@ -403,7 +403,7 @@ public final class ParallelCommitBuilder extends CacheBasedBuilder<ParallelCommi
 
   @Nullable
   @Override
-  public ObjectId doBuild() throws IOException {
+  public ObjectId doCall() throws IOException {
     assert repository != null;
     ObjectInserter inserter = repository.newObjectInserter();
     try {
@@ -426,8 +426,8 @@ public final class ParallelCommitBuilder extends CacheBasedBuilder<ParallelCommi
   }
 
   @Nonnull
-  public static ParallelCommitBuilder prepare(@Nonnull Repository repository) {
-    return new ParallelCommitBuilder(repository);
+  public static ParallelCommitCommand prepare(@Nonnull Repository repository) {
+    return new ParallelCommitCommand(repository);
   }
 
 }

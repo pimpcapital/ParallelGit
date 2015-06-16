@@ -1,4 +1,4 @@
-package com.beijunyi.parallelgit.util.builder;
+package com.beijunyi.parallelgit.command;
 
 import java.io.IOException;
 import javax.annotation.Nonnull;
