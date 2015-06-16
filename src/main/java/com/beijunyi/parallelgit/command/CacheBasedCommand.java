@@ -6,6 +6,7 @@ import java.util.List;
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 
+import com.beijunyi.parallelgit.command.cache.*;
 import com.beijunyi.parallelgit.util.DirCacheHelper;
 import com.beijunyi.parallelgit.util.RevTreeHelper;
 import org.eclipse.jgit.dircache.DirCache;
@@ -122,7 +123,7 @@ public abstract class CacheBasedCommand<B extends CacheBasedCommand, T> extends 
     return self();
   }
 
-  private void setupBase(@Nonnull BuildStateProvider provider) throws IOException {
+  private void setupBase(@Nonnull CacheStateProvider provider) throws IOException {
     if(baseTreeId != null || baseTreeIdStr != null || baseCommitId != null || baseCommitIdStr != null) {
       if(baseTreeId == null) {
         if(baseTreeIdStr != null)
@@ -139,12 +140,13 @@ public abstract class CacheBasedCommand<B extends CacheBasedCommand, T> extends 
 
   @Nonnull
   protected DirCache buildCache() throws IOException {
-    try(BuildStateProvider provider = new BuildStateProvider(repository)) {
+    try(CacheStateProvider provider = new CacheStateProvider(repository)) {
       setupBase(provider);
       for(CacheEditor editor : editors) {
-        editor.doEdit(provider);
+        editor.edit(provider);
       }
       return provider.getCurrentCache();
     }
   }
+
 }

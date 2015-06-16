@@ -11,6 +11,8 @@ import java.util.List;
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 
+import com.beijunyi.parallelgit.command.cache.AddDirectory;
+import com.beijunyi.parallelgit.command.cache.AddFile;
 import com.beijunyi.parallelgit.util.BranchHelper;
 import com.beijunyi.parallelgit.util.CommitHelper;
 import com.beijunyi.parallelgit.util.RevTreeHelper;

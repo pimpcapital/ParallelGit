@@ -1,4 +1,4 @@
-package com.beijunyi.parallelgit.command;
+package com.beijunyi.parallelgit.command.cache;
 
 import java.io.IOException;
 import javax.annotation.Nonnull;
@@ -8,24 +8,24 @@ import org.eclipse.jgit.dircache.DirCacheEntry;
 import org.eclipse.jgit.lib.AnyObjectId;
 import org.eclipse.jgit.lib.FileMode;
 
-class UpdateBlob extends CacheEditor {
+public class UpdateBlob extends CacheEditor {
   private AnyObjectId blobId;
   private FileMode mode;
 
-  UpdateBlob(@Nonnull String path) {
+  public UpdateBlob(@Nonnull String path) {
     super(path);
   }
 
-  void setBlobId(@Nonnull AnyObjectId blobId) {
+  public void setBlobId(@Nonnull AnyObjectId blobId) {
     this.blobId = blobId;
   }
 
-  void setMode(@Nonnull FileMode mode) {
+  public void setMode(@Nonnull FileMode mode) {
     this.mode = mode;
   }
 
   @Override
-  protected void doEdit(@Nonnull BuildStateProvider provider) throws IOException {
+  public void edit(@Nonnull CacheStateProvider provider) throws IOException {
     DirCache cache = provider.getCurrentCache();
     DirCacheEntry entry = cache.getEntry(path);
     if(entry == null)

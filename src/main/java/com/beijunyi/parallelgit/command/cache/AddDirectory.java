@@ -1,4 +1,4 @@
-package com.beijunyi.parallelgit.command;
+package com.beijunyi.parallelgit.command.cache;
 
 import java.io.*;
 import java.nio.file.DirectoryStream;
@@ -11,35 +11,37 @@ import org.eclipse.jgit.lib.Constants;
 import org.eclipse.jgit.lib.FileMode;
 import org.eclipse.jgit.lib.ObjectId;
 
-class AddDirectory extends CacheEditor {
+public class AddDirectory extends CacheEditor {
 
   private DirectoryStream<Path> directoryStream;
   private Path sourcePath;
   private File sourceFile;
 
-  AddDirectory(@Nonnull String path) {
+  public AddDirectory(@Nonnull String path) {
     super(path);
   }
 
-  void setDirectoryStream(@Nonnull DirectoryStream<Path> directoryStream) {
+  public void setDirectoryStream(@Nonnull DirectoryStream<Path> directoryStream) {
     this.directoryStream = directoryStream;
   }
 
-  void setSourcePath(@Nonnull Path sourcePath) {
+  public void setSourcePath(@Nonnull Path sourcePath) {
     this.sourcePath = sourcePath;
   }
 
-  void setSourceFile(@Nonnull File sourceFile) {
+  public void setSourceFile(@Nonnull File sourceFile) {
     this.sourceFile = sourceFile;
   }
 
-  private void addFile(@Nonnull byte[] bytes, boolean executable, @Nonnull String path, @Nonnull BuildStateProvider provider) throws IOException {
+  private void addFile(@Nonnull byte[] bytes, boolean executable, @Nonnull String path, @Nonnull
+  CacheStateProvider provider) throws IOException {
     ObjectId blobId = provider.getInserter().insert(Constants.OBJ_BLOB, bytes);
     FileMode mode = executable ? FileMode.EXECUTABLE_FILE : FileMode.REGULAR_FILE;
     DirCacheHelper.addFile(provider.getCurrentBuilder(), mode, path, blobId);
   }
 
-  private void addFile(@Nonnull Path sourcePath, @Nonnull String path, @Nonnull BuildStateProvider provider) throws IOException {
+  private void addFile(@Nonnull Path sourcePath, @Nonnull String path, @Nonnull
+  CacheStateProvider provider) throws IOException {
     byte[] bytes;
     try(InputStream inputStream = Files.newInputStream(sourcePath)) {
      bytes = AddFile.toByteArray(inputStream).toByteArray();
@@ -47,7 +49,8 @@ class AddDirectory extends CacheEditor {
     addFile(bytes, Files.isExecutable(sourcePath), path, provider);
   }
 
-  private void addFile(@Nonnull File sourceFile, @Nonnull String path, @Nonnull BuildStateProvider provider) throws IOException {
+  private void addFile(@Nonnull File sourceFile, @Nonnull String path, @Nonnull
+  CacheStateProvider provider) throws IOException {
     byte[] bytes;
     try(InputStream inputStream = new FileInputStream(sourceFile)) {
       bytes = AddFile.toByteArray(inputStream).toByteArray();
@@ -72,7 +75,8 @@ class AddDirectory extends CacheEditor {
     return filename.substring(0, length);
   }
 
-  private void processDirectoryStream(@Nonnull DirectoryStream<Path> directoryStream, @Nonnull String base, @Nonnull BuildStateProvider provider) throws IOException {
+  private void processDirectoryStream(@Nonnull DirectoryStream<Path> directoryStream, @Nonnull String base, @Nonnull
+  CacheStateProvider provider) throws IOException {
     for(Path child : directoryStream) {
       String filename = normalizeFilename(child.getFileName().toString());
       String fullPath = base += filename;
@@ -85,13 +89,15 @@ class AddDirectory extends CacheEditor {
     }
   }
 
-  private void processPath(@Nonnull Path sourcePath, @Nonnull String base, @Nonnull BuildStateProvider provider) throws IOException {
+  private void processPath(@Nonnull Path sourcePath, @Nonnull String base, @Nonnull
+  CacheStateProvider provider) throws IOException {
     try(DirectoryStream<Path> directoryStream = Files.newDirectoryStream(sourcePath)) {
       processDirectoryStream(directoryStream, base, provider);
     }
   }
 
-  private void processFile(@Nonnull File sourceFile, @Nonnull String base, @Nonnull BuildStateProvider provider) throws IOException {
+  private void processFile(@Nonnull File sourceFile, @Nonnull String base, @Nonnull
+  CacheStateProvider provider) throws IOException {
     File[] children = sourceFile.listFiles();
     if(children == null)
       throw new IllegalArgumentException(base + " is not a valid directory");
@@ -107,7 +113,7 @@ class AddDirectory extends CacheEditor {
   }
 
   @Override
-  protected void doEdit(@Nonnull BuildStateProvider provider) throws IOException {
+  public void edit(@Nonnull CacheStateProvider provider) throws IOException {
     String base = path;
     if(!base.isEmpty() && !base.endsWith("/"))
       base += "/";

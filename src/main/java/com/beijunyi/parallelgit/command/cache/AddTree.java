@@ -1,4 +1,4 @@
-package com.beijunyi.parallelgit.command;
+package com.beijunyi.parallelgit.command.cache;
 
 import java.io.IOException;
 import javax.annotation.Nonnull;
@@ -9,24 +9,24 @@ import org.eclipse.jgit.dircache.DirCacheBuilder;
 import org.eclipse.jgit.lib.AnyObjectId;
 import org.eclipse.jgit.lib.ObjectReader;
 
-class AddTree extends CacheEditor {
+public class AddTree extends CacheEditor {
   private AnyObjectId treeId;
   private String treeIdStr;
 
-  AddTree(@Nonnull String path) {
+  public AddTree(@Nonnull String path) {
     super(path);
   }
 
-  void setTreeId(@Nullable AnyObjectId treeId) {
+  public void setTreeId(@Nullable AnyObjectId treeId) {
     this.treeId = treeId;
   }
 
-  void setTreeIdStr(@Nullable String treeIdStr) {
+  public void setTreeIdStr(@Nullable String treeIdStr) {
     this.treeIdStr = treeIdStr;
   }
 
   @Override
-  protected void doEdit(@Nonnull BuildStateProvider provider) throws IOException {
+  public void edit(@Nonnull CacheStateProvider provider) throws IOException {
     ObjectReader reader = provider.getReader();
     if(treeId == null)
       treeId = provider.getRepository().resolve(treeIdStr);

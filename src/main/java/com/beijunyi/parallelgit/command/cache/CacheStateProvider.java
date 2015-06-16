@@ -1,4 +1,4 @@
-package com.beijunyi.parallelgit.command;
+package com.beijunyi.parallelgit.command.cache;
 
 import java.io.Closeable;
 import javax.annotation.Nonnull;
@@ -12,7 +12,7 @@ import org.eclipse.jgit.lib.ObjectInserter;
 import org.eclipse.jgit.lib.ObjectReader;
 import org.eclipse.jgit.lib.Repository;
 
-class BuildStateProvider implements Closeable {
+public class CacheStateProvider implements Closeable {
   private final DirCache cache = DirCache.newInCore();
   private final Repository repository;
   private ObjectReader reader;
@@ -20,12 +20,12 @@ class BuildStateProvider implements Closeable {
   private DirCacheBuilder builder;
   private DirCacheEditor editor;
 
-  BuildStateProvider(@Nullable Repository repository) {
+  public CacheStateProvider(@Nullable Repository repository) {
     this.repository = repository;
   }
 
   @Nonnull
-  DirCache getCurrentCache() {
+  public DirCache getCurrentCache() {
     if(builder != null) {
       builder.finish();
       builder = null;
@@ -38,28 +38,28 @@ class BuildStateProvider implements Closeable {
   }
 
   @Nonnull
-  Repository getRepository() {
+  public Repository getRepository() {
     if(repository == null)
       throw new IllegalArgumentException("Repository is not configured");
     return repository;
   }
 
   @Nonnull
-  ObjectReader getReader() {
+  public ObjectReader getReader() {
     if(reader == null)
       reader = getRepository().newObjectReader();
     return reader;
   }
 
   @Nonnull
-  ObjectInserter getInserter() {
+  public ObjectInserter getInserter() {
     if(inserter == null)
       inserter = getRepository().newObjectInserter();
     return inserter;
   }
 
   @Nonnull
-  DirCacheBuilder getCurrentBuilder() {
+  public DirCacheBuilder getCurrentBuilder() {
     if(editor != null) {
       editor.finish();
       editor = null;
@@ -70,7 +70,7 @@ class BuildStateProvider implements Closeable {
   }
 
   @Nonnull
-  DirCacheEditor getEditor() {
+  public DirCacheEditor getEditor() {
     if(builder != null) {
       builder.finish();
       builder = null;

@@ -1,18 +1,18 @@
-package com.beijunyi.parallelgit.command;
+package com.beijunyi.parallelgit.command.cache;
 
 import java.io.IOException;
 import javax.annotation.Nonnull;
 
 import com.beijunyi.parallelgit.util.DirCacheHelper;
 
-class DeleteTree extends CacheEditor {
+public class DeleteTree extends CacheEditor {
 
-  DeleteTree(@Nonnull String path) {
+  public DeleteTree(@Nonnull String path) {
     super(path);
   }
 
   @Override
-  protected void doEdit(@Nonnull BuildStateProvider provider) throws IOException {
+  public void edit(@Nonnull CacheStateProvider provider) throws IOException {
     DirCacheHelper.deleteDirectory(provider.getEditor(), path);
   }
 }

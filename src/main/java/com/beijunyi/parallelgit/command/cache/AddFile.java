@@ -1,4 +1,4 @@
-package com.beijunyi.parallelgit.command;
+package com.beijunyi.parallelgit.command.cache;
 
 import java.io.*;
 import java.nio.file.Files;
@@ -10,7 +10,7 @@ import org.eclipse.jgit.lib.Constants;
 import org.eclipse.jgit.lib.FileMode;
 import org.eclipse.jgit.lib.ObjectId;
 
-class AddFile extends CacheEditor {
+public class AddFile extends CacheEditor {
 
   public static int DEFAULT_BUFFER_SIZE = 1024 * 4;
 
@@ -21,31 +21,31 @@ class AddFile extends CacheEditor {
   private File sourceFile;
   private FileMode mode;
 
-  AddFile(@Nonnull String path) {
+  public AddFile(@Nonnull String path) {
     super(path);
   }
 
-  void setBytes(@Nonnull byte[] bytes) {
+  public void setBytes(@Nonnull byte[] bytes) {
     this.bytes = bytes;
   }
 
-  void setContent(@Nonnull String content) {
+  public void setContent(@Nonnull String content) {
     this.content = content;
   }
 
-  void setInputStream(@Nonnull InputStream inputStream) {
+  public void setInputStream(@Nonnull InputStream inputStream) {
     this.inputStream = inputStream;
   }
 
-  void setSourcePath(@Nonnull Path sourcePath) {
+  public void setSourcePath(@Nonnull Path sourcePath) {
     this.sourcePath = sourcePath;
   }
 
-  void setSourceFile(@Nonnull File sourceFile) {
+  public void setSourceFile(@Nonnull File sourceFile) {
     this.sourceFile = sourceFile;
   }
 
-  void setMode(@Nonnull FileMode mode) {
+  public void setMode(@Nonnull FileMode mode) {
     this.mode = mode;
   }
 
@@ -113,7 +113,7 @@ class AddFile extends CacheEditor {
 
 
   @Override
-  protected void doEdit(@Nonnull BuildStateProvider provider) throws IOException {
+  public void edit(@Nonnull CacheStateProvider provider) throws IOException {
     ensureFileMode();
     ensureBytes();
     ObjectId blobId = provider.getInserter().insert(Constants.OBJ_BLOB, bytes);
