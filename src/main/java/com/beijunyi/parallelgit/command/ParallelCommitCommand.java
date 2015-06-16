@@ -244,6 +244,7 @@ public final class ParallelCommitCommand extends CacheBasedCommand<ParallelCommi
     UpdateFile editor = new UpdateFile(path);
     editor.setBytes(bytes);
     editor.setCreate(create);
+    editors.add(editor);
     return this;
   }
 
@@ -257,6 +258,7 @@ public final class ParallelCommitCommand extends CacheBasedCommand<ParallelCommi
     UpdateFile editor = new UpdateFile(path);
     editor.setContent(content);
     editor.setCreate(create);
+    editors.add(editor);
     return this;
   }
 
@@ -270,6 +272,7 @@ public final class ParallelCommitCommand extends CacheBasedCommand<ParallelCommi
     UpdateFile editor = new UpdateFile(path);
     editor.setInputStream(inputStream);
     editor.setCreate(create);
+    editors.add(editor);
     return this;
   }
 
@@ -283,6 +286,7 @@ public final class ParallelCommitCommand extends CacheBasedCommand<ParallelCommi
     UpdateFile editor = new UpdateFile(path);
     editor.setSourcePath(sourcePath);
     editor.setCreate(create);
+    editors.add(editor);
     return this;
   }
 
@@ -296,6 +300,7 @@ public final class ParallelCommitCommand extends CacheBasedCommand<ParallelCommi
     UpdateFile editor = new UpdateFile(path);
     editor.setSourceFile(sourceFile);
     editor.setCreate(create);
+    editors.add(editor);
     return this;
   }
 

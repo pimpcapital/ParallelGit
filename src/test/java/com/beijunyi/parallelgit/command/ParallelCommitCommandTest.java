@@ -505,7 +505,136 @@ public class ParallelCommitCommandTest extends AbstractParallelGitTest {
     }
   }
 
+  @Test
+  public void deleteDirectoryTest() throws IOException {
+    initRepository();
+    String branch = "test_branch";
+    String file1 = "dir/1.txt";
+    writeFile(file1);
+    String file2 = "dir/subdir/2.txt";
+    writeFile(file2);
+    String file3 = "dir/subdir/3.txt";
+    writeFile(file3);
+    commitToBranch(branch);
+    ObjectId commitId = ParallelCommitCommand.prepare(repo)
+                          .branch(branch)
+                          .deleteDirectory("dir/subdir")
+                          .call();
+    Assert.assertNotNull(commitId);
+    RevCommit branchHead = CommitHelper.getCommit(repo, branch);
+    Assert.assertNotNull(branchHead);
+    Assert.assertNotNull(BlobHelper.findBlobId(repo, branchHead, file1));
+    Assert.assertNull(BlobHelper.findBlobId(repo, branchHead, file2));
+    Assert.assertNull(BlobHelper.findBlobId(repo, branchHead, file3));
+  }
 
+  @Test
+  public void updateFileFromByteArrayTest() throws IOException {
+    byte[] bytes = "temp file content".getBytes();
+
+    initRepository();
+    String branch = "test_branch";
+    String existingFile = "existing_file.txt";
+    writeFile(existingFile);
+    commitToBranch(branch);
+    ObjectId commitId = ParallelCommitCommand.prepare(repo)
+                          .branch(branch)
+                          .updateFile(bytes, existingFile)
+                          .call();
+    Assert.assertNotNull(commitId);
+    RevCommit branchHead = CommitHelper.getCommit(repo, branch);
+    Assert.assertNotNull(branchHead);
+    Assert.assertArrayEquals(bytes, BlobHelper.getBytes(repo, branchHead, existingFile));
+  }
+
+  @Test
+  public void updateFileFromStringContentTest() throws IOException {
+    String content = "temp file content";
+
+    initRepository();
+    String branch = "test_branch";
+    String existingFile = "existing_file.txt";
+    writeFile(existingFile);
+    commitToBranch(branch);
+    ObjectId commitId = ParallelCommitCommand.prepare(repo)
+                          .branch(branch)
+                          .updateFile(content, existingFile)
+                          .call();
+    Assert.assertNotNull(commitId);
+    RevCommit branchHead = CommitHelper.getCommit(repo, branch);
+    Assert.assertNotNull(branchHead);
+    Assert.assertArrayEquals(Constants.encode(content), BlobHelper.getBytes(repo, branchHead, existingFile));
+  }
+
+  @Test
+  public void updateFileFromInputStreamTest() throws IOException {
+    byte[] bytes = "temp file content".getBytes();
+    InputStream inputStream = new ByteArrayInputStream(bytes) ;
+
+    initRepository();
+    String branch = "test_branch";
+    String existingFile = "existing_file.txt";
+    writeFile(existingFile);
+    commitToBranch(branch);
+    ObjectId commitId = ParallelCommitCommand.prepare(repo)
+                          .branch(branch)
+                          .updateFile(inputStream, existingFile)
+                          .call();
+    Assert.assertNotNull(commitId);
+    RevCommit branchHead = CommitHelper.getCommit(repo, branch);
+    Assert.assertNotNull(branchHead);
+    Assert.assertArrayEquals(bytes, BlobHelper.getBytes(repo, branchHead, existingFile));
+  }
+
+  @Test
+  public void updateFileFromSourcePathTest() throws IOException {
+    Path tempFilePath = Files.createTempFile(null, null);
+    try {
+      byte[] bytes = "temp file content".getBytes();
+      Files.write(tempFilePath, bytes);
+
+      initRepository();
+      String branch = "test_branch";
+      String existingFile = "existing_file.txt";
+      writeFile(existingFile);
+      commitToBranch(branch);
+      ObjectId commitId = ParallelCommitCommand.prepare(repo)
+                            .branch(branch)
+                            .updateFile(tempFilePath, existingFile)
+                            .call();
+      Assert.assertNotNull(commitId);
+      RevCommit branchHead = CommitHelper.getCommit(repo, branch);
+      Assert.assertNotNull(branchHead);
+      Assert.assertArrayEquals(bytes, BlobHelper.getBytes(repo, branchHead, existingFile));
+    } finally {
+      Assert.assertTrue(Files.deleteIfExists(tempFilePath));
+    }
+  }
+
+  @Test
+  public void updateFileFromSourceFileTest() throws IOException {
+    Path tempFilePath = Files.createTempFile(null, null);
+    try {
+      byte[] bytes = "temp file content".getBytes();
+      Files.write(tempFilePath, bytes);
+
+      initRepository();
+      String branch = "test_branch";
+      String existingFile = "existing_file.txt";
+      writeFile(existingFile);
+      commitToBranch(branch);
+      ObjectId commitId = ParallelCommitCommand.prepare(repo)
+                            .branch(branch)
+                            .updateFile(tempFilePath.toFile(), existingFile)
+                            .call();
+      Assert.assertNotNull(commitId);
+      RevCommit branchHead = CommitHelper.getCommit(repo, branch);
+      Assert.assertNotNull(branchHead);
+      Assert.assertArrayEquals(bytes, BlobHelper.getBytes(repo, branchHead, existingFile));
+    } finally {
+      Assert.assertTrue(Files.deleteIfExists(tempFilePath));
+    }
+  }
 
 
 
