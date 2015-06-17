@@ -16,7 +16,6 @@ import com.beijunyi.parallelgit.command.cache.AddFile;
 import com.beijunyi.parallelgit.command.cache.UpdateFile;
 import com.beijunyi.parallelgit.util.BranchHelper;
 import com.beijunyi.parallelgit.util.CommitHelper;
-import com.beijunyi.parallelgit.util.RevTreeHelper;
 import com.beijunyi.parallelgit.util.exception.RefUpdateValidator;
 import org.eclipse.jgit.dircache.DirCache;
 import org.eclipse.jgit.lib.*;
@@ -330,10 +329,6 @@ public final class ParallelCommitCommand extends CacheBasedCommand<ParallelCommi
     return treeId != null || cache != null;
   }
 
-  private boolean isBaseSpecified() {
-    return baseTreeId != null || baseTreeIdStr != null || baseCommitId != null || baseCommitIdStr != null;
-  }
-
   private void prepareBase() throws IOException {
     if(isResultTreeSpecified() || isBaseSpecified())
       return;
@@ -365,25 +360,13 @@ public final class ParallelCommitCommand extends CacheBasedCommand<ParallelCommi
     return cache != null || !editors.isEmpty();
   }
 
-  @Nonnull
-  private AnyObjectId getTreeFromBase() throws IOException {
-    if(baseTreeId != null)
-      return baseTreeId;
-    assert repository != null;
-    if(baseTreeIdStr != null)
-      return repository.resolve(baseCommitIdStr);
-    if(baseCommitId != null)
-      return RevTreeHelper.getRootTree(repository, baseCommitId);
-    if(baseCommitIdStr != null)
-      return RevTreeHelper.getRootTree(repository, baseCommitIdStr);
-    throw new IllegalStateException();
-  }
-
   private void prepareTree(@Nonnull ObjectInserter inserter) throws IOException {
     if(treeId == null) {
-      if(!hasStagedChanges() && isBaseSpecified())
-        treeId = getTreeFromBase();
-      else {
+      if(!hasStagedChanges() && isBaseSpecified()) {
+        assert repository != null;
+        resolveBaseTree(repository);
+        treeId = baseTreeId;
+      } else {
         prepareCache();
         treeId = cache.writeTree(inserter);
       }

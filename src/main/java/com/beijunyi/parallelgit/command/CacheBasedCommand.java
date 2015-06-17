@@ -123,17 +123,25 @@ public abstract class CacheBasedCommand<B extends CacheBasedCommand, T> extends 
     return self();
   }
 
-  private void setupBase(@Nonnull CacheStateProvider provider) throws IOException {
-    if(baseTreeId != null || baseTreeIdStr != null || baseCommitId != null || baseCommitIdStr != null) {
-      if(baseTreeId == null) {
-        if(baseTreeIdStr != null)
-          baseTreeId = provider.getRepository().resolve(baseTreeIdStr);
-        else {
-          if(baseCommitId == null)
-            baseCommitId = provider.getRepository().resolve(baseCommitIdStr);
-          baseTreeId = RevTreeHelper.getRootTree(provider.getReader(), baseCommitId);
-        }
+  protected boolean isBaseSpecified() {
+    return baseTreeId != null || baseTreeIdStr != null || baseCommitId != null || baseCommitIdStr != null;
+  }
+
+  protected void resolveBaseTree(@Nonnull Repository repository) throws IOException {
+    if(baseTreeId == null) {
+      if(baseTreeIdStr != null)
+        baseTreeId = repository.resolve(baseTreeIdStr);
+      else {
+        if(baseCommitId == null)
+          baseCommitId = repository.resolve(baseCommitIdStr);
+        baseTreeId = RevTreeHelper.getRootTree(repository, baseCommitId);
       }
+    }
+  }
+
+  private void setupBase(@Nonnull CacheStateProvider provider) throws IOException {
+    if(isBaseSpecified()) {
+      resolveBaseTree(provider.getRepository());
       DirCacheHelper.addTree(provider.getCurrentCache(), provider.getReader(), "", baseTreeId);
     }
   }

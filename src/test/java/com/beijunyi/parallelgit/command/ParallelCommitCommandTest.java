@@ -210,22 +210,26 @@ public class ParallelCommitCommandTest extends AbstractParallelGitTest {
   }
 
   @Test
-  public void createCommitAmendBranchHeadContentTest() throws IOException {
+  public void createCommitAmendBranchHeadTreeTest() throws IOException {
+    byte[] bytes = "temp file content".getBytes();
+
     initRepository();
-    writeFile("file1.txt");
+    String existingFile = "existing_file.txt";
+    writeFile(existingFile);
     String branch = "test_branch";
-    AnyObjectId treeId = RevTreeHelper.getRootTree(repo, commitToBranch(branch));
-    String amendedMessage = "amended message";
+    String previousMessage = CommitHelper.getCommit(repo, commitToBranch(branch)).getFullMessage();
+    String newFile = "new_file.txt";
     ObjectId commitId = ParallelCommitCommand.prepare(repo)
                           .branch(branch)
+                          .addFile(bytes, newFile)
                           .amend(true)
-                          .message(amendedMessage)
                           .call();
     Assert.assertNotNull(commitId);
     RevCommit branchHead = CommitHelper.getCommit(repo, branch);
     Assert.assertNotNull(branchHead);
-    Assert.assertEquals(treeId, branchHead.getTree());
-    Assert.assertEquals(amendedMessage, branchHead.getFullMessage());
+    Assert.assertEquals(previousMessage, branchHead.getFullMessage());
+    Assert.assertNotNull(BlobHelper.findBlobId(repo, branchHead, existingFile));
+    Assert.assertArrayEquals(bytes, BlobHelper.getBytes(repo, branchHead, newFile));
   }
 
   @Test
@@ -637,7 +641,7 @@ public class ParallelCommitCommandTest extends AbstractParallelGitTest {
   }
 
   @Test
-  public void createOrphanCommit() throws IOException {
+  public void createOrphanCommitTest() throws IOException {
     byte[] bytes = "temp file content".getBytes();
 
     initRepository();
@@ -660,7 +664,7 @@ public class ParallelCommitCommandTest extends AbstractParallelGitTest {
   }
 
   @Test
-  public void createOrphanWithNoChange() throws IOException {
+  public void createOrphanWithNoChangeTest() throws IOException {
     initRepository();
     String existingFile1 = "existing_file1.txt";
     writeFile(existingFile1);
@@ -679,7 +683,7 @@ public class ParallelCommitCommandTest extends AbstractParallelGitTest {
   }
 
   @Test
-  public void createOrphanAtBranch() throws IOException {
+  public void createOrphanAtBranchTest() throws IOException {
     initRepository();
     String branch = "test_branch";
     String existingFile1 = "existing_file1.txt";
@@ -698,6 +702,66 @@ public class ParallelCommitCommandTest extends AbstractParallelGitTest {
     Assert.assertNotNull(BlobHelper.findBlobId(repo, branchHead, existingFile1));
     Assert.assertNotNull(BlobHelper.findBlobId(repo, branchHead, existingFile2));
     Assert.assertEquals(0, branchHead.getParentCount());
+  }
+
+  @Test
+  public void createNewBranchTest() throws IOException {
+    byte[] bytes = "temp file content".getBytes();
+
+    initRepository();
+    String branch = "test_branch";
+    String newFile = "new_file.txt";
+    String message = "create new branch";
+    ObjectId commitId = ParallelCommitCommand.prepare(repo)
+                          .branch(branch)
+                          .addFile(bytes, newFile)
+                          .message(message)
+                          .call();
+    Assert.assertNotNull(commitId);
+    RevCommit branchHead = CommitHelper.getCommit(repo, branch);
+    Assert.assertNotNull(branchHead);
+    Assert.assertEquals(message, branchHead.getFullMessage());
+    Assert.assertArrayEquals(bytes, BlobHelper.getBytes(repo, branchHead, newFile));
+  }
+
+  @Test
+  public void createCommitFromRevisionIdTest() throws IOException {
+    byte[] bytes = "temp file content".getBytes();
+
+    initRepository();
+    String existingFile = "existing_file.txt";
+    writeFile(existingFile);
+    ObjectId parentRevision = commitToMaster();
+    String newFile = "new_file.txt";
+    ObjectId commitId = ParallelCommitCommand.prepare(repo)
+                          .revision(parentRevision)
+                          .addFile(bytes, newFile)
+                          .call();
+    Assert.assertNotNull(commitId);
+    RevCommit newCommit = CommitHelper.getCommit(repo, commitId);
+    Assert.assertNotNull(BlobHelper.findBlobId(repo, newCommit, existingFile));
+    Assert.assertEquals(parentRevision, newCommit.getParent(0));
+    Assert.assertArrayEquals(bytes, BlobHelper.getBytes(repo, newCommit, newFile));
+  }
+
+  @Test
+  public void createCommitFromRevisionIdStrTest() throws IOException {
+    byte[] bytes = "temp file content".getBytes();
+
+    initRepository();
+    String existingFile = "existing_file.txt";
+    writeFile(existingFile);
+    ObjectId parentRevision = commitToMaster();
+    String newFile = "new_file.txt";
+    ObjectId commitId = ParallelCommitCommand.prepare(repo)
+                          .revision(parentRevision.getName())
+                          .addFile(bytes, newFile)
+                          .call();
+    Assert.assertNotNull(commitId);
+    RevCommit newCommit = CommitHelper.getCommit(repo, commitId);
+    Assert.assertNotNull(BlobHelper.findBlobId(repo, newCommit, existingFile));
+    Assert.assertEquals(parentRevision, newCommit.getParent(0));
+    Assert.assertArrayEquals(bytes, BlobHelper.getBytes(repo, newCommit, newFile));
   }
 
 
