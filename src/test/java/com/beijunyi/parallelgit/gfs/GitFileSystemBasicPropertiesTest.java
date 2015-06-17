@@ -1,5 +1,6 @@
 package com.beijunyi.parallelgit.gfs;
 
+import java.io.IOException;
 import java.nio.file.FileStore;
 import java.nio.file.Path;
 import java.util.Iterator;
@@ -12,9 +13,8 @@ import org.junit.Test;
 public class GitFileSystemBasicPropertiesTest extends AbstractGitFileSystemTest {
 
   @Before
-  public void setupFileSystem() {
+  public void setupFileSystem() throws IOException {
     initGitFileSystem();
-    preventDestroyFileSystem();
   }
 
   @Test

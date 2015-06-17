@@ -3,8 +3,8 @@ package com.beijunyi.parallelgit.gfs;
 import java.io.IOException;
 import java.nio.file.Files;
 
-import com.beijunyi.parallelgit.utils.BlobHelper;
-import com.beijunyi.parallelgit.utils.CommitHelper;
+import com.beijunyi.parallelgit.util.BlobHelper;
+import com.beijunyi.parallelgit.util.CommitHelper;
 import org.eclipse.jgit.lib.ObjectId;
 import org.eclipse.jgit.lib.PersonIdent;
 import org.eclipse.jgit.revwalk.RevCommit;
@@ -37,7 +37,7 @@ public class GitFileSystemUtilsCommitTest extends AbstractGitFileSystemTest {
     Assert.assertEquals(1, commit.getParentCount());
     Assert.assertEquals(prevCommit, commit.getParent(0));
 
-    ObjectId fileBlob = BlobHelper.findBlobId(repo, "file.txt", commit);
+    ObjectId fileBlob = BlobHelper.findBlobId(repo, commit, "file.txt");
     Assert.assertNotNull(fileBlob);
     Assert.assertArrayEquals(data, BlobHelper.getBytes(repo, fileBlob));
   }
@@ -63,7 +63,7 @@ public class GitFileSystemUtilsCommitTest extends AbstractGitFileSystemTest {
     Assert.assertEquals(TEST_USER_EMAIL, author.getEmailAddress());
     Assert.assertEquals(0, commit.getParentCount());
 
-    ObjectId fileBlob = BlobHelper.findBlobId(repo, "file.txt", commit);
+    ObjectId fileBlob = BlobHelper.findBlobId(repo, commit, "file.txt");
     Assert.assertNotNull(fileBlob);
     Assert.assertArrayEquals(data, BlobHelper.getBytes(repo, fileBlob));
   }
@@ -93,7 +93,7 @@ public class GitFileSystemUtilsCommitTest extends AbstractGitFileSystemTest {
     Assert.assertEquals(1, commit.getParentCount());
     Assert.assertEquals(branchCommit, commit.getParent(0));
 
-    ObjectId fileBlob = BlobHelper.findBlobId(repo, "file.txt", commit);
+    ObjectId fileBlob = BlobHelper.findBlobId(repo, commit, "file.txt");
     Assert.assertNotNull(fileBlob);
     Assert.assertArrayEquals(data, BlobHelper.getBytes(repo, fileBlob));
   }
@@ -119,13 +119,13 @@ public class GitFileSystemUtilsCommitTest extends AbstractGitFileSystemTest {
     RevCommit commit = GitFileSystemUtils.commit(gfs, author, author, "some message", false);
 
     Assert.assertNotNull(commit);
-    ObjectId fileBlob1 = BlobHelper.findBlobId(repo, "file1.txt", commit);
+    ObjectId fileBlob1 = BlobHelper.findBlobId(repo, commit, "file1.txt");
     Assert.assertNotNull(fileBlob1);
     Assert.assertArrayEquals(data1, BlobHelper.getBytes(repo, fileBlob1));
-    ObjectId fileBlob2 = BlobHelper.findBlobId(repo, "file2.txt", commit);
+    ObjectId fileBlob2 = BlobHelper.findBlobId(repo, commit, "file2.txt");
     Assert.assertNotNull(fileBlob2);
     Assert.assertArrayEquals(data2, BlobHelper.getBytes(repo, fileBlob2));
-    ObjectId fileBlob3 = BlobHelper.findBlobId(repo, "file3.txt", commit);
+    ObjectId fileBlob3 = BlobHelper.findBlobId(repo, commit, "file3.txt");
     Assert.assertNotNull(fileBlob3);
     Assert.assertArrayEquals(data3, BlobHelper.getBytes(repo, fileBlob3));
 

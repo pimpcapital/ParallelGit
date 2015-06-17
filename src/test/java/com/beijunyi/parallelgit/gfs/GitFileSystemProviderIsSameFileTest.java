@@ -10,9 +10,8 @@ import org.junit.Test;
 public class GitFileSystemProviderIsSameFileTest extends AbstractGitFileSystemTest {
 
   @Before
-  public void setupFileSystem() {
+  public void setupFileSystem() throws IOException {
     initGitFileSystem();
-    preventDestroyFileSystem();
   }
 
   @Test

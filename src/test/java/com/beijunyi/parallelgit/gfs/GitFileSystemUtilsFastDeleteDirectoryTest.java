@@ -1,5 +1,6 @@
 package com.beijunyi.parallelgit.gfs;
 
+import java.io.IOException;
 import java.nio.file.Files;
 
 import org.junit.Assert;
@@ -8,7 +9,7 @@ import org.junit.Test;
 public class GitFileSystemUtilsFastDeleteDirectoryTest extends AbstractGitFileSystemTest {
 
   @Test
-  public void fastDeleteRootTest() {
+  public void fastDeleteRootTest() throws IOException {
     initRepository();
     writeFile("a/a1.txt");
     writeFile("a/a2.txt");
@@ -23,7 +24,7 @@ public class GitFileSystemUtilsFastDeleteDirectoryTest extends AbstractGitFileSy
   }
 
   @Test
-  public void fastDeleteDirectoryTest() {
+  public void fastDeleteDirectoryTest() throws IOException {
     initRepository();
     writeFile("a/a1.txt");
     writeFile("a/a2.txt");

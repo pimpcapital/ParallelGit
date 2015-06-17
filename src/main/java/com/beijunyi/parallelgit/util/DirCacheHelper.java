@@ -1,4 +1,4 @@
-package com.beijunyi.parallelgit.utils;
+package com.beijunyi.parallelgit.util;
 
 import java.io.IOException;
 import java.util.Iterator;
@@ -6,23 +6,10 @@ import java.util.NoSuchElementException;
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 
-import com.beijunyi.parallelgit.ParallelGitException;
 import org.eclipse.jgit.dircache.*;
 import org.eclipse.jgit.lib.*;
 
 public final class DirCacheHelper {
-
-  /**
-   * Creates a new in-core {@code DirCache}.
-   *
-   * This method behaves exactly the same as {@code DirCache.newInCore()}.
-   *
-   * @return a new in-core dir cache.
-   */
-  @Nonnull
-  public static DirCache newCache() {
-    return DirCache.newInCore();
-  }
 
   /**
    * Loads the specified tree into the given {@code DirCache}.
@@ -31,7 +18,7 @@ public final class DirCacheHelper {
    * @param reader an object reader
    * @param treeId a tree id
    */
-  public static void loadTree(@Nonnull DirCache cache, @Nonnull ObjectReader reader, @Nonnull ObjectId treeId) {
+  public static void loadTree(@Nonnull DirCache cache, @Nonnull ObjectReader reader, @Nonnull AnyObjectId treeId) throws IOException {
     addTree(cache, reader, "", treeId);
   }
 
@@ -42,8 +29,8 @@ public final class DirCacheHelper {
    * @param reader an object reader
    * @param commitId an object id that points to a commit
    */
-  public static void loadRevision(@Nonnull DirCache cache, @Nonnull ObjectReader reader, @Nonnull ObjectId commitId) {
-    loadTree(cache, reader, RevTreeHelper.getTree(reader, commitId));
+  public static void loadRevision(@Nonnull DirCache cache, @Nonnull ObjectReader reader, @Nonnull AnyObjectId commitId) throws IOException {
+    loadTree(cache, reader, RevTreeHelper.getRootTree(reader, commitId));
   }
 
   /**
@@ -53,8 +40,8 @@ public final class DirCacheHelper {
    * @param treeId a tree id
    * @return a new dir cache with content loaded from the given tree
    */
-  public static DirCache forTree(@Nonnull ObjectReader reader, @Nonnull ObjectId treeId) {
-    DirCache cache = newCache();
+  public static DirCache forTree(@Nonnull ObjectReader reader, @Nonnull AnyObjectId treeId) throws IOException {
+    DirCache cache = DirCache.newInCore();
     loadTree(cache, reader, treeId);
     return cache;
   }
@@ -67,8 +54,8 @@ public final class DirCacheHelper {
    * @return a new dir cache
    */
   @Nonnull
-  public static DirCache forRevision(@Nonnull ObjectReader reader, @Nonnull ObjectId commitId) {
-    DirCache cache = newCache();
+  public static DirCache forRevision(@Nonnull ObjectReader reader, @Nonnull AnyObjectId commitId) throws IOException {
+    DirCache cache = DirCache.newInCore();
     loadRevision(cache, reader, commitId);
     return cache;
   }
@@ -76,7 +63,7 @@ public final class DirCacheHelper {
   /**
    * Creates a new {@code DirCache} with content loaded from the given commit's root tree.
    *
-   * This method creates a temporary {@code ObjectReader} and then invokes {@link #forRevision(ObjectReader, ObjectId)}.
+   * This method creates a temporary {@code ObjectReader} and then invokes {@link #forRevision(ObjectReader, AnyObjectId)}.
    * The temporary reader will be released at the end of this method.
    *
    * @param repo a git repository
@@ -84,7 +71,7 @@ public final class DirCacheHelper {
    * @return a new dir cache
    */
   @Nonnull
-  public static DirCache forRevision(@Nonnull Repository repo, @Nonnull ObjectId commitId) {
+  public static DirCache forRevision(@Nonnull Repository repo, @Nonnull AnyObjectId commitId) throws IOException {
     ObjectReader reader = repo.newObjectReader();
     try {
       return forRevision(reader, commitId);
@@ -97,17 +84,17 @@ public final class DirCacheHelper {
    * Creates a new {@code DirCache} with content from the specified commit's root tree.
    *
    * This method finds the {@code ObjectId} of the commit represented by the specified revision string and then invokes
-   * {@link #forRevision(Repository, ObjectId)}.
+   * {@link #forRevision(Repository, AnyObjectId)}.
    *
    * @param repo a git repository
    * @param revision a revision string
    * @return a new dir cache
    */
   @Nonnull
-  public static DirCache forRevision(@Nonnull Repository repo, @Nonnull String revision) {
-    ObjectId revisionId = RepositoryHelper.getRevisionId(repo, revision);
+  public static DirCache forRevision(@Nonnull Repository repo, @Nonnull String revision) throws IOException {
+    ObjectId revisionId = repo.resolve(revision);
     if(revisionId == null)
-      throw new ParallelGitException("Could not find matched commit id for " + revision);
+      throw new IllegalArgumentException("Could not find matched commit id for " + revision);
     return forRevision(repo, revisionId);
   }
 
@@ -131,36 +118,27 @@ public final class DirCacheHelper {
   /**
    * Adds the specified tree into the given {@code DirCacheBuilder}.
    *
-   * This method behaves similarly to {@code DirCacheBuilder#addTree(byte[], int, ObjectReader, AnyObjectId)} except
-   * that the tree is always added to {@code DirCacheEntry#STAGE_0}. To be exception friendly, this method does not
-   * throw any checked exception. In the case that an {@code IOException} does occur, the source exception can be
-   * retrieved from {@link ParallelGitException#getCause()}.
-   *
    * @param builder a dir cache builder
    * @param reader an object reader
    * @param path a directory path
    * @param treeId an object id that points to a tree
    */
-  public static void addTree(@Nonnull DirCacheBuilder builder, @Nonnull ObjectReader reader, @Nonnull String path, @Nonnull ObjectId treeId) {
-    try {
-      builder.addTree(path.getBytes(), DirCacheEntry.STAGE_0, reader, treeId);
-    } catch(IOException e) {
-      throw new ParallelGitException("Could not add tree " + treeId, e);
-    }
+  public static void addTree(@Nonnull DirCacheBuilder builder, @Nonnull ObjectReader reader, @Nonnull String path, @Nonnull AnyObjectId treeId) throws IOException {
+    builder.addTree(path.getBytes(), DirCacheEntry.STAGE_0, reader, treeId);
   }
 
   /**
    * Adds the specified tree into the given {@code DirCache}.
    *
    * This method creates a temporary {@code DirCacheBuilder} and then invokes {@link #addTree(DirCacheBuilder,
-   * ObjectReader, String, ObjectId)}. The temporary builder will be finished/flushed at the end of this method..
+   * ObjectReader, String, AnyObjectId)}. The temporary builder will be finished/flushed at the end of this method..
    *
    * @param cache a dir cache
    * @param reader an object reader
    * @param path a directory path
    * @param treeId an object id that points to a tree
    */
-  public static void addTree(@Nonnull DirCache cache, @Nonnull ObjectReader reader, @Nonnull String path, @Nonnull ObjectId treeId) {
+  public static void addTree(@Nonnull DirCache cache, @Nonnull ObjectReader reader, @Nonnull String path, @Nonnull AnyObjectId treeId) throws IOException {
     DirCacheBuilder builder = keepEverything(cache);
     addTree(builder, reader, path, treeId);
     builder.finish();
@@ -177,7 +155,7 @@ public final class DirCacheHelper {
    * @param path a file path
    * @param blobId an object id that points to a blob
    */
-  public static void addFile(@Nonnull DirCacheBuilder builder, @Nonnull FileMode mode, @Nonnull String path, @Nonnull ObjectId blobId) {
+  public static void addFile(@Nonnull DirCacheBuilder builder, @Nonnull FileMode mode, @Nonnull String path, @Nonnull AnyObjectId blobId) {
     DirCacheEntry entry = new DirCacheEntry(path, DirCacheEntry.STAGE_0);
     entry.setFileMode(mode);
     entry.setObjectId(blobId);
@@ -188,14 +166,14 @@ public final class DirCacheHelper {
    * Adds a new {@code DirCacheEntry} with the provided blob id into the given {@code DirCache} at the specified path.
    *
    * This method creates a temporary {@code DirCacheBuilder} and then invokes {@link #addFile(DirCacheBuilder, FileMode,
-   * String, ObjectId)}. The temporary builder will be finished/flushed at the end of this method..
+   * String, AnyObjectId)}. The temporary builder will be finished/flushed at the end of this method..
    *
    * @param cache a dir cache
    * @param mode a file mode
    * @param path a file path
    * @param blobId an object id that points to a blob
    */
-  public static void addFile(@Nonnull DirCache cache, @Nonnull FileMode mode, @Nonnull String path, @Nonnull ObjectId blobId) {
+  public static void addFile(@Nonnull DirCache cache, @Nonnull FileMode mode, @Nonnull String path, @Nonnull AnyObjectId blobId) {
     DirCacheBuilder builder = keepEverything(cache);
     addFile(builder, mode, path, blobId);
     builder.finish();
@@ -204,14 +182,14 @@ public final class DirCacheHelper {
   /**
    * Adds a new {@code DirCacheEntry} with the provided blob id into the given {@code DirCache} at the specified path.
    *
-   * This method behaves similarly to {@link #addFile(DirCache, FileMode, String, ObjectId)} except the new entry's file
+   * This method behaves similarly to {@link #addFile(DirCache, FileMode, String, AnyObjectId)} except the new entry's file
    * mode is always {@code FileMode.REGULAR_FILE}.
    *
    * @param cache a dir cache
    * @param path a file path
    * @param blobId an object id that points to a blob
    */
-  public static void addFile(@Nonnull DirCache cache, @Nonnull String path, @Nonnull ObjectId blobId) {
+  public static void addFile(@Nonnull DirCache cache, @Nonnull String path, @Nonnull AnyObjectId blobId) {
     addFile(cache, FileMode.REGULAR_FILE, path, blobId);
   }
 
@@ -323,7 +301,7 @@ public final class DirCacheHelper {
         while(index < entries.length) {
           DirCacheEntry entry = entries[index++];
           String path = entry.getPathString();
-          if(prev != null && prev.isDirectory() && path.startsWith(prev.getPath()))
+          if(prev != null && prev.hasChild(path))
             continue;
           int end = path.indexOf('/', childrenMinLength);
           next = end != -1 ? VirtualDirCacheEntry.directory(path.substring(0, end)) : VirtualDirCacheEntry.file(path);
@@ -337,6 +315,7 @@ public final class DirCacheHelper {
         return next != null || findNext();
       }
 
+      @Nonnull
       @Override
       public VirtualDirCacheEntry next() {
         if(next != null || findNext()) {
@@ -352,26 +331,6 @@ public final class DirCacheHelper {
         throw new UnsupportedOperationException();
       }
     };
-  }
-
-  /**
-   * Writes the content of {@code DirCache} into a tree and returns the id of the tree root.
-   *
-   * This method is an exception friendly version of {@code DirCache#writeTree(ObjectInserter)} which has no checked
-   * exception in the method signature. In the case that an {@code IOException} does occur, the source exception can be
-   * retrieved from {@link ParallelGitException#getCause()}.
-   *
-   * @param cache a dir cache
-   * @param inserter an object inserter
-   * @return the id of the root tree
-   */
-  @Nonnull
-  public static ObjectId writeTree(@Nonnull DirCache cache, @Nonnull ObjectInserter inserter) {
-    try {
-      return cache.writeTree(inserter);
-    } catch(IOException e) {
-      throw new ParallelGitException("Could not build tree from cache", e);
-    }
   }
 
 }

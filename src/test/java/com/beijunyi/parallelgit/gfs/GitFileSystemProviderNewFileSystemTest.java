@@ -2,11 +2,12 @@ package com.beijunyi.parallelgit.gfs;
 
 import java.io.IOException;
 import java.net.URI;
-import java.nio.file.*;
+import java.nio.file.FileSystem;
+import java.nio.file.FileSystems;
 import java.util.HashMap;
 import java.util.Map;
 
-import com.beijunyi.parallelgit.utils.CommitHelper;
+import com.beijunyi.parallelgit.util.CommitHelper;
 import org.eclipse.jgit.lib.ObjectId;
 import org.eclipse.jgit.lib.Repository;
 import org.eclipse.jgit.revwalk.RevCommit;
@@ -17,7 +18,7 @@ public class GitFileSystemProviderNewFileSystemTest extends AbstractGitFileSyste
 
   @Test
   public void openNewFileSystemOfNonBareFromUriTest() throws IOException {
-    initRepository(false);
+    initRepository(false, false);
     URI uri = GitUriUtils.createUri(repoDir, null, null);
     try(FileSystem fs = FileSystems.newFileSystem(uri, null)) {
       Assert.assertNotNull(fs);
@@ -30,7 +31,7 @@ public class GitFileSystemProviderNewFileSystemTest extends AbstractGitFileSyste
 
   @Test
   public void openNewFileSystemOfBareRepositoryFromUriTest() throws IOException {
-    initRepository();
+    initRepository(false, true);
     URI uri = GitUriUtils.createUri(repoDir, null, null, true, null, null, null, null);
     try(FileSystem fs = FileSystems.newFileSystem(uri, null)) {
       Assert.assertNotNull(fs);
@@ -43,7 +44,7 @@ public class GitFileSystemProviderNewFileSystemTest extends AbstractGitFileSyste
 
   @Test
   public void openNewFileSystemFromUriWithFileInRepoTest() throws IOException {
-    initRepository();
+    initRepository(false, true);
     URI uri = GitUriUtils.createUri(repoDir, "some_path", null, true, null, null, null, null);
     try(FileSystem fs = FileSystems.newFileSystem(uri, null)) {
       Assert.assertEquals(repoDir, ((GitFileSystem)fs).getFileStore().getRepository().getDirectory());
@@ -52,7 +53,7 @@ public class GitFileSystemProviderNewFileSystemTest extends AbstractGitFileSyste
 
   @Test
   public void openNewFileSystemFromUriWithSessionIdTest() throws IOException {
-    initRepository();
+    initRepository(false, true);
     URI uri = GitUriUtils.createUri(repoDir, null, "session_id", true, null, null, null, null);
     try(FileSystem fs = FileSystems.newFileSystem(uri, null)) {
       Assert.assertEquals("session_id", ((GitFileSystem)fs).getSessionId());
@@ -61,7 +62,7 @@ public class GitFileSystemProviderNewFileSystemTest extends AbstractGitFileSyste
 
   @Test
   public void openNewFileSystemWithCreatingNonBareRepositoryFromUriTest() throws IOException {
-    initRepositoryDir();
+    initRepository(false, true);
     URI uri = GitUriUtils.createUri(repoDir, null, null, false, true, null, null, null);
     try(FileSystem fs = FileSystems.newFileSystem(uri, null)) {
       Repository repo = ((GitFileSystem)fs).getFileStore().getRepository();
@@ -72,7 +73,7 @@ public class GitFileSystemProviderNewFileSystemTest extends AbstractGitFileSyste
 
   @Test
   public void openNewFileSystemWithCreatingBareRepositoryFromUriTest() throws IOException {
-    initRepositoryDir();
+    initRepositoryDir(false);
     URI uri = GitUriUtils.createUri(repoDir, null, null, true, true, null, null, null);
     try(FileSystem fs = FileSystems.newFileSystem(uri, null)) {
       Repository repo = ((GitFileSystem)fs).getFileStore().getRepository();
@@ -83,7 +84,7 @@ public class GitFileSystemProviderNewFileSystemTest extends AbstractGitFileSyste
 
   @Test
   public void openNewFileSystemWithSpecifiedBranchFromUriTest() throws IOException {
-    initRepository();
+    initRepository(false, true);
     writeFile("some_file");
     RevCommit commit = CommitHelper.getCommit(repo, commitToBranch("branch"));
     URI uri = GitUriUtils.createUri(repoDir, null, null, true, null, "branch", null, null);
@@ -104,7 +105,7 @@ public class GitFileSystemProviderNewFileSystemTest extends AbstractGitFileSyste
 
   @Test
   public void openNewFileSystemWithSpecifiedRevisionFromUriTest() throws IOException {
-    initRepository();
+    initRepository(false, true);
     writeFile("some_file");
     RevCommit commit = CommitHelper.getCommit(repo, commitToBranch("some_branch"));
     URI uri = GitUriUtils.createUri(repoDir, null, null, true, null, null, commit.getName(), null);
@@ -125,7 +126,7 @@ public class GitFileSystemProviderNewFileSystemTest extends AbstractGitFileSyste
 
   @Test
   public void openNewFileSystemWithEnvMapOverridingParamTest() throws IOException {
-    initRepository();
+    initRepository(false, true);
     URI uri = GitUriUtils.createUri(repoDir, null, "session_1", null, null, null, null, null);
     Map<String, Object> envMap = new HashMap<>();
     envMap.put(GitFileSystemProvider.SESSION_KEY, "session_2");

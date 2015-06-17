@@ -1,4 +1,4 @@
-package com.beijunyi.parallelgit.utils;
+package com.beijunyi.parallelgit.util;
 
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
@@ -7,6 +7,7 @@ public final class VirtualDirCacheEntry {
 
   private final String path;
   private final boolean regularFile;
+  private String childrenPrefix;
 
   private String name;
 
@@ -80,23 +81,34 @@ public final class VirtualDirCacheEntry {
     return !regularFile;
   }
 
+  /**
+   * Tests if the given path is a child of this entry.
+   *
+   * @param   path
+   *          the path to test
+   * @return  {@code true} if the given path is a child of this entry.
+   */
+  public boolean hasChild(@Nonnull String path) {
+    if(regularFile)
+      return false;
+    if(childrenPrefix == null)
+      childrenPrefix = this.path + "/";
+    return path.startsWith(childrenPrefix);
+  }
+
   @Override
   public boolean equals(@Nullable Object obj) {
     if(this == obj)
       return true;
     if(obj == null || getClass() != obj.getClass())
       return false;
-
     VirtualDirCacheEntry that = (VirtualDirCacheEntry)obj;
-
-    return regularFile == that.regularFile && path.equals(that.path);
+    return path.equals(that.path) && regularFile == that.regularFile;
 
   }
 
   @Override
   public int hashCode() {
-    int result = path.hashCode();
-    result = 31 * result + (regularFile ? 1 : 0);
-    return result;
+    return 31 * path.hashCode() + (regularFile ? 1 : 0);
   }
 }

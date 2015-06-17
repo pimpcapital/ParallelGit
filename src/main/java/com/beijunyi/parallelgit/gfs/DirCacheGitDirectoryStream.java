@@ -1,5 +1,6 @@
 package com.beijunyi.parallelgit.gfs;
 
+import java.io.IOException;
 import java.nio.file.DirectoryStream;
 import java.nio.file.NotDirectoryException;
 import java.nio.file.Path;
@@ -8,8 +9,8 @@ import java.util.NoSuchElementException;
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 
-import com.beijunyi.parallelgit.utils.DirCacheHelper;
-import com.beijunyi.parallelgit.utils.VirtualDirCacheEntry;
+import com.beijunyi.parallelgit.util.DirCacheHelper;
+import com.beijunyi.parallelgit.util.VirtualDirCacheEntry;
 import org.eclipse.jgit.dircache.DirCache;
 
 public class DirCacheGitDirectoryStream extends GitDirectoryStream {
@@ -48,8 +49,8 @@ public class DirCacheGitDirectoryStream extends GitDirectoryStream {
               next = childPath;
               return true;
             }
-          } catch(Exception e) {
-            throw new GitFileSystemException("Could not test " + childPath, e);
+          } catch(IOException e) {
+            throw new RuntimeException(e);
           }
         }
         return false;

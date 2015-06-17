@@ -13,12 +13,12 @@ import java.util.*;
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 
-import com.beijunyi.parallelgit.utils.RefHelper;
-import com.beijunyi.parallelgit.utils.RepositoryHelper;
+import com.beijunyi.parallelgit.util.RefHelper;
+import com.beijunyi.parallelgit.util.RepositoryHelper;
 import org.eclipse.jgit.lib.*;
 
-import static java.nio.file.StandardOpenOption.*;
 import static java.nio.file.StandardCopyOption.*;
+import static java.nio.file.StandardOpenOption.*;
 
 public class GitFileSystemProvider extends FileSystemProvider {
 
@@ -85,7 +85,7 @@ public class GitFileSystemProvider extends FileSystemProvider {
    *          if a session ID is specified and a {@code GitFileSystem} with this session ID has already been created
    */
   @Nonnull
-  GitFileSystem newFileSystem(@Nonnull File repoDir, @Nullable Map<String, ?> env) throws FileSystemAlreadyExistsException {
+  GitFileSystem newFileSystem(@Nonnull File repoDir, @Nullable Map<String, ?> env) throws FileSystemAlreadyExistsException, IOException {
     String session = null;
     boolean bare = false;
     boolean create = false;
@@ -108,16 +108,16 @@ public class GitFileSystemProvider extends FileSystemProvider {
       treeStr = treeValue == null ? null : treeValue instanceof AnyObjectId ? ((AnyObjectId) treeValue).getName() : treeValue.toString();
     }
 
-    Repository repo = create ? RepositoryHelper.newRepository(repoDir, bare) : RepositoryHelper.openRepository(repoDir, bare);
-    ObjectId revision = revisionStr != null ? RepositoryHelper.getRevisionId(repo, revisionStr) : null;
-    ObjectId tree = treeStr != null ? RepositoryHelper.getRevisionId(repo, treeStr) : null;
+    Repository repo = create ? RepositoryHelper.createRepository(repoDir, bare) : RepositoryHelper.openRepository(repoDir);
+    ObjectId revision = revisionStr != null ? repo.resolve(revisionStr) : null;
+    ObjectId tree = treeStr != null ? repo.resolve(treeStr) : null;
 
     return newFileSystem(session, repo, branch, revision, tree);
   }
 
   @Nonnull
   @Override
-  public GitFileSystem newFileSystem(@Nonnull Path path, @Nullable Map<String, ?> env) {
+  public GitFileSystem newFileSystem(@Nonnull Path path, @Nullable Map<String, ?> env) throws IOException {
     return newFileSystem(path.toFile(), env);
   }
 
@@ -174,7 +174,7 @@ public class GitFileSystemProvider extends FileSystemProvider {
    */
   @Nonnull
   @Override
-  public GitFileSystem newFileSystem(@Nonnull URI uri, @Nullable Map<String, ?> env) {
+  public GitFileSystem newFileSystem(@Nonnull URI uri, @Nullable Map<String, ?> env) throws IOException {
     Map<String, Object> params = GitUriUtils.getParams(uri);
     if(env != null)
       params.putAll(env);
@@ -209,10 +209,10 @@ public class GitFileSystemProvider extends FileSystemProvider {
    *          if a session ID is specified and a {@code GitFileSystem} with this session ID has already been created
    */
   @Nonnull
-  GitFileSystem newFileSystem(@Nullable String sessionId, @Nonnull Repository repo, @Nullable String branch, @Nullable ObjectId revision, @Nullable ObjectId tree) throws FileSystemAlreadyExistsException {
+  GitFileSystem newFileSystem(@Nullable String sessionId, @Nonnull Repository repo, @Nullable String branch, @Nullable ObjectId revision, @Nullable ObjectId tree) throws FileSystemAlreadyExistsException, IOException {
     String branchRef = branch != null ? RefHelper.getBranchRefName(branch) : null;
     if(revision == null && branchRef != null)
-      revision = RepositoryHelper.getRevisionId(repo, branchRef);
+      revision = repo.resolve(branchRef);
     GitFileSystem gfs = new GitFileSystem(this, checkSessionId(sessionId), repo, branchRef, revision, tree);
     gfsMap.put(gfs.getSessionId(), gfs);
     return gfs;
@@ -270,8 +270,13 @@ public class GitFileSystemProvider extends FileSystemProvider {
   @Override
   public GitPath getPath(@Nonnull URI uri) throws ProviderMismatchException {
     GitFileSystem gfs = getFileSystem(uri);
-    if(gfs == null)
-      gfs = newFileSystem(uri, null);
+    if(gfs == null) {
+      try {
+        gfs = newFileSystem(uri, null);
+      } catch(IOException e) {
+        throw new IllegalArgumentException("Could not create new GitFileSystem for " + uri, e);
+      }
+    }
     String fileInRepo = GitUriUtils.getFileInRepo(uri);
     return gfs.getPath(fileInRepo).toRealPath();
   }
@@ -301,7 +306,7 @@ public class GitFileSystemProvider extends FileSystemProvider {
    */
   @Nonnull
   @Override
-  public SeekableByteChannel newByteChannel(@Nonnull Path path, @Nonnull Set<? extends OpenOption> options, @Nonnull FileAttribute<?>... attrs) throws NoSuchFileException, AccessDeniedException, FileAlreadyExistsException, UnsupportedOperationException {
+  public SeekableByteChannel newByteChannel(@Nonnull Path path, @Nonnull Set<? extends OpenOption> options, @Nonnull FileAttribute<?>... attrs) throws IOException {
     Set<OpenOption> unsupportedOperations = new HashSet<>(options);
     unsupportedOperations.removeAll(SUPPORTED_OPEN_OPTIONS);
     if(!unsupportedOperations.isEmpty())
@@ -337,7 +342,7 @@ public class GitFileSystemProvider extends FileSystemProvider {
    */
   @Nonnull
   @Override
-  public GitDirectoryStream newDirectoryStream(@Nonnull Path path, @Nullable DirectoryStream.Filter<? super Path> filter) throws NotDirectoryException {
+  public GitDirectoryStream newDirectoryStream(@Nonnull Path path, @Nullable DirectoryStream.Filter<? super Path> filter) throws IOException {
     GitPath gitPath = (GitPath) path;
     GitFileStore store = gitPath.getFileSystem().getFileStore();
     return store.newDirectoryStream(gitPath.getNormalizedString(), filter);
@@ -359,7 +364,7 @@ public class GitFileSystemProvider extends FileSystemProvider {
    *          if a file of the target path already exists
    */
   @Override
-  public void createDirectory(@Nonnull Path dir, @Nullable FileAttribute<?>... attrs) throws FileAlreadyExistsException {
+  public void createDirectory(@Nonnull Path dir, @Nullable FileAttribute<?>... attrs) throws IOException {
     GitPath gitPath = (GitPath) dir;
     GitFileStore store = gitPath.getFileSystem().getFileStore();
     if(store.isRegularFile(gitPath.getNormalizedString()) || store.isDirectory(gitPath.getNormalizedString()))
@@ -380,7 +385,7 @@ public class GitFileSystemProvider extends FileSystemProvider {
    *          if the target file is a directory and could not otherwise be deleted because the directory is not empty
    */
   @Override
-  public void delete(@Nonnull Path path) throws AccessDeniedException, DirectoryNotEmptyException, NoSuchFileException {
+  public void delete(@Nonnull Path path) throws IOException {
     GitPath gitPath = (GitPath) path;
     GitFileStore store = gitPath.getFileSystem().getFileStore();
     store.delete(gitPath.getNormalizedString());
@@ -586,7 +591,7 @@ public class GitFileSystemProvider extends FileSystemProvider {
    *          if any of the requested access modes to the target file is denied
    */
   @Override
-  public void checkAccess(@Nonnull Path path, @Nonnull AccessMode... modes) throws NoSuchFileException, AccessDeniedException {
+  public void checkAccess(@Nonnull Path path, @Nonnull AccessMode... modes) throws IOException {
     GitPath gitPath = (GitPath) path;
     GitFileStore store = gitPath.getFileSystem().getFileStore();
     if(!store.isRegularFile(gitPath.getNormalizedString()) && !store.isDirectory(gitPath.getNormalizedString()))
@@ -644,7 +649,7 @@ public class GitFileSystemProvider extends FileSystemProvider {
    */
   @Nonnull
   @Override
-  public <A extends BasicFileAttributes> A readAttributes(@Nonnull Path path, @Nonnull Class<A> type, @Nonnull LinkOption... options) throws NoSuchFileException, UnsupportedOperationException {
+  public <A extends BasicFileAttributes> A readAttributes(@Nonnull Path path, @Nonnull Class<A> type, @Nonnull LinkOption... options) throws IOException {
     if(!type.isAssignableFrom(GitFileAttributes.class))
       throw new UnsupportedOperationException(type.getName());
     return type.cast(getFileAttributeView(path, GitFileAttributeView.class, options).readAttributes());
@@ -673,7 +678,7 @@ public class GitFileSystemProvider extends FileSystemProvider {
    */
   @Nonnull
   @Override
-  public Map<String, Object> readAttributes(@Nonnull Path path, @Nonnull String attributes, @Nonnull LinkOption... options) throws NoSuchFileException, UnsupportedOperationException, IllegalArgumentException {
+  public Map<String, Object> readAttributes(@Nonnull Path path, @Nonnull String attributes, @Nonnull LinkOption... options) throws IOException {
     int viewNameEnd = attributes.indexOf(':');
     if(viewNameEnd != -1) {
       String viewName = attributes.substring(0, viewNameEnd);

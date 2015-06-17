@@ -1,5 +1,6 @@
 package com.beijunyi.parallelgit.gfs;
 
+import java.io.IOException;
 import java.nio.file.Files;
 
 import org.junit.Assert;
@@ -9,12 +10,11 @@ import org.junit.Test;
 public class GitFileSystemProviderCheckAccessTest extends AbstractGitFileSystemTest {
 
   @Before
-  public void setupFileSystem() {
+  public void setupFileSystem() throws IOException {
     initRepository();
     writeFile("dir/file.txt");
     commitToMaster();
     initGitFileSystem();
-    preventDestroyFileSystem();
   }
 
   @Test

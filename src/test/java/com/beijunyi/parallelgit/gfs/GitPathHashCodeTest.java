@@ -1,5 +1,7 @@
 package com.beijunyi.parallelgit.gfs;
 
+import java.io.IOException;
+
 import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
@@ -7,9 +9,8 @@ import org.junit.Test;
 public class GitPathHashCodeTest extends AbstractGitFileSystemTest {
 
   @Before
-  public void setupFileSystem() {
+  public void setupFileSystem() throws IOException {
     initGitFileSystem();
-    preventDestroyFileSystem();
   }
 
   @Test
@@ -39,7 +40,7 @@ public class GitPathHashCodeTest extends AbstractGitFileSystemTest {
   }
 
   @Test
-  public void hashCodesFromDifferentFileSystemTest() {
+  public void hashCodesFromDifferentFileSystemTest() throws IOException {
     GitFileSystem other = GitFileSystems.newFileSystem(repo);
     GitPath p1 = gfs.getPath("/a/b/c");
     GitPath p2 = other.getPath("/a/b/c");

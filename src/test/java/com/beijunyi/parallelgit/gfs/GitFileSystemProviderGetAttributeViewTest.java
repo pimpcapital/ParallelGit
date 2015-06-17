@@ -1,5 +1,6 @@
 package com.beijunyi.parallelgit.gfs;
 
+import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.attribute.FileTime;
 
@@ -10,13 +11,13 @@ import org.junit.Test;
 public class GitFileSystemProviderGetAttributeViewTest extends AbstractGitFileSystemTest {
 
   @Test
-  public void getGitFileAttributeViewNameTest() {
+  public void getGitFileAttributeViewNameTest() throws IOException {
     initGitFileSystem();
     Assert.assertEquals("basic", Files.getFileAttributeView(root, GitFileAttributeView.class).name());
   }
 
   @Test
-  public void getFileAttributeViewForFileTest() {
+  public void getFileAttributeViewForFileTest() throws IOException {
     initRepository();
     writeFile("a/b");
     commitToMaster();
@@ -25,7 +26,7 @@ public class GitFileSystemProviderGetAttributeViewTest extends AbstractGitFileSy
   }
 
   @Test
-  public void getFileAttributeViewForDirectoryTest() {
+  public void getFileAttributeViewForDirectoryTest() throws IOException {
     initRepository();
     writeFile("a/b");
     commitToMaster();
@@ -34,19 +35,19 @@ public class GitFileSystemProviderGetAttributeViewTest extends AbstractGitFileSy
   }
 
   @Test
-  public void getFileAttributeViewForNonExistingFileTest() {
+  public void getFileAttributeViewForNonExistingFileTest() throws IOException {
     initGitFileSystem();
     Assert.assertNotNull(Files.getFileAttributeView(gfs.getPath("/a"), GitFileAttributeView.class));
   }
 
   @Test(expected = UnsupportedOperationException.class)
-  public void getNonGitFileAttributeViewTest() {
+  public void getNonGitFileAttributeViewTest() throws IOException {
     initGitFileSystem();
     Files.getFileAttributeView(root, ZipFileAttributeView.class);
   }
 
   @Test(expected = UnsupportedOperationException.class)
-  public void gitFileAttributeViewSetTimesTest() {
+  public void gitFileAttributeViewSetTimesTest() throws IOException {
     initGitFileSystem();
     FileTime now = FileTime.fromMillis(System.currentTimeMillis());
     Files.getFileAttributeView(root, GitFileAttributeView.class).setTimes(now, now, now);

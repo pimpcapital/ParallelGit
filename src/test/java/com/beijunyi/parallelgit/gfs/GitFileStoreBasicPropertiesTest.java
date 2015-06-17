@@ -1,5 +1,6 @@
 package com.beijunyi.parallelgit.gfs;
 
+import java.io.IOException;
 import java.nio.file.attribute.BasicFileAttributeView;
 
 import org.junit.Assert;
@@ -8,14 +9,14 @@ import org.junit.Test;
 public class GitFileStoreBasicPropertiesTest extends AbstractGitFileSystemTest {
 
   @Test
-  public void fileStoreReadOnlyTest() {
+  public void fileStoreReadOnlyTest() throws IOException {
     initGitFileSystem();
     GitFileStore store = gfs.getFileStore();
     Assert.assertFalse(store.isReadOnly());
   }
 
   @Test
-  public void fileStoreSpaceTest() {
+  public void fileStoreSpaceTest() throws IOException {
     initGitFileSystem();
     GitFileStore store = gfs.getFileStore();
     Assert.assertEquals(repoDir.getTotalSpace(), store.getTotalSpace());
@@ -24,7 +25,7 @@ public class GitFileStoreBasicPropertiesTest extends AbstractGitFileSystemTest {
   }
 
   @Test
-  public void fileStoreFileSupportsAttributeViewTest() {
+  public void fileStoreFileSupportsAttributeViewTest() throws IOException {
     initGitFileSystem();
     GitFileStore store = gfs.getFileStore();
     Assert.assertTrue(store.supportsFileAttributeView(BasicFileAttributeView.class));
@@ -32,7 +33,7 @@ public class GitFileStoreBasicPropertiesTest extends AbstractGitFileSystemTest {
   }
 
   @Test
-  public void fileStoreGetAttributeTest() {
+  public void fileStoreGetAttributeTest() throws IOException {
     initGitFileSystem();
     GitFileStore store = gfs.getFileStore();
     Assert.assertEquals(repoDir.getTotalSpace(), store.getAttribute("totalSpace"));
@@ -41,7 +42,7 @@ public class GitFileStoreBasicPropertiesTest extends AbstractGitFileSystemTest {
   }
 
   @Test(expected = UnsupportedOperationException.class)
-  public void fileStoreGetUnsupportedAttributeTest() {
+  public void fileStoreGetUnsupportedAttributeTest() throws IOException {
     initGitFileSystem();
     GitFileStore store = gfs.getFileStore();
     store.getAttribute("custom_attribute");

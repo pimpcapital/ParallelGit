@@ -1,8 +1,10 @@
 package com.beijunyi.parallelgit.gfs;
 
-import com.beijunyi.parallelgit.utils.CommitHelper;
-import com.beijunyi.parallelgit.utils.RefHelper;
-import com.beijunyi.parallelgit.utils.RevTreeHelper;
+import java.io.IOException;
+
+import com.beijunyi.parallelgit.util.CommitHelper;
+import com.beijunyi.parallelgit.util.RefHelper;
+import com.beijunyi.parallelgit.util.RevTreeHelper;
 import org.eclipse.jgit.lib.ObjectId;
 import org.junit.Assert;
 import org.junit.Test;
@@ -10,7 +12,7 @@ import org.junit.Test;
 public class GitFileStoreNameTest extends AbstractGitFileSystemTest {
 
   @Test
-  public void nameOfGitFileStoreCreatedWithOnlyBranchSpecifiedTest() {
+  public void nameOfGitFileStoreCreatedWithOnlyBranchSpecifiedTest() throws IOException {
     initRepository();
     writeFile("a.txt");
     String branch = "test_branch";
@@ -25,7 +27,7 @@ public class GitFileStoreNameTest extends AbstractGitFileSystemTest {
   }
 
   @Test
-  public void nameOfGitFileStoreCreatedWithOnlyRevisionSpecifiedTest() {
+  public void nameOfGitFileStoreCreatedWithOnlyRevisionSpecifiedTest() throws IOException {
     initRepository();
     writeFile("a.txt");
     ObjectId commit = commitToMaster();
@@ -39,10 +41,10 @@ public class GitFileStoreNameTest extends AbstractGitFileSystemTest {
   }
 
   @Test
-  public void nameOfGitFileStoreCreatedWithOnlyTreeSpecifiedTest() {
+  public void nameOfGitFileStoreCreatedWithOnlyTreeSpecifiedTest() throws IOException {
     initRepository();
     writeFile("a.txt");
-    ObjectId tree = RevTreeHelper.getTree(repo, commitToMaster());
+    ObjectId tree = RevTreeHelper.getRootTree(repo, commitToMaster());
     initGitFileSystemForTree(tree);
 
     String expectedName = repoDir.getAbsolutePath()
@@ -53,7 +55,7 @@ public class GitFileStoreNameTest extends AbstractGitFileSystemTest {
   }
 
   @Test
-  public void nameOfGitFileStoreCreatedWithRevisionOverriddenTest() {
+  public void nameOfGitFileStoreCreatedWithRevisionOverriddenTest() throws IOException {
     initRepository();
     writeFile("a.txt");
     String branch = "test_branch";
@@ -73,7 +75,7 @@ public class GitFileStoreNameTest extends AbstractGitFileSystemTest {
   }
 
   @Test
-  public void nameOfGitFileStoreCreatedWithTreeOverriddenTest() {
+  public void nameOfGitFileStoreCreatedWithTreeOverriddenTest() throws IOException {
     initRepository();
     writeFile("a.txt");
     String branch = "test_branch";
@@ -81,7 +83,7 @@ public class GitFileStoreNameTest extends AbstractGitFileSystemTest {
 
     clearCache();
     writeFile("b.txt");
-    ObjectId tree = RevTreeHelper.getTree(repo, commit("test commit", null));
+    ObjectId tree = RevTreeHelper.getRootTree(repo, commit("test commit", null));
 
     injectGitFileSystem(GitFileSystems.newFileSystem(repo, branch, null, tree));
 
@@ -93,7 +95,7 @@ public class GitFileStoreNameTest extends AbstractGitFileSystemTest {
   }
 
   @Test
-  public void nameOfGitFileStoreCreatedWithRevisionAndTreeOverriddenTest() {
+  public void nameOfGitFileStoreCreatedWithRevisionAndTreeOverriddenTest() throws IOException {
     initRepository();
     writeFile("a.txt");
     String branch = "test_branch";
@@ -105,7 +107,7 @@ public class GitFileStoreNameTest extends AbstractGitFileSystemTest {
 
     clearCache();
     writeFile("c.txt");
-    ObjectId tree = RevTreeHelper.getTree(repo, commit("test commit 2", null));
+    ObjectId tree = RevTreeHelper.getRootTree(repo, commit("test commit 2", null));
 
     injectGitFileSystem(GitFileSystems.newFileSystem(repo, branch, commit, tree));
 

@@ -1,5 +1,6 @@
 package com.beijunyi.parallelgit.gfs;
 
+import java.io.IOException;
 import java.net.URI;
 import java.nio.file.FileSystems;
 
@@ -9,7 +10,7 @@ import org.junit.Test;
 public class GitFileSystemProviderGetFileSystemTest extends AbstractGitFileSystemTest {
 
   @Test
-  public void getFileSystemForUriTest() {
+  public void getFileSystemForUriTest() throws IOException {
     initGitFileSystem();
     URI uri = root.toUri();
     GitFileSystem result = (GitFileSystem) FileSystems.getFileSystem(uri);
@@ -31,7 +32,7 @@ public class GitFileSystemProviderGetFileSystemTest extends AbstractGitFileSyste
   }
 
   @Test
-  public void getFileSystemForSessionIdTest() {
+  public void getFileSystemForSessionIdTest() throws IOException {
     initGitFileSystem();
     String sessionId = gfs.getSessionId();
     GitFileSystem result = GitFileSystems.getFileSystem(sessionId);
