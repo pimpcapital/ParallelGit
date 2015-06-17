@@ -4,7 +4,7 @@
 
   <groupId>com.beijunyi.parallelgit</groupId>
   <artifactId>parallelgit</artifactId>
-  <version>0.9.0</version>
+  <version>0.9.1</version>
   <packaging>jar</packaging>
 
   <name>ParallelGit</name>
