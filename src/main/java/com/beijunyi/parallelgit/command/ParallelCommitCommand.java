@@ -23,11 +23,12 @@ import org.eclipse.jgit.lib.*;
 import org.eclipse.jgit.revwalk.RevCommit;
 
 public final class ParallelCommitCommand extends CacheBasedCommand<ParallelCommitCommand, ObjectId> {
+  private AnyObjectId revisionId;
+  private String revisionIdStr;
   private String branch;
   private boolean amend;
   private boolean orphan;
   private boolean allowEmptyCommit;
-  private boolean fromScratch;
   private AnyObjectId treeId;
   private DirCache cache;
   private RevCommit head;
@@ -47,6 +48,18 @@ public final class ParallelCommitCommand extends CacheBasedCommand<ParallelCommi
   @Nonnull
   @Override
   protected ParallelCommitCommand self() {
+    return this;
+  }
+
+  @Nonnull
+  public ParallelCommitCommand revision(@Nonnull AnyObjectId revisionId) {
+    this.revisionId = revisionId;
+    return this;
+  }
+
+  @Nonnull
+  public ParallelCommitCommand revision(@Nonnull String revisionIdStr) {
+    this.revisionIdStr = revisionIdStr;
     return this;
   }
 
@@ -71,12 +84,6 @@ public final class ParallelCommitCommand extends CacheBasedCommand<ParallelCommi
   @Nonnull
   public ParallelCommitCommand allowEmptyCommit(boolean allowEmptyCommit) {
     this.allowEmptyCommit = allowEmptyCommit;
-    return this;
-  }
-
-  @Nonnull
-  public ParallelCommitCommand fromScratch(boolean fromScratch) {
-    this.fromScratch = fromScratch;
     return this;
   }
 
@@ -311,7 +318,27 @@ public final class ParallelCommitCommand extends CacheBasedCommand<ParallelCommi
 
   private void prepareHead() throws IOException {
     assert repository != null;
-    head = branch != null ? CommitHelper.getCommit(repository, branch) : null;
+    if(revisionId != null)
+      head = CommitHelper.getCommit(repository, revisionId);
+    else if(revisionIdStr != null)
+      head = CommitHelper.getCommit(repository, revisionIdStr);
+    else if(branch != null)
+      head = CommitHelper.getCommit(repository, branch) ;
+  }
+
+  private boolean isResultTreeSpecified() {
+    return treeId != null || cache != null;
+  }
+
+  private boolean isBaseSpecified() {
+    return baseTreeId != null || baseTreeIdStr != null || baseCommitId != null || baseCommitIdStr != null;
+  }
+
+  private void prepareBase() throws IOException {
+    if(isResultTreeSpecified() || isBaseSpecified())
+      return;
+    if(head != null)
+      baseCommit(head);
   }
 
   private void prepareParents() throws IOException {
@@ -320,33 +347,11 @@ public final class ParallelCommitCommand extends CacheBasedCommand<ParallelCommi
     parents = new ArrayList<>();
     if(orphan)
       return;
-    if(branch != null) {
-      assert repository != null;
-      if(head != null) {
-        if(amend)
-          parents.addAll(Arrays.asList(head.getParents()));
-        else
-          parents.add(head);
-      }
-    }
-  }
-
-  private void prepareBase() throws IOException {
-    if(treeId == null && cache == null && !fromScratch) {
-      if(amend || orphan) {
-        if(editors.isEmpty())
-          treeId = head.getTree();
-        else
-          baseCommit(head);
-      } else {
-        if(editors.isEmpty()) {
-          if(!allowEmptyCommit)
-            throw new IllegalArgumentException("Nothing to commit");
-          assert repository != null;
-          treeId = !parents.isEmpty() ? RevTreeHelper.getRootTree(repository, parents.get(0)) : null;
-        } else if(!parents.isEmpty())
-          baseCommit(parents.get(0));
-      }
+    if(head != null) {
+      if(amend)
+        parents.addAll(Arrays.asList(head.getParents()));
+      else
+        parents.add(head);
     }
   }
 
@@ -356,10 +361,32 @@ public final class ParallelCommitCommand extends CacheBasedCommand<ParallelCommi
     }
   }
 
+  private boolean hasStagedChanges() {
+    return cache != null || !editors.isEmpty();
+  }
+
+  @Nonnull
+  private AnyObjectId getTreeFromBase() throws IOException {
+    if(baseTreeId != null)
+      return baseTreeId;
+    assert repository != null;
+    if(baseTreeIdStr != null)
+      return repository.resolve(baseCommitIdStr);
+    if(baseCommitId != null)
+      return RevTreeHelper.getRootTree(repository, baseCommitId);
+    if(baseCommitIdStr != null)
+      return RevTreeHelper.getRootTree(repository, baseCommitIdStr);
+    throw new IllegalStateException();
+  }
+
   private void prepareTree(@Nonnull ObjectInserter inserter) throws IOException {
     if(treeId == null) {
-      prepareCache();
-      treeId = cache.writeTree(inserter);
+      if(!hasStagedChanges() && isBaseSpecified())
+        treeId = getTreeFromBase();
+      else {
+        prepareCache();
+        treeId = cache.writeTree(inserter);
+      }
     }
   }
 
@@ -417,8 +444,8 @@ public final class ParallelCommitCommand extends CacheBasedCommand<ParallelCommi
     ObjectInserter inserter = repository.newObjectInserter();
     try {
       prepareHead();
-      prepareParents();
       prepareBase();
+      prepareParents();
       prepareTree(inserter);
       prepareCommitter();
       prepareAuthor();

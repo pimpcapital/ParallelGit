@@ -636,6 +636,70 @@ public class ParallelCommitCommandTest extends AbstractParallelGitTest {
     }
   }
 
+  @Test
+  public void createOrphanCommit() throws IOException {
+    byte[] bytes = "temp file content".getBytes();
+
+    initRepository();
+    String branch = "test_branch";
+    String existingFile = "existing_file.txt";
+    writeFile(existingFile);
+    commitToBranch(branch);
+    String newFile = "new_file.txt";
+    ObjectId commitId = ParallelCommitCommand.prepare(repo)
+                          .branch(branch)
+                          .addFile(bytes, newFile)
+                          .orphan(true)
+                          .call();
+    Assert.assertNotNull(commitId);
+    RevCommit branchHead = CommitHelper.getCommit(repo, branch);
+    Assert.assertNotNull(branchHead);
+    Assert.assertNotNull(BlobHelper.findBlobId(repo, branchHead, existingFile));
+    Assert.assertEquals(0, branchHead.getParentCount());
+    Assert.assertArrayEquals(bytes, BlobHelper.getBytes(repo, branchHead, newFile));
+  }
+
+  @Test
+  public void createOrphanWithNoChange() throws IOException {
+    initRepository();
+    String existingFile1 = "existing_file1.txt";
+    writeFile(existingFile1);
+    commitToMaster();
+    String existingFile2 = "existing_file2.txt";
+    writeFile(existingFile2);
+    ObjectId headCommit = commitToMaster();
+    ObjectId commitId = ParallelCommitCommand.prepare(repo)
+                          .baseCommit(headCommit)
+                          .orphan(true)
+                          .call();
+    Assert.assertNotNull(commitId);
+    Assert.assertNotNull(BlobHelper.findBlobId(repo, commitId, existingFile1));
+    Assert.assertNotNull(BlobHelper.findBlobId(repo, commitId, existingFile2));
+    Assert.assertEquals(0, CommitHelper.getCommit(repo, commitId).getParentCount());
+  }
+
+  @Test
+  public void createOrphanAtBranch() throws IOException {
+    initRepository();
+    String branch = "test_branch";
+    String existingFile1 = "existing_file1.txt";
+    writeFile(existingFile1);
+    commitToBranch(branch);
+    String existingFile2 = "existing_file2.txt";
+    writeFile(existingFile2);
+    commitToBranch(branch);
+    ObjectId commitId = ParallelCommitCommand.prepare(repo)
+                          .branch(branch)
+                          .orphan(true)
+                          .call();
+    Assert.assertNotNull(commitId);
+    RevCommit branchHead = CommitHelper.getCommit(repo, branch);
+    Assert.assertNotNull(branchHead);
+    Assert.assertNotNull(BlobHelper.findBlobId(repo, branchHead, existingFile1));
+    Assert.assertNotNull(BlobHelper.findBlobId(repo, branchHead, existingFile2));
+    Assert.assertEquals(0, branchHead.getParentCount());
+  }
+
 
 
 }
