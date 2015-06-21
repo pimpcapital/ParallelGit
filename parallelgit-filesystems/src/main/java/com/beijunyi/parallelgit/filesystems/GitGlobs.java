@@ -1,0 +1,159 @@
+package com.beijunyi.parallelgit.filesystems;
+
+import java.util.regex.PatternSyntaxException;
+import javax.annotation.Nonnull;
+
+public final class GitGlobs {
+
+  private static final String regexMetaChars = ".^$+{[]|()";
+  private static final String globMetaChars = "\\*?[{";
+
+  private static boolean isRegexMeta(char c) {
+    return regexMetaChars.indexOf(c) != -1;
+  }
+
+  private static boolean isGlobMeta(char c) {
+    return globMetaChars.indexOf(c) != -1;
+  }
+  private static char EOL = 0;
+
+  /**
+   * Returns the character at the specified index. If the index is beyond the end of the given string, it returns a NUL
+   * character.
+   *
+   * @param glob a glob pattern string
+   * @param i the index of the character
+   * @return the character at the index or NUL character if the index is beyond the end of the given string
+   */
+  private static char charAt(@Nonnull String glob, int i) {
+    if (i < glob.length())
+      return glob.charAt(i);
+    return EOL;
+  }
+
+  /**
+   * Converts the given glob pattern string into a regex pattern string.
+   *
+   * @param globPattern the glob pattern string to be converted
+   * @return a regex pattern string which is functionally equivalent to the given glob patten string
+   */
+  @Nonnull
+  static String toRegexPattern(@Nonnull String globPattern) {
+    boolean inGroup = false;
+    StringBuilder regex = new StringBuilder("^");
+
+    int i = 0;
+    while (i < globPattern.length()) {
+      char c = globPattern.charAt(i++);
+      switch (c) {
+        case '\\':
+          // escape special characters
+          if(i == globPattern.length())
+            throw new PatternSyntaxException("No character to escape", globPattern, i - 1);
+          char next = globPattern.charAt(i++);
+          if(isGlobMeta(next) || isRegexMeta(next))
+            regex.append('\\');
+          regex.append(next);
+          break;
+        case '/':
+          regex.append(c);
+          break;
+        case '[':
+          regex.append("[[^/]&&[");
+          if (charAt(globPattern, i) == '^') {
+            // escape the regex negation char if it appears
+            regex.append("\\^");
+            i++;
+          } else {
+            // negation
+            if (charAt(globPattern, i) == '!') {
+              regex.append('^');
+              i++;
+            }
+            // hyphen allowed at start
+            if (charAt(globPattern, i) == '-') {
+              regex.append('-');
+              i++;
+            }
+          }
+          boolean hasRangeStart = false;
+          char last = 0;
+          while (i < globPattern.length()) {
+            c = globPattern.charAt(i++);
+            if (c == ']')
+              break;
+            if (c == '/')
+              throw new PatternSyntaxException("Explicit 'name separator' in class", globPattern, i - 1);
+            // TBD: how to specify ']' in a class?
+            if (c == '\\' || c == '[' || c == '&' && charAt(globPattern, i) == '&') {
+              // escape '\', '[' or "&&" for regex class
+              regex.append('\\');
+            }
+            regex.append(c);
+
+            if(c == '-') {
+              if(!hasRangeStart)
+                throw new PatternSyntaxException("Invalid range", globPattern, i - 1);
+              if((c = charAt(globPattern, i++)) == EOL || c == ']')
+                break;
+              if(c < last)
+                throw new PatternSyntaxException("Invalid range", globPattern, i - 3);
+              regex.append(c);
+              hasRangeStart = false;
+            } else {
+              hasRangeStart = true;
+              last = c;
+            }
+          }
+          if(c != ']')
+            throw new PatternSyntaxException("Missing ']", globPattern, i - 1);
+
+          regex.append("]]");
+          break;
+        case '{':
+          if(inGroup)
+            throw new PatternSyntaxException("Cannot nest groups", globPattern, i - 1);
+          regex.append("(?:(?:");
+          inGroup = true;
+          break;
+        case '}':
+          if(inGroup) {
+            regex.append("))");
+            inGroup = false;
+          } else
+            regex.append('}');
+          break;
+        case ',':
+          if(inGroup)
+            regex.append(")|(?:");
+          else
+            regex.append(',');
+          break;
+        case '*':
+          if (charAt(globPattern, i) == '*') {
+            // crosses directory boundaries
+            regex.append(".*");
+            i++;
+          } else {
+            // within directory boundary
+            regex.append("[^/]*");
+          }
+          break;
+        case '?':
+          regex.append("[^/]");
+          break;
+
+        default:
+          if(isRegexMeta(c))
+            regex.append('\\');
+          regex.append(c);
+      }
+    }
+
+    if(inGroup)
+      throw new PatternSyntaxException("Missing '}", globPattern, i - 1);
+
+    return regex.append('$').toString();
+  }
+
+}
