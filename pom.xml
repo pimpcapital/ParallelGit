@@ -180,6 +180,10 @@
                 </goals>
               </execution>
             </executions>
+            <configuration>
+              <doCheck>true</doCheck>
+              <doUpdate>true</doUpdate>
+            </configuration>
           </plugin>
           <plugin>
             <groupId>org.apache.maven.plugins</groupId>
