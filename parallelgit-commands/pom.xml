@@ -11,6 +11,7 @@
 
   <artifactId>parallelgit-commands</artifactId>
   <name>ParallelGit Commands</name>
+  <packaging>jar</packaging>
 
   <dependencies>
     <dependency>

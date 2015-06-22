@@ -11,6 +11,7 @@
 
   <artifactId>parallelgit-filesystems</artifactId>
   <name>ParallelGit FileSystems</name>
+  <packaging>jar</packaging>
 
   <dependencies>
     <dependency>
