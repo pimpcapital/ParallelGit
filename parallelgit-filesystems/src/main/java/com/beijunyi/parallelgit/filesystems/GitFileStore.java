@@ -6,6 +6,8 @@ import java.nio.file.*;
 import java.nio.file.attribute.FileAttributeView;
 import java.nio.file.attribute.FileStoreAttributeView;
 import java.util.*;
+import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.ConcurrentLinkedQueue;
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 
@@ -24,8 +26,8 @@ public class GitFileStore extends FileStore implements Closeable {
   private final Repository repo;
   private final ObjectReader reader;
 
-  private final Map<String, GitFileStoreMemoryChannel> memoryChannels = new HashMap<>();
-  private final Map<String, Collection<GitDirectoryStream>> dirStreams = new HashMap<>();
+  private final Map<String, GitFileStoreMemoryChannel> memoryChannels = new ConcurrentHashMap<>();
+  private final Map<String, Collection<GitDirectoryStream>> dirStreams = new ConcurrentHashMap<>();
 
   private String branch;
   private RevCommit baseCommit;
@@ -223,8 +225,8 @@ public class GitFileStore extends FileStore implements Closeable {
   private void stageFileInsertion(@Nonnull String pathStr, @Nonnull ObjectId blobId) {
     flushDeletions();
     if(insertions == null || insertedDirs == null) {
-      insertions = new HashMap<>();
-      insertedDirs = new HashSet<>();
+      insertions = new ConcurrentHashMap<>();
+      insertedDirs = Collections.newSetFromMap(new ConcurrentHashMap<String, Boolean>());
     }
     insertions.put(pathStr, blobId);
     String current = pathStr;
@@ -246,8 +248,8 @@ public class GitFileStore extends FileStore implements Closeable {
   private void stageFileDeletion(@Nonnull String pathStr) {
     flushInsertions();
     if(deletions == null || deletedDirs == null) {
-      deletions = new HashSet<>();
-      deletedDirs = new HashMap<>();
+      deletions = Collections.newSetFromMap(new ConcurrentHashMap<String, Boolean>());
+      deletedDirs = new ConcurrentHashMap<>();
     }
     deletions.add(pathStr);
     String current = pathStr;
@@ -903,7 +905,7 @@ public class GitFileStore extends FileStore implements Closeable {
         dirStream = new TreeWalkGitDirectoryStream(pathStr, this, reader, baseTree, filter);
       Collection<GitDirectoryStream> streamsForPath = dirStreams.get(pathStr);
       if(streamsForPath == null) {
-        streamsForPath = new LinkedList<>();
+        streamsForPath = new ConcurrentLinkedQueue<>();
         dirStreams.put(pathStr, streamsForPath);
       }
       streamsForPath.add(dirStream);

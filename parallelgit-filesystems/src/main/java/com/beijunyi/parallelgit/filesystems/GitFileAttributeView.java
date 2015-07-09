@@ -4,6 +4,7 @@ import java.io.IOException;
 import java.nio.file.NoSuchFileException;
 import java.nio.file.attribute.BasicFileAttributeView;
 import java.nio.file.attribute.FileTime;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.Map;
 import javax.annotation.Nonnull;
@@ -111,7 +112,7 @@ public class GitFileAttributeView implements BasicFileAttributeView {
           throw new IllegalArgumentException("Attribute \"" + attributeName + "\" is not supported");
       }
     }
-    return result;
+    return Collections.unmodifiableMap(result);
   }
 
   @Nonnull

@@ -2,7 +2,8 @@ package com.beijunyi.parallelgit.filesystems;
 
 import java.nio.ByteBuffer;
 import java.nio.channels.SeekableByteChannel;
-import java.util.*;
+import java.util.Collection;
+import java.util.concurrent.ConcurrentLinkedQueue;
 import java.util.concurrent.locks.Lock;
 import java.util.concurrent.locks.ReentrantLock;
 import javax.annotation.Nonnull;
@@ -15,7 +16,7 @@ public class GitFileStoreMemoryChannel implements SeekableByteChannel {
   private byte[] buf;
   private boolean modified = false;
 
-  private Collection<GitSeekableByteChannel> attachedChannels = new LinkedList<>();
+  private Collection<GitSeekableByteChannel> attachedChannels = new ConcurrentLinkedQueue<>();
 
   private final Lock lock = new ReentrantLock();
 
@@ -180,7 +181,6 @@ public class GitFileStoreMemoryChannel implements SeekableByteChannel {
   public void close() {
     for(GitSeekableByteChannel channel : attachedChannels)
       channel.close();
-    attachedChannels.clear();
   }
 
   /**
