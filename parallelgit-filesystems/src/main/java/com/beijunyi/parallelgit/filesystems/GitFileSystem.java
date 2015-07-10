@@ -8,7 +8,7 @@ import java.util.regex.Pattern;
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 
-import org.eclipse.jgit.lib.ObjectId;
+import org.eclipse.jgit.lib.AnyObjectId;
 import org.eclipse.jgit.lib.Repository;
 
 public class GitFileSystem extends FileSystem {
@@ -24,10 +24,10 @@ public class GitFileSystem extends FileSystem {
 
   private boolean closed = false;
 
-  GitFileSystem(@Nonnull GitFileSystemProvider provider, @Nonnull String session, @Nonnull Repository repo, @Nullable String branch, @Nullable ObjectId baseCommit, @Nullable ObjectId baseTree) throws IOException {
+  GitFileSystem(@Nonnull GitFileSystemProvider provider, @Nonnull Repository repo, @Nullable String branch, @Nullable AnyObjectId baseCommit, @Nullable AnyObjectId baseTree) throws IOException {
     this.provider = provider;
-    this.session = session;
     this.root = new GitPath(this, "/");
+    session = UUID.randomUUID().toString();
     store = new GitFileStore(root, repo, branch, baseCommit, baseTree);
   }
 

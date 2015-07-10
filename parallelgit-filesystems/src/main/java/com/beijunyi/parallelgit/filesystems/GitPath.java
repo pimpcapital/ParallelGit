@@ -7,11 +7,13 @@ import java.nio.ByteBuffer;
 import java.nio.CharBuffer;
 import java.nio.charset.*;
 import java.nio.file.*;
-import java.util.*;
+import java.util.Arrays;
+import java.util.Iterator;
+import java.util.NoSuchElementException;
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 
-import org.eclipse.jgit.lib.ObjectId;
+import org.eclipse.jgit.lib.AnyObjectId;
 import org.eclipse.jgit.lib.Repository;
 
 public class GitPath implements Path {
@@ -637,8 +639,8 @@ public class GitPath implements Path {
     GitFileStore store = gfs.getFileStore();
     Repository repo = store.getRepository();
     String branch = store.getBranch();
-    ObjectId commitId = store.getBaseCommit();
-    ObjectId treeId = store.getBaseTree();
+    AnyObjectId commitId = store.getBaseCommit();
+    AnyObjectId treeId = store.getBaseTree();
 
     return GitUriUtils.createUri(repo.isBare() ? repo.getDirectory() : repo.getWorkTree(),
                                   toString(),

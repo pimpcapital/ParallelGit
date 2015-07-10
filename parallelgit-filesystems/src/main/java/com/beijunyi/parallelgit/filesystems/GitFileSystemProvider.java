@@ -1,6 +1,5 @@
 package com.beijunyi.parallelgit.filesystems;
 
-import java.io.File;
 import java.io.IOException;
 import java.net.URI;
 import java.nio.channels.SeekableByteChannel;
@@ -10,12 +9,12 @@ import java.nio.file.attribute.FileAttribute;
 import java.nio.file.attribute.FileAttributeView;
 import java.nio.file.spi.FileSystemProvider;
 import java.util.*;
+import java.util.concurrent.ConcurrentHashMap;
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 
-import com.beijunyi.parallelgit.utils.RefHelper;
-import com.beijunyi.parallelgit.utils.RepositoryHelper;
-import org.eclipse.jgit.lib.*;
+import org.eclipse.jgit.lib.ObjectId;
+import org.eclipse.jgit.lib.Repository;
 
 import static java.nio.file.StandardCopyOption.*;
 import static java.nio.file.StandardOpenOption.*;
@@ -35,7 +34,7 @@ public class GitFileSystemProvider extends FileSystemProvider {
   public final static EnumSet<StandardOpenOption> SUPPORTED_OPEN_OPTIONS = EnumSet.of(READ, SPARSE, CREATE, CREATE_NEW, WRITE, APPEND, TRUNCATE_EXISTING);
   public final static EnumSet<StandardCopyOption> SUPPORTED_COPY_OPTIONS = EnumSet.of(REPLACE_EXISTING, ATOMIC_MOVE);
 
-  private final Map<String, GitFileSystem> gfsMap = new HashMap<>();
+  private final Map<String, GitFileSystem> fsMap = new ConcurrentHashMap<>();
 
   private static GitFileSystemProvider INSTANCE;
 
@@ -71,189 +70,45 @@ public class GitFileSystemProvider extends FileSystemProvider {
     return GIT_FS_SCHEME;
   }
 
-  /**
-   * Creates a new {@code GitFileSystem} from a repository directory. The configuration parameters are the same as for
-   * {@link #newFileSystem(URI,Map)}()}.
-   *
-   * @param   repoDir
-   *          the directory of the repository that the new {@code GitFileSystem} bases on
-   * @param   env
-   *          A map of provider specific properties to configure the file system
-   * @return  the result {@code GitFileSystem}
-   *
-   * @throws  FileSystemAlreadyExistsException
-   *          if a session ID is specified and a {@code GitFileSystem} with this session ID has already been created
-   */
-  @Nonnull
-  GitFileSystem newFileSystem(@Nonnull File repoDir, @Nullable Map<String, ?> env) throws FileSystemAlreadyExistsException, IOException {
-    String session = null;
-    boolean bare = false;
-    boolean create = false;
-    String branch = null;
-    String revisionStr = null;
-    String treeStr = null;
-
-    if(env != null) {
-      Object sessionValue = env.get(SESSION_KEY);
-      session = sessionValue == null ? null : sessionValue.toString();
-      Object bareValue = env.get(BARE_KEY);
-      bare = bareValue instanceof String ? Boolean.valueOf((String) bareValue) : Boolean.TRUE.equals(bareValue);
-      Object createValue = env.get(CREATE_KEY);
-      create = createValue instanceof String ? Boolean.valueOf((String) createValue) : Boolean.TRUE.equals(createValue);
-      Object branchValue = env.get(BRANCH_KEY);
-      branch = branchValue == null ? null : branchValue instanceof Ref ? ((Ref) branchValue).getName() : branchValue.toString();
-      Object revisionValue = env.get(REVISION_KEY);
-      revisionStr = revisionValue == null ? null : revisionValue instanceof AnyObjectId ? ((AnyObjectId) revisionValue).getName() : revisionValue.toString();
-      Object treeValue = env.get(TREE_KEY);
-      treeStr = treeValue == null ? null : treeValue instanceof AnyObjectId ? ((AnyObjectId) treeValue).getName() : treeValue.toString();
-    }
-
-    Repository repo = create ? RepositoryHelper.createRepository(repoDir, bare) : RepositoryHelper.openRepository(repoDir);
-    ObjectId revision = revisionStr != null ? repo.resolve(revisionStr) : null;
-    ObjectId tree = treeStr != null ? repo.resolve(treeStr) : null;
-
-    return newFileSystem(session, repo, branch, revision, tree);
-  }
-
   @Nonnull
   @Override
-  public GitFileSystem newFileSystem(@Nonnull Path path, @Nullable Map<String, ?> env) throws IOException {
-    return newFileSystem(path.toFile(), env);
+  public GitFileSystem newFileSystem(@Nonnull Path path, @Nullable Map<String, ?> properties) throws IOException {
+    return GitFileSystemBuilder.prepare(this)
+             .repository(path.toFile())
+             .properties(properties)
+             .build();
   }
 
-  /**
-   * Constructs a new {@code FileSystem} object identified by a {@code URI}. This method is invoked by the {@link
-   * FileSystems#newFileSystem(URI,Map)} method to open a new file system identified by a {@code URI}.
-   *
-   * The {@code uri} parameter is an absolute, hierarchical {@code URI}, with a scheme equal (without regard to case) to
-   * {@link #GIT_FS_SCHEME}. The syntax should match this pattern:
-   *
-   * git://[repo location]![file in repo (optional)]?[parameters (optional)]
-   *
-   * The value of {@code repo location} indicates the location of the repository.
-   *
-   * The value of {@code file in repo} indicates the file in the repository to be loaded, which has little meaning to
-   * this method. However, this value is important when creating a {@code GitPath} from a {@code URI}.
-   *
-   * The {@code parameters} part can be used to specified the these optional configurations:
-   * {@link #SESSION_KEY session}    the unique identifier of the new {@code GitFileSystem}, which must not be the same
-   *                                 as any existing session IDs. If this parameter is absent, a random session ID will
-   *                                 be generated.
-   * {@link #BARE_KEY bare}          indicates whether the new {@code GitFileSystem} is based on a bare repository. If
-   *                                 this parameter is absent, the default value to this configuration is {@code false}.
-   * {@link #CREATE_KEY create}      indicates whether to initialize a new repository when creating the new {@code
-   *                                 GitFileSystem}. If this parameter is absent, the default value to this
-   *                                 configuration is {@code false}.
-   * {@link #BRANCH_KEY branch}      the branch that the new {@code GitFileSystem} is attached to. If this parameter is
-   *                                 absent, the result {@code GitFileSystem} is detached. Committing changes to a
-   *                                 detached {@code GitFileSystem} will not update the {@code HEAD} of any branch.
-   * {@link #REVISION_KEY revision}  the revision to the commit that the new {@code GitFileSystem} is based on.
-   *                                 Committing changes to this {@code GitFileSystem} will result in a new commit whose
-   *                                 parent is this commit. Amending commit will result in a new commit whose parent is
-   *                                 this commit's parent. If this parameter is absent, the default base commit is the
-   *                                 {@code HEAD} of the attached branch, or {@code null} if no branch is specified.
-   * {@link #TREE_KEY tree}          the root of the file tree to be loaded into the new {@code GitFileSystem}. If this
-   *                                 parameter is absent, the default tree is the tree of the base commit, or {@code
-   *                                 null} if no commit is specified, in which case, the new {@code GitFileSystem} will
-   *                                 have no content.
-   *
-   * The {@code env} parameter is a map of provider specific properties to configure the file system. All of the
-   * configuration parameters above can also be specified in {@code env}.
-   *
-   * This method throws {@link FileSystemAlreadyExistsException} if the file system with the specified session id has
-   * already been created.
-   *
-   * @param   uri
-   *          {@code URI} reference
-   * @param   env
-   *          A map of provider specific properties to configure the file system
-   * @return  the result {@code GitFileSystem}
-   *
-   * @throws  FileSystemAlreadyExistsException
-   *          if a session ID is specified and a {@code GitFileSystem} with this session ID has already been created
-   */
   @Nonnull
   @Override
   public GitFileSystem newFileSystem(@Nonnull URI uri, @Nullable Map<String, ?> env) throws IOException {
-    Map<String, Object> params = GitUriUtils.getParams(uri);
-    if(env != null)
-      params.putAll(env);
-    File repoDir = new File(GitUriUtils.getRepoPath(uri));
-    return newFileSystem(repoDir, params);
+    return GitFileSystemBuilder.prepare(this)
+             .uri(uri)
+             .properties(env)
+             .build();
   }
 
-  /**
-   * Creates a new {@code GitFileSystem} from a repository.
-   *
-   * @param   sessionId
-   *          the unique identifier of the new {@code GitFileSystem}, which must not be the same as any existing session
-   *          IDs. If this parameter is {@code null}, a random session ID will be generated.
-   * @param   repo
-   *          the repository that the new {@code GitFileSystem} is based on.
-   * @param   branch
-   *          the branch that the new {@code GitFileSystem} is attached to. If this parameter is {@code null}, the
-   *          result {@code GitFileSystem} is detached. Committing changes to a detached {@code GitFileSystem} will not
-   *          update the {@code HEAD} of any branch.
-   * @param   revision
-   *          the revision to the commit that the new {@code GitFileSystem} is based on. Committing changes to this {
-   *          @code GitFileSystem} will result in a new commit whose parent is this commit. Amending commit will result
-   *          in a new commit whose parent is this commit's parent. If this parameter is {@code null}, the default base
-   *          commit is the {@code HEAD} of the attached branch, or {@code null} if no branch is specified.
-   * @param   tree
-   *          the root of the file tree to be loaded into the new {@code GitFileSystem}. If this parameter is {@code
-   *          null}, the default tree is the tree of the base commit, or {@code null} if no commit is specified, in
-   *          which case, the new {@code GitFileSystem} will have no content.
-   * @return  the result {@code GitFileSystem}
-   *
-   * @throws  FileSystemAlreadyExistsException
-   *          if a session ID is specified and a {@code GitFileSystem} with this session ID has already been created
-   */
-  @Nonnull
-  GitFileSystem newFileSystem(@Nullable String sessionId, @Nonnull Repository repo, @Nullable String branch, @Nullable ObjectId revision, @Nullable ObjectId tree) throws FileSystemAlreadyExistsException, IOException {
-    String branchRef = branch != null ? RefHelper.getBranchRefName(branch) : null;
-    if(revision == null && branchRef != null)
-      revision = repo.resolve(branchRef);
-    GitFileSystem gfs = new GitFileSystem(this, checkSessionId(sessionId), repo, branchRef, revision, tree);
-    gfsMap.put(gfs.getSessionId(), gfs);
-    return gfs;
-  }
-
-  /**
-   * Checks if a {@code GitFileSystem} with the given session ID already exists or generate and return a unique string
-   * ID if the given value is {@code null}.
-   *
-   * @param   sessionId
-   *          the session ID to check
-   * @return  the given session ID or a new string ID if the given value is {@code null}
-   *
-   * @throws  FileSystemAlreadyExistsException
-   *          if a {@code GitFileSystem} with the given session ID already exists
-   */
-  @Nonnull
-  private String checkSessionId(@Nullable String sessionId) throws FileSystemAlreadyExistsException {
-    if(sessionId != null) {
-      if(gfsMap.containsKey(sessionId))
-        throw new FileSystemAlreadyExistsException(sessionId);
-    } else
-      sessionId = UUID.randomUUID().toString();
-    return sessionId;
+  public void register(@Nonnull GitFileSystem gfs) {
+    fsMap.put(gfs.getSessionId(), gfs);
   }
 
   public void unregister(@Nonnull GitFileSystem gfs) {
-    gfsMap.remove(gfs.getSessionId());
+    fsMap.remove(gfs.getSessionId());
   }
 
   @Nullable
   GitFileSystem getFileSystem(@Nonnull String sessionId) {
-    return gfsMap.get(sessionId);
+    return fsMap.get(sessionId);
   }
 
   @Nullable
   @Override
   public GitFileSystem getFileSystem(@Nonnull URI uri) {
-    Map<String, Object> params = GitUriUtils.getParams(uri);
-    String idValue = (String) params.get(SESSION_KEY);
-    return getFileSystem(idValue);
+    GitUriParams params = GitUriUtils.getParams(uri, null);
+    String session = params.getSession();
+    if(session == null)
+      throw new IllegalArgumentException("No session is provided");
+    return getFileSystem(session);
   }
 
   /**

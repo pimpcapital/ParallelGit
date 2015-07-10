@@ -8,7 +8,7 @@ import java.util.HashMap;
 import java.util.Map;
 
 import com.beijunyi.parallelgit.utils.CommitHelper;
-import org.eclipse.jgit.lib.ObjectId;
+import org.eclipse.jgit.lib.AnyObjectId;
 import org.eclipse.jgit.lib.Repository;
 import org.eclipse.jgit.revwalk.RevCommit;
 import org.junit.Assert;
@@ -97,7 +97,7 @@ public class GitFileSystemProviderNewFileSystemTest extends AbstractGitFileSyste
       Assert.assertNotNull(baseCommit);
       Assert.assertEquals(commit, baseCommit);
 
-      ObjectId baseTree = store.getBaseTree();
+      AnyObjectId baseTree = store.getBaseTree();
       Assert.assertNotNull(baseTree);
       Assert.assertEquals(commit.getTree(), baseTree);
     }
@@ -118,7 +118,7 @@ public class GitFileSystemProviderNewFileSystemTest extends AbstractGitFileSyste
       Assert.assertNotNull(baseCommit);
       Assert.assertEquals(commit, baseCommit);
 
-      ObjectId baseTree = store.getBaseTree();
+      AnyObjectId baseTree = store.getBaseTree();
       Assert.assertNotNull(baseTree);
       Assert.assertEquals(commit.getTree(), baseTree);
     }

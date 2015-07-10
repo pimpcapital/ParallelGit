@@ -87,6 +87,25 @@ final class GitUriUtils {
     return fileInRepo;
   }
 
+  @Nonnull
+  private static Map<String, String> parseQuery(@Nonnull String query) {
+    Map<String, String> params = new HashMap<>();
+    String[] keyValueStrs = query.split("&");
+    for(String keyValueStr : keyValueStrs) {
+      String[] keyValuePair = keyValueStr.split("=", 2);
+      params.put(keyValuePair[0], keyValuePair.length > 1 ? keyValuePair[1] : null);
+    }
+    return params;
+  }
+
+  @Nonnull
+  private static Map<String, String> normalizeParams(@Nonnull Map<String, ?> params) {
+    Map<String, String> normalized = new HashMap<>();
+    for(Map.Entry<String, ?> entry : params.entrySet())
+      normalized.put(entry.getKey(), entry.getValue().toString());
+    return normalized;
+  }
+
   /**
    * Finds and returns the parameters from the given {@code URI} in a {@code Map}.
    *
@@ -100,19 +119,17 @@ final class GitUriUtils {
    * @return  a {@code Map} that contains the key-value pairs extracted from the {@code URI}
    */
   @Nonnull
-  static Map<String, Object> getParams(@Nonnull URI uri) {
-    checkScheme(uri);
-
-    Map<String, Object> result = new HashMap<>();
-    String query = uri.getRawQuery();
-    if(query != null) {
-      String[] keyValueStrs = query.split("&");
-      for(String keyValueStr : keyValueStrs) {
-        String[] keyValuePair = keyValueStr.split("=", 2);
-        result.put(keyValuePair[0], keyValuePair.length > 1 ? keyValuePair[1] : null);
-      }
+  static GitUriParams getParams(@Nullable URI uri, @Nullable Map<String, ?> env) {
+    GitUriParams params = new GitUriParams();
+    if(uri != null) {
+      checkScheme(uri);
+      String query = uri.getQuery();
+      if(query != null)
+        params.putAll(parseQuery(query));
     }
-    return result;
+    if(env != null)
+      params.putAll(normalizeParams(env));
+    return params;
   }
 
   @Nonnull

@@ -7,7 +7,7 @@
   <version>0.9.3-SNAPSHOT</version>
   <packaging>pom</packaging>
   <modules>
-    <module>parallelgit-utils</module>
+    <module>parallelgit-core</module>
     <module>parallelgit-filesystems</module>
     <module>parallelgit-commands</module>
   </modules>
@@ -141,6 +141,76 @@
           <autoReleaseAfterClose>true</autoReleaseAfterClose>
         </configuration>
       </plugin>
+
+      <plugin>
+        <groupId>org.apache.maven.plugins</groupId>
+        <artifactId>maven-source-plugin</artifactId>
+        <version>${maven-source-plugin.version}</version>
+        <executions>
+          <execution>
+            <id>attach-sources</id>
+            <goals>
+              <goal>jar-no-fork</goal>
+            </goals>
+            <configuration>
+              <archive>
+                <manifest>
+                  <addDefaultImplementationEntries>true</addDefaultImplementationEntries>
+                  <addDefaultSpecificationEntries>true</addDefaultSpecificationEntries>
+                </manifest>
+                <manifestEntries>
+                  <Implementation-Build>${implementation.build}</Implementation-Build>
+                  <X-Compile-Source-JDK>${javac.src.version}</X-Compile-Source-JDK>
+                  <X-Compile-Target-JDK>${javac.target.version}</X-Compile-Target-JDK>
+                </manifestEntries>
+              </archive>
+            </configuration>
+          </execution>
+        </executions>
+      </plugin>
+
+      <plugin>
+        <groupId>org.apache.maven.plugins</groupId>
+        <artifactId>maven-javadoc-plugin</artifactId>
+        <version>${maven-javadoc-plugin.version}</version>
+        <executions>
+          <execution>
+            <id>attach-javadocs</id>
+            <goals>
+              <goal>jar</goal>
+            </goals>
+            <configuration>
+              <archive>
+                <manifest>
+                  <addDefaultImplementationEntries>true</addDefaultImplementationEntries>
+                  <addDefaultSpecificationEntries>true</addDefaultSpecificationEntries>
+                </manifest>
+                <manifestEntries>
+                  <Implementation-Build>${implementation.build}</Implementation-Build>
+                  <X-Compile-Source-JDK>${javac.src.version}</X-Compile-Source-JDK>
+                  <X-Compile-Target-JDK>${javac.target.version}</X-Compile-Target-JDK>
+                </manifestEntries>
+              </archive>
+            </configuration>
+          </execution>
+        </executions>
+      </plugin>
+
+      <plugin>
+        <groupId>org.apache.maven.plugins</groupId>
+        <artifactId>maven-gpg-plugin</artifactId>
+        <version>${maven-gpg-plugin.version}</version>
+        <executions>
+          <execution>
+            <id>sign-artifacts</id>
+            <phase>verify</phase>
+            <goals>
+              <goal>sign</goal>
+            </goals>
+          </execution>
+        </executions>
+      </plugin>
+
     </plugins>
 
     <pluginManagement>
@@ -167,86 +237,7 @@
         </includes>
       </resource>
     </resources>
-
   </build>
-
-  <profiles>
-    <profile>
-      <id>release</id>
-      <build>
-        <plugins>
-          <plugin>
-            <groupId>org.apache.maven.plugins</groupId>
-            <artifactId>maven-source-plugin</artifactId>
-            <version>${maven-source-plugin.version}</version>
-            <executions>
-              <execution>
-                <id>attach-sources</id>
-                <goals>
-                  <goal>jar-no-fork</goal>
-                </goals>
-                <configuration>
-                  <archive>
-                    <manifest>
-                      <addDefaultImplementationEntries>true</addDefaultImplementationEntries>
-                      <addDefaultSpecificationEntries>true</addDefaultSpecificationEntries>
-                    </manifest>
-                    <manifestEntries>
-                      <Implementation-Build>${implementation.build}</Implementation-Build>
-                      <X-Compile-Source-JDK>${javac.src.version}</X-Compile-Source-JDK>
-                      <X-Compile-Target-JDK>${javac.target.version}</X-Compile-Target-JDK>
-                    </manifestEntries>
-                  </archive>
-                </configuration>
-              </execution>
-            </executions>
-          </plugin>
-
-          <plugin>
-            <groupId>org.apache.maven.plugins</groupId>
-            <artifactId>maven-javadoc-plugin</artifactId>
-            <version>${maven-javadoc-plugin.version}</version>
-            <executions>
-              <execution>
-                <id>attach-javadocs</id>
-                <goals>
-                  <goal>jar</goal>
-                </goals>
-                <configuration>
-                  <archive>
-                    <manifest>
-                      <addDefaultImplementationEntries>true</addDefaultImplementationEntries>
-                      <addDefaultSpecificationEntries>true</addDefaultSpecificationEntries>
-                    </manifest>
-                    <manifestEntries>
-                      <Implementation-Build>${implementation.build}</Implementation-Build>
-                      <X-Compile-Source-JDK>${javac.src.version}</X-Compile-Source-JDK>
-                      <X-Compile-Target-JDK>${javac.target.version}</X-Compile-Target-JDK>
-                    </manifestEntries>
-                  </archive>
-                </configuration>
-              </execution>
-            </executions>
-          </plugin>
-
-          <plugin>
-            <groupId>org.apache.maven.plugins</groupId>
-            <artifactId>maven-gpg-plugin</artifactId>
-            <version>${maven-gpg-plugin.version}</version>
-            <executions>
-              <execution>
-                <id>sign-artifacts</id>
-                <phase>verify</phase>
-                <goals>
-                  <goal>sign</goal>
-                </goals>
-              </execution>
-            </executions>
-          </plugin>
-        </plugins>
-      </build>
-    </profile>
-  </profiles>
 
   <distributionManagement>
     <snapshotRepository>

@@ -7,9 +7,7 @@ import java.nio.file.Path;
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 
-import org.eclipse.jgit.lib.ObjectId;
-import org.eclipse.jgit.lib.PersonIdent;
-import org.eclipse.jgit.lib.Repository;
+import org.eclipse.jgit.lib.*;
 import org.eclipse.jgit.revwalk.RevCommit;
 
 /**
@@ -113,17 +111,17 @@ public final class GitFileSystemUtils {
   }
 
   @Nullable
-  public static ObjectId getBaseTree(@Nonnull FileStore store) {
+  public static AnyObjectId getBaseTree(@Nonnull FileStore store) {
     return ((GitFileStore) store).getBaseTree();
   }
 
   @Nullable
-  public static ObjectId getBaseTree(@Nonnull FileSystem fs) {
+  public static AnyObjectId getBaseTree(@Nonnull FileSystem fs) {
     return getBaseTree(((GitFileSystem) fs).getFileStore());
   }
 
   @Nullable
-  public static ObjectId getBaseTree(@Nonnull Path path) {
+  public static AnyObjectId getBaseTree(@Nonnull Path path) {
     return getBaseTree(((GitPath) path).getFileSystem());
   }
 

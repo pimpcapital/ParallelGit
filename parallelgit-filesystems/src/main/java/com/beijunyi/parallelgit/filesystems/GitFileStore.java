@@ -31,7 +31,7 @@ public class GitFileStore extends FileStore implements Closeable {
 
   private String branch;
   private RevCommit baseCommit;
-  private ObjectId baseTree;
+  private AnyObjectId baseTree;
   private DirCache cache;
 
   private boolean closed = false;
@@ -43,7 +43,7 @@ public class GitFileStore extends FileStore implements Closeable {
   private Set<String> deletions;
   private Map<String, Integer> deletedDirs;
 
-  GitFileStore(@Nonnull GitPath root, @Nonnull Repository repo, @Nullable String branchRef, @Nullable ObjectId basedRevision, @Nullable ObjectId baseTree) throws IOException {
+  GitFileStore(@Nonnull GitPath root, @Nonnull Repository repo, @Nullable String branchRef, @Nullable AnyObjectId basedRevision, @Nullable AnyObjectId baseTree) throws IOException {
     this.root = root;
     this.repo = repo;
     this.branch = branchRef;
@@ -365,7 +365,7 @@ public class GitFileStore extends FileStore implements Closeable {
    * @return the id of the tree this file store bases on or {@code null} if there is no base tree
    */
   @Nullable
-  ObjectId getBaseTree() {
+  AnyObjectId getBaseTree() {
     return baseTree;
   }
 

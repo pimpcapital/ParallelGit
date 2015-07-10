@@ -35,10 +35,13 @@ public final class RefHelper {
    */
   @Nonnull
   public static String getBranchRefName(@Nonnull String name) {
-    if(!name.startsWith(Constants.R_HEADS))
+    if(!name.startsWith(Constants.R_HEADS)) {
+      if(name.startsWith(Constants.R_REFS))
+        throw new IllegalArgumentException(name + " is not a branch ref");
       name = Constants.R_HEADS + name;
+    }
     if(!Repository.isValidRefName(name))
-      throw new IllegalArgumentException(name + " is not a valid branch ref name");
+      throw new IllegalArgumentException(name + " is not a valid branch ref");
     return name;
   }
 
