@@ -25,8 +25,6 @@ public class GitFileSystemProvider extends FileSystemProvider {
   public final static String ROOT_SEPARATOR = "!";
 
   public final static String SESSION_KEY = "session";
-  public final static String BARE_KEY = "bare";
-  public final static String CREATE_KEY = "create";
   public final static String BRANCH_KEY = "branch";
   public final static String REVISION_KEY = "revision";
   public final static String TREE_KEY = "tree";

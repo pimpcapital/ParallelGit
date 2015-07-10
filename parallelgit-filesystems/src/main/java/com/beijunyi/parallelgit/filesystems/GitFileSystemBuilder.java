@@ -38,6 +38,11 @@ public class GitFileSystemBuilder {
   }
 
   @Nonnull
+  public static GitFileSystemBuilder forUri(@Nonnull URI uri, @Nonnull Map<String, ?> properties, @Nonnull GitFileSystemProvider provider) {
+
+  }
+
+  @Nonnull
   public GitFileSystemBuilder provider(@Nullable GitFileSystemProvider provider) {
     this.provider = provider;
     return this;
