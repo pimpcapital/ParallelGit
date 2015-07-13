@@ -7,8 +7,8 @@
   </parent>
   <modelVersion>4.0.0</modelVersion>
 
-  <artifactId>parallelgit-utils</artifactId>
-  <name>ParallelGit Utils</name>
+  <artifactId>parallelgit-core</artifactId>
+  <name>ParallelGit Core</name>
   <packaging>jar</packaging>
 
 </project>
