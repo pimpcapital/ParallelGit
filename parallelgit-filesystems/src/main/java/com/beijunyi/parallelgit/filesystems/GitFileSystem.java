@@ -10,6 +10,7 @@ import javax.annotation.Nullable;
 
 import org.eclipse.jgit.lib.AnyObjectId;
 import org.eclipse.jgit.lib.Repository;
+import org.eclipse.jgit.revwalk.RevCommit;
 
 public class GitFileSystem extends FileSystem {
 
@@ -258,6 +259,26 @@ public class GitFileSystem extends FileSystem {
   @Override
   public int hashCode() {
     return session.hashCode();
+  }
+
+  @Nonnull
+  public Repository getRepository() {
+    return store.getRepository();
+  }
+
+  @Nullable
+  public String getBranch() {
+    return store.getBranch();
+  }
+
+  @Nullable
+  public RevCommit getBaseCommit() {
+    return store.getBaseCommit();
+  }
+
+  @Nullable
+  public AnyObjectId getBaseTree() {
+    return store.getBaseTree();
   }
 
 }

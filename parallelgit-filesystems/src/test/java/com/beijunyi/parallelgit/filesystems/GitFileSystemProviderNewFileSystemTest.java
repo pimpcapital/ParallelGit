@@ -17,9 +17,11 @@ import org.junit.Test;
 public class GitFileSystemProviderNewFileSystemTest extends AbstractGitFileSystemTest {
 
   @Test
-  public void openNewFileSystemOfNonBareFromUriTest() throws IOException {
+  public void openNewFileSystemOfNonBareFromUri() throws IOException {
     initRepository(false, false);
-    URI uri = GitUriUtils.createUri(repoDir, null, null);
+    URI uri = GitUriBuilder.prepare()
+                .repository(repoDir)
+                .build();
     try(FileSystem fs = FileSystems.newFileSystem(uri, null)) {
       Assert.assertNotNull(fs);
       Assert.assertTrue(fs instanceof GitFileSystem);
@@ -30,52 +32,14 @@ public class GitFileSystemProviderNewFileSystemTest extends AbstractGitFileSyste
   }
 
   @Test
-  public void openNewFileSystemOfBareRepositoryFromUriTest() throws IOException {
+  public void openNewFileSystemOfBareRepositoryFromUri() throws IOException {
     initRepository(false, true);
-    URI uri = GitUriUtils.createUri(repoDir, null, null, true, null, null, null, null);
+    URI uri = GitUriBuilder.prepare()
+                .repository(repoDir)
+                .build();
     try(FileSystem fs = FileSystems.newFileSystem(uri, null)) {
       Assert.assertNotNull(fs);
       Assert.assertTrue(fs instanceof GitFileSystem);
-      Repository repo = ((GitFileSystem)fs).getFileStore().getRepository();
-      Assert.assertTrue(repo.isBare());
-      Assert.assertEquals(repoDir, repo.getDirectory());
-    }
-  }
-
-  @Test
-  public void openNewFileSystemFromUriWithFileInRepoTest() throws IOException {
-    initRepository(false, true);
-    URI uri = GitUriUtils.createUri(repoDir, "some_path", null, true, null, null, null, null);
-    try(FileSystem fs = FileSystems.newFileSystem(uri, null)) {
-      Assert.assertEquals(repoDir, ((GitFileSystem)fs).getFileStore().getRepository().getDirectory());
-    }
-  }
-
-  @Test
-  public void openNewFileSystemFromUriWithSessionIdTest() throws IOException {
-    initRepository(false, true);
-    URI uri = GitUriUtils.createUri(repoDir, null, "session_id", true, null, null, null, null);
-    try(FileSystem fs = FileSystems.newFileSystem(uri, null)) {
-      Assert.assertEquals("session_id", ((GitFileSystem)fs).getSessionId());
-    }
-  }
-
-  @Test
-  public void openNewFileSystemWithCreatingNonBareRepositoryFromUriTest() throws IOException {
-    initRepository(false, true);
-    URI uri = GitUriUtils.createUri(repoDir, null, null, false, true, null, null, null);
-    try(FileSystem fs = FileSystems.newFileSystem(uri, null)) {
-      Repository repo = ((GitFileSystem)fs).getFileStore().getRepository();
-      Assert.assertFalse(repo.isBare());
-      Assert.assertEquals(repoDir, repo.getWorkTree());
-    }
-  }
-
-  @Test
-  public void openNewFileSystemWithCreatingBareRepositoryFromUriTest() throws IOException {
-    initRepositoryDir(false);
-    URI uri = GitUriUtils.createUri(repoDir, null, null, true, true, null, null, null);
-    try(FileSystem fs = FileSystems.newFileSystem(uri, null)) {
       Repository repo = ((GitFileSystem)fs).getFileStore().getRepository();
       Assert.assertTrue(repo.isBare());
       Assert.assertEquals(repoDir, repo.getDirectory());
@@ -87,7 +51,10 @@ public class GitFileSystemProviderNewFileSystemTest extends AbstractGitFileSyste
     initRepository(false, true);
     writeFile("some_file");
     RevCommit commit = CommitHelper.getCommit(repo, commitToBranch("branch"));
-    URI uri = GitUriUtils.createUri(repoDir, null, null, true, null, "branch", null, null);
+    URI uri = GitUriBuilder.prepare()
+                .repository(repoDir)
+                .branch("branch")
+                .build();
     try(FileSystem fs = FileSystems.newFileSystem(uri, null)) {
       GitFileSystem gfs = (GitFileSystem) fs;
       GitFileStore store = gfs.getFileStore();
@@ -108,7 +75,10 @@ public class GitFileSystemProviderNewFileSystemTest extends AbstractGitFileSyste
     initRepository(false, true);
     writeFile("some_file");
     RevCommit commit = CommitHelper.getCommit(repo, commitToBranch("some_branch"));
-    URI uri = GitUriUtils.createUri(repoDir, null, null, true, null, null, commit.getName(), null);
+    URI uri = GitUriBuilder.prepare()
+                .repository(repoDir)
+                .revision(commit)
+                .build();
     try(FileSystem fs = FileSystems.newFileSystem(uri, null)) {
       GitFileSystem gfs = (GitFileSystem) fs;
       GitFileStore store = gfs.getFileStore();

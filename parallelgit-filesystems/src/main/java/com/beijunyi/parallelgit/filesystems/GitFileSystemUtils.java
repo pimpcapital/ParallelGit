@@ -80,49 +80,4 @@ public final class GitFileSystemUtils {
     return getRepository(((GitPath) path).getFileSystem());
   }
 
-  @Nullable
-  public static String getBranch(@Nonnull FileStore store) {
-    return ((GitFileStore) store).getBranch();
-  }
-
-  @Nullable
-  public static String getBranch(@Nonnull FileSystem fs) {
-    return getBranch(((GitFileSystem) fs).getFileStore());
-  }
-
-  @Nullable
-  public static String getBranch(@Nonnull Path path) {
-    return getBranch(((GitPath) path).getFileSystem());
-  }
-
-  @Nullable
-  public static RevCommit getBaseCommit(@Nonnull FileStore store) {
-    return ((GitFileStore) store).getBaseCommit();
-  }
-
-  @Nullable
-  public static RevCommit getBaseCommit(@Nonnull FileSystem fs) {
-    return getBaseCommit(((GitFileSystem) fs).getFileStore());
-  }
-
-  @Nullable
-  public static RevCommit getBaseCommit(@Nonnull Path path) {
-    return getBaseCommit(((GitPath) path).getFileSystem());
-  }
-
-  @Nullable
-  public static AnyObjectId getBaseTree(@Nonnull FileStore store) {
-    return ((GitFileStore) store).getBaseTree();
-  }
-
-  @Nullable
-  public static AnyObjectId getBaseTree(@Nonnull FileSystem fs) {
-    return getBaseTree(((GitFileSystem) fs).getFileStore());
-  }
-
-  @Nullable
-  public static AnyObjectId getBaseTree(@Nonnull Path path) {
-    return getBaseTree(((GitPath) path).getFileSystem());
-  }
-
 }
