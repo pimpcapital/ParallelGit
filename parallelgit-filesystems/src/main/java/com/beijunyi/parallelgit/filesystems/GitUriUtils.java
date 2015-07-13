@@ -37,7 +37,7 @@ final class GitUriUtils {
    * @return  the string path to the repository
    */
   @Nonnull
-  static String getRepoPath(@Nonnull URI uri) {
+  static String getRepository(@Nonnull URI uri) {
     checkScheme(uri);
 
     String pathStr = uri.getPath();
@@ -47,8 +47,6 @@ final class GitUriUtils {
     if(pathStr.endsWith("/"))
       pathStr = pathStr.substring(0, pathStr.length() - 1);
 
-    if(uri.getAuthority() != null)
-      pathStr = uri.getAuthority() + pathStr;
     return pathStr;
   }
 
@@ -64,7 +62,7 @@ final class GitUriUtils {
    * @return  the string path to the file in the repository
    */
   @Nonnull
-  static String getFileInRepo(@Nonnull URI uri) throws ProviderMismatchException {
+  static String getFile(@Nonnull URI uri) throws ProviderMismatchException {
     checkScheme(uri);
 
     String fileInRepo = "/";
@@ -88,47 +86,13 @@ final class GitUriUtils {
   }
 
   @Nonnull
-  private static Map<String, String> parseQuery(@Nonnull String query) {
+  static Map<String, String> parseQuery(@Nonnull String query) {
     Map<String, String> params = new HashMap<>();
     String[] keyValueStrs = query.split("&");
     for(String keyValueStr : keyValueStrs) {
       String[] keyValuePair = keyValueStr.split("=", 2);
       params.put(keyValuePair[0], keyValuePair.length > 1 ? keyValuePair[1] : null);
     }
-    return params;
-  }
-
-  @Nonnull
-  private static Map<String, String> normalizeParams(@Nonnull Map<String, ?> params) {
-    Map<String, String> normalized = new HashMap<>();
-    for(Map.Entry<String, ?> entry : params.entrySet())
-      normalized.put(entry.getKey(), entry.getValue().toString());
-    return normalized;
-  }
-
-  /**
-   * Finds and returns the parameters from the given {@code URI} in a {@code Map}.
-   *
-   * Within the {@code GitFileSystem} {@code URI} pattern:
-   *   git://[repo location]![file in repo (optional)]?[parameters (optional)]
-   * this method returns a {@code Map}, which contains the key-value pairs extracted from the [parameters] part of the {
-   * @code URI}. If this part is absent, an empty {@code Map} is returned.
-   *
-   * @param   uri
-   *          the {@code URI}
-   * @return  a {@code Map} that contains the key-value pairs extracted from the {@code URI}
-   */
-  @Nonnull
-  static GitUriParams getParams(@Nullable URI uri, @Nullable Map<String, ?> env) {
-    GitUriParams params = new GitUriParams();
-    if(uri != null) {
-      checkScheme(uri);
-      String query = uri.getQuery();
-      if(query != null)
-        params.putAll(parseQuery(query));
-    }
-    if(env != null)
-      params.putAll(normalizeParams(env));
     return params;
   }
 
@@ -144,8 +108,6 @@ final class GitUriUtils {
 
     Map<String, Object> paramMap = new LinkedHashMap<>();
     paramMap.put(GitFileSystemProvider.SESSION_KEY, sessionId);
-    paramMap.put(GitFileSystemProvider.BARE_KEY, bare);
-    paramMap.put(GitFileSystemProvider.CREATE_KEY, create);
     paramMap.put(GitFileSystemProvider.BRANCH_KEY, branch);
     paramMap.put(GitFileSystemProvider.REVISION_KEY, revision);
     paramMap.put(GitFileSystemProvider.TREE_KEY, tree);

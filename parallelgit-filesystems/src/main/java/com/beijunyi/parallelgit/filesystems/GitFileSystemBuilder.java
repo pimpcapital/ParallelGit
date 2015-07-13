@@ -3,6 +3,7 @@ package com.beijunyi.parallelgit.filesystems;
 import java.io.File;
 import java.io.IOException;
 import java.net.URI;
+import java.nio.file.Path;
 import java.util.Map;
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
@@ -16,8 +17,6 @@ import org.eclipse.jgit.lib.Repository;
 public class GitFileSystemBuilder {
 
   private GitFileSystemProvider provider;
-  private URI uri;
-  private Map<String, ?> properties;
   private Repository repository;
   private File repoDir;
   private String repoDirPath;
@@ -33,30 +32,29 @@ public class GitFileSystemBuilder {
   }
 
   @Nonnull
-  public static GitFileSystemBuilder prepare(@Nonnull GitFileSystemProvider provider) {
-    return new GitFileSystemBuilder().provider(provider);
+  public static GitFileSystemBuilder forUri(@Nonnull URI uri, @Nonnull Map<String, ?> properties) {
+    GitUriParams params = GitUriParams.getParams(uri);
+    params.extend(GitUriParams.getParams(properties));
+    return prepare()
+             .repository(GitUriUtils.getRepository(uri))
+             .branch(params.getBranch())
+             .commit(params.getRevision())
+             .tree(params.getTree());
   }
 
   @Nonnull
-  public static GitFileSystemBuilder forUri(@Nonnull URI uri, @Nonnull Map<String, ?> properties, @Nonnull GitFileSystemProvider provider) {
-
+  public static GitFileSystemBuilder forPath(@Nonnull Path path, @Nonnull Map<String, ?> properties) {
+    GitUriParams params = GitUriParams.getParams(properties);
+    return prepare()
+             .repository(path.toFile())
+             .branch(params.getBranch())
+             .commit(params.getRevision())
+             .tree(params.getTree());
   }
 
   @Nonnull
   public GitFileSystemBuilder provider(@Nullable GitFileSystemProvider provider) {
     this.provider = provider;
-    return this;
-  }
-
-  @Nonnull
-  public GitFileSystemBuilder uri(@Nullable URI uri) {
-    this.uri = uri;
-    return this;
-  }
-
-  @Nonnull
-  public GitFileSystemBuilder properties(@Nullable Map<String, ?> properties) {
-    this.properties = properties;
     return this;
   }
 
@@ -116,60 +114,12 @@ public class GitFileSystemBuilder {
     throw new IllegalArgumentException("Different repositories found: " + r1 + ", " + r2);
   }
 
-  private void errorDifferentBranches(@Nonnull String b1, @Nonnull String b2) {
-    throw new IllegalArgumentException("Different branches found: " + b1 + ", " + b2);
-  }
-
   private void errorDifferentRevisions(@Nonnull String r1, @Nonnull String r2) {
     throw new IllegalArgumentException("Different revisions found: " + r1 + ", " + r2);
   }
 
   private void errorDifferentTrees(@Nonnull String t1, @Nonnull String t2) {
     throw new IllegalArgumentException("Different trees found: " + t1 + ", " + t2);
-  }
-
-  private void readUri() {
-    if(uri != null)
-      applyRepoPathFromUri(uri);
-    applyUriParams(GitUriUtils.getParams(uri, properties));
-  }
-
-  private void applyRepoPathFromUri(@Nonnull URI uri) {
-    String repoDirPathFromUri = GitUriUtils.getRepoPath(uri);
-    if(repoDirPath == null)
-      repoDirPath = GitUriUtils.getRepoPath(uri);
-    else if(!repoDirPath.equals(repoDirPathFromUri))
-      errorDifferentRepositories(repoDirPath, repoDirPathFromUri);
-  }
-
-  private void applyUriParams(@Nonnull GitUriParams params) {
-    applyBranchFromUri(params);
-    applyRevisionFromUri(params);
-    applyTreeFromUri(params);
-  }
-
-  private void applyBranchFromUri(@Nonnull GitUriParams params) {
-    String branchFromUri = params.getBranch();
-    if(branch == null)
-      branch = branchFromUri;
-    else if(branchFromUri != null && !branch.equals(branchFromUri))
-      errorDifferentBranches(branch, branchFromUri);
-  }
-
-  private void applyRevisionFromUri(@Nonnull GitUriParams params) {
-    String revisionFromUri = params.getRevision();
-    if(commitIdStr == null)
-      commitIdStr = revisionFromUri;
-    else if(revisionFromUri != null && !commitIdStr.equals(revisionFromUri))
-      errorDifferentRevisions(commitIdStr, revisionFromUri);
-  }
-
-  private void applyTreeFromUri(@Nonnull GitUriParams params) {
-    String treeFromUri = params.getTree();
-    if(treeIdStr == null)
-      treeIdStr = treeFromUri;
-    else if(treeFromUri != null && !treeIdStr.equals(treeFromUri))
-      errorDifferentTrees(treeIdStr, treeFromUri);
   }
 
   private void prepareProvider() {
@@ -230,7 +180,6 @@ public class GitFileSystemBuilder {
 
   @Nonnull
   public GitFileSystem build() throws IOException {
-    readUri();
     prepareProvider();
     prepareRepository();
     prepareBranch();

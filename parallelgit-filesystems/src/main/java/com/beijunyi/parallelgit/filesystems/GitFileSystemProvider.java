@@ -58,9 +58,9 @@ public class GitFileSystemProvider extends FileSystemProvider {
   }
 
   /**
-   * Returns {@code "git"} as the scheme of this provider.
+   * Returns {@code "gfs"} as the scheme of this provider.
    *
-   * @return  {@code "git"}
+   * @return  {@code "gfs"}
    */
   @Nonnull
   @Override
@@ -70,27 +70,27 @@ public class GitFileSystemProvider extends FileSystemProvider {
 
   @Nonnull
   @Override
-  public GitFileSystem newFileSystem(@Nonnull Path path, @Nullable Map<String, ?> properties) throws IOException {
-    return GitFileSystemBuilder.prepare(this)
-             .repository(path.toFile())
-             .properties(properties)
+  public GitFileSystem newFileSystem(@Nonnull Path path, @Nonnull Map<String, ?> properties) throws IOException {
+    return GitFileSystemBuilder
+             .forPath(path, properties)
+             .provider(this)
              .build();
   }
 
   @Nonnull
   @Override
-  public GitFileSystem newFileSystem(@Nonnull URI uri, @Nullable Map<String, ?> env) throws IOException {
-    return GitFileSystemBuilder.prepare(this)
-             .uri(uri)
-             .properties(env)
+  public GitFileSystem newFileSystem(@Nonnull URI uri, @Nonnull Map<String, ?> properties) throws IOException {
+    return GitFileSystemBuilder
+             .forUri(uri, properties)
+             .provider(this)
              .build();
   }
 
-  public void register(@Nonnull GitFileSystem gfs) {
+  void register(@Nonnull GitFileSystem gfs) {
     fsMap.put(gfs.getSessionId(), gfs);
   }
 
-  public void unregister(@Nonnull GitFileSystem gfs) {
+  void unregister(@Nonnull GitFileSystem gfs) {
     fsMap.remove(gfs.getSessionId());
   }
 
@@ -102,7 +102,7 @@ public class GitFileSystemProvider extends FileSystemProvider {
   @Nullable
   @Override
   public GitFileSystem getFileSystem(@Nonnull URI uri) {
-    GitUriParams params = GitUriUtils.getParams(uri, null);
+    GitUriParams params = GitUriParams.getParams(uri);
     String session = params.getSession();
     if(session == null)
       throw new IllegalArgumentException("No session is provided");
@@ -121,17 +121,12 @@ public class GitFileSystemProvider extends FileSystemProvider {
    */
   @Nonnull
   @Override
-  public GitPath getPath(@Nonnull URI uri) throws ProviderMismatchException {
+  public GitPath getPath(@Nonnull URI uri) throws FileSystemNotFoundException {
     GitFileSystem gfs = getFileSystem(uri);
-    if(gfs == null) {
-      try {
-        gfs = newFileSystem(uri, null);
-      } catch(IOException e) {
-        throw new IllegalArgumentException("Could not create new GitFileSystem for " + uri, e);
-      }
-    }
-    String fileInRepo = GitUriUtils.getFileInRepo(uri);
-    return gfs.getPath(fileInRepo).toRealPath();
+    if(gfs == null)
+      throw new FileSystemNotFoundException(uri.toString());
+    String file = GitUriUtils.getFile(uri);
+    return gfs.getPath(file).toRealPath();
   }
 
   /**

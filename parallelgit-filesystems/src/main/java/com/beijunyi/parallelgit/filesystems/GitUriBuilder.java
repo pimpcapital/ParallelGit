@@ -25,7 +25,7 @@ public class GitUriBuilder {
   }
 
   @Nonnull
-  public static GitUriBuilder forGitFileSystem(@Nonnull GitFileSystem gfs) throws IOException {
+  public static GitUriBuilder forFileSystem(@Nonnull GitFileSystem gfs) throws IOException {
     GitUriBuilder builder = prepare().session(gfs.getSessionId());
     GitFileStore store = gfs.getFileStore();
     AnyObjectId tree = store.getBaseTree();
@@ -73,7 +73,7 @@ public class GitUriBuilder {
 
   @Nonnull
   public GitUriBuilder file(@Nullable GitPath filePath) {
-    return file(filePath != null ? filePath.getNormalizedString() : null);
+    return file(filePath != null ? filePath.toRealPath().toString() : null);
   }
 
   @Nonnull
@@ -106,7 +106,7 @@ public class GitUriBuilder {
 
   @Nonnull
   private String buildPath() {
-    String path = GitFileSystemProvider.GIT_FS_SCHEME + "://" + repository;
+    String path = GitFileSystemProvider.GIT_FS_SCHEME + ":" + repository;
     if(file != null && !file.isEmpty() && !file.equals("/"))
       path += GitFileSystemProvider.ROOT_SEPARATOR + file;
     return path;

@@ -16,14 +16,17 @@ public class GitFileSystemProviderGetPathTest extends AbstractGitFileSystemTest 
   }
 
   @Test
-  public void getPathWithExistingSessionIdTest() {
-    URI uri = GitUriUtils.createUri(repoDir, "/some_file.txt", gfs.getSessionId(), null, null, null, null, null);
+  public void getPathWithExistingSessionId() {
+    URI uri = GitUriBuilder.prepare()
+                .file("/some_file.txt")
+                .session(gfs.getSessionId())
+                .build();
     GitPath path = (GitPath) Paths.get(uri);
     Assert.assertEquals(gfs.getPath("/some_file.txt"), path);
   }
 
   @Test
-  public void getRootPathWithExistingSessionIdTest() {
+  public void getRootPathWithExistingSessionId() {
     URI uri = GitUriUtils.createUri(repoDir, "/", gfs.getSessionId(), null, null, null, null, null);
     GitPath path = (GitPath) Paths.get(uri);
     Assert.assertEquals(root, path);
