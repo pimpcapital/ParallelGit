@@ -281,4 +281,9 @@ public class GitFileSystem extends FileSystem {
     return store.getBaseTree();
   }
 
+  @Nonnull
+  public GitFileSystemCommitBuilder prepareCommit() {
+    return GitFileSystemCommitBuilder.prepare();
+  }
+
 }
