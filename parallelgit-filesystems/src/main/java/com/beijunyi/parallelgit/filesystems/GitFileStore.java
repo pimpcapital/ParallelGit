@@ -29,19 +29,20 @@ public class GitFileStore extends FileStore implements Closeable {
   private final Map<String, GitFileStoreMemoryChannel> memoryChannels = new ConcurrentHashMap<>();
   private final Map<String, Collection<GitDirectoryStream>> dirStreams = new ConcurrentHashMap<>();
 
+  private final Map<String, ObjectId> insertions = new ConcurrentHashMap<>();
+  private final Set<String> insertedDirs = Collections.newSetFromMap(new ConcurrentHashMap<String, Boolean>());
+  private final Set<String> deletions = Collections.newSetFromMap(new ConcurrentHashMap<String, Boolean>());
+  private final Map<String, Integer> deletedDirs = new ConcurrentHashMap<>();
+
   private String branch;
   private RevCommit baseCommit;
   private AnyObjectId baseTree;
-  private DirCache cache;
 
-  private boolean closed = false;
-  private ObjectInserter inserter;
+  private volatile DirCache cache;
+  private volatile boolean closed = false;
+  private volatile ObjectInserter inserter;
 
-  private Map<String, ObjectId> insertions;
-  private Set<String> insertedDirs;
 
-  private Set<String> deletions;
-  private Map<String, Integer> deletedDirs;
 
   GitFileStore(@Nonnull GitPath root, @Nonnull Repository repo, @Nullable String branchRef, @Nullable AnyObjectId basedRevision, @Nullable AnyObjectId baseTree) throws IOException {
     this.root = root;
@@ -100,7 +101,7 @@ public class GitFileStore extends FileStore implements Closeable {
   }
 
   /**
-   * Returns {@code false} as {@code GitFileStore} supports both read and write accesses.
+   * Returns {@code false} as {@code GitFileStore} supports write access.
    *
    * @return   {@code false}
    */
@@ -180,54 +181,55 @@ public class GitFileStore extends FileStore implements Closeable {
   }
 
   /**
-   * Applies all the staged insertions to the cache. If there is no staged insertion, calling this method has no effect.
+   * Applies all the staged insertions to the cache.
+   * If there is no insertion staged, this method has no effect.
    */
-  private void flushInsertions() {
-    if(insertions != null) {
+  private void applyInsertions() {
+    if(!insertions.isEmpty()) {
       DirCacheBuilder builder = DirCacheHelper.keepEverything(cache);
       for(Map.Entry<String, ObjectId> entry : insertions.entrySet())
         DirCacheHelper.addFile(builder, FileMode.REGULAR_FILE, entry.getKey(), entry.getValue());
       builder.finish();
-      insertions = null;
-      insertedDirs = null;
+      insertions.clear();
+      insertedDirs.clear();
     }
   }
 
   /**
-   * Applies all the staged deletions to the cache. If there is no staged deletion, calling this method has no effect.
+   * Applies all the staged deletions to the cache.
+   * If there is no deletion staged, this method has no effect.
    */
-  private void flushDeletions() {
-    if(deletions != null) {
+  private void applyDeletions() {
+    if(!deletions.isEmpty()) {
       DirCacheEditor editor = cache.editor();
       for(String path : deletions)
         DirCacheHelper.deleteFile(editor, path);
       editor.finish();
-      deletions = null;
+      deletions.clear();
+      deletedDirs.clear();
     }
   }
 
   /**
-   * Applies all staged changes to the cache. If there is no staged changes, calling this method has no effect.
+   * Applies all staged changes to the cache.
+   * If there is no changes staged, this method has no effect.
    */
   private void flushStagedChanges() {
-    flushInsertions();
-    flushDeletions();
+    applyInsertions();
+    applyDeletions();
   }
 
   /**
-   * Stages a insertion with the specified path and the given blob id.
+   * Stages a file insertion with the specified path and blob.
+   * This method flushes all the staged deletions before staging the insertion.
    *
-   * This method flushes all the staged deletions before staging the new insertion.
-   *
-   * @param pathStr the string path to the file to be inserted
-   * @param blobId the id of the blob
+   * @param   pathStr
+   *          the string path to the file to insert
+   * @param   blobId
+   *          the id of the blob to insert
    */
   private void stageFileInsertion(@Nonnull String pathStr, @Nonnull ObjectId blobId) {
-    flushDeletions();
-    if(insertions == null || insertedDirs == null) {
-      insertions = new ConcurrentHashMap<>();
-      insertedDirs = Collections.newSetFromMap(new ConcurrentHashMap<String, Boolean>());
-    }
+    applyDeletions();
     insertions.put(pathStr, blobId);
     String current = pathStr;
     int sepIdx;
@@ -238,19 +240,23 @@ public class GitFileStore extends FileStore implements Closeable {
     }
   }
 
+  private boolean isFileStagedForInsertion(@Nonnull String pathStr) {
+    return insertions.containsKey(pathStr);
+  }
+
+  private boolean isDirectoryStagedForInsertion(@Nonnull String pathStr) {
+    return insertedDirs.contains(pathStr);
+  }
+
   /**
-   * Stages a deletion with the specified path.
+   * Stages a file deletion with the specified path.
+   * This method flushes all the staged insertions before staging the deletion.
    *
-   * This method flushes all the staged insertions before staging the new deletion.
-   *
-   * @param pathStr the file to be deleted
+   * @param   pathStr
+   *          the string path to the file to delete
    */
   private void stageFileDeletion(@Nonnull String pathStr) {
-    flushInsertions();
-    if(deletions == null || deletedDirs == null) {
-      deletions = Collections.newSetFromMap(new ConcurrentHashMap<String, Boolean>());
-      deletedDirs = new ConcurrentHashMap<>();
-    }
+    applyInsertions();
     deletions.add(pathStr);
     String current = pathStr;
     int sepIdx;
@@ -265,6 +271,43 @@ public class GitFileStore extends FileStore implements Closeable {
         throw new IllegalStateException();
       deletedDirs.put(current, remain - 1);
     }
+  }
+
+  private boolean isFileStagedForDeletion(@Nonnull String pathStr) {
+    return deletions.contains(pathStr);
+  }
+
+  private boolean isDirectoryStagedForDeletion(@Nonnull String pathStr) {
+    return deletedDirs.containsKey(pathStr) && deletedDirs.get(pathStr) == 0;
+  }
+
+  private void clearMemoryChannels() {
+    for(GitFileStoreMemoryChannel channel : memoryChannels.values())
+      channel.close();
+  }
+
+  private void clearDirectoryChannels() {
+    for(Collection<GitDirectoryStream> dirStreamsForPath : dirStreams.values())
+      for(GitDirectoryStream directoryStream : dirStreamsForPath)
+        directoryStream.close();
+  }
+
+  private void clearCache() {
+    if(cache != null)
+      cache.clear();
+  }
+
+  private void clearStore() {
+    clearMemoryChannels();
+    clearDirectoryChannels();
+    clearCache();
+  }
+
+  private void releaseResources() {
+    if(inserter != null)
+      inserter.release();
+    reader.release();
+    repo.close();
   }
 
   /**
@@ -282,34 +325,13 @@ public class GitFileStore extends FileStore implements Closeable {
     synchronized(this) {
       if(!closed) {
         closed = true;
-        for(GitFileStoreMemoryChannel channel : memoryChannels.values())
-          channel.close();
-        memoryChannels.clear();
-
-        for(Collection<GitDirectoryStream> dirStreamsForPath : dirStreams.values())
-          for(GitDirectoryStream directoryStream : dirStreamsForPath)
-            directoryStream.close();
-        dirStreams.clear();
-
-        if(cache != null)
-          cache.clear();
-        if(inserter != null)
-          inserter.release();
-        reader.release();
-        repo.close();
+        clearStore();
+        releaseResources();
       }
     }
   }
 
-  /**
-   * Tells if this file store is open.
-   *
-   * @return {@code true} is this file store is open.
-   */
-  boolean isOpen() {
-    return !closed;
-  }
-
+  @Nonnull
   GitPath getRoot() {
     return root;
   }
@@ -334,9 +356,13 @@ public class GitFileStore extends FileStore implements Closeable {
    */
   @Nonnull
   private ObjectInserter getInserter() {
-    if(inserter == null)
-      inserter = repo.newObjectInserter();
-    return inserter;
+    if(inserter != null)
+      return inserter;
+    synchronized(this) {
+      if(inserter == null)
+        inserter = repo.newObjectInserter();
+      return inserter;
+    }
   }
 
   /**
@@ -376,27 +402,27 @@ public class GitFileStore extends FileStore implements Closeable {
    * @return {@code true} if the file has been modified
    */
   boolean isDirty(@Nonnull String pathStr) {
+    checkClosed();
     synchronized(this) {
-      checkClosed();
       GitFileStoreMemoryChannel channel = memoryChannels.get(pathStr);
       return channel != null && channel.isModified();
     }
   }
 
   /**
-   * Returns the {@code ObjectId} of the specified file.
+   * Returns the {@code ObjectId} of a file.
    *
    * @param   pathStr
    *          the string path to file whose {@code ObjectId} is to be returned
-   * @return  the {@code ObjectId} of the file or {@code null} if this file is a directory
+   * @return  the {@code ObjectId} of the file or {@code null} if it is a directory
    * @throws  NoSuchFileException
    *          if the specified file does not exist
    */
   @Nullable
   ObjectId getFileBlobId(@Nonnull String pathStr) throws IOException {
+    checkClosed();
     synchronized(this) {
-      checkClosed();
-      if(insertions != null && insertions.containsKey(pathStr))
+      if(isFileStagedForInsertion(pathStr))
         return insertions.get(pathStr);
       if(isDirectory(pathStr))
         return null;
@@ -408,20 +434,20 @@ public class GitFileStore extends FileStore implements Closeable {
   }
 
   /**
-   * Checks if the target file exists and also, if the target file exists, checks if it can be replaced.
+   * Prepares to create a file at the specified path.
    *
    * @param   pathStr
-   *          the string path to the file to check
+   *          the string path to the file to create
    * @param   replaceExisting
-   *          whether to replace the target file if it already exists
-   * @return  {@code true} if the target file exists and it is a regular file
+   *          whether to replace the existing file
+   * @return  {@code true} if no file exists at the specified path
    *
    * @throws  FileAlreadyExistsException
-   *          if the target file exists but {@code replaceExisting} is {@code false}
+   *          if a file exists at the path and {@code replaceExisting} is {@code false}
    * @throws  DirectoryNotEmptyException
-   *          if {@code replaceExisting} is {@code true} but the target file is a non-empty directory
+   *          if a directory exists at the specified path
    */
-  private boolean checkFileExist(@Nonnull String pathStr, boolean replaceExisting) throws IOException {
+  private boolean prepareCreateFile(@Nonnull String pathStr, boolean replaceExisting) throws IOException {
     boolean isDirectory = isDirectory(pathStr);
     boolean isFile = !isDirectory && isRegularFile(pathStr);
 
@@ -431,19 +457,19 @@ public class GitFileStore extends FileStore implements Closeable {
     } else if(isDirectory)
       throw new DirectoryNotEmptyException(pathStr);
 
-    return isFile;
+    return !isFile;
   }
 
   /**
-   * Tries to remove the {@code GitFileStoreMemoryChannel} associated with the given path. This method throws a {@code
-   * AccessDeniedException}, if the {@code GitFileStoreMemoryChannel} is attached by a {@code GitSeekableByteChannel}.
+   * Removes a {@code GitFileStoreMemoryChannel}.
+   * If there is no channel associated with the specified path, this method has no effect.
    *
    * @param   pathStr
-   *          the string path to the {@code GitFileStoreMemoryChannel} to remove
+   *          the string path to the channel to remove
    * @throws  AccessDeniedException
-   *          if the {@code GitFileStoreMemoryChannel} is attached by a {@code GitSeekableByteChannel}
+   *          if the channel is being used by a {@code GitSeekableByteChannel}
    */
-  private void tryRemoveMemoryChannel(@Nonnull String pathStr) throws AccessDeniedException {
+  private void removeMemoryChannel(@Nonnull String pathStr) throws AccessDeniedException {
     GitFileStoreMemoryChannel channel = memoryChannels.get(pathStr);
     if(channel != null) {
       if(channel.countAttachedChannels() != 0)
@@ -462,7 +488,7 @@ public class GitFileStore extends FileStore implements Closeable {
    * @param   objectId
    *          the new {@code ObjectId}
    */
-  private void setFileObjectId(@Nonnull String pathStr, @Nonnull ObjectId objectId) {
+  private void createFile(@Nonnull String pathStr, @Nonnull ObjectId objectId) {
     assert deletions == null || !deletions.contains(pathStr);
     DirCacheEntry entry = cache.getEntry(pathStr);
     if(entry != null)
@@ -476,7 +502,7 @@ public class GitFileStore extends FileStore implements Closeable {
    *
    * @param   pathStr
    *          the string path to the file to create
-   * @param   objectId
+   * @param   blobId
    *          the {@code ObjectId}
    * @param   replaceExisting
    *          whether to replace the target file if it already exists
@@ -488,36 +514,33 @@ public class GitFileStore extends FileStore implements Closeable {
    * @throws  DirectoryNotEmptyException
    *          if {@code replaceExisting} is {@code true} but the file is a non-empty directory
    */
-  private void safelyCreateFileWithObjectId(@Nonnull String pathStr, @Nonnull ObjectId objectId, boolean replaceExisting) throws IOException {
-    if(checkFileExist(pathStr, replaceExisting)) {
-      checkParentDirectoryStreams(pathStr, false);
-      tryRemoveMemoryChannel(pathStr);
-    }
-    setFileObjectId(pathStr, objectId);
+  private void safelyCreateFile(@Nonnull String pathStr, @Nonnull ObjectId blobId, boolean replaceExisting) throws IOException {
+    if(!prepareCreateFile(pathStr, replaceExisting))
+      removeMemoryChannel(pathStr);
+    createFile(pathStr, blobId);
   }
 
   /**
-   * Creates a file with the given {@code ObjectId} or throws an exception if the file cannot be created safely.
+   * Creates a file from a blob.
    *
    * @param   pathStr
    *          the string path to the file to create
-   * @param   objectId
-   *          the {@code ObjectId}
+   * @param   blobId
+   *          the id to the blob
    * @param   replaceExisting
-   *          whether to replace the target file if it already exists
+   *          whether to replace the existing file
    * @throws  AccessDeniedException
-   *          if the file is associated with an open {@code GitSeekableByteChannel} or if its parent directories are
-   *          associated with an open {@code GitDirectoryStream}
+   *          if the path is associated with a channel
    * @throws  FileAlreadyExistsException
-   *          if the file already exists but {@code replaceExisting} is {@code false}
+   *          if a file exists at the path and {@code replaceExisting} is {@code false}
    * @throws  DirectoryNotEmptyException
-   *          if {@code replaceExisting} is {@code true} but the file is a non-empty directory
+   *          if a directory exists at the specified path
    */
-  void createFileWithObjectId(@Nonnull String pathStr, @Nonnull ObjectId objectId, boolean replaceExisting) throws IOException {
+  void createFileFromBlob(@Nonnull String pathStr, @Nonnull ObjectId blobId, boolean replaceExisting) throws IOException {
+    checkClosed();
+    prepareCache();
     synchronized(this) {
-      checkClosed();
-      initializeCache();
-      safelyCreateFileWithObjectId(pathStr, objectId, replaceExisting);
+      safelyCreateFile(pathStr, blobId, replaceExisting);
     }
   }
 
@@ -529,13 +552,13 @@ public class GitFileStore extends FileStore implements Closeable {
    * @return  {@code true} if the file is a regular file
    */
   boolean isRegularFile(@Nonnull String pathStr) throws IOException {
+    checkClosed();
     synchronized(this) {
-      checkClosed();
       if(pathStr.isEmpty())
         return false;
-      if(deletions != null && deletions.contains(pathStr))
+      if(isFileStagedForDeletion(pathStr))
         return false;
-      if(insertions != null && insertions.containsKey(pathStr))
+      if(isFileStagedForInsertion(pathStr))
         return true;
       if(cache != null)
         return DirCacheHelper.fileExists(cache, pathStr);
@@ -551,13 +574,13 @@ public class GitFileStore extends FileStore implements Closeable {
    * @return  {@code true} if the file is a directory
    */
   boolean isDirectory(@Nonnull String pathStr) throws IOException {
+    checkClosed();
+    if(pathStr.isEmpty())
+      return true;
     synchronized(this) {
-      checkClosed();
-      if(pathStr.isEmpty())
-        return true;
-      if(deletedDirs != null && deletedDirs.containsKey(pathStr) && deletedDirs.get(pathStr) == 0)
+      if(isDirectoryStagedForDeletion(pathStr))
         return false;
-      if(insertedDirs != null && insertedDirs.contains(pathStr))
+      if(isDirectoryStagedForInsertion(pathStr))
         return true;
       if(cache != null)
         return DirCacheHelper.isNonTrivialDirectory(cache, pathStr);
@@ -576,6 +599,7 @@ public class GitFileStore extends FileStore implements Closeable {
    *          if the file does not exist
    */
   long getFileSize(@Nonnull String pathStr) throws IOException {
+    checkClosed();
     synchronized(this) {
       GitFileStoreMemoryChannel channel = memoryChannels.get(pathStr);
       if(channel != null) {
@@ -594,14 +618,14 @@ public class GitFileStore extends FileStore implements Closeable {
   }
 
   /**
-   * Initializes this {@code GitFileStore}'s {@link #cache DirCache} from the {@link #baseTree base tree}. If the cache
-   * is already initialized, calling this method has no effect.
+   * Prepares {@link #cache} by loading {@link #baseTree}.
+   * If the cache is already available, this method has no effect.
    */
-  void initializeCache() throws IOException {
+  void prepareCache() throws IOException {
+    checkClosed();
     if(cache != null)
       return;
     synchronized(this) {
-      checkClosed();
       if(cache == null) {
         assert baseTree != null;
         cache = DirCacheHelper.forTree(reader, baseTree);
@@ -643,10 +667,9 @@ public class GitFileStore extends FileStore implements Closeable {
    *          if the file does not exist
    */
   void delete(@Nonnull String pathStr) throws IOException {
+    checkClosed();
+    prepareCache();
     synchronized(this) {
-      checkClosed();
-      initializeCache();
-      checkParentDirectoryStreams(pathStr, false);
       if(isRegularFile(pathStr))
         deleteFile(pathStr);
       else if(isDirectory(pathStr))
@@ -657,8 +680,8 @@ public class GitFileStore extends FileStore implements Closeable {
   }
 
   void fastDeleteDirectory(@Nonnull String pathStr) throws IOException {
+    prepareCache();
     synchronized(this) {
-      initializeCache();
       flushStagedChanges();
       DirCacheHelper.deleteDirectory(cache, pathStr);
     }
@@ -708,17 +731,15 @@ public class GitFileStore extends FileStore implements Closeable {
    *          directory
    */
   void copy(@Nonnull String sourceStr, @Nonnull String targetStr, boolean replaceExisting) throws IOException {
+    checkClosed();
+    prepareCache();
     if(targetStr.equals(sourceStr))
       return;
-
     synchronized(this) {
-      checkClosed();
-      initializeCache();
-
       ObjectId blobId = getFileBlobId(sourceStr);
       if(blobId == null)
         return;
-      safelyCreateFileWithObjectId(targetStr, blobId, replaceExisting);
+      safelyCreateFile(targetStr, blobId, replaceExisting);
       cloneChannel(sourceStr, targetStr);
     }
   }
@@ -743,15 +764,11 @@ public class GitFileStore extends FileStore implements Closeable {
    *          If {@code replaceExisting} is set to {@code true} but the target file is a directory.
    */
   void move(@Nonnull String sourceStr, @Nonnull String targetStr, boolean replaceExisting) throws IOException {
+    checkClosed();
+    prepareCache();
     synchronized(this) {
-      checkClosed();
-      initializeCache();
       // get the blob or throw exception if file does not exist
       ObjectId sourceBlob = getFileBlobId(sourceStr);
-      boolean isSourceDirectory = sourceBlob == null;
-
-      //
-      checkParentDirectoryStreams(sourceStr, isSourceDirectory);
 
       if(targetStr.equals(sourceStr))
         return;
@@ -759,14 +776,12 @@ public class GitFileStore extends FileStore implements Closeable {
       if(targetStr.startsWith(sourceStr + "/"))
         throw new AccessDeniedException(targetStr);
 
-      boolean targetExists = checkFileExist(targetStr, replaceExisting);
-      if(targetExists) {
-        checkParentDirectoryStreams(targetStr, false);
-        tryRemoveMemoryChannel(targetStr);
-      }
+      boolean targetExists = !prepareCreateFile(targetStr, replaceExisting);
+      if(targetExists)
+        removeMemoryChannel(targetStr);
 
       if(sourceBlob != null) {
-        setFileObjectId(targetStr, sourceBlob);
+        createFile(targetStr, sourceBlob);
         cloneChannel(sourceStr, targetStr);
         deleteFile(sourceStr);
       } else {
@@ -787,7 +802,7 @@ public class GitFileStore extends FileStore implements Closeable {
         for(DirCacheEntry entry : childrenEntries) {
           String relativePath = entry.getPathString().substring(sourceStrLen);
           String fullPath = targetStr + relativePath;
-          setFileObjectId(fullPath, entry.getObjectId());
+          stageFileInsertion(fullPath, entry.getObjectId());
           cloneChannel(entry.getPathString(), fullPath);
           oldPaths.add(sourceStr + relativePath);
         }
@@ -819,12 +834,12 @@ public class GitFileStore extends FileStore implements Closeable {
    */
   @Nonnull
   GitSeekableByteChannel newByteChannel(@Nonnull String pathStr, @Nonnull Set<OpenOption> options) throws IOException {
+    checkClosed();
     options = Collections.unmodifiableSet(options);
     boolean readOnly = options.size() == 1 && options.contains(StandardOpenOption.READ);
+    if(!readOnly)
+      prepareCache();
     synchronized(this) {
-      checkClosed();
-      if(!readOnly)
-        initializeCache();
       GitFileStoreMemoryChannel memoryChannel = memoryChannels.get(pathStr);
       if(memoryChannel != null) {
         if(options.contains(StandardOpenOption.CREATE_NEW))
@@ -841,7 +856,7 @@ public class GitFileStore extends FileStore implements Closeable {
             throw new AccessDeniedException(pathStr);
           blobId = treeWalk.getObjectId(0);
         } else {
-          initializeCache();
+          prepareCache();
           if(isDirectory(pathStr))
             throw new AccessDeniedException(pathStr);
           else if(!isRegularFile(pathStr)) {
@@ -872,12 +887,28 @@ public class GitFileStore extends FileStore implements Closeable {
    * @param   channel
    *          the {@code GitFileStoreMemoryChannel} to remove
    */
-  void garbageCollectChannel(@Nonnull GitFileStoreMemoryChannel channel) {
-    synchronized(this) {
-      if(!channel.isModified() && channel.countAttachedChannels() == 0) {
-        channel.close();
-        memoryChannels.remove(channel.getPathStr());
+  void removeChannel(@Nonnull GitFileStoreMemoryChannel channel) {
+    memoryChannels.remove(channel.getPathStr());
+  }
+
+  @Nonnull
+  private GitDirectoryStream createDirectoryStream(@Nonnull String pathStr, @Nullable DirectoryStream.Filter<? super Path> filter) throws IOException {
+    if(cache != null) {
+      flushStagedChanges();
+      return new DirCacheGitDirectoryStream(pathStr, this, cache, filter);
+    }
+    return new TreeWalkGitDirectoryStream(pathStr, this, reader, baseTree, filter);
+  }
+
+  private void registerDirectoryStream(@Nonnull GitDirectoryStream dirStream) {
+    String pathStr = dirStream.getPathStr();
+    synchronized(dirStreams) {
+      Collection<GitDirectoryStream> streamsForPath = dirStreams.get(pathStr);
+      if(streamsForPath == null) {
+        streamsForPath = new ConcurrentLinkedQueue<>();
+        dirStreams.put(pathStr, streamsForPath);
       }
+      streamsForPath.add(dirStream);
     }
   }
 
@@ -896,42 +927,11 @@ public class GitFileStore extends FileStore implements Closeable {
    */
   @Nonnull
   GitDirectoryStream newDirectoryStream(@Nonnull String pathStr, @Nullable DirectoryStream.Filter<? super Path> filter) throws IOException {
+    checkClosed();
     synchronized(this) {
-      GitDirectoryStream dirStream;
-      if(cache != null) {
-        flushStagedChanges();
-        dirStream = new DirCacheGitDirectoryStream(pathStr, this, cache, filter);
-      } else
-        dirStream = new TreeWalkGitDirectoryStream(pathStr, this, reader, baseTree, filter);
-      Collection<GitDirectoryStream> streamsForPath = dirStreams.get(pathStr);
-      if(streamsForPath == null) {
-        streamsForPath = new ConcurrentLinkedQueue<>();
-        dirStreams.put(pathStr, streamsForPath);
-      }
-      streamsForPath.add(dirStream);
+      GitDirectoryStream dirStream = createDirectoryStream(pathStr, filter);
+      registerDirectoryStream(dirStream);
       return dirStream;
-    }
-  }
-
-  /**
-   * Checks if the given path's parent directories are associated with an open {@code DirectoryStream}.
-   * 
-   * @param   pathStr
-   *          the string path to the file to check
-   * @param   inclusive
-   *          whether to include the given path itself
-   * @throws  AccessDeniedException
-   *          if the file's parent directories are associated with an open {@code DirectoryStream}
-   */
-  private void checkParentDirectoryStreams(@Nonnull String pathStr, boolean inclusive) throws AccessDeniedException {
-    if(dirStreams.isEmpty())
-      return;
-    String current = inclusive ? pathStr + "/" : pathStr;
-    int sepIdx;
-    while((sepIdx = current.lastIndexOf('/')) >= 0) {
-      current = current.substring(0, sepIdx);
-      if(dirStreams.containsKey(current))
-        throw new AccessDeniedException(pathStr);
     }
   }
 
@@ -942,8 +942,6 @@ public class GitFileStore extends FileStore implements Closeable {
    *          the {@code DirectoryStream} to be removed
    */
   void removeDirectoryStream(@Nonnull GitDirectoryStream dirStream) {
-    if(closed)
-      return;
     String pathStr = dirStream.getPathStr();
     Collection<GitDirectoryStream> streamsForPath = dirStreams.get(pathStr);
     if(streamsForPath == null || !streamsForPath.remove(dirStream))
@@ -961,26 +959,23 @@ public class GitFileStore extends FileStore implements Closeable {
    */
   @Nullable
   ObjectId writeAndUpdateTree() throws IOException {
+    checkClosed();
+    if(cache == null)
+      return null;
     synchronized(this) {
-      checkClosed();
-
-      // if there is no change
-      if(cache == null)
-        return null;
-
       flushStagedChanges();
 
       // iterate through the memory channels and flush the byte array into the repository
       Iterator<Map.Entry<String, GitFileStoreMemoryChannel>> channelsIt = memoryChannels.entrySet().iterator();
       while(channelsIt.hasNext()) {
         GitFileStoreMemoryChannel channel = channelsIt.next().getValue();
-        if(!channel.isModified())
-          continue;
-        channel.lockBuffer();
         try {
+          if(!channel.isModified())
+            continue;
+          channel.lockBuffer();
           byte[] blob = channel.getBytes();
           ObjectId blobId = getInserter().insert(Constants.OBJ_BLOB, blob);
-          setFileObjectId(channel.getPathStr(), blobId);
+          cache.getEntry(channel.getPathStr()).setObjectId(blobId);
           // if nothing relies on this channel
           if(channel.countAttachedChannels() == 0) {
             channel.close();
@@ -1016,9 +1011,8 @@ public class GitFileStore extends FileStore implements Closeable {
    */
   @Nullable
   RevCommit writeAndUpdateCommit(@Nonnull PersonIdent author, @Nonnull PersonIdent committer, @Nonnull String message, boolean amend) throws IOException {
+    checkClosed();
     synchronized(this) {
-      checkClosed();
-
       ObjectId newTreeId = writeAndUpdateTree();
       if(newTreeId == null)
         return null;

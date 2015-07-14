@@ -18,7 +18,10 @@ public class GitFileSystemUtilsCommitTest extends AbstractGitFileSystemTest {
     initRepository();
     writeFile("old_file.txt");
     ObjectId prevCommit = commitToBranch("some_branch");
-    injectGitFileSystem(GitFileSystems.newFileSystem(repo, "some_branch"));
+    injectGitFileSystem(GitFileSystemBuilder.prepare()
+                          .repository(repo)
+                          .branch("some_branch")
+                          .build());
 
     GitPath file = gfs.getPath("/file.txt");
     byte[] data = "some plain text data".getBytes();
@@ -45,7 +48,10 @@ public class GitFileSystemUtilsCommitTest extends AbstractGitFileSystemTest {
   @Test
   public void commitInNewBranchTest() throws IOException {
     initRepository();
-    injectGitFileSystem(GitFileSystems.newFileSystem(repo, "new_branch"));
+    injectGitFileSystem(GitFileSystemBuilder.prepare()
+                          .repository(repo)
+                          .branch("new_branch")
+                          .build());
 
     GitPath file = gfs.getPath("/file.txt");
     byte[] data = "some plain text data".getBytes();
@@ -73,7 +79,10 @@ public class GitFileSystemUtilsCommitTest extends AbstractGitFileSystemTest {
     initRepository();
     writeFile("old_file.txt");
     ObjectId branchCommit = commitToBranch("some_branch");
-    injectGitFileSystem(GitFileSystems.newFileSystem(repo, branchCommit));
+    injectGitFileSystem(GitFileSystemBuilder.prepare()
+                          .repository(repo)
+                          .commit(branchCommit)
+                          .build());
 
     GitPath file = gfs.getPath("/file.txt");
     byte[] data = "some plain text data".getBytes();
@@ -103,7 +112,10 @@ public class GitFileSystemUtilsCommitTest extends AbstractGitFileSystemTest {
     initRepository();
     writeFile("old_file.txt");
     commitToBranch("some_branch");
-    injectGitFileSystem(GitFileSystems.newFileSystem(repo, "some_branch"));
+    injectGitFileSystem(GitFileSystemBuilder.prepare()
+                          .repository(repo)
+                          .branch("some_branch")
+                          .build());
 
     GitPath file1 = gfs.getPath("/file1.txt");
     byte[] data1 = "some plain text data".getBytes();
@@ -136,7 +148,10 @@ public class GitFileSystemUtilsCommitTest extends AbstractGitFileSystemTest {
     initRepository();
     writeFile("old_file.txt");
     ObjectId lastCommit = commitToBranch("some_branch");
-    injectGitFileSystem(GitFileSystems.newFileSystem(repo, "some_branch"));
+    injectGitFileSystem(GitFileSystemBuilder.prepare()
+                          .repository(repo)
+                          .branch("some_branch")
+                          .build());
 
     PersonIdent author = new PersonIdent(TEST_USER_NAME, TEST_USER_EMAIL);
     RevCommit commit = GitFileSystemUtils.commit(gfs, author, author, "some message", false);
@@ -151,7 +166,10 @@ public class GitFileSystemUtilsCommitTest extends AbstractGitFileSystemTest {
     byte[] data = "some plain text data".getBytes();
     writeFile("file.txt", data);
     ObjectId lastCommit = commitToBranch("some_branch");
-    injectGitFileSystem(GitFileSystems.newFileSystem(repo, "some_branch"));
+    injectGitFileSystem(GitFileSystemBuilder.prepare()
+                          .repository(repo)
+                          .branch("some_branch")
+                          .build());
 
     GitPath file = gfs.getPath("/file.txt");
     Files.write(file, data);

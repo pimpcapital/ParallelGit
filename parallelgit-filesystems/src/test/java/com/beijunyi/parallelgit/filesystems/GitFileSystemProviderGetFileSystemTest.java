@@ -30,18 +30,4 @@ public class GitFileSystemProviderGetFileSystemTest extends AbstractGitFileSyste
     GitFileSystem result = (GitFileSystem) FileSystems.getFileSystem(uri);
     Assert.assertNull(result);
   }
-
-  @Test
-  public void getFileSystemForSessionIdTest() throws IOException {
-    initGitFileSystem();
-    String sessionId = gfs.getSessionId();
-    GitFileSystem result = GitFileSystems.getFileSystem(sessionId);
-    Assert.assertEquals(gfs, result);
-  }
-
-  @Test
-  public void getFileSystemForNonExistentSessionIdTest() {
-    GitFileSystem result = GitFileSystems.getFileSystem("non_existent");
-    Assert.assertNull(result);
-  }
 }

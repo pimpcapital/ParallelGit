@@ -199,7 +199,9 @@ public class GitFileSystemProviderMoveTest extends AbstractGitFileSystemTest {
     commitToMaster();
     initGitFileSystem();
 
-    GitFileSystem targetFs = GitFileSystems.newFileSystem(repo);
+    GitFileSystem targetFs = GitFileSystemBuilder.prepare()
+                               .repository(repo)
+                               .build();
     GitPath source = gfs.getPath("/a.txt");
     GitPath target = targetFs.getPath("/a.txt");
     Files.move(source, target);
@@ -215,7 +217,9 @@ public class GitFileSystemProviderMoveTest extends AbstractGitFileSystemTest {
     commitToMaster();
     initGitFileSystem();
 
-    GitFileSystem targetFs = GitFileSystems.newFileSystem(repo);
+    GitFileSystem targetFs = GitFileSystemBuilder.prepare()
+                               .repository(repo)
+                               .build();
     GitPath source = gfs.getPath("/a");
     GitPath target = targetFs.getPath("/");
     Files.move(source, target);

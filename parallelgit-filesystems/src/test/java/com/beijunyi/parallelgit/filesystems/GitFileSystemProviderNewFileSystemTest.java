@@ -4,6 +4,7 @@ import java.io.IOException;
 import java.net.URI;
 import java.nio.file.FileSystem;
 import java.nio.file.FileSystems;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -22,7 +23,7 @@ public class GitFileSystemProviderNewFileSystemTest extends AbstractGitFileSyste
     URI uri = GitUriBuilder.prepare()
                 .repository(repoDir)
                 .build();
-    try(FileSystem fs = FileSystems.newFileSystem(uri, null)) {
+    try(FileSystem fs = FileSystems.newFileSystem(uri, Collections.<String, Object>emptyMap())) {
       Assert.assertNotNull(fs);
       Assert.assertTrue(fs instanceof GitFileSystem);
       Repository repo = ((GitFileSystem)fs).getFileStore().getRepository();
@@ -37,7 +38,7 @@ public class GitFileSystemProviderNewFileSystemTest extends AbstractGitFileSyste
     URI uri = GitUriBuilder.prepare()
                 .repository(repoDir)
                 .build();
-    try(FileSystem fs = FileSystems.newFileSystem(uri, null)) {
+    try(FileSystem fs = FileSystems.newFileSystem(uri, Collections.<String, Object>emptyMap())) {
       Assert.assertNotNull(fs);
       Assert.assertTrue(fs instanceof GitFileSystem);
       Repository repo = ((GitFileSystem)fs).getFileStore().getRepository();
@@ -55,7 +56,7 @@ public class GitFileSystemProviderNewFileSystemTest extends AbstractGitFileSyste
                 .repository(repoDir)
                 .branch("branch")
                 .build();
-    try(FileSystem fs = FileSystems.newFileSystem(uri, null)) {
+    try(FileSystem fs = FileSystems.newFileSystem(uri, Collections.<String, Object>emptyMap())) {
       GitFileSystem gfs = (GitFileSystem) fs;
       GitFileStore store = gfs.getFileStore();
       Assert.assertEquals("refs/heads/branch", store.getBranch());
@@ -79,7 +80,7 @@ public class GitFileSystemProviderNewFileSystemTest extends AbstractGitFileSyste
                 .repository(repoDir)
                 .revision(commit)
                 .build();
-    try(FileSystem fs = FileSystems.newFileSystem(uri, null)) {
+    try(FileSystem fs = FileSystems.newFileSystem(uri, Collections.<String, Object>emptyMap())) {
       GitFileSystem gfs = (GitFileSystem) fs;
       GitFileStore store = gfs.getFileStore();
       Assert.assertNull(store.getBranch());

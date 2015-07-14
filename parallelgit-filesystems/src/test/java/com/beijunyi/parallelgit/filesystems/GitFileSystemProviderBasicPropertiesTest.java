@@ -1,7 +1,6 @@
 package com.beijunyi.parallelgit.filesystems;
 
 import java.io.IOException;
-import java.nio.file.Files;
 
 import org.junit.Assert;
 import org.junit.Before;
@@ -16,13 +15,12 @@ public class GitFileSystemProviderBasicPropertiesTest extends AbstractGitFileSys
 
   @Test
   public void gitFileSystemProviderSchemeTest() {
-    Assert.assertEquals(GitFileSystemProvider.GIT_FS_SCHEME, gfs.provider().getScheme());
+    Assert.assertEquals(GitFileSystemProvider.GIT_FS_SCHEME, provider.getScheme());
   }
 
   @Test
   public void gitFileSystemProviderGetFileStoreTest() throws IOException {
-    Assert.assertNotNull(Files.getFileStore(root));
-    Assert.assertEquals(root.getFileSystem().getFileStore(), Files.getFileStore(root));
+    Assert.assertEquals(gfs.getFileStore(), provider.getFileStore(root));
   }
 
   @Test(expected = UnsupportedOperationException.class)

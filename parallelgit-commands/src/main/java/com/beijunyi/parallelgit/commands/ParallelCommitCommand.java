@@ -69,6 +69,11 @@ public final class ParallelCommitCommand extends CacheBasedCommand<ParallelCommi
   }
 
   @Nonnull
+  public ParallelCommitCommand master() {
+    return branch(Constants.MASTER);
+  }
+
+  @Nonnull
   public ParallelCommitCommand amend(boolean amend) {
     this.amend = amend;
     return this;
@@ -422,7 +427,7 @@ public final class ParallelCommitCommand extends CacheBasedCommand<ParallelCommi
 
   @Nullable
   @Override
-  public ObjectId doCall() throws IOException {
+  protected ObjectId doCall() throws IOException {
     assert repository != null;
     ObjectInserter inserter = repository.newObjectInserter();
     try {

@@ -65,7 +65,11 @@ public class GitFileStoreNameTest extends AbstractGitFileSystemTest {
     writeFile("b.txt");
     ObjectId commit = commit("test commit", null);
 
-    injectGitFileSystem(GitFileSystems.newFileSystem(repo, branch, commit));
+    injectGitFileSystem(GitFileSystemBuilder.prepare()
+                          .repository(repo)
+                          .branch(branch)
+                          .commit(commit)
+                          .build());
 
     String expectedName = repoDir.getAbsolutePath()
                             + ":" + RefHelper.getBranchRefName(branch)
@@ -85,7 +89,11 @@ public class GitFileStoreNameTest extends AbstractGitFileSystemTest {
     writeFile("b.txt");
     ObjectId tree = RevTreeHelper.getRootTree(repo, commit("test commit", null));
 
-    injectGitFileSystem(GitFileSystems.newFileSystem(repo, branch, null, tree));
+    injectGitFileSystem(GitFileSystemBuilder.prepare()
+                          .repository(repo)
+                          .branch(branch)
+                          .tree(tree)
+                          .build());
 
     String expectedName = repoDir.getAbsolutePath()
                             + ":" + RefHelper.getBranchRefName(branch)
@@ -109,7 +117,12 @@ public class GitFileStoreNameTest extends AbstractGitFileSystemTest {
     writeFile("c.txt");
     ObjectId tree = RevTreeHelper.getRootTree(repo, commit("test commit 2", null));
 
-    injectGitFileSystem(GitFileSystems.newFileSystem(repo, branch, commit, tree));
+    injectGitFileSystem(GitFileSystemBuilder.prepare()
+                          .repository(repo)
+                          .branch(branch)
+                          .commit(commit)
+                          .tree(tree)
+                          .build());
 
     String expectedName = repoDir.getAbsolutePath()
                             + ":" + RefHelper.getBranchRefName(branch)

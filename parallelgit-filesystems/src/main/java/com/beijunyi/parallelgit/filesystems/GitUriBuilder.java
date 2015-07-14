@@ -7,6 +7,7 @@ import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 
 import org.eclipse.jgit.lib.AnyObjectId;
+import org.eclipse.jgit.lib.Constants;
 import org.eclipse.jgit.lib.Repository;
 import org.eclipse.jgit.revwalk.RevCommit;
 
@@ -83,6 +84,11 @@ public class GitUriBuilder {
   }
 
   @Nonnull
+  public GitUriBuilder master() {
+    return branch(Constants.MASTER);
+  }
+
+  @Nonnull
   public GitUriBuilder revision(@Nullable String revisionIdStr) {
     this.revision = revisionIdStr;
     return this;
@@ -106,6 +112,10 @@ public class GitUriBuilder {
 
   @Nonnull
   private String buildPath() {
+    if(repository == null)
+      throw new IllegalArgumentException("Missing repository");
+    if(!repository.startsWith("/"))
+      throw new IllegalArgumentException("Repository must be absolute path");
     String path = GitFileSystemProvider.GIT_FS_SCHEME + ":" + repository;
     if(file != null && !file.isEmpty() && !file.equals("/"))
       path += GitFileSystemProvider.ROOT_SEPARATOR + file;

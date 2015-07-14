@@ -173,7 +173,9 @@ public class GitFileSystemProviderCopyTest extends AbstractGitFileSystemTest {
     commitToMaster();
     initGitFileSystem();
 
-    GitFileSystem targetFs = GitFileSystems.newFileSystem(repo);
+    GitFileSystem targetFs = GitFileSystemBuilder.prepare()
+                               .repository(repo)
+                               .build();
 
     GitPath source = gfs.getPath("/a.txt");
     GitPath target = targetFs.getPath("/a.txt");
@@ -189,7 +191,9 @@ public class GitFileSystemProviderCopyTest extends AbstractGitFileSystemTest {
     commitToMaster();
     initGitFileSystem();
 
-    GitFileSystem targetFs = GitFileSystems.newFileSystem(repo);
+    GitFileSystem targetFs = GitFileSystemBuilder.prepare()
+                               .repository(repo)
+                               .build();
 
     byte[] data = "some plain text data".getBytes();
     GitPath source = gfs.getPath("/a.txt");
@@ -207,7 +211,9 @@ public class GitFileSystemProviderCopyTest extends AbstractGitFileSystemTest {
     commitToMaster();
     initGitFileSystem();
 
-    GitFileSystem targetFs = GitFileSystems.newFileSystem(repo);
+    GitFileSystem targetFs = GitFileSystemBuilder.prepare()
+                               .repository(repo)
+                               .build();
     GitPath target = targetFs.getPath("/a.txt");
     Files.write(target, "some data to be replaced".getBytes());
 
@@ -223,7 +229,9 @@ public class GitFileSystemProviderCopyTest extends AbstractGitFileSystemTest {
     commitToMaster();
     initGitFileSystem();
 
-    GitFileSystem targetFs = GitFileSystems.newFileSystem(repo);
+    GitFileSystem targetFs = GitFileSystemBuilder.prepare()
+                               .repository(repo)
+                               .build();
     GitPath target = targetFs.getPath("/a.txt");
     Files.write(target, "some data to be replaced".getBytes());
 
@@ -240,7 +248,9 @@ public class GitFileSystemProviderCopyTest extends AbstractGitFileSystemTest {
     commitToMaster();
     initGitFileSystem();
 
-    GitFileSystem targetFs = GitFileSystems.newFileSystem(repo);
+    GitFileSystem targetFs = GitFileSystemBuilder.prepare()
+                               .repository(repo)
+                               .build();
     Files.write(targetFs.getPath("/a/b.txt"), "some data to be replaced".getBytes());
 
     GitPath source = gfs.getPath("/a.txt");
@@ -255,7 +265,9 @@ public class GitFileSystemProviderCopyTest extends AbstractGitFileSystemTest {
     commitToMaster();
     initGitFileSystem();
 
-    GitFileSystem targetFs = GitFileSystems.newFileSystem(repo);
+    GitFileSystem targetFs = GitFileSystemBuilder.prepare()
+                               .repository(repo)
+                               .build();
     Files.write(targetFs.getPath("/a/b.txt"), "some data to be replaced".getBytes());
 
     GitPath source = gfs.getPath("/a.txt");
@@ -270,7 +282,9 @@ public class GitFileSystemProviderCopyTest extends AbstractGitFileSystemTest {
     commitToMaster();
     initGitFileSystem();
 
-    GitFileSystem targetFs = GitFileSystems.newFileSystem(repo);
+    GitFileSystem targetFs = GitFileSystemBuilder.prepare()
+                               .repository(repo)
+                               .build();
     GitPath source = gfs.getPath("/a");
     GitPath target = targetFs.getPath("/a");
     Files.copy(source, target);
@@ -280,7 +294,9 @@ public class GitFileSystemProviderCopyTest extends AbstractGitFileSystemTest {
   public void copyNonExistentFileToForeignGitFileSystemBasedOnSameRepositoryTest() throws IOException {
     initGitFileSystem();
 
-    GitFileSystem targetFs = GitFileSystems.newFileSystem(repo);
+    GitFileSystem targetFs = GitFileSystemBuilder.prepare()
+                               .repository(repo)
+                               .build();
     GitPath source = gfs.getPath("/a");
     GitPath target = targetFs.getPath("/a");
     Files.copy(source, target);
@@ -290,8 +306,12 @@ public class GitFileSystemProviderCopyTest extends AbstractGitFileSystemTest {
   public void copyFileToForeignGitFileSystemBasedOnDifferentRepositoryTest() throws IOException {
     Repository repo1 = new TestRepository(getClass().getName(), new File("/repo1"), true);
     Repository repo2 = new TestRepository(getClass().getName(), new File("/repo2"), true);
-    GitFileSystem sourceFs = GitFileSystems.newFileSystem(repo1);
-    GitFileSystem targetFs = GitFileSystems.newFileSystem(repo2);
+    GitFileSystem sourceFs = GitFileSystemBuilder.prepare()
+                               .repository(repo1)
+                               .build();
+    GitFileSystem targetFs = GitFileSystemBuilder.prepare()
+                               .repository(repo2)
+                               .build();
     GitPath source = sourceFs.getPath("/a.txt");
     GitPath target = targetFs.getPath("/a.txt");
     byte[] data = "some plain text data".getBytes();

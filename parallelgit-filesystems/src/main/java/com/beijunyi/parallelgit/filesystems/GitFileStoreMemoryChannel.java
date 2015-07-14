@@ -12,9 +12,9 @@ public class GitFileStoreMemoryChannel implements SeekableByteChannel {
 
   private final GitFileStore store;
   private final String pathStr;
+  private volatile boolean modified = false;
   private int position;
   private byte[] buf;
-  private boolean modified = false;
 
   private Collection<GitSeekableByteChannel> attachedChannels = new ConcurrentLinkedQueue<>();
 
@@ -178,7 +178,7 @@ public class GitFileStoreMemoryChannel implements SeekableByteChannel {
    * Closes all the {@code GitSeekableByteChannel}s attached to this {@code GitFileStoreMemoryChannel}.
    */
   @Override
-  public void close() {
+  synchronized public void close() {
     for(GitSeekableByteChannel channel : attachedChannels)
       channel.close();
   }
@@ -208,7 +208,7 @@ public class GitFileStoreMemoryChannel implements SeekableByteChannel {
    * @param   channel
    *          the {@code GitSeekableByteChannel} to attach
    */
-  void attach(@Nonnull GitSeekableByteChannel channel) {
+  synchronized void attach(@Nonnull GitSeekableByteChannel channel) {
     attachedChannels.add(channel);
   }
 
@@ -217,20 +217,18 @@ public class GitFileStoreMemoryChannel implements SeekableByteChannel {
    *
    * If this {@code GitFileStoreMemoryChannel} is not {@link #modified modified} and the {@code GitSeekableByteChannel}
    * to detach is the only instance attached to this channel, this method will hint the parent {@code GitFileStore} to
-   * {@link GitFileStore#garbageCollectChannel garbage collect} this {@code GitFileStoreMemoryChannel} after the given
+   * {@link GitFileStore#removeChannel garbage collect} this {@code GitFileStoreMemoryChannel} after the given
    * instance is successfully detached.
    *
    * @param   channel
    *          the {@code GitSeekableByteChannel} to detach
    */
-  void detach(@Nonnull GitSeekableByteChannel channel) {
+  synchronized void detach(@Nonnull GitSeekableByteChannel channel) {
     if(!attachedChannels.remove(channel))
       throw new IllegalArgumentException();
     // if the buffer hasn't been modified and no child channel attaches to this
-    if(!modified && attachedChannels.isEmpty()) {
-      // garbage collect this channel
-      store.garbageCollectChannel(this);
-    }
+    if(!modified && attachedChannels.isEmpty())
+      store.removeChannel(this);
   }
 
   /**
@@ -255,7 +253,7 @@ public class GitFileStoreMemoryChannel implements SeekableByteChannel {
    *
    * @return  the number of {@code GitSeekableByteChannel} attached to this {@code GitFileStoreMemoryChannel}
    */
-  int countAttachedChannels() {
+  synchronized int countAttachedChannels() {
     return attachedChannels.size();
   }
 

@@ -105,7 +105,7 @@ public class GitFileSystemProvider extends FileSystemProvider {
     GitUriParams params = GitUriParams.getParams(uri);
     String session = params.getSession();
     if(session == null)
-      throw new IllegalArgumentException("No session is provided");
+      return null;
     return getFileSystem(session);
   }
 
@@ -326,7 +326,7 @@ public class GitFileSystemProvider extends FileSystemProvider {
       else {
         ObjectId blobId = sourceStore.getFileBlobId(sourcePath.getNormalizedString());
         if(blobId != null)
-          targetFs.getFileStore().createFileWithObjectId(targetPath.getNormalizedString(), blobId, replaceExisting);
+          targetFs.getFileStore().createFileFromBlob(targetPath.getNormalizedString(), blobId, replaceExisting);
       }
     }
   }

@@ -9,31 +9,27 @@ public class GitUriParamsTest {
 
   @Test
   public void getSessionParamTest() {
-    String testSession = "testsession";
-    GitUriParams params = GitUriParams.getParams(URI.create("gfs:/repo?session=" + testSession));
-    Assert.assertEquals(testSession, params.getSession());
+    GitUriParams params = GitUriParams.getParams(URI.create("gfs:/repo?session=testsession"));
+    Assert.assertEquals("testsession", params.getSession());
   }
 
 
   @Test
   public void getBranchParamTest() {
-    String testBranch = "testbranch";
-    GitUriParams params = GitUriParams.getParams(URI.create("gfs:/repo?branch=" + testBranch));
-    Assert.assertEquals(testBranch, params.getBranch());
+    GitUriParams params = GitUriParams.getParams(URI.create("gfs:/repo?branch=testbranch"));
+    Assert.assertEquals("testbranch", params.getBranch());
   }
 
   @Test
   public void getRevisionParamTest() {
-    String testRevision = "testrevision";
-    GitUriParams params = GitUriParams.getParams(URI.create("gfs:/repo?revision=" + testRevision));
-    Assert.assertEquals(testRevision, params.getRevision());
+    GitUriParams params = GitUriParams.getParams(URI.create("gfs:/repo?revision=testrevision"));
+    Assert.assertEquals("testrevision", params.getRevision());
   }
 
   @Test
   public void getTreeParamTest() {
-    String testTree = "testtree";
-    GitUriParams params = GitUriParams.getParams(URI.create("gfs:/repo?tree=" + testTree));
-    Assert.assertEquals(testTree, params.getTree());
+    GitUriParams params = GitUriParams.getParams(URI.create("gfs:/repo?tree=testtree"));
+    Assert.assertEquals("testtree", params.getTree());
   }
 
 }

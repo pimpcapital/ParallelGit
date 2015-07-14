@@ -12,27 +12,8 @@ public class GitFileSystemCloseTest extends AbstractGitFileSystemTest {
   @Test
   public void closedFileSystemIsOpenTest() throws IOException {
     initGitFileSystem();
-    String sessionId = gfs.getSessionId();
-    URI uri = root.toUri();
     gfs.close();
-    Assert.assertNull(GitFileSystems.getFileSystem(sessionId));
-    Assert.assertNull(FileSystems.getFileSystem(uri));
-  }
-
-  @Test
-  public void closedFileSystemFileStoreIsOpenTest() throws IOException {
-    initGitFileSystem();
-    GitFileStore store = gfs.getFileStore();
-    gfs.close();
-    Assert.assertFalse(store.isOpen());
-  }
-
-  @Test
-  public void closedFileSystemGetWithSessionIdTest() throws IOException {
-    initGitFileSystem();
-    String sessionId = gfs.getSessionId();
-    gfs.close();
-    Assert.assertNull(GitFileSystems.getFileSystem(sessionId));
+    Assert.assertFalse(gfs.isOpen());
   }
 
   @Test
