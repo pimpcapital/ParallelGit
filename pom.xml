@@ -8,8 +8,8 @@
   <packaging>pom</packaging>
   <modules>
     <module>parallelgit-core</module>
-    <module>parallelgit-filesystems</module>
-    <module>parallelgit-commands</module>
+    <module>parallelgit-filesystem</module>
+    <module>parallelgit-runtime</module>
   </modules>
 
   <name>ParallelGit</name>
