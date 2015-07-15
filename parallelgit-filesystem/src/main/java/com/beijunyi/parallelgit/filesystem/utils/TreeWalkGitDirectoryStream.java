@@ -1,4 +1,4 @@
-package com.beijunyi.parallelgit.filesystem;
+package com.beijunyi.parallelgit.filesystem.utils;
 
 import java.io.IOException;
 import java.nio.file.DirectoryStream;
@@ -9,6 +9,8 @@ import java.util.NoSuchElementException;
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 
+import com.beijunyi.parallelgit.filesystem.GitFileStore;
+import com.beijunyi.parallelgit.filesystem.GitPath;
 import com.beijunyi.parallelgit.utils.TreeWalkHelper;
 import org.eclipse.jgit.lib.AnyObjectId;
 import org.eclipse.jgit.lib.ObjectReader;
@@ -25,7 +27,7 @@ public class TreeWalkGitDirectoryStream extends GitDirectoryStream {
     this.filter = filter;
   }
 
-  TreeWalkGitDirectoryStream(@Nonnull String pathStr, @Nonnull GitFileStore store, @Nonnull ObjectReader reader, @Nonnull AnyObjectId tree, @Nullable DirectoryStream.Filter<? super Path> filter) throws IOException {
+  public TreeWalkGitDirectoryStream(@Nonnull String pathStr, @Nonnull GitFileStore store, @Nonnull ObjectReader reader, @Nonnull AnyObjectId tree, @Nullable DirectoryStream.Filter<? super Path> filter) throws IOException {
     this(pathStr, store, newDirectoryTreeWalk(reader, pathStr, tree), filter);
   }
 

@@ -1,4 +1,4 @@
-package com.beijunyi.parallelgit.filesystem;
+package com.beijunyi.parallelgit.filesystem.utils;
 
 import java.nio.ByteBuffer;
 import java.nio.channels.*;
@@ -225,7 +225,7 @@ public class GitSeekableByteChannel implements SeekableByteChannel {
    *
    * @return  {@code true} if this channel was opened for reading
    */
-  boolean isReadable() {
+  public boolean isReadable() {
     return options.contains(StandardOpenOption.READ);
   }
 
@@ -234,7 +234,7 @@ public class GitSeekableByteChannel implements SeekableByteChannel {
    *
    * @return  {@code true} if this channel was opened for writing
    */
-  boolean isWritable() {
+  public boolean isWritable() {
     return options.contains(StandardOpenOption.WRITE);
   }
 

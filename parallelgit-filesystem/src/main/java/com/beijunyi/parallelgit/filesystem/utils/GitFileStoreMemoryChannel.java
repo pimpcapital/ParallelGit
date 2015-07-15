@@ -1,4 +1,4 @@
-package com.beijunyi.parallelgit.filesystem;
+package com.beijunyi.parallelgit.filesystem.utils;
 
 import java.nio.ByteBuffer;
 import java.nio.channels.SeekableByteChannel;
@@ -7,6 +7,8 @@ import java.util.concurrent.ConcurrentLinkedQueue;
 import java.util.concurrent.locks.Lock;
 import java.util.concurrent.locks.ReentrantLock;
 import javax.annotation.Nonnull;
+
+import com.beijunyi.parallelgit.filesystem.GitFileStore;
 
 public class GitFileStoreMemoryChannel implements SeekableByteChannel {
 
@@ -20,14 +22,14 @@ public class GitFileStoreMemoryChannel implements SeekableByteChannel {
 
   private final Lock lock = new ReentrantLock();
 
-  GitFileStoreMemoryChannel(@Nonnull GitFileStore store, @Nonnull String pathStr, @Nonnull byte[] buf) {
+  public GitFileStoreMemoryChannel(@Nonnull GitFileStore store, @Nonnull String pathStr, @Nonnull byte[] buf) {
     this.store = store;
     this.pathStr = pathStr;
     this.buf = buf;
     position = buf.length;
   }
 
-  GitFileStoreMemoryChannel(@Nonnull GitFileStore store, @Nonnull String pathStr) {
+  public GitFileStoreMemoryChannel(@Nonnull GitFileStore store, @Nonnull String pathStr) {
     this(store, pathStr, new byte[0]);
   }
 
@@ -188,7 +190,7 @@ public class GitFileStoreMemoryChannel implements SeekableByteChannel {
    *
    * @return  the value of the {@link #modified modified} flag
    */
-  boolean isModified() {
+  public boolean isModified() {
     return modified;
   }
 
@@ -198,7 +200,7 @@ public class GitFileStoreMemoryChannel implements SeekableByteChannel {
    * @param   modified
    *          the value to set to
    */
-  void setModified(boolean modified) {
+  public void setModified(boolean modified) {
     this.modified = modified;
   }
 
@@ -208,7 +210,7 @@ public class GitFileStoreMemoryChannel implements SeekableByteChannel {
    * @param   channel
    *          the {@code GitSeekableByteChannel} to attach
    */
-  synchronized void attach(@Nonnull GitSeekableByteChannel channel) {
+  synchronized public void attach(@Nonnull GitSeekableByteChannel channel) {
     attachedChannels.add(channel);
   }
 
@@ -223,7 +225,7 @@ public class GitFileStoreMemoryChannel implements SeekableByteChannel {
    * @param   channel
    *          the {@code GitSeekableByteChannel} to detach
    */
-  synchronized void detach(@Nonnull GitSeekableByteChannel channel) {
+  synchronized public void detach(@Nonnull GitSeekableByteChannel channel) {
     if(!attachedChannels.remove(channel))
       throw new IllegalArgumentException();
     // if the buffer hasn't been modified and no child channel attaches to this
@@ -237,14 +239,14 @@ public class GitFileStoreMemoryChannel implements SeekableByteChannel {
    * If the lock is not available then the current thread becomes disabled for thread scheduling purposes and lies
    * dormant until the lock has been acquired.
    */
-  void lockBuffer() {
+  public void lockBuffer() {
     lock.lock();
   }
 
   /**
    * Releases the {@link #buf buffer} lock.
    */
-  void releaseBuffer() {
+  public void releaseBuffer() {
     lock.unlock();
   }
 
@@ -253,7 +255,7 @@ public class GitFileStoreMemoryChannel implements SeekableByteChannel {
    *
    * @return  the number of {@code GitSeekableByteChannel} attached to this {@code GitFileStoreMemoryChannel}
    */
-  synchronized int countAttachedChannels() {
+  synchronized public int countAttachedChannels() {
     return attachedChannels.size();
   }
 

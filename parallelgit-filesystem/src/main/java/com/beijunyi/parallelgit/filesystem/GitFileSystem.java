@@ -8,6 +8,8 @@ import java.util.regex.Pattern;
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 
+import com.beijunyi.parallelgit.filesystem.requests.CommitRequest;
+import com.beijunyi.parallelgit.filesystem.utils.GitGlobs;
 import org.eclipse.jgit.lib.AnyObjectId;
 import org.eclipse.jgit.lib.Repository;
 import org.eclipse.jgit.revwalk.RevCommit;
@@ -226,7 +228,7 @@ public class GitFileSystem extends FileSystem {
    * @return the file store of this file system
    */
   @Nonnull
-  GitFileStore getFileStore() {
+  public GitFileStore getFileStore() {
     return store;
   }
 
@@ -283,7 +285,7 @@ public class GitFileSystem extends FileSystem {
 
   @Nonnull
   public CommitRequest prepareCommit() {
-    return CommitRequest.prepare();
+    return CommitRequest.prepare().store(store);
   }
 
 }

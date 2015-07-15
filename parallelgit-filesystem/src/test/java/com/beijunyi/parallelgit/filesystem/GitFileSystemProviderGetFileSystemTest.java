@@ -4,6 +4,7 @@ import java.io.IOException;
 import java.net.URI;
 import java.nio.file.FileSystems;
 
+import com.beijunyi.parallelgit.filesystem.utils.GitUriUtils;
 import org.junit.Assert;
 import org.junit.Test;
 

@@ -13,6 +13,8 @@ import java.util.concurrent.ConcurrentHashMap;
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 
+import com.beijunyi.parallelgit.filesystem.utils.GitDirectoryStream;
+import com.beijunyi.parallelgit.filesystem.utils.GitUriUtils;
 import org.eclipse.jgit.lib.ObjectId;
 import org.eclipse.jgit.lib.Repository;
 
@@ -25,9 +27,6 @@ public class GitFileSystemProvider extends FileSystemProvider {
   public final static String ROOT_SEPARATOR = "!";
 
   public final static String SESSION_KEY = "session";
-  public final static String BRANCH_KEY = "branch";
-  public final static String REVISION_KEY = "revision";
-  public final static String TREE_KEY = "tree";
 
   public final static EnumSet<StandardOpenOption> SUPPORTED_OPEN_OPTIONS = EnumSet.of(READ, SPARSE, CREATE, CREATE_NEW, WRITE, APPEND, TRUNCATE_EXISTING);
   public final static EnumSet<StandardCopyOption> SUPPORTED_COPY_OPTIONS = EnumSet.of(REPLACE_EXISTING, ATOMIC_MOVE);
@@ -95,15 +94,14 @@ public class GitFileSystemProvider extends FileSystemProvider {
   }
 
   @Nullable
-  GitFileSystem getFileSystem(@Nonnull String sessionId) {
+  public GitFileSystem getFileSystem(@Nonnull String sessionId) {
     return fsMap.get(sessionId);
   }
 
   @Nullable
   @Override
   public GitFileSystem getFileSystem(@Nonnull URI uri) {
-    GitUriParams params = GitUriParams.getParams(uri);
-    String session = params.getSession();
+    String session = GitUriUtils.getSession(uri);
     if(session == null)
       return null;
     return getFileSystem(session);

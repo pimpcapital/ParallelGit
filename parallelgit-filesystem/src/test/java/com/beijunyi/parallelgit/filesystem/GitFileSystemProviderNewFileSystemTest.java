@@ -2,110 +2,106 @@ package com.beijunyi.parallelgit.filesystem;
 
 import java.io.IOException;
 import java.net.URI;
-import java.nio.file.FileSystem;
-import java.nio.file.FileSystems;
 import java.util.Collections;
-import java.util.HashMap;
-import java.util.Map;
 
+import com.beijunyi.parallelgit.filesystem.utils.GitParams;
+import com.beijunyi.parallelgit.filesystem.utils.GitUriBuilder;
 import com.beijunyi.parallelgit.utils.CommitHelper;
 import org.eclipse.jgit.lib.AnyObjectId;
 import org.eclipse.jgit.lib.Repository;
 import org.eclipse.jgit.revwalk.RevCommit;
+import org.eclipse.jgit.revwalk.RevTree;
 import org.junit.Assert;
 import org.junit.Test;
 
 public class GitFileSystemProviderNewFileSystemTest extends AbstractGitFileSystemTest {
 
   @Test
-  public void openNewFileSystemOfNonBareFromUri() throws IOException {
+  public void openNonBareRepositoryFromUri() throws IOException {
     initRepository(false, false);
     URI uri = GitUriBuilder.prepare()
                 .repository(repoDir)
                 .build();
-    try(FileSystem fs = FileSystems.newFileSystem(uri, Collections.<String, Object>emptyMap())) {
-      Assert.assertNotNull(fs);
-      Assert.assertTrue(fs instanceof GitFileSystem);
-      Repository repo = ((GitFileSystem)fs).getFileStore().getRepository();
+    try(GitFileSystem gfs = provider.newFileSystem(uri, Collections.<String, Object>emptyMap())) {
+      Repository repo = gfs.getFileStore().getRepository();
       Assert.assertFalse(repo.isBare());
-      Assert.assertEquals(repoDir, ((GitFileSystem)fs).getFileStore().getRepository().getWorkTree());
+      Assert.assertEquals(repoDir, gfs.getFileStore().getRepository().getWorkTree());
     }
   }
 
   @Test
-  public void openNewFileSystemOfBareRepositoryFromUri() throws IOException {
+  public void openBareRepositoryFromUri() throws IOException {
     initRepository(false, true);
     URI uri = GitUriBuilder.prepare()
                 .repository(repoDir)
                 .build();
-    try(FileSystem fs = FileSystems.newFileSystem(uri, Collections.<String, Object>emptyMap())) {
-      Assert.assertNotNull(fs);
-      Assert.assertTrue(fs instanceof GitFileSystem);
-      Repository repo = ((GitFileSystem)fs).getFileStore().getRepository();
+    try(GitFileSystem gfs = provider.newFileSystem(uri, Collections.<String, Object>emptyMap())) {
+      Repository repo = gfs.getFileStore().getRepository();
       Assert.assertTrue(repo.isBare());
       Assert.assertEquals(repoDir, repo.getDirectory());
     }
   }
 
   @Test
-  public void openNewFileSystemWithSpecifiedBranchFromUriTest() throws IOException {
+  public void openWithBranch() throws IOException {
     initRepository(false, true);
     writeFile("some_file");
-    RevCommit commit = CommitHelper.getCommit(repo, commitToBranch("branch"));
+    RevCommit commit = CommitHelper.getCommit(repo, commitToBranch("test_branch"));
     URI uri = GitUriBuilder.prepare()
                 .repository(repoDir)
-                .branch("branch")
                 .build();
-    try(FileSystem fs = FileSystems.newFileSystem(uri, Collections.<String, Object>emptyMap())) {
-      GitFileSystem gfs = (GitFileSystem) fs;
-      GitFileStore store = gfs.getFileStore();
-      Assert.assertEquals("refs/heads/branch", store.getBranch());
+    try(GitFileSystem gfs = provider.newFileSystem(uri, Collections.singletonMap(GitParams.BRANCH_KEY, "test_branch"))) {
+      Assert.assertEquals("refs/heads/branch", gfs.getBranch());
 
-      RevCommit baseCommit = store.getBaseCommit();
+      RevCommit baseCommit = gfs.getBaseCommit();
       Assert.assertNotNull(baseCommit);
       Assert.assertEquals(commit, baseCommit);
 
-      AnyObjectId baseTree = store.getBaseTree();
+      AnyObjectId baseTree = gfs.getBaseTree();
       Assert.assertNotNull(baseTree);
       Assert.assertEquals(commit.getTree(), baseTree);
     }
   }
 
   @Test
-  public void openNewFileSystemWithSpecifiedRevisionFromUriTest() throws IOException {
+  public void openWithRevision() throws IOException {
     initRepository(false, true);
     writeFile("some_file");
-    RevCommit commit = CommitHelper.getCommit(repo, commitToBranch("some_branch"));
+    RevCommit commit = CommitHelper.getCommit(repo, commitToMaster());
     URI uri = GitUriBuilder.prepare()
                 .repository(repoDir)
-                .revision(commit)
                 .build();
-    try(FileSystem fs = FileSystems.newFileSystem(uri, Collections.<String, Object>emptyMap())) {
-      GitFileSystem gfs = (GitFileSystem) fs;
-      GitFileStore store = gfs.getFileStore();
-      Assert.assertNull(store.getBranch());
+    try(GitFileSystem gfs = provider.newFileSystem(uri, Collections.singletonMap(GitParams.REVISION_KEY, commit))) {
+      Assert.assertNull(gfs.getBranch());
 
-      RevCommit baseCommit = store.getBaseCommit();
+      RevCommit baseCommit = gfs.getBaseCommit();
       Assert.assertNotNull(baseCommit);
       Assert.assertEquals(commit, baseCommit);
 
-      AnyObjectId baseTree = store.getBaseTree();
+      AnyObjectId baseTree = gfs.getBaseTree();
       Assert.assertNotNull(baseTree);
       Assert.assertEquals(commit.getTree(), baseTree);
     }
   }
 
   @Test
-  public void openNewFileSystemWithEnvMapOverridingParamTest() throws IOException {
+  public void openWithTree() throws IOException {
     initRepository(false, true);
-    URI uri = GitUriUtils.createUri(repoDir, null, "session_1", null, null, null, null, null);
-    Map<String, Object> envMap = new HashMap<>();
-    envMap.put(GitFileSystemProvider.SESSION_KEY, "session_2");
-    try(FileSystem fs = FileSystems.newFileSystem(uri, envMap)) {
-      Assert.assertEquals("session_2", ((GitFileSystem)fs).getSessionId());
+    writeFile("some_file");
+    RevTree tree = CommitHelper.getCommit(repo, commitToMaster()).getTree();
+    URI uri = GitUriBuilder.prepare()
+                .repository(repoDir)
+                .build();
+    try (GitFileSystem gfs = provider.newFileSystem(uri, Collections.singletonMap(GitParams.TREE_KEY, tree))) {
+      Assert.assertNull(gfs.getBranch());
+
+      Assert.assertNull(gfs.getBaseCommit());
+
+      AnyObjectId baseTree = gfs.getBaseTree();
+      Assert.assertNotNull(baseTree);
+      Assert.assertEquals(tree, baseTree);
     }
   }
-
 
 
 }

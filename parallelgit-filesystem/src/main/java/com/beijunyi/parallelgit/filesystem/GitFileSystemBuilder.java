@@ -8,6 +8,8 @@ import java.util.Map;
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 
+import com.beijunyi.parallelgit.filesystem.utils.GitParams;
+import com.beijunyi.parallelgit.filesystem.utils.GitUriUtils;
 import com.beijunyi.parallelgit.utils.RefHelper;
 import org.eclipse.jgit.internal.storage.file.FileRepository;
 import org.eclipse.jgit.lib.AnyObjectId;
@@ -33,8 +35,7 @@ public class GitFileSystemBuilder {
 
   @Nonnull
   public static GitFileSystemBuilder forUri(@Nonnull URI uri, @Nonnull Map<String, ?> properties) {
-    GitUriParams params = GitUriParams.getParams(uri);
-    params.extend(GitUriParams.getParams(properties));
+    GitParams params = GitParams.getParams(properties);
     return prepare()
              .repository(GitUriUtils.getRepository(uri))
              .branch(params.getBranch())
@@ -44,7 +45,7 @@ public class GitFileSystemBuilder {
 
   @Nonnull
   public static GitFileSystemBuilder forPath(@Nonnull Path path, @Nonnull Map<String, ?> properties) {
-    GitUriParams params = GitUriParams.getParams(properties);
+    GitParams params = GitParams.getParams(properties);
     return prepare()
              .repository(path.toFile())
              .branch(params.getBranch())

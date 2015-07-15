@@ -9,8 +9,8 @@ import java.nio.file.Files;
 import java.util.Collections;
 
 import com.beijunyi.parallelgit.commands.ParallelCommitCommand;
-import com.beijunyi.parallelgit.filesystem.GitUriBuilder;
-import com.beijunyi.parallelgit.filesystem.GitUriParams;
+import com.beijunyi.parallelgit.filesystem.utils.GitParams;
+import com.beijunyi.parallelgit.filesystem.utils.GitUriBuilder;
 import com.beijunyi.parallelgit.utils.RepositoryHelper;
 import org.eclipse.jgit.lib.Repository;
 import org.eclipse.jgit.util.FileUtils;
@@ -43,7 +43,6 @@ public class FileSystemsTest {
       .call();
     URI uri = GitUriBuilder.prepare()
                 .repository(repoDir)
-                .master()
                 .build();
     FileSystem fs = FileSystems.newFileSystem(uri, Collections.<String, Object>emptyMap());
     Assert.assertArrayEquals(content, Files.readAllBytes(fs.getPath(file)));
@@ -61,7 +60,7 @@ public class FileSystemsTest {
     URI uri = GitUriBuilder.prepare()
                 .repository(repoDir)
                 .build();
-    FileSystem fs = FileSystems.newFileSystem(uri, Collections.singletonMap(GitUriParams.BRANCH_KEY, branch));
+    FileSystem fs = FileSystems.newFileSystem(uri, Collections.singletonMap(GitParams.BRANCH_KEY, branch));
     Assert.assertArrayEquals(content, Files.readAllBytes(fs.getPath(file)));
   }
 

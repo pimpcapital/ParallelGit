@@ -1,9 +1,10 @@
-package com.beijunyi.parallelgit.filesystem;
+package com.beijunyi.parallelgit.filesystem.requests;
 
 import java.io.IOException;
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 
+import com.beijunyi.parallelgit.filesystem.GitFileStore;
 import org.eclipse.jgit.lib.PersonIdent;
 import org.eclipse.jgit.revwalk.RevCommit;
 
@@ -20,7 +21,7 @@ public class CommitRequest {
   private boolean amend = false;
 
   @Nonnull
-  static CommitRequest prepare() {
+  public static CommitRequest prepare() {
     return new CommitRequest();
   }
 
@@ -31,28 +32,40 @@ public class CommitRequest {
   }
 
   @Nonnull
-  public CommitRequest author(@Nonnull PersonIdent author) {
+  public CommitRequest author(@Nullable PersonIdent author) {
     this.author = author;
     return this;
   }
 
   @Nonnull
-  public CommitRequest author(@Nonnull String name, @Nonnull String email) {
+  public CommitRequest author(@Nullable String name, @Nullable String email) {
     this.authorName = name;
     this.authorEmail = email;
     return this;
   }
 
   @Nonnull
-  public CommitRequest committer(@Nonnull PersonIdent committer) {
+  public CommitRequest committer(@Nullable PersonIdent committer) {
     this.committer = committer;
     return this;
   }
 
   @Nonnull
-  public CommitRequest committer(@Nonnull String name, @Nonnull String email) {
+  public CommitRequest committer(@Nullable String name, @Nullable String email) {
     this.committerName = name;
     this.committerEmail = email;
+    return this;
+  }
+
+  @Nonnull
+  public CommitRequest message(@Nullable String message) {
+    this.message = message;
+    return this;
+  }
+
+  @Nonnull
+  public CommitRequest amend(boolean amend) {
+    this.amend = amend;
     return this;
   }
 
@@ -104,6 +117,6 @@ public class CommitRequest {
     checkStore();
     prepareCommitter();
     prepareAuthor();
-    return store.writeAndUpdateCommit(author, committer, message, amend);
+    return store.writeCommit(author, committer, message, amend);
   }
 }

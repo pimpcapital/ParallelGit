@@ -24,7 +24,7 @@ public final class GitFileSystemUtils {
 
   @Nullable
   public static ObjectId writeTree(@Nonnull FileStore store) throws IOException {
-    return ((GitFileStore) store).writeAndUpdateTree();
+    return ((GitFileStore) store).writeTree();
   }
 
   @Nullable
@@ -39,7 +39,7 @@ public final class GitFileSystemUtils {
 
   @Nullable
   public static RevCommit commit(@Nonnull FileStore store, @Nonnull PersonIdent author, @Nonnull PersonIdent committer, @Nonnull String message, boolean amend) throws IOException {
-    return ((GitFileStore) store).writeAndUpdateCommit(author, committer, message, amend);
+    return ((GitFileStore) store).writeCommit(author, committer, message, amend);
   }
 
   @Nullable

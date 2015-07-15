@@ -11,6 +11,7 @@ import java.util.concurrent.ConcurrentLinkedQueue;
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 
+import com.beijunyi.parallelgit.filesystem.utils.*;
 import com.beijunyi.parallelgit.utils.*;
 import org.eclipse.jgit.dircache.*;
 import org.eclipse.jgit.lib.*;
@@ -332,7 +333,7 @@ public class GitFileStore extends FileStore implements Closeable {
   }
 
   @Nonnull
-  GitPath getRoot() {
+  public GitPath getRoot() {
     return root;
   }
 
@@ -342,7 +343,7 @@ public class GitFileStore extends FileStore implements Closeable {
    * @return the repository this file store uses
    */
   @Nonnull
-  Repository getRepository() {
+  public Repository getRepository() {
     return repo;
   }
 
@@ -371,7 +372,7 @@ public class GitFileStore extends FileStore implements Closeable {
    * @return the branch this file store attaches to or {@code null} if this file store is detached
    */
   @Nullable
-  String getBranch() {
+  public String getBranch() {
     return branch;
   }
 
@@ -381,7 +382,7 @@ public class GitFileStore extends FileStore implements Closeable {
    * @return the commit this file store bases on or {@code null} if there is no base commit
    */
   @Nullable
-  RevCommit getBaseCommit() {
+  public RevCommit getBaseCommit() {
     return baseCommit;
   }
 
@@ -391,7 +392,7 @@ public class GitFileStore extends FileStore implements Closeable {
    * @return the id of the tree this file store bases on or {@code null} if there is no base tree
    */
   @Nullable
-  AnyObjectId getBaseTree() {
+  public AnyObjectId getBaseTree() {
     return baseTree;
   }
 
@@ -887,7 +888,7 @@ public class GitFileStore extends FileStore implements Closeable {
    * @param   channel
    *          the {@code GitFileStoreMemoryChannel} to remove
    */
-  void removeChannel(@Nonnull GitFileStoreMemoryChannel channel) {
+  public void removeChannel(@Nonnull GitFileStoreMemoryChannel channel) {
     memoryChannels.remove(channel.getPathStr());
   }
 
@@ -941,7 +942,7 @@ public class GitFileStore extends FileStore implements Closeable {
    * @param   dirStream
    *          the {@code DirectoryStream} to be removed
    */
-  void removeDirectoryStream(@Nonnull GitDirectoryStream dirStream) {
+  public void removeDirectoryStream(@Nonnull GitDirectoryStream dirStream) {
     String pathStr = dirStream.getPathStr();
     Collection<GitDirectoryStream> streamsForPath = dirStreams.get(pathStr);
     if(streamsForPath == null || !streamsForPath.remove(dirStream))
@@ -958,7 +959,7 @@ public class GitFileStore extends FileStore implements Closeable {
    * @return  the {@code ObjectId} of the new tree or {@code null} if no new tree is created
    */
   @Nullable
-  ObjectId writeAndUpdateTree() throws IOException {
+  ObjectId writeTree() throws IOException {
     checkClosed();
     if(cache == null)
       return null;
@@ -989,10 +990,7 @@ public class GitFileStore extends FileStore implements Closeable {
         }
       }
 
-      // write the cached files into the repository
       ObjectId newTreeId = cache.writeTree(getInserter());
-
-      // if the created tree is the same as the current tree
       if(newTreeId.equals(baseTree))
         return null;
 
@@ -1003,31 +1001,43 @@ public class GitFileStore extends FileStore implements Closeable {
 
   /**
    * Writes the cached files into the repository creating a new commit and update the {@link #baseCommit} of this store
-   * to the new commit. This method relies on {@link #writeAndUpdateTree()} to create a new tree from the cache. In the
+   * to the new commit. This method relies on {@link #writeTree()} to create a new tree from the cache. In the
    * case that no new tree is created, the {@link #baseCommit} value will not be changed, and {@code null} will be
    * returned.
    *
    * @return  the new {@code RevCommit} or {@code null} if no new commit is created
    */
   @Nullable
-  RevCommit writeAndUpdateCommit(@Nullable PersonIdent author, @Nullable PersonIdent committer, @Nullable String message, boolean amend) throws IOException {
+  public RevCommit writeCommit(@Nullable PersonIdent author, @Nullable PersonIdent committer, @Nullable String message, boolean amend) throws IOException {
     checkClosed();
     synchronized(this) {
-      ObjectId newTreeId = writeAndUpdateTree();
-      if(newTreeId == null)
+      AnyObjectId commitTree = writeTree();
+      if(commitTree == null && !amend)
         return null;
 
       List<AnyObjectId> parents = new ArrayList<>();
       if(amend) {
         if(baseCommit == null)
           throw new IllegalArgumentException("Could not amend without base commit");
-        for(RevCommit p : baseCommit.getParents()) {
+        if(commitTree == null)
+          commitTree = baseTree;
+        if(author == null)
+          author = baseCommit.getAuthorIdent();
+        if(committer == null)
+          committer = baseCommit.getCommitterIdent();
+        if(message == null)
+          message = baseCommit.getFullMessage();
+        for(RevCommit p : baseCommit.getParents())
           parents.add(p.getId());
-        }
       } else if(baseCommit != null)
         parents.add(baseCommit);
 
-      ObjectId newCommitId = CommitHelper.createCommit(getInserter(), newTreeId, author, committer, message, parents);
+      if(author == null)
+        throw new IllegalArgumentException("Missing author");
+      if(committer == null)
+        throw new IllegalArgumentException("Missing committer");
+
+      ObjectId newCommitId = CommitHelper.createCommit(getInserter(), commitTree, author, committer, message, parents);
       getInserter().flush();
 
       RevCommit newCommit = CommitHelper.getCommit(reader, newCommitId);

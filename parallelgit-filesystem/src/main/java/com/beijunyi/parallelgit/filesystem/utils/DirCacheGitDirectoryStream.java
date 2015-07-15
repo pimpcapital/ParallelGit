@@ -1,4 +1,4 @@
-package com.beijunyi.parallelgit.filesystem;
+package com.beijunyi.parallelgit.filesystem.utils;
 
 import java.io.IOException;
 import java.nio.file.DirectoryStream;
@@ -9,6 +9,8 @@ import java.util.NoSuchElementException;
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 
+import com.beijunyi.parallelgit.filesystem.GitFileStore;
+import com.beijunyi.parallelgit.filesystem.GitPath;
 import com.beijunyi.parallelgit.utils.DirCacheHelper;
 import com.beijunyi.parallelgit.utils.VirtualDirCacheEntry;
 import org.eclipse.jgit.dircache.DirCache;
@@ -24,7 +26,7 @@ public class DirCacheGitDirectoryStream extends GitDirectoryStream {
     this.entryIterator = entryIterator;
   }
 
-  DirCacheGitDirectoryStream(@Nonnull String pathStr, @Nonnull GitFileStore store, @Nonnull DirCache cache, @Nullable DirectoryStream.Filter<? super Path> filter) throws NotDirectoryException {
+  public DirCacheGitDirectoryStream(@Nonnull String pathStr, @Nonnull GitFileStore store, @Nonnull DirCache cache, @Nullable DirectoryStream.Filter<? super Path> filter) throws NotDirectoryException {
     this(pathStr, store, newVirtualDirEntryIterator(cache, pathStr), filter);
   }
 

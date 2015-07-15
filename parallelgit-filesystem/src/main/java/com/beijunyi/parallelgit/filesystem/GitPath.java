@@ -13,8 +13,7 @@ import java.util.NoSuchElementException;
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 
-import org.eclipse.jgit.lib.AnyObjectId;
-import org.eclipse.jgit.lib.Repository;
+import com.beijunyi.parallelgit.filesystem.utils.GitUriBuilder;
 
 public class GitPath implements Path {
 
@@ -636,20 +635,7 @@ public class GitPath implements Path {
   @Nonnull
   @Override
   public URI toUri() {
-    GitFileStore store = gfs.getFileStore();
-    Repository repo = store.getRepository();
-    String branch = store.getBranch();
-    AnyObjectId commitId = store.getBaseCommit();
-    AnyObjectId treeId = store.getBaseTree();
-
-    return GitUriUtils.createUri(repo.isBare() ? repo.getDirectory() : repo.getWorkTree(),
-                                  toString(),
-                                  gfs.getSessionId(),
-                                  repo.isBare(),
-                                  null,
-                                  branch,
-                                  commitId != null ? commitId.getName() : null,
-                                  treeId != null ? treeId.getName() : null);
+    return GitUriBuilder.forFileSystem(gfs).file(this).build();
   }
 
   /**

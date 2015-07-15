@@ -1,8 +1,10 @@
-package com.beijunyi.parallelgit.filesystem;
+package com.beijunyi.parallelgit.filesystem.utils;
 
 import java.nio.file.DirectoryStream;
 import java.nio.file.Path;
 import javax.annotation.Nonnull;
+
+import com.beijunyi.parallelgit.filesystem.GitFileStore;
 
 public abstract class GitDirectoryStream implements DirectoryStream<Path> {
 

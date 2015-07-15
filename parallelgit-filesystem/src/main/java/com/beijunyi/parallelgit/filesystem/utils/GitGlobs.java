@@ -1,4 +1,4 @@
-package com.beijunyi.parallelgit.filesystem;
+package com.beijunyi.parallelgit.filesystem.utils;
 
 import java.util.regex.PatternSyntaxException;
 import javax.annotation.Nonnull;
@@ -38,7 +38,7 @@ public final class GitGlobs {
    * @return a regex pattern string which is functionally equivalent to the given glob patten string
    */
   @Nonnull
-  static String toRegexPattern(@Nonnull String globPattern) {
+  public static String toRegexPattern(@Nonnull String globPattern) {
     boolean inGroup = false;
     StringBuilder regex = new StringBuilder("^");
 
