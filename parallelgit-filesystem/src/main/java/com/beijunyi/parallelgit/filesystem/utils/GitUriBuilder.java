@@ -33,9 +33,9 @@ public class GitUriBuilder {
   @Nonnull
   public GitUriBuilder session(@Nullable String session) {
     if(session != null)
-      params.put(GitUriUtils.SESSION_KEY, session);
+      params.put(GitUriUtils.SID_KEY, session);
     else
-      params.remove(GitUriUtils.SESSION_KEY);
+      params.remove(GitUriUtils.SID_KEY);
     return this;
   }
 
@@ -74,10 +74,7 @@ public class GitUriBuilder {
       throw new IllegalArgumentException("Missing repository");
     if(!repository.startsWith("/"))
       throw new IllegalArgumentException("Repository location must be an absolute path");
-    String path = GitFileSystemProvider.GIT_FS_SCHEME + ":" + repository;
-    if(file != null && !file.isEmpty() && !file.equals("/"))
-      path += GitFileSystemProvider.ROOT_SEPARATOR + file;
-    return path;
+    return GitFileSystemProvider.GIT_FS_SCHEME + ":" + repository;
   }
 
   @Nonnull
@@ -92,11 +89,25 @@ public class GitUriBuilder {
   }
 
   @Nonnull
+  private String buildFragment() {
+    String fragment = "";
+    if(file != null && !file.isEmpty() && !file.equals("/")) {
+      if(!file.startsWith("/"))
+        fragment += "/";
+      fragment += file;
+    }
+    return fragment;
+  }
+
+  @Nonnull
   public URI build() {
-    String path = buildPath();
+    String ret = buildPath();
     String query = buildQuery();
     if(!query.isEmpty())
-      return URI.create(path + "?" + query);
-    return URI.create(path);
+      ret += "?" + query;
+    String fragment = buildFragment();
+    if(!fragment.isEmpty())
+      ret += "#" + fragment;
+    return URI.create(ret);
   }
 }

@@ -10,7 +10,7 @@ import com.beijunyi.parallelgit.filesystem.GitFileSystemProvider;
 
 public final class GitUriUtils {
 
-  public final static String SESSION_KEY = "session";
+  public final static String SID_KEY = "sid";
 
   /**
    * Checks if the scheme of the given {@code URI} is equal (without regard to case) to {@link
@@ -40,15 +40,7 @@ public final class GitUriUtils {
   @Nonnull
   public static String getRepository(@Nonnull URI uri) {
     checkScheme(uri);
-
-    String pathStr = uri.getPath();
-    int rootIdx = pathStr.indexOf(GitFileSystemProvider.ROOT_SEPARATOR);
-    if(rootIdx != -1)
-      pathStr = pathStr.substring(0, rootIdx);
-    if(pathStr.endsWith("/"))
-      pathStr = pathStr.substring(0, pathStr.length() - 1);
-
-    return pathStr;
+    return uri.getPath();
   }
 
   /**
@@ -65,25 +57,7 @@ public final class GitUriUtils {
   @Nonnull
   public static String getFile(@Nonnull URI uri) throws ProviderMismatchException {
     checkScheme(uri);
-
-    String fileInRepo = "/";
-
-    String pathStr = uri.getPath();
-    int bangIndex = pathStr.indexOf(GitFileSystemProvider.ROOT_SEPARATOR);
-    if(bangIndex == -1)
-      return fileInRepo;
-
-    int start = bangIndex + 1;
-    if(pathStr.length() > start && pathStr.charAt(start) == '/')
-      start++;
-    int end = pathStr.length();
-    if(pathStr.endsWith("/"))
-      end--;
-    if(start > end)
-      return fileInRepo;
-
-    fileInRepo += pathStr.substring(start, end);
-    return fileInRepo;
+    return uri.getFragment();
   }
 
   @Nonnull
@@ -122,7 +96,7 @@ public final class GitUriUtils {
   @Nullable
   public static String getSession(@Nonnull URI uri) throws ProviderMismatchException {
     checkScheme(uri);
-    return parseQuery(uri.getQuery(), Collections.singleton(SESSION_KEY)).get(SESSION_KEY);
+    return parseQuery(uri.getQuery(), Collections.singleton(SID_KEY)).get(SID_KEY);
   }
 
 }

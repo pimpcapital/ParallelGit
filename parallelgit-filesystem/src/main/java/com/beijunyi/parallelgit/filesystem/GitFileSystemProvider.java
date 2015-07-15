@@ -24,9 +24,6 @@ import static java.nio.file.StandardOpenOption.*;
 public class GitFileSystemProvider extends FileSystemProvider {
 
   public final static String GIT_FS_SCHEME = "gfs";
-  public final static String ROOT_SEPARATOR = "!";
-
-  public final static String SESSION_KEY = "session";
 
   public final static EnumSet<StandardOpenOption> SUPPORTED_OPEN_OPTIONS = EnumSet.of(READ, SPARSE, CREATE, CREATE_NEW, WRITE, APPEND, TRUNCATE_EXISTING);
   public final static EnumSet<StandardCopyOption> SUPPORTED_COPY_OPTIONS = EnumSet.of(REPLACE_EXISTING, ATOMIC_MOVE);
@@ -42,7 +39,7 @@ public class GitFileSystemProvider extends FileSystemProvider {
    * @return  the installed {@code GitFileSystemProvider} instance
    */
   @Nonnull
-  static GitFileSystemProvider getInstance() {
+  public static GitFileSystemProvider getInstance() {
     if(INSTANCE == null) {
       for(FileSystemProvider provider : FileSystemProvider.installedProviders()) {
         if(provider instanceof GitFileSystemProvider) {
@@ -85,11 +82,11 @@ public class GitFileSystemProvider extends FileSystemProvider {
              .build();
   }
 
-  void register(@Nonnull GitFileSystem gfs) {
+  public void register(@Nonnull GitFileSystem gfs) {
     fsMap.put(gfs.getSessionId(), gfs);
   }
 
-  void unregister(@Nonnull GitFileSystem gfs) {
+  public void unregister(@Nonnull GitFileSystem gfs) {
     fsMap.remove(gfs.getSessionId());
   }
 
