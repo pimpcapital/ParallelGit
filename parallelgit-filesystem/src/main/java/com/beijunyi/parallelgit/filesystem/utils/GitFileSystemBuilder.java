@@ -1,4 +1,4 @@
-package com.beijunyi.parallelgit.filesystem;
+package com.beijunyi.parallelgit.filesystem.utils;
 
 import java.io.File;
 import java.io.IOException;
@@ -8,8 +8,8 @@ import java.util.Map;
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 
-import com.beijunyi.parallelgit.filesystem.utils.GitParams;
-import com.beijunyi.parallelgit.filesystem.utils.GitUriUtils;
+import com.beijunyi.parallelgit.filesystem.GitFileSystem;
+import com.beijunyi.parallelgit.filesystem.GitFileSystemProvider;
 import com.beijunyi.parallelgit.utils.RefHelper;
 import org.eclipse.jgit.internal.storage.file.FileRepository;
 import org.eclipse.jgit.lib.AnyObjectId;

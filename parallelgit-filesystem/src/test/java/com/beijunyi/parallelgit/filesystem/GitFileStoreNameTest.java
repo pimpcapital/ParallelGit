@@ -2,6 +2,7 @@ package com.beijunyi.parallelgit.filesystem;
 
 import java.io.IOException;
 
+import com.beijunyi.parallelgit.filesystem.utils.GitFileSystemBuilder;
 import com.beijunyi.parallelgit.utils.CommitHelper;
 import com.beijunyi.parallelgit.utils.RefHelper;
 import com.beijunyi.parallelgit.utils.RevTreeHelper;

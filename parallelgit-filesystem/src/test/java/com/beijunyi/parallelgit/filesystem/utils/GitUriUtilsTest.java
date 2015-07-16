@@ -14,14 +14,16 @@ public class GitUriUtilsTest {
   }
 
   @Test
-  public void getRepositoryUnixFormat() {
+  public void getRepository_unixFormat() {
+    Assert.assertEquals("/", GitUriUtils.getRepository(URI.create("gfs:/")));
     Assert.assertEquals("/unix/path", GitUriUtils.getRepository(URI.create("gfs:/unix/path")));
     Assert.assertEquals("/unix/path", GitUriUtils.getRepository(URI.create("gfs:/unix/path/")));
     Assert.assertEquals("/unix/path", GitUriUtils.getRepository(URI.create("gfs:/unix/path#/a.txt")));
   }
 
   @Test
-  public void getRepositoryDosFormat() {
+  public void getRepository_dosFormat() {
+    Assert.assertEquals("/c:/", GitUriUtils.getRepository(URI.create("gfs:/c:/")));
     Assert.assertEquals("/c:/windows/path", GitUriUtils.getRepository(URI.create("gfs:/c:/windows/path")));
     Assert.assertEquals("/c:/windows/path", GitUriUtils.getRepository(URI.create("gfs:/c:/windows/path/")));
     Assert.assertEquals("/c:/windows/path", GitUriUtils.getRepository(URI.create("gfs:/c:/windows/path#/a.txt")));

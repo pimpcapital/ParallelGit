@@ -3,6 +3,7 @@ package com.beijunyi.parallelgit.filesystem;
 import java.io.IOException;
 import java.nio.file.Files;
 
+import com.beijunyi.parallelgit.filesystem.utils.GitFileSystemBuilder;
 import com.beijunyi.parallelgit.utils.BlobHelper;
 import com.beijunyi.parallelgit.utils.CommitHelper;
 import org.eclipse.jgit.lib.ObjectId;

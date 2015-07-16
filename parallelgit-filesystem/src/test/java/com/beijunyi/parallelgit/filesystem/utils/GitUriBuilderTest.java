@@ -8,17 +8,37 @@ import org.junit.Test;
 public class GitUriBuilderTest {
 
   @Test
-  public void createUri() {
+  public void createUri_unixRepoPath() {
     Assert.assertEquals(URI.create("gfs:/repo"), GitUriBuilder.prepare()
                                                    .repository("/repo")
                                                    .build());
   }
 
   @Test
+  public void createUri_dosRepoPath() {
+    Assert.assertEquals(URI.create("gfs:/c:/repo"), GitUriBuilder.prepare()
+                                                   .repository("/c:/repo")
+                                                   .build());
+  }
+
+  @Test(expected = IllegalArgumentException.class)
+  public void createUri_nullRepoPath() {
+    GitUriBuilder.prepare().build();
+  }
+
+  @Test
   public void createUriWithFile() {
-    Assert.assertEquals(URI.create("gfs:/repo!/file.txt"), GitUriBuilder.prepare()
+    Assert.assertEquals(URI.create("gfs:/repo#/file.txt"), GitUriBuilder.prepare()
                                                              .repository("/repo")
                                                              .file("/file.txt")
+                                                             .build());
+  }
+
+  @Test
+  public void createUriWithFile_relativeFilePath() {
+    Assert.assertEquals(URI.create("gfs:/repo#/file.txt"), GitUriBuilder.prepare()
+                                                             .repository("/repo")
+                                                             .file("file.txt")
                                                              .build());
   }
 
@@ -39,11 +59,20 @@ public class GitUriBuilderTest {
   }
 
   @Test
-  public void createUriWithSessionParam() {
-    Assert.assertEquals(URI.create("gfs:/repo?session=testsession"), GitUriBuilder.prepare()
+  public void createUriWithSid() {
+    Assert.assertEquals(URI.create("gfs:/repo?sid=testsession"), GitUriBuilder.prepare()
                                                                        .repository("/repo")
-                                                                       .session("testsession")
+                                                                       .sid("testsession")
                                                                        .build());
+  }
+
+  @Test
+  public void createUriWithFileAndSid() {
+    Assert.assertEquals(URI.create("gfs:/repo?sid=testsession#/file.txt"), GitUriBuilder.prepare()
+                                                                   .repository("/repo")
+                                                                   .file("/file.txt")
+                                                                   .sid("testsession")
+                                                                   .build());
   }
 
 }

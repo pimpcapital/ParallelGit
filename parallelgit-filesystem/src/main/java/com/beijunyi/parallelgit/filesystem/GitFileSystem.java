@@ -27,7 +27,7 @@ public class GitFileSystem extends FileSystem {
 
   private boolean closed = false;
 
-  GitFileSystem(@Nonnull GitFileSystemProvider provider, @Nonnull Repository repo, @Nullable String branch, @Nullable AnyObjectId baseCommit, @Nullable AnyObjectId baseTree) throws IOException {
+  public GitFileSystem(@Nonnull GitFileSystemProvider provider, @Nonnull Repository repo, @Nullable String branch, @Nullable AnyObjectId baseCommit, @Nullable AnyObjectId baseTree) throws IOException {
     this.provider = provider;
     this.root = new GitPath(this, "/");
     session = UUID.randomUUID().toString();
@@ -37,7 +37,7 @@ public class GitFileSystem extends FileSystem {
   /**
    * Returns the provider that created this file system.
    *
-   * @return The provider that created this file system.
+   * @return  the provider that created this file system.
    */
   @Nonnull
   @Override

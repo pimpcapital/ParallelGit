@@ -5,6 +5,7 @@ import java.io.IOException;
 import java.nio.channels.SeekableByteChannel;
 import java.nio.file.*;
 
+import com.beijunyi.parallelgit.filesystem.utils.GitFileSystemBuilder;
 import org.eclipse.jgit.lib.Repository;
 import org.junit.Assert;
 import org.junit.Test;

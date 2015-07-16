@@ -3,6 +3,7 @@ package com.beijunyi.parallelgit.filesystem;
 import java.io.IOException;
 import java.nio.file.*;
 
+import com.beijunyi.parallelgit.filesystem.utils.GitFileSystemBuilder;
 import org.junit.Assert;
 import org.junit.Test;
 

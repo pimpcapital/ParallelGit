@@ -2,6 +2,7 @@ package com.beijunyi.parallelgit.filesystem.utils;
 
 import java.io.File;
 import java.net.URI;
+import java.net.URISyntaxException;
 import java.util.LinkedHashMap;
 import java.util.Map;
 import javax.annotation.Nonnull;
@@ -27,11 +28,11 @@ public class GitUriBuilder {
   public static GitUriBuilder forFileSystem(@Nonnull GitFileSystem gfs) {
     return prepare()
              .repository(gfs.getRepository())
-             .session(gfs.getSessionId());
+             .sid(gfs.getSessionId());
   }
 
   @Nonnull
-  public GitUriBuilder session(@Nullable String session) {
+  public GitUriBuilder sid(@Nullable String session) {
     if(session != null)
       params.put(GitUriUtils.SID_KEY, session);
     else
@@ -74,40 +75,38 @@ public class GitUriBuilder {
       throw new IllegalArgumentException("Missing repository");
     if(!repository.startsWith("/"))
       throw new IllegalArgumentException("Repository location must be an absolute path");
-    return GitFileSystemProvider.GIT_FS_SCHEME + ":" + repository;
+    return repository;
   }
 
-  @Nonnull
+  @Nullable
   private String buildQuery() {
+    if(params.isEmpty())
+      return null;
     String query = "";
     for(Map.Entry<String, String> param : params.entrySet()) {
-      if(!query.isEmpty())
-      query += "&";
-      query += param.getKey() + "=" + param.getKey();
+      if(!query.isEmpty()) query += "&";
+      query += param.getKey() + "=" + param.getValue();
     }
     return query;
   }
 
-  @Nonnull
+  @Nullable
   private String buildFragment() {
+    if(file == null || file.isEmpty() || file.equals("/"))
+      return null;
     String fragment = "";
-    if(file != null && !file.isEmpty() && !file.equals("/")) {
-      if(!file.startsWith("/"))
-        fragment += "/";
-      fragment += file;
-    }
+    if(!file.startsWith("/"))
+      fragment += "/";
+    fragment += file;
     return fragment;
   }
 
   @Nonnull
   public URI build() {
-    String ret = buildPath();
-    String query = buildQuery();
-    if(!query.isEmpty())
-      ret += "?" + query;
-    String fragment = buildFragment();
-    if(!fragment.isEmpty())
-      ret += "#" + fragment;
-    return URI.create(ret);
+    try {
+      return new URI(GitFileSystemProvider.GIT_FS_SCHEME, null, buildPath(), buildQuery(), buildFragment());
+    } catch(URISyntaxException e) {
+      throw new IllegalStateException(e);
+    }
   }
 }

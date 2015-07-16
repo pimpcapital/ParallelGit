@@ -14,6 +14,11 @@ public class GitParams extends HashMap<String, String> {
   public final static String TREE_KEY = "tree";
 
   @Nonnull
+  public static GitParams emptyMap() {
+    return new GitParams();
+  }
+
+  @Nonnull
   public static GitParams getParams(@Nonnull Map<String, ?> properties) {
     GitParams params = new GitParams();
     for(Map.Entry<String, ?> entry : properties.entrySet()) {
@@ -26,8 +31,13 @@ public class GitParams extends HashMap<String, String> {
     return params;
   }
 
-  public void setBranch(@Nonnull String branch) {
-    put(BRANCH_KEY, branch);
+  @Nonnull
+  public GitParams setBranch(@Nullable String branch) {
+    if(branch != null)
+      put(BRANCH_KEY, branch);
+    else
+      remove(BRANCH_KEY);
+    return this;
   }
 
   @Nullable
@@ -35,8 +45,13 @@ public class GitParams extends HashMap<String, String> {
     return get(BRANCH_KEY);
   }
 
-  public void setRevision(@Nonnull String revision) {
-    put(REVISION_KEY, revision);
+  @Nonnull
+  public GitParams setRevision(@Nullable String revision) {
+    if(revision != null)
+      put(REVISION_KEY, revision);
+    else
+      remove(REVISION_KEY);
+    return this;
   }
 
   @Nullable
@@ -44,8 +59,13 @@ public class GitParams extends HashMap<String, String> {
     return get(REVISION_KEY);
   }
 
-  public void setTree(@Nonnull String tree) {
-    put(TREE_KEY, tree);
+  @Nonnull
+  public GitParams setTree(@Nullable String tree) {
+    if(tree != null)
+      put(TREE_KEY, tree);
+    else
+      remove(TREE_KEY);
+    return this;
   }
 
   @Nullable

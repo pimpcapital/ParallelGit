@@ -3,7 +3,7 @@ package com.beijunyi.parallelgit.filesystem;
 import java.io.IOException;
 import java.nio.file.*;
 
-import com.beijunyi.parallelgit.filesystem.utils.GitSeekableByteChannel;
+import com.beijunyi.parallelgit.filesystem.io.GitSeekableByteChannel;
 import org.junit.Assert;
 import org.junit.Test;
 

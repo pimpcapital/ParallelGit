@@ -1,4 +1,4 @@
-package com.beijunyi.parallelgit.filesystem.utils;
+package com.beijunyi.parallelgit.filesystem.io;
 
 import java.nio.ByteBuffer;
 import java.nio.channels.SeekableByteChannel;

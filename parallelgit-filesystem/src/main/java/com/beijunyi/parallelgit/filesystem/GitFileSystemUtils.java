@@ -9,7 +9,6 @@ import javax.annotation.Nullable;
 
 import org.eclipse.jgit.lib.ObjectId;
 import org.eclipse.jgit.lib.PersonIdent;
-import org.eclipse.jgit.lib.Repository;
 import org.eclipse.jgit.revwalk.RevCommit;
 
 /**
@@ -34,7 +33,7 @@ public final class GitFileSystemUtils {
 
   @Nullable
   public static ObjectId writeTree(@Nonnull Path path) throws IOException {
-    return writeTree(((GitPath) path).getFileSystem());
+    return writeTree(((GitPath)path).getFileSystem());
   }
 
   @Nullable
@@ -65,21 +64,6 @@ public final class GitFileSystemUtils {
   @Nullable
   public static RevCommit commit(@Nonnull Path path, @Nonnull String authorName, @Nonnull String authorEmail, @Nonnull String message) throws IOException {
     return commit(path, authorName, authorEmail, message, false);
-  }
-
-  @Nonnull
-  public static Repository getRepository(@Nonnull FileStore store) {
-    return ((GitFileStore) store).getRepository();
-  }
-
-  @Nonnull
-  public static Repository getRepository(@Nonnull FileSystem fs) {
-    return getRepository(((GitFileSystem) fs).getFileStore());
-  }
-
-  @Nonnull
-  public static Repository getRepository(@Nonnull Path path) {
-    return getRepository(((GitPath) path).getFileSystem());
   }
 
 }

@@ -11,7 +11,7 @@ import java.util.concurrent.ConcurrentLinkedQueue;
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 
-import com.beijunyi.parallelgit.filesystem.utils.*;
+import com.beijunyi.parallelgit.filesystem.io.*;
 import com.beijunyi.parallelgit.utils.*;
 import org.eclipse.jgit.dircache.*;
 import org.eclipse.jgit.lib.*;

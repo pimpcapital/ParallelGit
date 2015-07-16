@@ -40,7 +40,10 @@ public final class GitUriUtils {
   @Nonnull
   public static String getRepository(@Nonnull URI uri) {
     checkScheme(uri);
-    return uri.getPath();
+    String path = uri.getPath();
+    if(path.length() > 1 && path.endsWith("/") && !path.endsWith(":/"))
+      path = path.substring(0, path.length() - 1);
+    return path;
   }
 
   /**
@@ -57,18 +60,14 @@ public final class GitUriUtils {
   @Nonnull
   public static String getFile(@Nonnull URI uri) throws ProviderMismatchException {
     checkScheme(uri);
-    return uri.getFragment();
-  }
-
-  @Nonnull
-  public static String buildQuery(@Nonnull Map<String, ?> params) {
-    String query = "";
-    for(Map.Entry<String, ?> param : params.entrySet()) {
-      if(!query.isEmpty())
-        query += "&";
-      query += param.getKey() + "=" + param.getKey();
-    }
-    return query;
+    String fragment = uri.getFragment();
+    if(fragment == null)
+      fragment = "";
+    if(!fragment.startsWith("/"))
+      fragment = "/" + fragment;
+    if(fragment.length() > 1 && fragment.endsWith("/"))
+      fragment = fragment.substring(0, fragment.length() - 1);
+    return fragment;
   }
 
   @Nonnull
