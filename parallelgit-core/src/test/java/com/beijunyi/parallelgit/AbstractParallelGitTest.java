@@ -110,6 +110,11 @@ public abstract class AbstractParallelGitTest {
   }
 
   @Nonnull
+  protected ObjectId initFileRepository(boolean bare) throws IOException {
+    return initRepository(false, bare);
+  }
+
+  @Nonnull
   protected ObjectId initRepository() throws IOException {
     return initRepository(true, true);
   }

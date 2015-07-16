@@ -32,10 +32,11 @@ public final class GitGlobs {
   }
 
   /**
-   * Converts the given glob pattern string into a regex pattern string.
+   * Converts a glob pattern into a regex pattern.
    *
-   * @param globPattern the glob pattern string to be converted
-   * @return a regex pattern string which is functionally equivalent to the given glob patten string
+   * @param   globPattern
+   *          the glob pattern to convert
+   * @return  a regex pattern which is functionally equivalent to the given glob patten
    */
   @Nonnull
   public static String toRegexPattern(@Nonnull String globPattern) {

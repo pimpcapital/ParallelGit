@@ -18,7 +18,7 @@ public class GitFileSystemProviderNewFileSystemTest extends AbstractGitFileSyste
 
   @Test
   public void openNonBareRepositoryFromUri() throws IOException {
-    initRepository(false, false);
+    initFileRepository(false);
     URI uri = GitUriBuilder.prepare()
                 .repository(repoDir)
                 .build();
@@ -31,7 +31,7 @@ public class GitFileSystemProviderNewFileSystemTest extends AbstractGitFileSyste
 
   @Test
   public void openBareRepositoryFromUri() throws IOException {
-    initRepository(false, true);
+    initFileRepository(true);
     URI uri = GitUriBuilder.prepare()
                 .repository(repoDir)
                 .build();
@@ -44,7 +44,7 @@ public class GitFileSystemProviderNewFileSystemTest extends AbstractGitFileSyste
 
   @Test
   public void openWithBranch() throws IOException {
-    initRepository(false, true);
+    initFileRepository(true);
     writeFile("some_file");
     RevCommit commit = CommitHelper.getCommit(repo, commitToBranch("test_branch"));
     URI uri = GitUriBuilder.prepare()
@@ -65,7 +65,7 @@ public class GitFileSystemProviderNewFileSystemTest extends AbstractGitFileSyste
 
   @Test
   public void openWithRevision() throws IOException {
-    initRepository(false, true);
+    initFileRepository(true);
     writeFile("some_file");
     RevCommit commit = CommitHelper.getCommit(repo, commitToMaster());
     URI uri = GitUriBuilder.prepare()
@@ -86,7 +86,7 @@ public class GitFileSystemProviderNewFileSystemTest extends AbstractGitFileSyste
 
   @Test
   public void openWithTree() throws IOException {
-    initRepository(false, true);
+    initFileRepository(true);
     writeFile("some_file");
     RevTree tree = CommitHelper.getCommit(repo, commitToMaster()).getTree();
     URI uri = GitUriBuilder.prepare()
