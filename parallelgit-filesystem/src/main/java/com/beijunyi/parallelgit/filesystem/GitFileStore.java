@@ -680,7 +680,7 @@ public class GitFileStore extends FileStore implements Closeable {
     }
   }
 
-  void fastDeleteDirectory(@Nonnull String pathStr) throws IOException {
+  public void deleteDirectory(@Nonnull String pathStr) throws IOException {
     prepareCache();
     synchronized(this) {
       flushStagedChanges();
@@ -959,7 +959,7 @@ public class GitFileStore extends FileStore implements Closeable {
    * @return  the {@code ObjectId} of the new tree or {@code null} if no new tree is created
    */
   @Nullable
-  ObjectId writeTree() throws IOException {
+  public ObjectId persistChanges() throws IOException {
     checkClosed();
     if(cache == null)
       return null;
@@ -1001,7 +1001,7 @@ public class GitFileStore extends FileStore implements Closeable {
 
   /**
    * Writes the cached files into the repository creating a new commit and update the {@link #baseCommit} of this store
-   * to the new commit. This method relies on {@link #writeTree()} to create a new tree from the cache. In the
+   * to the new commit. This method relies on {@link #persistChanges()} to create a new tree from the cache. In the
    * case that no new tree is created, the {@link #baseCommit} value will not be changed, and {@code null} will be
    * returned.
    *
@@ -1011,7 +1011,7 @@ public class GitFileStore extends FileStore implements Closeable {
   public RevCommit writeCommit(@Nullable PersonIdent author, @Nullable PersonIdent committer, @Nullable String message, boolean amend) throws IOException {
     checkClosed();
     synchronized(this) {
-      AnyObjectId commitTree = writeTree();
+      AnyObjectId commitTree = persistChanges();
       if(commitTree == null && !amend)
         return null;
 

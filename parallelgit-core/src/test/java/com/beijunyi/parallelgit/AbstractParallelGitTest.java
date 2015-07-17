@@ -45,6 +45,11 @@ public abstract class AbstractParallelGitTest {
     return writeFile(path, path + "'s unique content");
   }
 
+  @Nonnull
+  protected ObjectId writeSomeFile() throws IOException {
+    return writeFile("some_file.txt");
+  }
+
   protected void writeFiles(@Nonnull String... paths) throws IOException {
     for(String path : paths)
       writeFile(path);
@@ -106,6 +111,9 @@ public abstract class AbstractParallelGitTest {
     initRepositoryDir(memory);
     repo = memory ? new TestRepository(getClass().getName(), repoDir, bare) : RepositoryHelper.createRepository(repoDir, bare);
     cache = DirCache.newInCore();
+    writeFile("existing_file1.txt");
+    commitToMaster();
+    writeFile("existing_file2.txt");
     return commitToMaster();
   }
 

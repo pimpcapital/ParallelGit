@@ -1,8 +1,9 @@
-package com.beijunyi.parallelgit.filesystem;
+package com.beijunyi.parallelgit.filesystem.utils;
 
 import java.io.IOException;
 import java.nio.file.Files;
 
+import com.beijunyi.parallelgit.filesystem.AbstractGitFileSystemTest;
 import org.junit.Assert;
 import org.junit.Test;
 
@@ -17,7 +18,7 @@ public class GitFileSystemUtilsFastDeleteDirectoryTest extends AbstractGitFileSy
     commitToMaster();
     initGitFileSystem();
 
-    GitFileSystemUtils.fastDeleteDirectory(gfs.getRoot());
+    GitFileSystemUtils.deleteDirectory(gfs.getRoot());
     Assert.assertFalse(Files.exists(gfs.getPath("/a/a1.txt")));
     Assert.assertFalse(Files.exists(gfs.getPath("/a/a2.txt")));
     Assert.assertFalse(Files.exists(gfs.getPath("/b/b1.txt")));
@@ -32,7 +33,7 @@ public class GitFileSystemUtilsFastDeleteDirectoryTest extends AbstractGitFileSy
     commitToMaster();
     initGitFileSystem();
 
-    GitFileSystemUtils.fastDeleteDirectory(gfs.getPath("/a"));
+    GitFileSystemUtils.deleteDirectory(gfs.getPath("/a"));
     Assert.assertFalse(Files.exists(gfs.getPath("/a/a1.txt")));
     Assert.assertFalse(Files.exists(gfs.getPath("/a/a2.txt")));
     Assert.assertTrue(Files.exists(gfs.getPath("/b/b1.txt")));

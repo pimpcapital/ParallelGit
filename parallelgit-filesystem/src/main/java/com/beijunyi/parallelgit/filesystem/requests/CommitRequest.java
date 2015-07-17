@@ -4,13 +4,12 @@ import java.io.IOException;
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 
-import com.beijunyi.parallelgit.filesystem.GitFileStore;
+import com.beijunyi.parallelgit.filesystem.GitFileSystem;
 import org.eclipse.jgit.lib.PersonIdent;
 import org.eclipse.jgit.revwalk.RevCommit;
 
-public class CommitRequest {
+public final class CommitRequest extends GitFileSystemRequest<CommitRequest, RevCommit> {
 
-  private GitFileStore store;
   private PersonIdent author;
   private String authorName;
   private String authorEmail;
@@ -26,9 +25,8 @@ public class CommitRequest {
   }
 
   @Nonnull
-  public CommitRequest store(@Nonnull GitFileStore store) {
-    this.store = store;
-    return this;
+  public static CommitRequest prepare(@Nonnull GitFileSystem gfs) {
+    return prepare().gfs(gfs);
   }
 
   @Nonnull
@@ -69,11 +67,6 @@ public class CommitRequest {
     return this;
   }
 
-  private void checkStore() {
-    if(store == null)
-      throw new IllegalArgumentException("Missing store");
-  }
-
   private void prepareCommitter() {
     if(committer != null) {
       if(committerName != null && committer.getName().equals(committerName))
@@ -84,8 +77,8 @@ public class CommitRequest {
       if(committerName != null && committerEmail != null)
         committer = new PersonIdent(committerName, committerEmail);
       else if(!amend) {
-        if(committerName == null && committerEmail == null && store != null) {
-          committer = new PersonIdent(store.getRepository());
+        if(committerName == null && committerEmail == null && gfs != null) {
+          committer = new PersonIdent(gfs.getRepository());
         } else
           throw new IllegalStateException();
       } else if(committerName != null || committerEmail != null)
@@ -112,11 +105,17 @@ public class CommitRequest {
     }
   }
 
+  @Nonnull
+  @Override
+  protected CommitRequest self() {
+    return this;
+  }
+
   @Nullable
-  public RevCommit execute() throws IOException {
-    checkStore();
+  @Override
+  public RevCommit doExecute() throws IOException {
     prepareCommitter();
     prepareAuthor();
-    return store.writeCommit(author, committer, message, amend);
+    return gfs.getFileStore().writeCommit(author, committer, message, amend);
   }
 }

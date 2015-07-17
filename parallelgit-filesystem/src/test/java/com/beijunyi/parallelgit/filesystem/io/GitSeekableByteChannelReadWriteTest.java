@@ -1,4 +1,4 @@
-package com.beijunyi.parallelgit.filesystem;
+package com.beijunyi.parallelgit.filesystem.io;
 
 import java.io.IOException;
 import java.nio.ByteBuffer;
@@ -6,6 +6,8 @@ import java.nio.channels.*;
 import java.nio.file.Files;
 import java.nio.file.StandardOpenOption;
 
+import com.beijunyi.parallelgit.filesystem.AbstractGitFileSystemTest;
+import com.beijunyi.parallelgit.filesystem.GitPath;
 import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;

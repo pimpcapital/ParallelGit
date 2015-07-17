@@ -8,7 +8,6 @@ import java.util.regex.Pattern;
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 
-import com.beijunyi.parallelgit.filesystem.requests.CommitRequest;
 import com.beijunyi.parallelgit.filesystem.utils.GitGlobs;
 import org.eclipse.jgit.lib.AnyObjectId;
 import org.eclipse.jgit.lib.Repository;
@@ -281,11 +280,6 @@ public class GitFileSystem extends FileSystem {
   @Nullable
   public AnyObjectId getBaseTree() {
     return store.getBaseTree();
-  }
-
-  @Nonnull
-  public CommitRequest prepareCommit() {
-    return CommitRequest.prepare().store(store);
   }
 
 }

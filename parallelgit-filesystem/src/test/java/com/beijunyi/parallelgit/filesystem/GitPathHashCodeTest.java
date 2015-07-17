@@ -15,21 +15,21 @@ public class GitPathHashCodeTest extends AbstractGitFileSystemTest {
   }
 
   @Test
-  public void hashCodeOfAbsolutePathTest() {
+  public void hashCodesFromSameAbsolutePath() {
     GitPath p1 = gfs.getPath("/a/b/c");
     GitPath p2 = gfs.getPath("/a/b/c");
     Assert.assertEquals(p1.hashCode(), p2.hashCode());
   }
 
   @Test
-  public void hashCodeOfRelativePathTest() {
+  public void hashCodesFromSameRelativePath() {
     GitPath p1 = gfs.getPath("a/b/c");
     GitPath p2 = gfs.getPath("a/b/c");
     Assert.assertEquals(p1.hashCode(), p2.hashCode());
   }
 
   @Test
-  public void hashCodesFromDifferentPathsTest() {
+  public void hashCodesFromDifferentPaths() {
     GitPath path = gfs.getPath("/a/b/c");
     int hashCode = path.hashCode();
     Assert.assertNotEquals(hashCode, gfs.getPath("a/b/c").hashCode());
@@ -41,13 +41,15 @@ public class GitPathHashCodeTest extends AbstractGitFileSystemTest {
   }
 
   @Test
-  public void hashCodesFromDifferentFileSystemTest() throws IOException {
-    GitFileSystem other = GitFileSystemBuilder.prepare()
+  public void hashCodesFromDifferentFileSystems() throws IOException {
+    try(GitFileSystem otherGfs = GitFileSystemBuilder.prepare()
                             .repository(repo)
-                            .build();
-    GitPath p1 = gfs.getPath("/a/b/c");
-    GitPath p2 = other.getPath("/a/b/c");
-    Assert.assertNotEquals(p1.hashCode(), p2.hashCode());
+                            .build()) {
+      GitPath p1 = gfs.getPath("/a/b/c");
+      GitPath p2 = otherGfs.getPath("/a/b/c");
+      Assert.assertNotEquals(p1.hashCode(), p2.hashCode());
+    }
+
   }
 
 }
