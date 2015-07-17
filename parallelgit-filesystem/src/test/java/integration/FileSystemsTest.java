@@ -1,67 +1,42 @@
 package integration;
 
-import java.io.File;
 import java.io.IOException;
 import java.net.URI;
 import java.nio.file.FileSystem;
 import java.nio.file.FileSystems;
-import java.nio.file.Files;
-import java.util.Collections;
 
-import com.beijunyi.parallelgit.commands.ParallelCommitCommand;
+import com.beijunyi.parallelgit.AbstractParallelGitTest;
+import com.beijunyi.parallelgit.filesystem.GitFileSystem;
 import com.beijunyi.parallelgit.filesystem.utils.GitParams;
 import com.beijunyi.parallelgit.filesystem.utils.GitUriBuilder;
-import com.beijunyi.parallelgit.utils.RepositoryHelper;
-import org.eclipse.jgit.lib.Repository;
-import org.eclipse.jgit.util.FileUtils;
-import org.junit.*;
+import org.junit.Assert;
+import org.junit.Before;
+import org.junit.Test;
 
-public class FileSystemsTest {
-
-  private File repoDir;
-  private Repository repo;
+public class FileSystemsTest extends AbstractParallelGitTest {
 
   @Before
   public void setupRepository() throws IOException {
-    repoDir = FileUtils.createTempDir(getClass().getSimpleName(), null, null);
-    repo = RepositoryHelper.createRepository(repoDir, true);
-  }
-
-  @After
-  public void disposeRepository() throws IOException {
-    repo.close();
-    FileUtils.delete(repoDir, FileUtils.RECURSIVE);
+    initFileRepository(true);
   }
 
   @Test
   public void newFileSystemFromUri() throws IOException {
-    byte[] content = "testcontent".getBytes();
-    String file = "file.txt";
-    ParallelCommitCommand.prepare(repo)
-      .master()
-      .addFile(content, file)
-      .call();
     URI uri = GitUriBuilder.prepare()
                 .repository(repoDir)
                 .build();
-    FileSystem fs = FileSystems.newFileSystem(uri, Collections.<String, Object>emptyMap());
-    Assert.assertArrayEquals(content, Files.readAllBytes(fs.getPath(file)));
+    FileSystem fs = FileSystems.newFileSystem(uri, GitParams.emptyMap());
+    Assert.assertTrue(fs instanceof GitFileSystem);
+    Assert.assertEquals(repoDir, ((GitFileSystem) fs).getRepository().getDirectory());
   }
 
   @Test
-  public void newFileSystemFromUriWithProperties() throws IOException {
-    byte[] content = "testcontent".getBytes();
-    String file = "file.txt";
-    String branch = "testbranch";
-    ParallelCommitCommand.prepare(repo)
-      .branch(branch)
-      .addFile(content, file)
-      .call();
+  public void newFileSystemFromUriBranchParam() throws IOException {
     URI uri = GitUriBuilder.prepare()
                 .repository(repoDir)
                 .build();
-    FileSystem fs = FileSystems.newFileSystem(uri, Collections.singletonMap(GitParams.BRANCH_KEY, branch));
-    Assert.assertArrayEquals(content, Files.readAllBytes(fs.getPath(file)));
+    FileSystem fs = FileSystems.newFileSystem(uri, GitParams.emptyMap().setBranch("test_branch"));
+    Assert.assertEquals("test_branch", ((GitFileSystem)fs).getBranch());
   }
 
   @Test

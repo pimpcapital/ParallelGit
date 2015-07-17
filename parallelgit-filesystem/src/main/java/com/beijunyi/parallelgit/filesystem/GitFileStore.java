@@ -373,7 +373,7 @@ public class GitFileStore extends FileStore implements Closeable {
    */
   @Nullable
   public String getBranch() {
-    return branch;
+    return branch != null ? branch.substring(Constants.R_HEADS.length()) : null;
   }
 
   /**
