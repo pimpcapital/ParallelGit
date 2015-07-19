@@ -51,7 +51,7 @@ public class GitFileSystemProviderNewFileSystemTest extends AbstractGitFileSyste
                 .repository(repoDir)
                 .build();
     try(GitFileSystem gfs = provider.newFileSystem(uri, Collections.singletonMap(GitParams.BRANCH_KEY, "test_branch"))) {
-      Assert.assertEquals("refs/heads/branch", gfs.getBranch());
+      Assert.assertEquals("test_branch", gfs.getBranch());
 
       RevCommit baseCommit = gfs.getBaseCommit();
       Assert.assertNotNull(baseCommit);

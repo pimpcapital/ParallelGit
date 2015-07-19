@@ -87,11 +87,6 @@ public final class GitUriUtils {
     return params;
   }
 
-  @Nonnull
-  public static Map<String, String> parseQuery(@Nonnull String query) {
-    return parseQuery(query, null);
-  }
-
   @Nullable
   public static String getSession(@Nonnull URI uri) throws ProviderMismatchException {
     checkScheme(uri);

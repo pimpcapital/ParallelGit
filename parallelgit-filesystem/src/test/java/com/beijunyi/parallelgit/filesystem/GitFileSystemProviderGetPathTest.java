@@ -17,9 +17,8 @@ public class GitFileSystemProviderGetPathTest extends AbstractGitFileSystemTest 
 
   @Test
   public void getPathFromUri() {
-    URI uri = GitUriBuilder.prepare()
+    URI uri = GitUriBuilder.forFileSystem(gfs)
                 .file("/some_file.txt")
-                .sid(gfs.getSessionId())
                 .build();
     GitPath path = provider.getPath(uri);
     Assert.assertEquals(gfs.getPath("/some_file.txt"), path);
@@ -27,21 +26,11 @@ public class GitFileSystemProviderGetPathTest extends AbstractGitFileSystemTest 
 
   @Test
   public void getRootPathFromUri() {
-    URI uri = GitUriBuilder.prepare()
+    URI uri = GitUriBuilder.forFileSystem(gfs)
                 .file("/")
-                .sid(gfs.getSessionId())
                 .build();
     GitPath path = provider.getPath(uri);
     Assert.assertEquals(gfs.getRoot(), path);
-  }
-
-  @Test
-  public void getPathFromUriWithNoSessionId() {
-    URI uri = GitUriBuilder.prepare()
-                .file("/some_file.txt")
-                .build();
-    GitPath path = provider.getPath(uri);
-    Assert.assertNotNull(path);
   }
 
 }
