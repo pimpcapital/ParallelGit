@@ -22,6 +22,8 @@ public class GitFileSystemBuilder {
   private Repository repository;
   private File repoDir;
   private String repoDirPath;
+  private Boolean create;
+  private Boolean bare;
   private String branch;
   private AnyObjectId commitId;
   private String commitIdStr;
@@ -35,19 +37,23 @@ public class GitFileSystemBuilder {
 
   @Nonnull
   public static GitFileSystemBuilder forUri(@Nonnull URI uri, @Nonnull Map<String, ?> properties) {
-    GitParams params = GitParams.getParams(properties);
     return prepare()
              .repository(GitUriUtils.getRepository(uri))
-             .branch(params.getBranch())
-             .commit(params.getRevision())
-             .tree(params.getTree());
+             .readAllParams(GitParams.getParams(properties));
   }
 
   @Nonnull
   public static GitFileSystemBuilder forPath(@Nonnull Path path, @Nonnull Map<String, ?> properties) {
-    GitParams params = GitParams.getParams(properties);
     return prepare()
              .repository(path.toFile())
+             .readAllParams(GitParams.getParams(properties));
+  }
+
+  @Nonnull
+  public GitFileSystemBuilder readAllParams(@Nonnull GitParams params) {
+    return this
+             .create(params.getCreate())
+             .bare(params.getBare())
              .branch(params.getBranch())
              .commit(params.getRevision())
              .tree(params.getTree());
@@ -75,6 +81,28 @@ public class GitFileSystemBuilder {
   public GitFileSystemBuilder repository(@Nullable String repoDirPath) {
     this.repoDirPath = repoDirPath;
     return this;
+  }
+
+  @Nonnull
+  public GitFileSystemBuilder create(@Nullable Boolean create) {
+    this.create = create;
+    return this;
+  }
+
+  @Nonnull
+  public GitFileSystemBuilder create() {
+    return create(true);
+  }
+
+  @Nonnull
+  public GitFileSystemBuilder bare(@Nullable Boolean bare) {
+    this.bare = bare;
+    return this;
+  }
+
+  @Nonnull
+  public GitFileSystemBuilder bare() {
+    return bare(true);
   }
 
   @Nonnull
@@ -115,6 +143,14 @@ public class GitFileSystemBuilder {
     throw new IllegalArgumentException("Different repositories found: " + r1 + ", " + r2);
   }
 
+  private void errorUnsupportedLocation(@Nonnull String dir) {
+    throw new UnsupportedOperationException(dir + " is not a valid location");
+  }
+
+  private void errorUnsupportedRepository(@Nonnull String dir) {
+    throw new UnsupportedOperationException(dir + " is not a valid repository");
+  }
+
   private void errorDifferentRevisions(@Nonnull String r1, @Nonnull String r2) {
     throw new IllegalArgumentException("Different revisions found: " + r1 + ", " + r2);
   }
@@ -132,12 +168,16 @@ public class GitFileSystemBuilder {
     if(repository == null) {
       prepareRepoDir();
       repository = new FileRepository(repoDir);
+      if(create != null && create)
+        repository.create(bare == null || bare);
     } else {
       if(repoDir != null && !repository.getDirectory().equals(repoDir))
         errorDifferentRepositories(repository.getDirectory().toString(), repoDir.toString());
       if(repoDirPath != null && !repository.getDirectory().equals(new File(repoDirPath)))
         errorDifferentRepositories(repository.getDirectory().toString(), repoDirPath);
     }
+    if(!repository.getObjectDatabase().exists())
+      errorUnsupportedRepository(repository.getDirectory().getAbsolutePath());
   }
 
   private void prepareRepoDir() {
@@ -147,12 +187,17 @@ public class GitFileSystemBuilder {
       repoDir = new File(repoDirPath);
     } else if(repoDirPath != null && !repoDir.equals(new File(repoDirPath)))
       errorDifferentRepositories(repoDir.toString(), repoDirPath);
+    if(!repoDir.isDirectory())
+      errorUnsupportedLocation(repoDir.getAbsolutePath());
     useDotGit();
   }
 
   private void useDotGit() {
     File dotGit = new File(repoDir, Constants.DOT_GIT);
-    if(dotGit.exists())
+    if(bare == null) {
+      if(dotGit.exists())
+        repoDir = dotGit;
+    } else if(!bare)
       repoDir = dotGit;
   }
 

@@ -103,7 +103,8 @@ public abstract class AbstractParallelGitTest {
   }
 
   protected void initRepositoryDir(boolean memory) throws IOException {
-    repoDir = memory ? new File("/memory").getAbsoluteFile() : FileUtils.createTempDir(getClass().getSimpleName(), null, null);
+    if(repoDir == null)
+      repoDir = memory ? new File("/memory").getAbsoluteFile() : FileUtils.createTempDir(getClass().getSimpleName(), null, null);
   }
 
   @Nonnull

@@ -9,6 +9,8 @@ import org.eclipse.jgit.lib.AnyObjectId;
 
 public class GitParams extends HashMap<String, String> {
 
+  public final static String CREATE_KEY = "create";
+  public final static String BARE_KEY = "bare";
   public final static String BRANCH_KEY = "branch";
   public final static String REVISION_KEY = "revision";
   public final static String TREE_KEY = "tree";
@@ -29,6 +31,46 @@ public class GitParams extends HashMap<String, String> {
         params.put(entry.getKey(), value.toString());
     }
     return params;
+  }
+
+  @Nonnull
+  public GitParams setCreate(@Nullable String create) {
+    if(create != null)
+      put(CREATE_KEY, create);
+    else
+      remove(CREATE_KEY);
+    return this;
+  }
+
+  @Nonnull
+  public GitParams setCreate(boolean create) {
+    return setCreate(Boolean.toString(create));
+  }
+
+  @Nullable
+  public Boolean getCreate() {
+    String value = get(CREATE_KEY);
+    return value != null ? Boolean.valueOf(value) : null;
+  }
+
+  @Nonnull
+  public GitParams setBare(@Nullable String bare) {
+    if(bare != null)
+      put(BARE_KEY, bare);
+    else
+      remove(BARE_KEY);
+    return this;
+  }
+
+  @Nonnull
+  public GitParams setBare(boolean bare) {
+    return setBare(Boolean.toString(bare));
+  }
+
+  @Nullable
+  public Boolean getBare() {
+    String value = get(BARE_KEY);
+    return value != null ? Boolean.valueOf(value) : null;
   }
 
   @Nonnull
@@ -54,6 +96,11 @@ public class GitParams extends HashMap<String, String> {
     return this;
   }
 
+  @Nonnull
+  public GitParams setRevision(@Nullable AnyObjectId revision) {
+    return setTree(revision != null ? revision.getName() : null);
+  }
+
   @Nullable
   public String getRevision() {
     return get(REVISION_KEY);
@@ -66,6 +113,11 @@ public class GitParams extends HashMap<String, String> {
     else
       remove(TREE_KEY);
     return this;
+  }
+
+  @Nonnull
+  public GitParams setTree(@Nullable AnyObjectId tree) {
+    return setTree(tree != null ? tree.getName() : null);
   }
 
   @Nullable
