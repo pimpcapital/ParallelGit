@@ -1,18 +1,17 @@
 package com.beijunyi.parallelgit.filesystem;
 
 import java.io.IOException;
+import java.nio.file.Files;
 import java.nio.file.NoSuchFileException;
-import java.nio.file.attribute.BasicFileAttributeView;
-import java.nio.file.attribute.FileTime;
-import java.util.Collections;
-import java.util.HashMap;
-import java.util.Map;
+import java.nio.file.Path;
+import java.nio.file.attribute.*;
+import java.util.*;
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 
-public class GitFileAttributeView implements BasicFileAttributeView {
+public class GitFileAttributeView implements PosixFileAttributeView {
 
-  public static final String GIT_FILE_ATTRIBUTE_VIEW_TYPE = "basic";
+  public static final String GIT_FILE_ATTRIBUTE_VIEW_TYPE = "posix";
 
   public static final FileTime EPOCH = FileTime.fromMillis(0);
 
@@ -25,6 +24,9 @@ public class GitFileAttributeView implements BasicFileAttributeView {
   public static final String IS_REGULAR_FILE_NAME = "isRegularFile";
   public static final String IS_SYMBOLIC_LINK_NAME = "isSymbolicLink";
   public static final String IS_OTHER_NAME = "isOther";
+  public static final String PERMISSIONS_NAME = "permissions";
+  public static final String OWNER_NAME = "owner";
+  public static final String GROUP_NAME = "group";
 
   private static final String[] ALL_NAMES = new String[] {
                                                            SIZE_NAME,
@@ -35,7 +37,10 @@ public class GitFileAttributeView implements BasicFileAttributeView {
                                                            IS_DIRECTORY_NAME,
                                                            IS_REGULAR_FILE_NAME,
                                                            IS_SYMBOLIC_LINK_NAME,
-                                                           IS_OTHER_NAME
+                                                           IS_OTHER_NAME,
+                                                           PERMISSIONS_NAME,
+                                                           OWNER_NAME,
+                                                           GROUP_NAME
   };
 
   private final GitFileStore store;
@@ -118,5 +123,29 @@ public class GitFileAttributeView implements BasicFileAttributeView {
   @Nonnull
   public Map<String, Object> readAttributes(@Nonnull String attributes) throws IOException, IllegalArgumentException {
     return readAttributes(attributes.split(","));
+  }
+
+  @Override
+  public void setPermissions(@Nonnull Set<PosixFilePermission> perms) throws IOException {
+
+  }
+
+  @Override
+  public void setGroup(@Nonnull GroupPrincipal group) throws IOException {
+    throw new UnsupportedOperationException();
+
+  }
+
+  @Nonnull
+  @Override
+  public UserPrincipal getOwner() throws IOException {
+    Path repoDir = store.getRepository().getDirectory().toPath();
+    FileOwnerAttributeView view = Files.getFileAttributeView(repoDir, FileOwnerAttributeView.class);
+    return view.getOwner();
+  }
+
+  @Override
+  public void setOwner(@Nonnull UserPrincipal owner) throws IOException {
+    throw new UnsupportedOperationException();
   }
 }

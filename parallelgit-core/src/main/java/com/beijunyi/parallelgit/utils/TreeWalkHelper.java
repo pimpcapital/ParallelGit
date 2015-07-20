@@ -128,18 +128,18 @@ public final class TreeWalkHelper {
   }
 
   /**
-   * Tests if a tree walk entry is a regular file.
+   * Tests if a tree walk entry is attached to a blob object.
    *
    * @param   treeWalk
    *          the tree walk entry to test
-   * @return  {@code true} if the given tree walk entry entry is a regular file
+   * @return  {@code true} if the given tree walk entry is attached to a blob object
    */
-  public static boolean isFile(@Nonnull TreeWalk treeWalk) {
+  public static boolean isBlob(@Nonnull TreeWalk treeWalk) {
     return treeWalk.getFileMode(0).getObjectType() == Constants.OBJ_BLOB;
   }
 
   /**
-   * Tests if a file is a regular file.
+   * Tests if a file exists at the given path.
    *
    * @param   reader
    *          an object reader
@@ -147,21 +147,21 @@ public final class TreeWalkHelper {
    *          the path to the file to test
    * @param   treeId
    *          the base tree
-   * @return  {@code true} if the specified file is a regular file
+   * @return  {@code true} if a file exists at the given path
    */
-  public static boolean isFile(@Nonnull ObjectReader reader, @Nonnull String path, @Nonnull AnyObjectId treeId) throws IOException {
+  public static boolean isFileOrSymbolicLink(@Nonnull ObjectReader reader, @Nonnull String path, @Nonnull AnyObjectId treeId) throws IOException {
     TreeWalk treeWalk = TreeWalk.forPath(reader, path, treeId);
     if(treeWalk == null)
       return false;
     try {
-      return isFile(treeWalk);
+      return isBlob(treeWalk);
     } finally {
       treeWalk.release();
     }
   }
 
   /**
-   * Tests if a file is a regular file.
+   * Tests if a file exists at the given path.
    *
    * @param   repo
    *          a git repository
@@ -169,27 +169,27 @@ public final class TreeWalkHelper {
    *          the path to the file to test
    * @param   treeId
    *          the base tree
-   * @return  {@code true} if the specified file is a regular file
+   * @return  {@code true} if a file exists at the given path
    */
-  public static boolean isFile(@Nonnull Repository repo, @Nonnull String path, @Nonnull AnyObjectId treeId) throws IOException {
+  public static boolean isFileOrSymbolicLink(@Nonnull Repository repo, @Nonnull String path, @Nonnull AnyObjectId treeId) throws IOException {
     TreeWalk treeWalk = TreeWalk.forPath(repo, path, treeId);
     if(treeWalk == null)
       return false;
     try {
-      return isFile(treeWalk);
+      return isBlob(treeWalk);
     } finally {
       treeWalk.release();
     }
   }
 
   /**
-   * Tests if a tree walk entry is a directory.
+   * Tests if a tree walk entry is attached to a tree object.
    *
    * @param   treeWalk
    *          the tree walk entry to test
-   * @return  {@code true} if the given tree walk entry entry is a directory
+   * @return  {@code true} if the given tree walk entry is attached to a tree object
    */
-  public static boolean isDirectory(@Nonnull TreeWalk treeWalk) {
+  public static boolean isTree(@Nonnull TreeWalk treeWalk) {
     return treeWalk.getFileMode(0).getObjectType() == Constants.OBJ_TREE;
   }
 
@@ -209,7 +209,7 @@ public final class TreeWalkHelper {
     if(treeWalk == null)
       return false;
     try {
-      return isDirectory(treeWalk);
+      return isTree(treeWalk);
     } finally {
       treeWalk.release();
     }
@@ -231,18 +231,73 @@ public final class TreeWalkHelper {
     if(treeWalk == null)
       return false;
     try {
-      return isDirectory(treeWalk);
+      return isTree(treeWalk);
     } finally {
       treeWalk.release();
     }
   }
 
   /**
-   * Tests if a tree walk entry is executable.
+   * Tests if a tree walk entry is attached to a regular file blob.
    *
    * @param   treeWalk
    *          the tree walk entry to test
-   * @return  {@code true} if the given tree walk entry entry is executable
+   * @return  {@code true} if the given tree walk entry is attached to a regular file blob
+   */
+  public static boolean isRegular(@Nonnull TreeWalk treeWalk) {
+    return treeWalk.getFileMode(0) == FileMode.REGULAR_FILE;
+  }
+
+  /**
+   * Tests if a file is a regular file.
+   *
+   * @param   reader
+   *          an object reader
+   * @param   path
+   *          the path to the file to test
+   * @param   treeId
+   *          the base tree
+   * @return  {@code true} if the specified file is a regular file
+   */
+  public static boolean isRegularFile(@Nonnull ObjectReader reader, @Nonnull String path, @Nonnull AnyObjectId treeId) throws IOException {
+    TreeWalk treeWalk = TreeWalk.forPath(reader, path, treeId);
+    if(treeWalk == null)
+      return false;
+    try {
+      return isRegular(treeWalk);
+    } finally {
+      treeWalk.release();
+    }
+  }
+
+  /**
+   * Tests if a file is a regular file.
+   *
+   * @param   repo
+   *          a git repository
+   * @param   path
+   *          the path to the file to test
+   * @param   treeId
+   *          the base tree
+   * @return  {@code true} if the specified file is a regular file
+   */
+  public static boolean isRegularFile(@Nonnull Repository repo, @Nonnull String path, @Nonnull AnyObjectId treeId) throws IOException {
+    TreeWalk treeWalk = TreeWalk.forPath(repo, path, treeId);
+    if(treeWalk == null)
+      return false;
+    try {
+      return isRegular(treeWalk);
+    } finally {
+      treeWalk.release();
+    }
+  }
+
+  /**
+   * Tests if a tree walk entry is attached to an executable file blob.
+   *
+   * @param   treeWalk
+   *          the tree walk entry to test
+   * @return  {@code true} if the given tree walk entry is attached to an executable file blob
    */
   public static boolean isExecutable(@Nonnull TreeWalk treeWalk) {
     return treeWalk.getFileMode(0) == FileMode.EXECUTABLE_FILE;
@@ -259,7 +314,7 @@ public final class TreeWalkHelper {
    *          the base tree
    * @return  {@code true} if the specified file is executable
    */
-  public static boolean isExecutable(@Nonnull ObjectReader reader, @Nonnull String path, @Nonnull AnyObjectId treeId) throws IOException {
+  public static boolean isExecutableFile(@Nonnull ObjectReader reader, @Nonnull String path, @Nonnull AnyObjectId treeId) throws IOException {
     TreeWalk treeWalk = TreeWalk.forPath(reader, path, treeId);
     if(treeWalk == null)
       return false;
@@ -281,12 +336,122 @@ public final class TreeWalkHelper {
    *          the base tree
    * @return  {@code true} if the specified file is executable
    */
-  public static boolean isExecutable(@Nonnull Repository repo, @Nonnull String path, @Nonnull AnyObjectId treeId) throws IOException {
+  public static boolean isExecutableFile(@Nonnull Repository repo, @Nonnull String path, @Nonnull AnyObjectId treeId) throws IOException {
     TreeWalk treeWalk = TreeWalk.forPath(repo, path, treeId);
     if(treeWalk == null)
       return false;
     try {
       return isExecutable(treeWalk);
+    } finally {
+      treeWalk.release();
+    }
+  }
+
+  /**
+   * Tests if a tree walk entry is attached to either a regular or an executable file blob.
+   *
+   * @param   treeWalk
+   *          the tree walk entry to test
+   * @return  {@code true} if the given tree walk entry is attached to either a regular or an executable file blob
+   */
+  public static boolean isRegularOrExecutable(@Nonnull TreeWalk treeWalk) {
+    return treeWalk.getFileMode(0) == FileMode.REGULAR_FILE || treeWalk.getFileMode(0) == FileMode.EXECUTABLE_FILE;
+  }
+
+  /**
+   * Tests if a file is either regular or executable.
+   *
+   * @param   reader
+   *          an object reader
+   * @param   path
+   *          the path to the file to test
+   * @param   treeId
+   *          the base tree
+   * @return  {@code true} if the specified file is either regular or executable
+   */
+  public static boolean isRegularOrExecutableFile(@Nonnull ObjectReader reader, @Nonnull String path, @Nonnull AnyObjectId treeId) throws IOException {
+    TreeWalk treeWalk = TreeWalk.forPath(reader, path, treeId);
+    if(treeWalk == null)
+      return false;
+    try {
+      return isRegularOrExecutable(treeWalk);
+    } finally {
+      treeWalk.release();
+    }
+  }
+
+  /**
+   * Tests if a file is either regular or executable.
+   *
+   * @param   repo
+   *          a git repository
+   * @param   path
+   *          the path to the file to test
+   * @param   treeId
+   *          the base tree
+   * @return  {@code true} if the specified file is either regular or executable
+   */
+  public static boolean isRegularOrExecutableFile(@Nonnull Repository repo, @Nonnull String path, @Nonnull AnyObjectId treeId) throws IOException {
+    TreeWalk treeWalk = TreeWalk.forPath(repo, path, treeId);
+    if(treeWalk == null)
+      return false;
+    try {
+      return isRegularOrExecutable(treeWalk);
+    } finally {
+      treeWalk.release();
+    }
+  }
+
+  /**
+   * Tests if a tree walk entry is attached to an symbolic link blob.
+   *
+   * @param   treeWalk
+   *          the tree walk entry to test
+   * @return  {@code true} if the given tree walk entry is attached to an symbolic link blob
+   */
+  public static boolean isSymbolicLink(@Nonnull TreeWalk treeWalk) {
+    return treeWalk.getFileMode(0) == FileMode.SYMLINK;
+  }
+
+  /**
+   * Tests if a file is a symbolic link.
+   *
+   * @param   reader
+   *          an object reader
+   * @param   path
+   *          the path to the file to test
+   * @param   treeId
+   *          the base tree
+   * @return  {@code true} if the specified file is a symbolic link
+   */
+  public static boolean isSymbolicLink(@Nonnull ObjectReader reader, @Nonnull String path, @Nonnull AnyObjectId treeId) throws IOException {
+    TreeWalk treeWalk = TreeWalk.forPath(reader, path, treeId);
+    if(treeWalk == null)
+      return false;
+    try {
+      return isSymbolicLink(treeWalk);
+    } finally {
+      treeWalk.release();
+    }
+  }
+
+  /**
+   * Tests if a file is a symbolic link blob.
+   *
+   * @param   repo
+   *          a git repository
+   * @param   path
+   *          the path to the file to test
+   * @param   treeId
+   *          the base tree
+   * @return  {@code true} if the specified file is a symbolic link
+   */
+  public static boolean isSymbolicLink(@Nonnull Repository repo, @Nonnull String path, @Nonnull AnyObjectId treeId) throws IOException {
+    TreeWalk treeWalk = TreeWalk.forPath(repo, path, treeId);
+    if(treeWalk == null)
+      return false;
+    try {
+      return isSymbolicLink(treeWalk);
     } finally {
       treeWalk.release();
     }

@@ -453,7 +453,7 @@ public class GitFileStore extends FileStore implements Closeable {
    */
   private boolean prepareCreateFile(@Nonnull String pathStr, boolean replaceExisting) throws IOException {
     boolean isDirectory = isDirectory(pathStr);
-    boolean isFile = !isDirectory && isRegularFile(pathStr);
+    boolean isFile = !isDirectory && fileExists(pathStr);
 
     if(!replaceExisting) {
       if(isDirectory || isFile)
@@ -548,6 +548,21 @@ public class GitFileStore extends FileStore implements Closeable {
     }
   }
 
+  boolean fileExists(@Nonnull String pathStr) throws IOException {
+    checkClosed();
+    synchronized(this) {
+      if(pathStr.isEmpty())
+        return false;
+      if(isFileStagedForDeletion(pathStr))
+        return false;
+      if(isFileStagedForInsertion(pathStr))
+        return true;
+      if(cache != null)
+        return DirCacheHelper.isFile(cache, pathStr);
+      return TreeWalkHelper.isFileOrSymbolicLink(reader, pathStr, baseTree);
+    }
+  }
+
   /**
    * Tests if a file is a regular file.
    *
@@ -562,11 +577,13 @@ public class GitFileStore extends FileStore implements Closeable {
         return false;
       if(isFileStagedForDeletion(pathStr))
         return false;
-      if(isFileStagedForInsertion(pathStr))
-        return true;
+      if(isFileStagedForInsertion(pathStr)) {
+        FileMode mode = fileModes.get(pathStr);
+        return mode == FileMode.REGULAR_FILE || mode == FileMode.EXECUTABLE_FILE;
+      }
       if(cache != null)
-        return DirCacheHelper.fileExists(cache, pathStr);
-      return TreeWalkHelper.isFile(reader, pathStr, baseTree);
+        return DirCacheHelper.isRegularOrExecutableFile(cache, pathStr);
+      return TreeWalkHelper.isRegularOrExecutableFile(reader, pathStr, baseTree);
     }
   }
 
@@ -599,7 +616,7 @@ public class GitFileStore extends FileStore implements Closeable {
    *          the string path to the file to test
    * @return  {@code true} if the file is executable
    */
-  boolean isExecutable(@Nonnull String pathStr) throws IOException {
+  boolean isExecutableFile(@Nonnull String pathStr) throws IOException {
     checkClosed();
     if(pathStr.isEmpty())
       return false;
@@ -611,7 +628,30 @@ public class GitFileStore extends FileStore implements Closeable {
       if(cache != null) {
         return DirCacheHelper.isExecutableFile(cache, pathStr);
       }
-      return TreeWalkHelper.isExecutable(reader, pathStr, baseTree);
+      return TreeWalkHelper.isExecutableFile(reader, pathStr, baseTree);
+    }
+  }
+
+  /**
+   * Tests if a file is a symbolic link.
+   *
+   * @param   pathStr
+   *          the string path to the file to test
+   * @return  {@code true} if the file is a symbolic link
+   */
+  boolean isSymbolicLink(@Nonnull String pathStr) throws IOException {
+    checkClosed();
+    if(pathStr.isEmpty())
+      return false;
+    synchronized(this) {
+      if(isDirectoryStagedForDeletion(pathStr))
+        return false;
+      if(isDirectoryStagedForInsertion(pathStr))
+        return fileModes.get(pathStr) == FileMode.SYMLINK;
+      if(cache != null) {
+        return DirCacheHelper.isSymbolicLink(cache, pathStr);
+      }
+      return TreeWalkHelper.isSymbolicLink(reader, pathStr, baseTree);
     }
   }
 
@@ -697,7 +737,7 @@ public class GitFileStore extends FileStore implements Closeable {
     checkClosed();
     prepareCache();
     synchronized(this) {
-      if(isRegularFile(pathStr))
+      if(fileExists(pathStr))
         deleteFile(pathStr);
       else if(isDirectory(pathStr))
         throw new DirectoryNotEmptyException(pathStr);
@@ -879,14 +919,14 @@ public class GitFileStore extends FileStore implements Closeable {
           TreeWalk treeWalk = TreeWalk.forPath(reader, pathStr, baseTree);
           if(treeWalk == null)
             throw new NoSuchFileException(pathStr);
-          if(TreeWalkHelper.isDirectory(treeWalk))
+          if(TreeWalkHelper.isTree(treeWalk))
             throw new AccessDeniedException(pathStr);
           blobId = treeWalk.getObjectId(0);
         } else {
           prepareCache();
           if(isDirectory(pathStr))
             throw new AccessDeniedException(pathStr);
-          else if(!isRegularFile(pathStr)) {
+          else if(!fileExists(pathStr)) {
             if(!options.contains(StandardOpenOption.CREATE) && !options.contains(StandardOpenOption.CREATE_NEW))
               throw new NoSuchFileException(pathStr);
             blobId = ObjectId.zeroId();

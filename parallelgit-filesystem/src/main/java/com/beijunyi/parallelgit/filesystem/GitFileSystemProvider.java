@@ -211,7 +211,7 @@ public class GitFileSystemProvider extends FileSystemProvider {
   public void createDirectory(@Nonnull Path dir, @Nullable FileAttribute<?>... attrs) throws IOException {
     GitPath gitPath = (GitPath) dir;
     GitFileStore store = gitPath.getFileSystem().getFileStore();
-    if(store.isRegularFile(gitPath.getNormalizedString()) || store.isDirectory(gitPath.getNormalizedString()))
+    if(store.fileExists(gitPath.getNormalizedString()) || store.isDirectory(gitPath.getNormalizedString()))
       throw new FileAlreadyExistsException(dir.toString());
   }
 
@@ -361,7 +361,7 @@ public class GitFileSystemProvider extends FileSystemProvider {
     GitFileStore sourceStore = sourceFs.getFileStore();
     GitFileSystem targetFs = targetPath.getFileSystem();
     if(!useSameRepository(sourcePath, targetPath) || !sourceFs.equals(targetFs)) {
-      if(sourceStore.isRegularFile(sourcePath.getNormalizedString())) {
+      if(sourceStore.fileExists(sourcePath.getNormalizedString())) {
         copy(sourcePath, targetPath, options);
         delete(sourcePath);
       } else if(sourceStore.isDirectory(sourcePath.getNormalizedString()))
@@ -438,11 +438,11 @@ public class GitFileSystemProvider extends FileSystemProvider {
   public void checkAccess(@Nonnull Path path, @Nonnull AccessMode... modes) throws IOException {
     GitPath gitPath = (GitPath) path;
     GitFileStore store = gitPath.getFileSystem().getFileStore();
-    if(!store.isRegularFile(gitPath.getNormalizedString()) && !store.isDirectory(gitPath.getNormalizedString()))
+    if(!store.fileExists(gitPath.getNormalizedString()) && !store.isDirectory(gitPath.getNormalizedString()))
       throw new NoSuchFileException(gitPath.toString());
 
     for(AccessMode mode : modes) {
-      if(mode == AccessMode.EXECUTE && !store.isExecutable(gitPath.getNormalizedString()))
+      if(mode == AccessMode.EXECUTE && !store.isExecutableFile(gitPath.getNormalizedString()))
         throw new AccessDeniedException(path.toString());
     }
   }

@@ -1,15 +1,15 @@
 package com.beijunyi.parallelgit.filesystem;
 
-import java.nio.file.attribute.BasicFileAttributes;
-import java.nio.file.attribute.FileTime;
+import java.nio.file.attribute.*;
 import java.util.Map;
+import java.util.Set;
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 
 /**
  * Basic attributes associated with a file in a git file system.
  */
-public class GitFileAttributes implements BasicFileAttributes {
+public class GitFileAttributes implements PosixFileAttributes {
 
   private final FileTime lastModifiedTime;
   private final FileTime lastAccessTime;
@@ -127,4 +127,18 @@ public class GitFileAttributes implements BasicFileAttributes {
     return fileKey;
   }
 
+  @Override
+  public UserPrincipal owner() {
+    return null;
+  }
+
+  @Override
+  public GroupPrincipal group() {
+    return null;
+  }
+
+  @Override
+  public Set<PosixFilePermission> permissions() {
+    return null;
+  }
 }

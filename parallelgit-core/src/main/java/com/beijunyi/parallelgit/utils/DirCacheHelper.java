@@ -252,8 +252,36 @@ public final class DirCacheHelper {
    * @param path a file path
    * @return {@code true} if the specified path exists in the dir cache
    */
-  public static boolean fileExists(@Nonnull DirCache cache, @Nonnull String path) {
+  public static boolean isFile(@Nonnull DirCache cache, @Nonnull String path) {
     return cache.findEntry(path) >= 0;
+  }
+
+  /**
+   * Tests if a file is a symbolic link.
+   *
+   * @param   cache
+   *          a dir cache
+   * @param   path
+   *          the path to the file to test
+   * @return  {@code true} if the specified file is a symbolic link
+   */
+  public static boolean isSymbolicLink(@Nonnull DirCache cache, @Nonnull String path) {
+    DirCacheEntry entry = cache.getEntry(path);
+    return entry != null && entry.getFileMode() == FileMode.SYMLINK;
+  }
+
+  /**
+   * Tests if a file is a regular file.
+   *
+   * @param   cache
+   *          a dir cache
+   * @param   path
+   *          the path to the file to test
+   * @return  {@code true} if the specified file is a regular file
+   */
+  public static boolean isRegularFile(@Nonnull DirCache cache, @Nonnull String path) {
+    DirCacheEntry entry = cache.getEntry(path);
+    return entry != null && entry.getFileMode() == FileMode.REGULAR_FILE;
   }
 
   /**
@@ -268,6 +296,21 @@ public final class DirCacheHelper {
   public static boolean isExecutableFile(@Nonnull DirCache cache, @Nonnull String path) {
     DirCacheEntry entry = cache.getEntry(path);
     return entry != null && entry.getFileMode() == FileMode.EXECUTABLE_FILE;
+  }
+
+  /**
+   * Tests if a file is either regular or executable.
+   *
+   * @param   cache
+   *          a dir cache
+   * @param   path
+   *          the path to the file to test
+   * @return  {@code true} if the specified file is either regular or executable
+   */
+  public static boolean isRegularOrExecutableFile(@Nonnull DirCache cache, @Nonnull String path) {
+    DirCacheEntry entry = cache.getEntry(path);
+    return entry != null
+             && (entry.getFileMode() == FileMode.REGULAR_FILE || entry.getFileMode() == FileMode.EXECUTABLE_FILE);
   }
 
   /**

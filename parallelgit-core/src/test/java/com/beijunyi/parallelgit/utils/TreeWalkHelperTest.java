@@ -25,6 +25,7 @@ public class TreeWalkHelperTest extends AbstractParallelGitTest {
 
   @Test
   public void newTreeWalkTest() throws IOException {
+    clearCache();
     writeFiles("a.txt", "b.txt", "c/d.txt", "c/e.txt", "f/g.txt");
     ObjectId commitId = commitToMaster();
     RevTree tree = RevTreeHelper.getRootTree(repo, commitId);
@@ -63,9 +64,9 @@ public class TreeWalkHelperTest extends AbstractParallelGitTest {
     ObjectId commit = commitToMaster();
 
     RevTree tree = RevTreeHelper.getRootTree(repo, commit);
-    Assert.assertFalse(TreeWalkHelper.isFile(repo, "a", tree));
-    Assert.assertTrue(TreeWalkHelper.isFile(repo, "a/b.txt", tree));
-    Assert.assertFalse(TreeWalkHelper.isFile(repo, "a/b", tree));
+    Assert.assertFalse(TreeWalkHelper.isFileOrSymbolicLink(repo, "a", tree));
+    Assert.assertTrue(TreeWalkHelper.isFileOrSymbolicLink(repo, "a/b.txt", tree));
+    Assert.assertFalse(TreeWalkHelper.isFileOrSymbolicLink(repo, "a/b", tree));
   }
 
   @Test
