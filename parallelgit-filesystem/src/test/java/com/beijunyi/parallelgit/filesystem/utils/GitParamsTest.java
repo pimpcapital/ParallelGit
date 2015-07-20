@@ -6,6 +6,18 @@ import org.junit.Test;
 public class GitParamsTest {
 
   @Test
+  public void createParam() {
+    GitParams params = GitParams.emptyMap().setCreate(true);
+    Assert.assertEquals(true, params.getCreate());
+  }
+
+  @Test
+  public void bareParam() {
+    GitParams params = GitParams.emptyMap().setBare(true);
+    Assert.assertEquals(true, params.getBare());
+  }
+
+  @Test
   public void branchParam() {
     GitParams params = GitParams.emptyMap().setBranch("test_branch");
     Assert.assertEquals("test_branch", params.getBranch());

@@ -63,9 +63,9 @@ public class TreeWalkHelperTest extends AbstractParallelGitTest {
     ObjectId commit = commitToMaster();
 
     RevTree tree = RevTreeHelper.getRootTree(repo, commit);
-    Assert.assertFalse(TreeWalkHelper.isBlob(repo, "a", tree));
-    Assert.assertTrue(TreeWalkHelper.isBlob(repo, "a/b.txt", tree));
-    Assert.assertFalse(TreeWalkHelper.isBlob(repo, "a/b", tree));
+    Assert.assertFalse(TreeWalkHelper.isFile(repo, "a", tree));
+    Assert.assertTrue(TreeWalkHelper.isFile(repo, "a/b.txt", tree));
+    Assert.assertFalse(TreeWalkHelper.isFile(repo, "a/b", tree));
   }
 
   @Test
@@ -74,8 +74,8 @@ public class TreeWalkHelperTest extends AbstractParallelGitTest {
     ObjectId commit = commitToMaster();
 
     RevTree tree = RevTreeHelper.getRootTree(repo, commit);
-    Assert.assertTrue(TreeWalkHelper.isTree(repo, "a", tree));
-    Assert.assertFalse(TreeWalkHelper.isTree(repo, "a/b.txt", tree));
-    Assert.assertFalse(TreeWalkHelper.isTree(repo, "a/b", tree));
+    Assert.assertTrue(TreeWalkHelper.isDirectory(repo, "a", tree));
+    Assert.assertFalse(TreeWalkHelper.isDirectory(repo, "a/b.txt", tree));
+    Assert.assertFalse(TreeWalkHelper.isDirectory(repo, "a/b", tree));
   }
 }

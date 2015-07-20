@@ -257,6 +257,20 @@ public final class DirCacheHelper {
   }
 
   /**
+   * Tests if a file is executable.
+   *
+   * @param   cache
+   *          a dir cache
+   * @param   path
+   *          the path to the file to test
+   * @return  {@code true} if the specified file is executable
+   */
+  public static boolean isExecutableFile(@Nonnull DirCache cache, @Nonnull String path) {
+    DirCacheEntry entry = cache.getEntry(path);
+    return entry != null && entry.getFileMode() == FileMode.EXECUTABLE_FILE;
+  }
+
+  /**
    * Tests if the specified path points to non-trivial(non-empty) directory.
    *
    * {@code DirCache} does not allow empty directory. When all the files in a directory are deleted, this directory

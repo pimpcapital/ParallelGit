@@ -128,110 +128,165 @@ public final class TreeWalkHelper {
   }
 
   /**
-   * Tests if the object type of the given {@link TreeWalk} entry is {@code OBJ_BLOB}.
+   * Tests if a tree walk entry is a regular file.
    *
    * @param   treeWalk
-   *          an open {@code TreeWalk}
-   * @return  {@code true} if the object type of the given {@link TreeWalk} entry is {@code OBJ_BLOB}
+   *          the tree walk entry to test
+   * @return  {@code true} if the given tree walk entry entry is a regular file
    */
-  public static boolean isBlob(@Nonnull TreeWalk treeWalk) {
+  public static boolean isFile(@Nonnull TreeWalk treeWalk) {
     return treeWalk.getFileMode(0).getObjectType() == Constants.OBJ_BLOB;
   }
 
   /**
-   * Tests if the object type of the entry at the given path within the given tree is {@code OBJ_BLOB}.
+   * Tests if a file is a regular file.
    *
    * @param   reader
    *          an object reader
    * @param   path
-   *          a file path
+   *          the path to the file to test
    * @param   treeId
-   *          the id of a file tree
-   * @return  {@code true} if the object type of the entry at the given path within the given tree is {@code OBJ_BLOB}.
+   *          the base tree
+   * @return  {@code true} if the specified file is a regular file
    */
-  public static boolean isBlob(@Nonnull ObjectReader reader, @Nonnull String path, @Nonnull AnyObjectId treeId) throws IOException {
+  public static boolean isFile(@Nonnull ObjectReader reader, @Nonnull String path, @Nonnull AnyObjectId treeId) throws IOException {
     TreeWalk treeWalk = TreeWalk.forPath(reader, path, treeId);
     if(treeWalk == null)
       return false;
     try {
-      return isBlob(treeWalk);
+      return isFile(treeWalk);
     } finally {
       treeWalk.release();
     }
   }
 
   /**
-   * Tests if the object type of the entry at the given path within the given tree is {@code OBJ_BLOB}.
+   * Tests if a file is a regular file.
    *
    * @param   repo
    *          a git repository
    * @param   path
-   *          a file path
+   *          the path to the file to test
    * @param   treeId
-   *          the id of a file tree
-   * @return  {@code true} if the object type of the entry at the given path within the given tree is {@code OBJ_BLOB}.
+   *          the base tree
+   * @return  {@code true} if the specified file is a regular file
    */
-  public static boolean isBlob(@Nonnull Repository repo, @Nonnull String path, @Nonnull AnyObjectId treeId) throws IOException {
+  public static boolean isFile(@Nonnull Repository repo, @Nonnull String path, @Nonnull AnyObjectId treeId) throws IOException {
     TreeWalk treeWalk = TreeWalk.forPath(repo, path, treeId);
     if(treeWalk == null)
       return false;
     try {
-      return isBlob(treeWalk);
+      return isFile(treeWalk);
     } finally {
       treeWalk.release();
     }
   }
 
   /**
-   * Tests if the object type of the given {@link TreeWalk} entry is {@code OBJ_TREE}.
+   * Tests if a tree walk entry is a directory.
    *
    * @param   treeWalk
-   *          an open {@code TreeWalk}
-   * @return  {@code true} if the object type of the given {@link TreeWalk} entry is {@code OBJ_TREE}
+   *          the tree walk entry to test
+   * @return  {@code true} if the given tree walk entry entry is a directory
    */
-  public static boolean isTree(@Nonnull TreeWalk treeWalk) {
+  public static boolean isDirectory(@Nonnull TreeWalk treeWalk) {
     return treeWalk.getFileMode(0).getObjectType() == Constants.OBJ_TREE;
   }
 
   /**
-   * Tests if the object type of the entry at the given path within the given tree is {@code OBJ_TREE}.
+   * Tests if a file is a directory.
    *
    * @param   reader
    *          an object reader
    * @param   path
-   *          a file path
+   *          the path to the file to test
    * @param   treeId
-   *          the id of a file tree
-   * @return  {@code true} if the object type of the entry at the given path within the given tree is {@code OBJ_TREE}.
+   *          the base tree
+   * @return  {@code true} if the specified file is a directory
    */
-  public static boolean isTree(@Nonnull ObjectReader reader, @Nonnull String path, @Nonnull AnyObjectId treeId) throws IOException {
+  public static boolean isDirectory(@Nonnull ObjectReader reader, @Nonnull String path, @Nonnull AnyObjectId treeId) throws IOException {
     TreeWalk treeWalk = TreeWalk.forPath(reader, path, treeId);
     if(treeWalk == null)
       return false;
     try {
-      return isTree(treeWalk);
+      return isDirectory(treeWalk);
     } finally {
       treeWalk.release();
     }
   }
 
   /**
-   * Tests if the object type of the entry at the given path within the given tree is {@code OBJ_TREE}.
+   * Tests if a file is a directory.
    *
    * @param   repo
    *          a git repository
    * @param   path
-   *          a file path
+   *          the path to the file to test
    * @param   treeId
-   *          the id of a file tree
-   * @return  {@code true} if the object type of the entry at the given path within the given tree is {@code OBJ_TREE}.
+   *          the base tree
+   * @return  {@code true} if the specified file is a directory
    */
-  public static boolean isTree(@Nonnull Repository repo, @Nonnull String path, @Nonnull AnyObjectId treeId) throws IOException {
+  public static boolean isDirectory(@Nonnull Repository repo, @Nonnull String path, @Nonnull AnyObjectId treeId) throws IOException {
     TreeWalk treeWalk = TreeWalk.forPath(repo, path, treeId);
     if(treeWalk == null)
       return false;
     try {
-      return isTree(treeWalk);
+      return isDirectory(treeWalk);
+    } finally {
+      treeWalk.release();
+    }
+  }
+
+  /**
+   * Tests if a tree walk entry is executable.
+   *
+   * @param   treeWalk
+   *          the tree walk entry to test
+   * @return  {@code true} if the given tree walk entry entry is executable
+   */
+  public static boolean isExecutable(@Nonnull TreeWalk treeWalk) {
+    return treeWalk.getFileMode(0) == FileMode.EXECUTABLE_FILE;
+  }
+
+  /**
+   * Tests if a file is executable.
+   *
+   * @param   reader
+   *          an object reader
+   * @param   path
+   *          the path to the file to test
+   * @param   treeId
+   *          the base tree
+   * @return  {@code true} if the specified file is executable
+   */
+  public static boolean isExecutable(@Nonnull ObjectReader reader, @Nonnull String path, @Nonnull AnyObjectId treeId) throws IOException {
+    TreeWalk treeWalk = TreeWalk.forPath(reader, path, treeId);
+    if(treeWalk == null)
+      return false;
+    try {
+      return isExecutable(treeWalk);
+    } finally {
+      treeWalk.release();
+    }
+  }
+
+  /**
+   * Tests if a file is executable.
+   *
+   * @param   repo
+   *          a git repository
+   * @param   path
+   *          the path to the file to test
+   * @param   treeId
+   *          the base tree
+   * @return  {@code true} if the specified file is executable
+   */
+  public static boolean isExecutable(@Nonnull Repository repo, @Nonnull String path, @Nonnull AnyObjectId treeId) throws IOException {
+    TreeWalk treeWalk = TreeWalk.forPath(repo, path, treeId);
+    if(treeWalk == null)
+      return false;
+    try {
+      return isExecutable(treeWalk);
     } finally {
       treeWalk.release();
     }

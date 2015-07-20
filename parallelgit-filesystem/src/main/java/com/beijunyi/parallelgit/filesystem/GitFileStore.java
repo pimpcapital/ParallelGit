@@ -32,6 +32,7 @@ public class GitFileStore extends FileStore implements Closeable {
 
   private final Map<String, ObjectId> insertions = new ConcurrentHashMap<>();
   private final Set<String> insertedDirs = Collections.newSetFromMap(new ConcurrentHashMap<String, Boolean>());
+  private final Map<String, FileMode> fileModes = new ConcurrentHashMap<>();
   private final Set<String> deletions = Collections.newSetFromMap(new ConcurrentHashMap<String, Boolean>());
   private final Map<String, Integer> deletedDirs = new ConcurrentHashMap<>();
 
@@ -189,10 +190,11 @@ public class GitFileStore extends FileStore implements Closeable {
     if(!insertions.isEmpty()) {
       DirCacheBuilder builder = DirCacheHelper.keepEverything(cache);
       for(Map.Entry<String, ObjectId> entry : insertions.entrySet())
-        DirCacheHelper.addFile(builder, FileMode.REGULAR_FILE, entry.getKey(), entry.getValue());
+        DirCacheHelper.addFile(builder, fileModes.get(entry.getKey()), entry.getKey(), entry.getValue());
       builder.finish();
       insertions.clear();
       insertedDirs.clear();
+      fileModes.clear();
     }
   }
 
@@ -232,6 +234,7 @@ public class GitFileStore extends FileStore implements Closeable {
   private void stageFileInsertion(@Nonnull String pathStr, @Nonnull ObjectId blobId) {
     applyDeletions();
     insertions.put(pathStr, blobId);
+    fileModes.put(pathStr, FileMode.REGULAR_FILE);
     String current = pathStr;
     int sepIdx;
     while((sepIdx = current.lastIndexOf('/')) >= 0) {
@@ -563,7 +566,7 @@ public class GitFileStore extends FileStore implements Closeable {
         return true;
       if(cache != null)
         return DirCacheHelper.fileExists(cache, pathStr);
-      return TreeWalkHelper.isBlob(reader, pathStr, baseTree);
+      return TreeWalkHelper.isFile(reader, pathStr, baseTree);
     }
   }
 
@@ -585,7 +588,30 @@ public class GitFileStore extends FileStore implements Closeable {
         return true;
       if(cache != null)
         return DirCacheHelper.isNonTrivialDirectory(cache, pathStr);
-      return TreeWalkHelper.isTree(reader, pathStr, baseTree);
+      return TreeWalkHelper.isDirectory(reader, pathStr, baseTree);
+    }
+  }
+
+  /**
+   * Tests if a file is executable.
+   *
+   * @param   pathStr
+   *          the string path to the file to test
+   * @return  {@code true} if the file is executable
+   */
+  boolean isExecutable(@Nonnull String pathStr) throws IOException {
+    checkClosed();
+    if(pathStr.isEmpty())
+      return false;
+    synchronized(this) {
+      if(isDirectoryStagedForDeletion(pathStr))
+        return false;
+      if(isDirectoryStagedForInsertion(pathStr))
+        return fileModes.get(pathStr) == FileMode.EXECUTABLE_FILE;
+      if(cache != null) {
+        return DirCacheHelper.isExecutableFile(cache, pathStr);
+      }
+      return TreeWalkHelper.isExecutable(reader, pathStr, baseTree);
     }
   }
 
@@ -853,7 +879,7 @@ public class GitFileStore extends FileStore implements Closeable {
           TreeWalk treeWalk = TreeWalk.forPath(reader, pathStr, baseTree);
           if(treeWalk == null)
             throw new NoSuchFileException(pathStr);
-          if(TreeWalkHelper.isTree(treeWalk))
+          if(TreeWalkHelper.isDirectory(treeWalk))
             throw new AccessDeniedException(pathStr);
           blobId = treeWalk.getObjectId(0);
         } else {

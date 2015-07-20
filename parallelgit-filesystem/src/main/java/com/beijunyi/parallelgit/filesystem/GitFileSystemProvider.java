@@ -442,7 +442,7 @@ public class GitFileSystemProvider extends FileSystemProvider {
       throw new NoSuchFileException(gitPath.toString());
 
     for(AccessMode mode : modes) {
-      if(mode == AccessMode.EXECUTE)
+      if(mode == AccessMode.EXECUTE && !store.isExecutable(gitPath.getNormalizedString()))
         throw new AccessDeniedException(path.toString());
     }
   }
