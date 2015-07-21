@@ -155,7 +155,13 @@ public class GitFileStore extends FileStore implements Closeable {
 
   @Override
   public boolean supportsFileAttributeView(@Nonnull String name) {
-    return GitFileAttributeView.GIT_FILE_ATTRIBUTE_VIEW_TYPE.equals(name);
+    switch(name) {
+      case GitFileAttributeView.Basic.BASIC_VIEW:
+      case GitFileAttributeView.Posix.POSIX_VIEW:
+        return true;
+      default:
+        return false;
+    }
   }
 
   @Nullable

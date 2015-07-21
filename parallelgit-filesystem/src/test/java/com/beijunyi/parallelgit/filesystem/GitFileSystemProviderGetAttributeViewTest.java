@@ -50,7 +50,7 @@ public class GitFileSystemProviderGetAttributeViewTest extends AbstractGitFileSy
   public void gitFileAttributeViewSetTimesTest() throws IOException {
     initGitFileSystem();
     FileTime now = FileTime.fromMillis(System.currentTimeMillis());
-    Files.getFileAttributeView(root, GitFileAttributeView.class).setTimes(now, now, now);
+    Files.getFileAttributeView(root, GitFileAttributeView.Basic.class).setTimes(now, now, now);
   }
 
 }

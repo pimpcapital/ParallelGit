@@ -17,7 +17,11 @@ public class GitFileSystem extends FileSystem {
 
   private static final String GLOB_SYNTAX = "glob";
   private static final String REGEX_SYNTAX = "regex";
-  private static final Set<String> SUPPORTED_VIEWS = Collections.singleton(GitFileAttributeView.GIT_FILE_ATTRIBUTE_VIEW_TYPE);
+  private static final Set<String> SUPPORTED_VIEWS =
+    Collections.unmodifiableSet(new HashSet<>(Arrays.asList(
+                                                             GitFileAttributeView.Basic.BASIC_VIEW,
+                                                             GitFileAttributeView.Posix.POSIX_VIEW
+    )));
 
   private final GitFileSystemProvider provider;
   private final String session;

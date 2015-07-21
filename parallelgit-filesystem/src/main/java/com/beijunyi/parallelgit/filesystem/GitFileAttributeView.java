@@ -7,145 +7,203 @@ import java.nio.file.Path;
 import java.nio.file.attribute.*;
 import java.util.*;
 import javax.annotation.Nonnull;
-import javax.annotation.Nullable;
 
-public class GitFileAttributeView implements PosixFileAttributeView {
+public abstract class GitFileAttributeView implements FileAttributeView {
 
-  public static final String GIT_FILE_ATTRIBUTE_VIEW_TYPE = "posix";
-
-  public static final FileTime EPOCH = FileTime.fromMillis(0);
-
-  public static final String SIZE_NAME = "size";
-  public static final String CREATION_TIME_NAME = "creationTime";
-  public static final String LAST_ACCESS_TIME_NAME = "lastAccessTime";
-  public static final String LAST_MODIFIED_TIME_NAME = "lastModifiedTime";
-  public static final String FILE_KEY_NAME = "fileKey";
-  public static final String IS_DIRECTORY_NAME = "isDirectory";
-  public static final String IS_REGULAR_FILE_NAME = "isRegularFile";
-  public static final String IS_SYMBOLIC_LINK_NAME = "isSymbolicLink";
-  public static final String IS_OTHER_NAME = "isOther";
-  public static final String PERMISSIONS_NAME = "permissions";
-  public static final String OWNER_NAME = "owner";
-  public static final String GROUP_NAME = "group";
-
-  private static final String[] ALL_NAMES = new String[] {
-                                                           SIZE_NAME,
-                                                           CREATION_TIME_NAME,
-                                                           LAST_ACCESS_TIME_NAME,
-                                                           LAST_MODIFIED_TIME_NAME,
-                                                           FILE_KEY_NAME,
-                                                           IS_DIRECTORY_NAME,
-                                                           IS_REGULAR_FILE_NAME,
-                                                           IS_SYMBOLIC_LINK_NAME,
-                                                           IS_OTHER_NAME,
-                                                           PERMISSIONS_NAME,
-                                                           OWNER_NAME,
-                                                           GROUP_NAME
-  };
-
-  private final GitFileStore store;
-  private final String pathStr;
+  protected final GitFileStore store;
+  protected final String pathStr;
 
   public GitFileAttributeView(@Nonnull GitFileStore store, @Nonnull String pathStr) {
     this.store = store;
     this.pathStr = pathStr;
   }
 
-  @Override
-  public String name() {
-    return GIT_FILE_ATTRIBUTE_VIEW_TYPE;
-  }
-
-  /**
-   * This method always throws {@link UnsupportedOperationException} as setting time is not supported with the current
-   * version.
-   *
-   * @param lastModifiedTime ignored argument
-   * @param lastAccessTime ignored argument
-   * @param createTime ignored argument
-   * @throws UnsupportedOperationException
-   */
-  @Override
-  public void setTimes(@Nullable FileTime lastModifiedTime, @Nullable FileTime lastAccessTime, @Nullable FileTime createTime) throws UnsupportedOperationException {
-    throw new UnsupportedOperationException();
-  }
-
   @Nonnull
-  @Override
-  public GitFileAttributes readAttributes() throws IOException {
-    return new GitFileAttributes(readAttributes(ALL_NAMES));
-  }
+  public abstract Map<String, Object> readAttributes(@Nonnull Collection<String> attributes) throws IOException;
 
-  @Nonnull
-  private Map<String, Object> readAttributes(@Nonnull String[] attributes) throws IOException, IllegalArgumentException {
-    boolean isRegularFile = store.isRegularFile(pathStr);
-    boolean isDirectory = !isRegularFile && store.isDirectory(pathStr);
-    if(!isRegularFile && !isDirectory)
-      throw new NoSuchFileException(pathStr);
+  public static class Basic extends GitFileAttributeView implements BasicFileAttributeView {
 
-    Map<String, Object> result = new HashMap<>();
-    for(String attributeName : attributes) {
-      switch(attributeName) {
-        case SIZE_NAME:
-          result.put(attributeName, store.getFileSize(pathStr));
-          break;
-        case CREATION_TIME_NAME:
-          result.put(attributeName, EPOCH);
-          break;
-        case LAST_ACCESS_TIME_NAME:
-          result.put(attributeName, EPOCH);
-          break;
-        case LAST_MODIFIED_TIME_NAME:
-          result.put(attributeName, EPOCH);
-          break;
-        case FILE_KEY_NAME:
-          result.put(attributeName, null);
-          break;
-        case IS_DIRECTORY_NAME:
-          result.put(attributeName, isDirectory);
-          break;
-        case IS_REGULAR_FILE_NAME:
-          result.put(attributeName, isRegularFile);
-          break;
-        case IS_SYMBOLIC_LINK_NAME:
-          result.put(attributeName, false);
-          break;
-        case IS_OTHER_NAME:
-          result.put(attributeName, false);
-          break;
-        default:
-          throw new IllegalArgumentException("Attribute \"" + attributeName + "\" is not supported");
-      }
+    public static final FileTime EPOCH = FileTime.fromMillis(0);
+
+    public static final String SIZE_NAME = "size";
+    public static final String CREATION_TIME_NAME = "creationTime";
+    public static final String LAST_ACCESS_TIME_NAME = "lastAccessTime";
+    public static final String LAST_MODIFIED_TIME_NAME = "lastModifiedTime";
+    public static final String FILE_KEY_NAME = "fileKey";
+    public static final String IS_DIRECTORY_NAME = "isDirectory";
+    public static final String IS_REGULAR_FILE_NAME = "isRegularFile";
+    public static final String IS_SYMBOLIC_LINK_NAME = "isSymbolicLink";
+    public static final String IS_OTHER_NAME = "isOther";
+
+    public static final String BASIC_VIEW = "basic";
+    public static final Collection<String> BASIC_KEYS =
+      Collections.unmodifiableCollection(Arrays.asList(
+                                                        SIZE_NAME,
+                                                        CREATION_TIME_NAME,
+                                                        LAST_ACCESS_TIME_NAME,
+                                                        LAST_MODIFIED_TIME_NAME,
+                                                        FILE_KEY_NAME,
+                                                        IS_DIRECTORY_NAME,
+                                                        IS_REGULAR_FILE_NAME,
+                                                        IS_SYMBOLIC_LINK_NAME,
+                                                        IS_OTHER_NAME
+      ));
+
+    public Basic(@Nonnull GitFileStore store, @Nonnull String pathStr) {
+      super(store, pathStr);
     }
-    return Collections.unmodifiableMap(result);
+
+    @Nonnull
+    @Override
+    public String name() {
+      return BASIC_VIEW;
+    }
+
+    @Nonnull
+    @Override
+    public BasicFileAttributes readAttributes() throws IOException {
+      return new GitFileAttributes.Basic(readAttributes(BASIC_KEYS));
+    }
+
+    @Override
+    public void setTimes(@Nonnull FileTime lastModifiedTime, @Nonnull FileTime lastAccessTime, @Nonnull FileTime createTime) {
+      throw new UnsupportedOperationException();
+    }
+
+    @Nonnull
+    public Map<String, Object> readAttributes(@Nonnull Collection<String> attributes) throws IOException {
+      boolean isRegularFile = store.isRegularFile(pathStr);
+      boolean isDirectory = !isRegularFile && store.isDirectory(pathStr);
+      if(!isRegularFile && !isDirectory)
+        throw new NoSuchFileException(pathStr);
+
+      Map<String, Object> result = new HashMap<>();
+      Collection<String> keys = new HashSet<>(attributes);
+      keys.retainAll(BASIC_KEYS);
+      for(String key : keys) {
+        switch(key) {
+          case SIZE_NAME:
+            result.put(key, store.getFileSize(pathStr));
+            break;
+          case CREATION_TIME_NAME:
+            result.put(key, EPOCH);
+            break;
+          case LAST_ACCESS_TIME_NAME:
+            result.put(key, EPOCH);
+            break;
+          case LAST_MODIFIED_TIME_NAME:
+            result.put(key, EPOCH);
+            break;
+          case FILE_KEY_NAME:
+            result.put(key, null);
+            break;
+          case IS_DIRECTORY_NAME:
+            result.put(key, isDirectory);
+            break;
+          case IS_REGULAR_FILE_NAME:
+            result.put(key, isRegularFile);
+            break;
+          case IS_SYMBOLIC_LINK_NAME:
+            result.put(key, false);
+            break;
+          case IS_OTHER_NAME:
+            result.put(key, false);
+            break;
+        }
+      }
+      return Collections.unmodifiableMap(result);
+    }
   }
 
-  @Nonnull
-  public Map<String, Object> readAttributes(@Nonnull String attributes) throws IOException, IllegalArgumentException {
-    return readAttributes(attributes.split(","));
+  public static class Posix extends Basic implements PosixFileAttributeView {
+
+    public static final String PERMISSIONS_NAME = "permissions";
+    public static final String OWNER_NAME = "owner";
+    public static final String GROUP_NAME = "group";
+
+    public static final String POSIX_VIEW = "posix";
+    public static final Collection<String> POSIX_KEYS =
+      Collections.unmodifiableCollection(Arrays.asList(
+                                                        PERMISSIONS_NAME,
+                                                        OWNER_NAME,
+                                                        GROUP_NAME
+      ));
+
+    private Path repoDir;
+    private PosixFileAttributes repoAttributes;
+
+    public Posix(@Nonnull GitFileStore store, @Nonnull String pathStr) {
+      super(store, pathStr);
+    }
+
+    @Nonnull
+    @Override
+    public String name() {
+      return POSIX_VIEW;
+    }
+
+    @Nonnull
+    @Override
+    public PosixFileAttributes readAttributes() throws IOException {
+      return new GitFileAttributes.Posix(readAttributes(POSIX_KEYS));
+    }
+
+    @Override
+    public void setPermissions(Set<PosixFilePermission> perms) throws IOException {
+
+    }
+
+    @Override
+    public void setGroup(GroupPrincipal group) throws IOException {
+      throw new UnsupportedOperationException();
+    }
+
+    @Nonnull
+    @Override
+    public UserPrincipal getOwner() throws IOException {
+      return readAttributes().owner();
+    }
+
+    @Override
+    public void setOwner(UserPrincipal owner) throws IOException {
+      throw new UnsupportedOperationException();
+    }
+
+    @Nonnull
+    public Path getRepoDir() {
+      if(repoDir == null)
+        repoDir = store.getRepository().getDirectory().toPath();
+      return repoDir;
+    }
+
+    @Nonnull
+    public PosixFileAttributes getRepoAttributes() throws IOException {
+      if(repoAttributes == null)
+        repoAttributes = Files.getFileAttributeView(getRepoDir(), PosixFileAttributeView.class).readAttributes();
+      return repoAttributes;
+    }
+
+    @Nonnull
+    @Override
+    public Map<String, Object> readAttributes(@Nonnull Collection<String> attributes) throws IOException {
+      Map<String, Object> result = new HashMap<>(super.readAttributes(attributes));
+      Collection<String> keys = new HashSet<>(attributes);
+      keys.retainAll(POSIX_KEYS);
+      for(String key : keys) {
+        switch(key) {
+          case PERMISSIONS_NAME:
+            result.put(key, getRepoAttributes().permissions());
+            break;
+          case OWNER_NAME:
+            result.put(key, getRepoAttributes().owner());
+            break;
+          case GROUP_NAME:
+            result.put(key, getRepoAttributes().group());
+            break;
+        }
+      }
+      return Collections.unmodifiableMap(result);
+    }
   }
 
-  @Override
-  public void setPermissions(@Nonnull Set<PosixFilePermission> perms) throws IOException {
-
-  }
-
-  @Override
-  public void setGroup(@Nonnull GroupPrincipal group) throws IOException {
-    throw new UnsupportedOperationException();
-
-  }
-
-  @Nonnull
-  @Override
-  public UserPrincipal getOwner() throws IOException {
-    Path repoDir = store.getRepository().getDirectory().toPath();
-    FileOwnerAttributeView view = Files.getFileAttributeView(repoDir, FileOwnerAttributeView.class);
-    return view.getOwner();
-  }
-
-  @Override
-  public void setOwner(@Nonnull UserPrincipal owner) throws IOException {
-    throw new UnsupportedOperationException();
-  }
 }

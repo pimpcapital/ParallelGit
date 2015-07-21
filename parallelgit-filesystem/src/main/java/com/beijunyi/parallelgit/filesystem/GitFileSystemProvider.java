@@ -4,9 +4,7 @@ import java.io.IOException;
 import java.net.URI;
 import java.nio.channels.SeekableByteChannel;
 import java.nio.file.*;
-import java.nio.file.attribute.BasicFileAttributes;
-import java.nio.file.attribute.FileAttribute;
-import java.nio.file.attribute.FileAttributeView;
+import java.nio.file.attribute.*;
 import java.nio.file.spi.FileSystemProvider;
 import java.util.*;
 import java.util.concurrent.ConcurrentHashMap;
@@ -466,11 +464,13 @@ public class GitFileSystemProvider extends FileSystemProvider {
   @Nonnull
   @Override
   public <V extends FileAttributeView> V getFileAttributeView(@Nonnull Path path, @Nonnull Class<V> type, @Nonnull LinkOption... options) throws UnsupportedOperationException {
-    if(!type.isAssignableFrom(GitFileAttributeView.class))
-      throw new UnsupportedOperationException(type.getName());
     GitPath gitPath = (GitPath) path;
     GitFileStore store = gitPath.getFileSystem().getFileStore();
-    return type.cast(new GitFileAttributeView(store, gitPath.getNormalizedString()));
+    if(type == BasicFileAttributeView.class)
+      return type.cast(new GitFileAttributeView.Basic(store, gitPath.getNormalizedString()));
+    if(type == PosixFileAttributeView.class)
+      return type.cast(new GitFileAttributeView.Posix(store, gitPath.getNormalizedString()));
+    throw new UnsupportedOperationException(type.getName());
   }
 
   /**
@@ -494,9 +494,14 @@ public class GitFileSystemProvider extends FileSystemProvider {
   @Nonnull
   @Override
   public <A extends BasicFileAttributes> A readAttributes(@Nonnull Path path, @Nonnull Class<A> type, @Nonnull LinkOption... options) throws IOException {
-    if(!type.isAssignableFrom(GitFileAttributes.class))
+    Class<? extends BasicFileAttributeView> view;
+    if(type == BasicFileAttributes.class)
+      view = BasicFileAttributeView.class;
+    else if(type == PosixFileAttributes.class)
+      view = PosixFileAttributeView.class;
+    else
       throw new UnsupportedOperationException(type.getName());
-    return type.cast(getFileAttributeView(path, GitFileAttributeView.class, options).readAttributes());
+    return type.cast(getFileAttributeView(path, view, options).readAttributes());
   }
 
   /**
@@ -524,13 +529,20 @@ public class GitFileSystemProvider extends FileSystemProvider {
   @Override
   public Map<String, Object> readAttributes(@Nonnull Path path, @Nonnull String attributes, @Nonnull LinkOption... options) throws IOException {
     int viewNameEnd = attributes.indexOf(':');
-    if(viewNameEnd != -1) {
-      String viewName = attributes.substring(0, viewNameEnd);
-      if(!GitFileAttributeView.GIT_FILE_ATTRIBUTE_VIEW_TYPE.equals(viewName))
-        throw new UnsupportedOperationException(viewName);
-      attributes = attributes.substring(viewNameEnd + 1);
+    String viewName = viewNameEnd >= 0 ? attributes.substring(0, viewNameEnd) : GitFileAttributeView.Basic.BASIC_VIEW;
+    String keys = viewNameEnd >= 0 ? attributes.substring(viewNameEnd) : attributes;
+    Class<? extends GitFileAttributeView> viewClass;
+    switch(viewName) {
+      case GitFileAttributeView.Basic.BASIC_VIEW:
+        viewClass = GitFileAttributeView.Basic.class;
+        break;
+      case GitFileAttributeView.Posix.POSIX_VIEW:
+        viewClass = GitFileAttributeView.Posix.class;
+        break;
+      default:
+        throw new UnsupportedOperationException("View \"" + viewName + "\" is not available");
     }
-    return getFileAttributeView(path, GitFileAttributeView.class, options).readAttributes(attributes);
+    return getFileAttributeView(path, viewClass, options).readAttributes(Arrays.asList(keys.split(",")));
   }
 
   /**

@@ -18,10 +18,10 @@ public class GitFileSystemProviderReadAttributesTest extends AbstractGitFileSyst
     writeFile("a", data);
     commitToMaster();
     initGitFileSystem();
-    GitFileAttributes result = Files.readAttributes(gfs.getPath("a"), GitFileAttributes.class);
-    Assert.assertEquals(GitFileAttributeView.EPOCH, result.lastModifiedTime());
-    Assert.assertEquals(GitFileAttributeView.EPOCH, result.lastAccessTime());
-    Assert.assertEquals(GitFileAttributeView.EPOCH, result.creationTime());
+    GitFileAttributes.Basic result = Files.readAttributes(gfs.getPath("a"), GitFileAttributes.Basic.class);
+    Assert.assertEquals(GitFileAttributeView.Basic.EPOCH, result.lastModifiedTime());
+    Assert.assertEquals(GitFileAttributeView.Basic.EPOCH, result.lastAccessTime());
+    Assert.assertEquals(GitFileAttributeView.Basic.EPOCH, result.creationTime());
     Assert.assertTrue(result.isRegularFile());
     Assert.assertFalse(result.isDirectory());
     Assert.assertFalse(result.isSymbolicLink());
@@ -36,10 +36,10 @@ public class GitFileSystemProviderReadAttributesTest extends AbstractGitFileSyst
     writeFile("a/b");
     commitToMaster();
     initGitFileSystem();
-    GitFileAttributes result = Files.readAttributes(gfs.getPath("/a"), GitFileAttributes.class);
-    Assert.assertEquals(GitFileAttributeView.EPOCH, result.lastModifiedTime());
-    Assert.assertEquals(GitFileAttributeView.EPOCH, result.lastAccessTime());
-    Assert.assertEquals(GitFileAttributeView.EPOCH, result.creationTime());
+    GitFileAttributes.Basic result = Files.readAttributes(gfs.getPath("/a"), GitFileAttributes.Basic.class);
+    Assert.assertEquals(GitFileAttributeView.Basic.EPOCH, result.lastModifiedTime());
+    Assert.assertEquals(GitFileAttributeView.Basic.EPOCH, result.lastAccessTime());
+    Assert.assertEquals(GitFileAttributeView.Basic.EPOCH, result.creationTime());
     Assert.assertFalse(result.isRegularFile());
     Assert.assertTrue(result.isDirectory());
     Assert.assertFalse(result.isSymbolicLink());
@@ -51,10 +51,10 @@ public class GitFileSystemProviderReadAttributesTest extends AbstractGitFileSyst
   @Test
   public void readRootAttributesTest() throws IOException {
     initGitFileSystem();
-    GitFileAttributes result = Files.readAttributes(gfs.getPath("/"), GitFileAttributes.class);
-    Assert.assertEquals(GitFileAttributeView.EPOCH, result.lastModifiedTime());
-    Assert.assertEquals(GitFileAttributeView.EPOCH, result.lastAccessTime());
-    Assert.assertEquals(GitFileAttributeView.EPOCH, result.creationTime());
+    GitFileAttributes.Basic result = Files.readAttributes(gfs.getPath("/"), GitFileAttributes.Basic.class);
+    Assert.assertEquals(GitFileAttributeView.Basic.EPOCH, result.lastModifiedTime());
+    Assert.assertEquals(GitFileAttributeView.Basic.EPOCH, result.lastAccessTime());
+    Assert.assertEquals(GitFileAttributeView.Basic.EPOCH, result.creationTime());
     Assert.assertFalse(result.isRegularFile());
     Assert.assertTrue(result.isDirectory());
     Assert.assertFalse(result.isSymbolicLink());
@@ -66,7 +66,7 @@ public class GitFileSystemProviderReadAttributesTest extends AbstractGitFileSyst
   @Test(expected = NoSuchFileException.class)
   public void readNonExistentFileAttributesTest() throws IOException {
     initGitFileSystem();
-    Files.readAttributes(gfs.getPath("/a"), GitFileAttributes.class);
+    Files.readAttributes(gfs.getPath("/a"), GitFileAttributes.Basic.class);
   }
 
   @Test(expected = UnsupportedOperationException.class)
@@ -85,8 +85,8 @@ public class GitFileSystemProviderReadAttributesTest extends AbstractGitFileSyst
     String attributes = "basic:size,isRegularFile";
     Map<String, Object> attributeMap = Files.readAttributes(gfs.getPath("/a"), attributes);
     Assert.assertEquals(2, attributeMap.size());
-    Assert.assertEquals((long) data.length, attributeMap.get(GitFileAttributeView.SIZE_NAME));
-    Assert.assertEquals(true, attributeMap.get(GitFileAttributeView.IS_REGULAR_FILE_NAME));
+    Assert.assertEquals((long) data.length, attributeMap.get(GitFileAttributeView.Basic.SIZE_NAME));
+    Assert.assertEquals(true, attributeMap.get(GitFileAttributeView.Basic.IS_REGULAR_FILE_NAME));
   }
 
   @Test
@@ -99,8 +99,8 @@ public class GitFileSystemProviderReadAttributesTest extends AbstractGitFileSyst
     String attributes = "size,isRegularFile";
     Map<String, Object> attributeMap = Files.readAttributes(gfs.getPath("/a"), attributes);
     Assert.assertEquals(2, attributeMap.size());
-    Assert.assertEquals((long) data.length, attributeMap.get(GitFileAttributeView.SIZE_NAME));
-    Assert.assertEquals(true, attributeMap.get(GitFileAttributeView.IS_REGULAR_FILE_NAME));
+    Assert.assertEquals((long) data.length, attributeMap.get(GitFileAttributeView.Basic.SIZE_NAME));
+    Assert.assertEquals(true, attributeMap.get(GitFileAttributeView.Basic.IS_REGULAR_FILE_NAME));
   }
 
   @Test(expected = UnsupportedOperationException.class)
