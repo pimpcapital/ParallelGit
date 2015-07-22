@@ -12,7 +12,8 @@ public class TreeReader {
   private ObjectReader reader;
   private AnyObjectId tree;
   private TreeWalk treeWalk;
-  private String base = "";
+  private String base;
+  private DirectoryNode parent;
 
   @Nonnull
   public static TreeReader prepare() {
@@ -72,6 +73,11 @@ public class TreeReader {
   public TreeReader base(@Nonnull String base) {
     this.base = base;
     return this;
+  }
+
+  @Nonnull
+  public TreeReader root() {
+    return base("");
   }
 
   private void prepareBase() {
