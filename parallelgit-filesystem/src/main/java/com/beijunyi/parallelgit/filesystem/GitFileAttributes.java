@@ -9,7 +9,7 @@ import javax.annotation.Nullable;
 /**
  * Basic attributes associated with a file in a git file system.
  */
-public class GitFileAttributes {
+public abstract class GitFileAttributes {
 
   public static class Basic implements BasicFileAttributes {
     private final FileTime lastModifiedTime;

@@ -71,10 +71,9 @@ public abstract class GitFileAttributeView implements FileAttributeView {
     }
 
     @Nonnull
+    @Override
     public Map<String, Object> readAttributes(@Nonnull Collection<String> keys) throws IOException {
-      boolean isRegularFile = store.isRegularFile(pathStr);
-      boolean isDirectory = !isRegularFile && store.isDirectory(pathStr);
-      if(!isRegularFile && !isDirectory)
+      if(!store.fileExists(pathStr) && !store.isDirectory(pathStr))
         throw new NoSuchFileException(pathStr);
 
       Map<String, Object> result = new HashMap<>();
@@ -96,13 +95,13 @@ public abstract class GitFileAttributeView implements FileAttributeView {
             result.put(key, null);
             break;
           case IS_DIRECTORY_NAME:
-            result.put(key, isDirectory);
+            result.put(key, store.isDirectory(pathStr));
             break;
           case IS_REGULAR_FILE_NAME:
-            result.put(key, isRegularFile);
+            result.put(key, store.isRegularFile(pathStr));
             break;
           case IS_SYMBOLIC_LINK_NAME:
-            result.put(key, false);
+            result.put(key, store.isSymbolicLink(pathStr));
             break;
           case IS_OTHER_NAME:
             result.put(key, false);
@@ -116,6 +115,14 @@ public abstract class GitFileAttributeView implements FileAttributeView {
   }
 
   public static class Posix extends Basic implements PosixFileAttributeView {
+
+    private static final Collection<PosixFilePermission> DEFAULT_PERMISSIONS =
+      Collections.unmodifiableCollection(Arrays.asList(
+                                                        PosixFilePermission.OWNER_READ,
+                                                        PosixFilePermission.OWNER_WRITE,
+                                                        PosixFilePermission.GROUP_READ,
+                                                        PosixFilePermission.OTHERS_READ
+      ));
 
     public static final String PERMISSIONS_NAME = "permissions";
     public static final String OWNER_NAME = "owner";
@@ -146,39 +153,6 @@ public abstract class GitFileAttributeView implements FileAttributeView {
     }
 
     @Nonnull
-    @Override
-    public String name() {
-      return POSIX_VIEW;
-    }
-
-    @Nonnull
-    @Override
-    public PosixFileAttributes readAttributes() throws IOException {
-      return new GitFileAttributes.Posix(readAttributes(POSIX_KEYS));
-    }
-
-    @Override
-    public void setPermissions(Set<PosixFilePermission> perms) throws IOException {
-
-    }
-
-    @Override
-    public void setGroup(GroupPrincipal group) throws IOException {
-      throw new UnsupportedOperationException();
-    }
-
-    @Nonnull
-    @Override
-    public UserPrincipal getOwner() throws IOException {
-      return readAttributes().owner();
-    }
-
-    @Override
-    public void setOwner(UserPrincipal owner) throws IOException {
-      throw new UnsupportedOperationException();
-    }
-
-    @Nonnull
     public Path getRepoDir() {
       if(repoDir == null)
         repoDir = store.getRepository().getDirectory().toPath();
@@ -194,6 +168,53 @@ public abstract class GitFileAttributeView implements FileAttributeView {
 
     @Nonnull
     @Override
+    public String name() {
+      return POSIX_VIEW;
+    }
+
+    @Nonnull
+    @Override
+    public PosixFileAttributes readAttributes() throws IOException {
+      return new GitFileAttributes.Posix(readAttributes(POSIX_KEYS));
+    }
+
+    @Nonnull
+    public Set<PosixFilePermission> getPermissions() throws IOException {
+      Set<PosixFilePermission> perms = new HashSet<>(DEFAULT_PERMISSIONS);
+      if(store.isExecutableFile(pathStr))
+        perms.add(PosixFilePermission.OWNER_EXECUTE);
+      return Collections.unmodifiableSet(perms);
+    }
+
+
+    @Override
+    public void setPermissions(@Nonnull Set<PosixFilePermission> perms) throws IOException {
+
+    }
+
+    @Nonnull
+    public GroupPrincipal getGroup() throws IOException {
+      return getRepoAttributes().group();
+    }
+
+    @Override
+    public void setGroup(@Nonnull GroupPrincipal group) throws IOException {
+      throw new UnsupportedOperationException();
+    }
+
+    @Nonnull
+    @Override
+    public UserPrincipal getOwner() throws IOException {
+      return getRepoAttributes().owner();
+    }
+
+    @Override
+    public void setOwner(UserPrincipal owner) throws IOException {
+      throw new UnsupportedOperationException();
+    }
+
+    @Nonnull
+    @Override
     public Map<String, Object> readAttributes(@Nonnull Collection<String> keys) throws IOException {
       Set<String> basicKeys = new HashSet<>(keys);
       basicKeys.retainAll(BASIC_KEYS);
@@ -203,13 +224,13 @@ public abstract class GitFileAttributeView implements FileAttributeView {
       for(String key : remainKeys) {
         switch(key) {
           case PERMISSIONS_NAME:
-            result.put(key, getRepoAttributes().permissions());
+            result.put(key, getPermissions());
             break;
           case OWNER_NAME:
-            result.put(key, getRepoAttributes().owner());
+            result.put(key, getOwner());
             break;
           case GROUP_NAME:
-            result.put(key, getRepoAttributes().group());
+            result.put(key, getGroup());
             break;
           default:
             throw new IllegalArgumentException("Attribute \"" + key + "\" is not supported");

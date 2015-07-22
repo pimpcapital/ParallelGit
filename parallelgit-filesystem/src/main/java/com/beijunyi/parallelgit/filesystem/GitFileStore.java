@@ -498,7 +498,7 @@ public class GitFileStore extends FileStore implements Closeable {
    * @param   objectId
    *          the new {@code ObjectId}
    */
-  private void createFile(@Nonnull String pathStr, @Nonnull ObjectId objectId) {
+  private void setFileBlob(@Nonnull String pathStr, @Nonnull ObjectId objectId) {
     assert deletions == null || !deletions.contains(pathStr);
     DirCacheEntry entry = cache.getEntry(pathStr);
     if(entry != null)
@@ -527,7 +527,7 @@ public class GitFileStore extends FileStore implements Closeable {
   private void safelyCreateFile(@Nonnull String pathStr, @Nonnull ObjectId blobId, boolean replaceExisting) throws IOException {
     if(!prepareCreateFile(pathStr, replaceExisting))
       removeMemoryChannel(pathStr);
-    createFile(pathStr, blobId);
+    setFileBlob(pathStr, blobId);
   }
 
   /**
@@ -854,7 +854,7 @@ public class GitFileStore extends FileStore implements Closeable {
         removeMemoryChannel(targetStr);
 
       if(sourceBlob != null) {
-        createFile(targetStr, sourceBlob);
+        setFileBlob(targetStr, sourceBlob);
         cloneChannel(sourceStr, targetStr);
         deleteFile(sourceStr);
       } else {
