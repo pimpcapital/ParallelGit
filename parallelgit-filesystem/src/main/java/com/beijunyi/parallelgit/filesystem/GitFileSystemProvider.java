@@ -466,9 +466,9 @@ public class GitFileSystemProvider extends FileSystemProvider {
   public <V extends FileAttributeView> V getFileAttributeView(@Nonnull Path path, @Nonnull Class<V> type, @Nonnull LinkOption... options) throws UnsupportedOperationException {
     GitPath gitPath = (GitPath) path;
     GitFileStore store = gitPath.getFileSystem().getFileStore();
-    if(type == BasicFileAttributeView.class)
+    if(type.isAssignableFrom(GitFileAttributeView.Basic.class))
       return type.cast(new GitFileAttributeView.Basic(store, gitPath.getNormalizedString()));
-    if(type == PosixFileAttributeView.class)
+    if(type.isAssignableFrom(GitFileAttributeView.Posix.class))
       return type.cast(new GitFileAttributeView.Posix(store, gitPath.getNormalizedString()));
     throw new UnsupportedOperationException(type.getName());
   }
@@ -495,10 +495,10 @@ public class GitFileSystemProvider extends FileSystemProvider {
   @Override
   public <A extends BasicFileAttributes> A readAttributes(@Nonnull Path path, @Nonnull Class<A> type, @Nonnull LinkOption... options) throws IOException {
     Class<? extends BasicFileAttributeView> view;
-    if(type == BasicFileAttributes.class)
-      view = BasicFileAttributeView.class;
-    else if(type == PosixFileAttributes.class)
-      view = PosixFileAttributeView.class;
+    if(type.isAssignableFrom(GitFileAttributes.Basic.class))
+      view = GitFileAttributeView.Basic.class;
+    else if(type.isAssignableFrom(GitFileAttributes.Posix.class))
+      view = GitFileAttributeView.Posix.class;
     else
       throw new UnsupportedOperationException(type.getName());
     return type.cast(getFileAttributeView(path, view, options).readAttributes());
@@ -530,7 +530,7 @@ public class GitFileSystemProvider extends FileSystemProvider {
   public Map<String, Object> readAttributes(@Nonnull Path path, @Nonnull String attributes, @Nonnull LinkOption... options) throws IOException {
     int viewNameEnd = attributes.indexOf(':');
     String viewName = viewNameEnd >= 0 ? attributes.substring(0, viewNameEnd) : GitFileAttributeView.Basic.BASIC_VIEW;
-    String keys = viewNameEnd >= 0 ? attributes.substring(viewNameEnd) : attributes;
+    String keys = viewNameEnd >= 0 ? attributes.substring(viewNameEnd + 1) : attributes;
     Class<? extends GitFileAttributeView> viewClass;
     switch(viewName) {
       case GitFileAttributeView.Basic.BASIC_VIEW:

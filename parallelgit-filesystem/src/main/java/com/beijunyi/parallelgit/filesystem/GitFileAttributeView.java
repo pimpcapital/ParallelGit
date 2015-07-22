@@ -71,15 +71,13 @@ public abstract class GitFileAttributeView implements FileAttributeView {
     }
 
     @Nonnull
-    public Map<String, Object> readAttributes(@Nonnull Collection<String> attributes) throws IOException {
+    public Map<String, Object> readAttributes(@Nonnull Collection<String> keys) throws IOException {
       boolean isRegularFile = store.isRegularFile(pathStr);
       boolean isDirectory = !isRegularFile && store.isDirectory(pathStr);
       if(!isRegularFile && !isDirectory)
         throw new NoSuchFileException(pathStr);
 
       Map<String, Object> result = new HashMap<>();
-      Collection<String> keys = new HashSet<>(attributes);
-      keys.retainAll(BASIC_KEYS);
       for(String key : keys) {
         switch(key) {
           case SIZE_NAME:
@@ -109,6 +107,8 @@ public abstract class GitFileAttributeView implements FileAttributeView {
           case IS_OTHER_NAME:
             result.put(key, false);
             break;
+          default:
+            throw new IllegalArgumentException("Attribute \"" + key + "\" is not supported");
         }
       }
       return Collections.unmodifiableMap(result);
@@ -124,6 +124,15 @@ public abstract class GitFileAttributeView implements FileAttributeView {
     public static final String POSIX_VIEW = "posix";
     public static final Collection<String> POSIX_KEYS =
       Collections.unmodifiableCollection(Arrays.asList(
+                                                        SIZE_NAME,
+                                                        CREATION_TIME_NAME,
+                                                        LAST_ACCESS_TIME_NAME,
+                                                        LAST_MODIFIED_TIME_NAME,
+                                                        FILE_KEY_NAME,
+                                                        IS_DIRECTORY_NAME,
+                                                        IS_REGULAR_FILE_NAME,
+                                                        IS_SYMBOLIC_LINK_NAME,
+                                                        IS_OTHER_NAME,
                                                         PERMISSIONS_NAME,
                                                         OWNER_NAME,
                                                         GROUP_NAME
@@ -185,11 +194,13 @@ public abstract class GitFileAttributeView implements FileAttributeView {
 
     @Nonnull
     @Override
-    public Map<String, Object> readAttributes(@Nonnull Collection<String> attributes) throws IOException {
-      Map<String, Object> result = new HashMap<>(super.readAttributes(attributes));
-      Collection<String> keys = new HashSet<>(attributes);
-      keys.retainAll(POSIX_KEYS);
-      for(String key : keys) {
+    public Map<String, Object> readAttributes(@Nonnull Collection<String> keys) throws IOException {
+      Set<String> basicKeys = new HashSet<>(keys);
+      basicKeys.retainAll(BASIC_KEYS);
+      Map<String, Object> result = new HashMap<>(super.readAttributes(basicKeys));
+      Set<String> remainKeys = new HashSet<>(keys);
+      remainKeys.removeAll(result.keySet());
+      for(String key : remainKeys) {
         switch(key) {
           case PERMISSIONS_NAME:
             result.put(key, getRepoAttributes().permissions());
@@ -200,6 +211,8 @@ public abstract class GitFileAttributeView implements FileAttributeView {
           case GROUP_NAME:
             result.put(key, getRepoAttributes().group());
             break;
+          default:
+            throw new IllegalArgumentException("Attribute \"" + key + "\" is not supported");
         }
       }
       return Collections.unmodifiableMap(result);

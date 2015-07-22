@@ -150,7 +150,7 @@ public class GitFileStore extends FileStore implements Closeable {
 
   @Override
   public boolean supportsFileAttributeView(@Nonnull Class<? extends FileAttributeView> type) {
-    return type.isAssignableFrom(GitFileAttributeView.class);
+    return type.isAssignableFrom(GitFileAttributeView.Basic.class);
   }
 
   @Override
