@@ -17,53 +17,53 @@ public class FileNode extends TreeNode {
   private byte[] bytes;
   private Collection<GitSeekableByteChannel> channels = new LinkedList<>();
 
-  public FileNode(@Nonnull TreeNodeType type) {
-    super(type);
+  public FileNode(@Nonnull TreeNodeType type, @Nonnull ObjectReader reader) {
+    super(type, reader);
   }
 
   @Nonnull
-  public static FileNode forRegularFileObject(@Nonnull AnyObjectId object) {
-    FileNode node = new FileNode(TreeNodeType.NON_EXECUTABLE_FILE);
+  public static FileNode forRegularFileObject(@Nonnull AnyObjectId object, @Nonnull ObjectReader reader) {
+    FileNode node = new FileNode(TreeNodeType.NON_EXECUTABLE_FILE, reader);
     node.object = object;
     return node;
   }
 
   @Nonnull
-  public static FileNode forExecutableFileObject(@Nonnull AnyObjectId object) {
-    FileNode node = new FileNode(TreeNodeType.EXECUTABLE_FILE);
+  public static FileNode forExecutableFileObject(@Nonnull AnyObjectId object, @Nonnull ObjectReader reader) {
+    FileNode node = new FileNode(TreeNodeType.EXECUTABLE_FILE, reader);
     node.object = object;
     return node;
   }
 
   @Nonnull
-  public static FileNode forSymlinkBlob(@Nonnull AnyObjectId object) {
-    FileNode node = new FileNode(TreeNodeType.SYMBOLIC_LINK);
+  public static FileNode forSymlinkBlob(@Nonnull AnyObjectId object, @Nonnull ObjectReader reader) {
+    FileNode node = new FileNode(TreeNodeType.SYMBOLIC_LINK, reader);
     node.object = object;
     return node;
   }
 
   @Override
-  protected void doLoad(@Nonnull ObjectReader reader) throws IOException {
+  protected void doLoad() throws IOException {
     bytes = reader.open(object).getBytes();
   }
 
   @Override
-  synchronized public void lock() throws AccessDeniedException {
+  public synchronized void lock() throws AccessDeniedException {
     if(!channels.isEmpty())
-      denyAccess();
+      failLock();
     super.lock();
   }
 
   @Nonnull
-  synchronized public GitSeekableByteChannel newChannel(@Nonnull Set<? extends OpenOption> options) throws AccessDeniedException {
+  public synchronized GitSeekableByteChannel newChannel(@Nonnull Set<? extends OpenOption> options) throws AccessDeniedException {
     if(locked)
-      denyAccess();
+      failLock();
     GitSeekableByteChannel channel = new GitSeekableByteChannel(bytes, options, this);
     channels.add(channel);
     return channel;
   }
 
-  synchronized public void removeChannel(@Nonnull GitSeekableByteChannel channel) {
+  public synchronized void removeChannel(@Nonnull GitSeekableByteChannel channel) {
     channels.remove(channel);
   }
 }

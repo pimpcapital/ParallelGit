@@ -10,6 +10,7 @@ import org.eclipse.jgit.lib.ObjectReader;
 public abstract class TreeNode {
 
   protected final TreeNodeType type;
+  protected final ObjectReader reader;
   protected String name;
   protected AnyObjectId object;
   protected TreeNode parent;
@@ -17,15 +18,37 @@ public abstract class TreeNode {
   protected boolean dirty = false;
   protected boolean locked = false;
 
-  protected TreeNode(@Nonnull TreeNodeType type) {
+  protected TreeNode(@Nonnull TreeNodeType type, @Nonnull ObjectReader reader) {
     this.type = type;
+    this.reader = reader;
   }
 
-  protected abstract void doLoad(@Nonnull ObjectReader reader) throws IOException;
+  public boolean isRegularFile() {
+    return type == TreeNodeType.NON_EXECUTABLE_FILE || type == TreeNodeType.EXECUTABLE_FILE;
+  }
 
-  synchronized public void load(@Nonnull ObjectReader reader) throws IOException {
+  public boolean isExecutableFile() {
+    return type == TreeNodeType.EXECUTABLE_FILE;
+  }
+
+  public boolean isSymbolicLink() {
+    return type == TreeNodeType.SYMBOLIC_LINK;
+  }
+
+  public boolean isDirectory() {
+    return type == TreeNodeType.DIRECTORY;
+  }
+
+  @Nonnull
+  public AnyObjectId getObject() {
+    return object;
+  }
+
+  protected abstract void doLoad() throws IOException;
+
+  protected synchronized void load() throws IOException {
     if(!loaded)
-      doLoad(reader);
+      doLoad();
     loaded = true;
   }
 
@@ -43,19 +66,23 @@ public abstract class TreeNode {
     return base + "/" + name;
   }
 
-  protected void denyAccess() throws AccessDeniedException {
+  protected void failLock() throws AccessDeniedException {
     throw new AccessDeniedException(getPath());
   }
 
-  synchronized public void lock() throws AccessDeniedException {
+  public synchronized void lock() throws AccessDeniedException {
     if(locked)
-      denyAccess();
+      failLock();
     locked = true;
   }
 
-  synchronized public void unlock() throws IllegalStateException {
+  protected void failUnlock() throws IllegalStateException {
+    throw new IllegalStateException(getPath());
+  }
+
+  public synchronized void unlock() throws IllegalStateException {
     if(!locked)
-      throw new IllegalStateException(getPath());
+      failUnlock();
     locked = false;
   }
 

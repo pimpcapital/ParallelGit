@@ -14,7 +14,7 @@ import javax.annotation.Nullable;
 import com.beijunyi.parallelgit.filesystem.io.GitDirectoryStream;
 import com.beijunyi.parallelgit.filesystem.utils.GitFileSystemBuilder;
 import com.beijunyi.parallelgit.filesystem.utils.GitUriUtils;
-import org.eclipse.jgit.lib.ObjectId;
+import org.eclipse.jgit.lib.AnyObjectId;
 import org.eclipse.jgit.lib.Repository;
 
 import static java.nio.file.StandardCopyOption.*;
@@ -318,7 +318,7 @@ public class GitFileSystemProvider extends FileSystemProvider {
       if(sourceStore.isDirty(sourcePath.getNormalizedString()))
         Files.copy(newInputStream(sourcePath), targetPath, options);
       else {
-        ObjectId blobId = sourceStore.getFileBlobId(sourcePath.getNormalizedString());
+        AnyObjectId blobId = sourceStore.getFileBlobId(sourcePath.getNormalizedString());
         if(blobId != null)
           targetFs.getFileStore().createFileFromBlob(targetPath.getNormalizedString(), blobId, replaceExisting);
       }

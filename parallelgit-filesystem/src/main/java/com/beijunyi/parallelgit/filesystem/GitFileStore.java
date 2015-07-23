@@ -6,14 +6,17 @@ import java.nio.file.*;
 import java.nio.file.attribute.FileAttributeView;
 import java.nio.file.attribute.FileStoreAttributeView;
 import java.util.*;
-import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentLinkedQueue;
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 
-import com.beijunyi.parallelgit.filesystem.io.*;
+import com.beijunyi.parallelgit.filesystem.hierarchy.DirectoryNode;
+import com.beijunyi.parallelgit.filesystem.hierarchy.FileNode;
+import com.beijunyi.parallelgit.filesystem.hierarchy.TreeNode;
+import com.beijunyi.parallelgit.filesystem.io.GitDirectoryStream;
+import com.beijunyi.parallelgit.filesystem.io.GitSeekableByteChannel;
 import com.beijunyi.parallelgit.utils.*;
-import org.eclipse.jgit.dircache.*;
+import org.eclipse.jgit.dircache.DirCacheEntry;
 import org.eclipse.jgit.lib.*;
 import org.eclipse.jgit.revwalk.RevCommit;
 import org.eclipse.jgit.treewalk.TreeWalk;
@@ -23,44 +26,40 @@ public class GitFileStore extends FileStore implements Closeable {
   public static final String ATTACHED = "attached";
   public static final String DETACHED = "detached";
 
-  private final GitPath root;
   private final Repository repo;
   private final ObjectReader reader;
-
-  private final Map<String, GitFileStoreMemoryChannel> memoryChannels = new ConcurrentHashMap<>();
-  private final Map<String, Collection<GitDirectoryStream>> dirStreams = new ConcurrentHashMap<>();
-
-  private final Map<String, ObjectId> insertions = new ConcurrentHashMap<>();
-  private final Set<String> insertedDirs = Collections.newSetFromMap(new ConcurrentHashMap<String, Boolean>());
-  private final Map<String, FileMode> fileModes = new ConcurrentHashMap<>();
-  private final Set<String> deletions = Collections.newSetFromMap(new ConcurrentHashMap<String, Boolean>());
-  private final Map<String, Integer> deletedDirs = new ConcurrentHashMap<>();
 
   private String branch;
   private RevCommit baseCommit;
   private AnyObjectId baseTree;
 
-  private volatile DirCache cache;
+  private DirectoryNode root;
+
   private volatile boolean closed = false;
   private volatile ObjectInserter inserter;
 
 
-
   GitFileStore(@Nonnull GitPath root, @Nonnull Repository repo, @Nullable String branchRef, @Nullable AnyObjectId basedRevision, @Nullable AnyObjectId baseTree) throws IOException {
-    this.root = root;
     this.repo = repo;
-    this.branch = branchRef;
     this.reader = repo.newObjectReader();
 
-    if(basedRevision != null)
-      baseCommit = CommitHelper.getCommit(reader, basedRevision);
-    else
-      cache = DirCache.newInCore();
+    if((this.branch = branchRef) == null && basedRevision == null)
+      this.branch = Constants.R_HEADS + Constants.MASTER;
 
-    if(baseTree == null && baseCommit != null)
-      this.baseTree = baseCommit.getTree();
+    if(basedRevision != null)
+      this.baseCommit = CommitHelper.getCommit(reader, basedRevision);
     else
+      this.baseCommit = CommitHelper.getCommit(repo, branch);
+
+    if(baseTree != null)
       this.baseTree = baseTree;
+    else if(this.baseCommit != null)
+      this.baseTree = this.baseCommit.getTree();
+
+    if(this.baseTree != null)
+      this.root = DirectoryNode.forTreeObject(this.baseTree);
+    else
+      this.root = DirectoryNode.newDirectory();
   }
 
   /**
@@ -188,131 +187,6 @@ public class GitFileStore extends FileStore implements Closeable {
     throw new UnsupportedOperationException("'" + attribute + "' not recognized");
   }
 
-  /**
-   * Applies all the staged insertions to the cache.
-   * If there is no insertion staged, this method has no effect.
-   */
-  private void applyInsertions() {
-    if(!insertions.isEmpty()) {
-      DirCacheBuilder builder = DirCacheHelper.keepEverything(cache);
-      for(Map.Entry<String, ObjectId> entry : insertions.entrySet())
-        DirCacheHelper.addFile(builder, fileModes.get(entry.getKey()), entry.getKey(), entry.getValue());
-      builder.finish();
-      insertions.clear();
-      insertedDirs.clear();
-      fileModes.clear();
-    }
-  }
-
-  /**
-   * Applies all the staged deletions to the cache.
-   * If there is no deletion staged, this method has no effect.
-   */
-  private void applyDeletions() {
-    if(!deletions.isEmpty()) {
-      DirCacheEditor editor = cache.editor();
-      for(String path : deletions)
-        DirCacheHelper.deleteFile(editor, path);
-      editor.finish();
-      deletions.clear();
-      deletedDirs.clear();
-    }
-  }
-
-  /**
-   * Applies all staged changes to the cache.
-   * If there is no changes staged, this method has no effect.
-   */
-  private void flushStagedChanges() {
-    applyInsertions();
-    applyDeletions();
-  }
-
-  /**
-   * Stages a file insertion with the specified path and blob.
-   * This method flushes all the staged deletions before staging the insertion.
-   *
-   * @param   pathStr
-   *          the string path to the file to insert
-   * @param   blobId
-   *          the id of the blob to insert
-   */
-  private void stageFileInsertion(@Nonnull String pathStr, @Nonnull ObjectId blobId) {
-    applyDeletions();
-    insertions.put(pathStr, blobId);
-    fileModes.put(pathStr, FileMode.REGULAR_FILE);
-    String current = pathStr;
-    int sepIdx;
-    while((sepIdx = current.lastIndexOf('/')) >= 0) {
-      current = current.substring(0, sepIdx);
-      if(!insertedDirs.add(current))
-        break;
-    }
-  }
-
-  private boolean isFileStagedForInsertion(@Nonnull String pathStr) {
-    return insertions.containsKey(pathStr);
-  }
-
-  private boolean isDirectoryStagedForInsertion(@Nonnull String pathStr) {
-    return insertedDirs.contains(pathStr);
-  }
-
-  /**
-   * Stages a file deletion with the specified path.
-   * This method flushes all the staged insertions before staging the deletion.
-   *
-   * @param   pathStr
-   *          the string path to the file to delete
-   */
-  private void stageFileDeletion(@Nonnull String pathStr) {
-    applyInsertions();
-    deletions.add(pathStr);
-    String current = pathStr;
-    int sepIdx;
-    while((sepIdx = current.lastIndexOf('/')) >= 0) {
-      current = current.substring(0, sepIdx);
-      if(!deletedDirs.containsKey(current)) {
-        int children = cache.getEntriesWithin(current).length;
-        deletedDirs.put(current, children);
-      }
-      int remain = deletedDirs.get(current);
-      if(remain == 0)
-        throw new IllegalStateException();
-      deletedDirs.put(current, remain - 1);
-    }
-  }
-
-  private boolean isFileStagedForDeletion(@Nonnull String pathStr) {
-    return deletions.contains(pathStr);
-  }
-
-  private boolean isDirectoryStagedForDeletion(@Nonnull String pathStr) {
-    return deletedDirs.containsKey(pathStr) && deletedDirs.get(pathStr) == 0;
-  }
-
-  private void clearMemoryChannels() {
-    for(GitFileStoreMemoryChannel channel : memoryChannels.values())
-      channel.close();
-  }
-
-  private void clearDirectoryChannels() {
-    for(Collection<GitDirectoryStream> dirStreamsForPath : dirStreams.values())
-      for(GitDirectoryStream directoryStream : dirStreamsForPath)
-        directoryStream.close();
-  }
-
-  private void clearCache() {
-    if(cache != null)
-      cache.clear();
-  }
-
-  private void clearStore() {
-    clearMemoryChannels();
-    clearDirectoryChannels();
-    clearCache();
-  }
-
   private void releaseResources() {
     if(inserter != null)
       inserter.release();
@@ -335,7 +209,7 @@ public class GitFileStore extends FileStore implements Closeable {
     synchronized(this) {
       if(!closed) {
         closed = true;
-        clearStore();
+//        clearStore();
         releaseResources();
       }
     }
@@ -429,18 +303,12 @@ public class GitFileStore extends FileStore implements Closeable {
    *          if the specified file does not exist
    */
   @Nullable
-  ObjectId getFileBlobId(@Nonnull String pathStr) throws IOException {
+  AnyObjectId getFileBlobId(@Nonnull String pathStr) throws IOException {
     checkClosed();
-    synchronized(this) {
-      if(isFileStagedForInsertion(pathStr))
-        return insertions.get(pathStr);
-      if(isDirectory(pathStr))
-        return null;
-      ObjectId result = cache != null ? DirCacheHelper.getBlobId(cache, pathStr) : TreeWalkHelper.getObject(reader, pathStr, baseTree);
-      if(result == null)
-        throw new NoSuchFileException(pathStr);
-      return result;
-    }
+    TreeNode node = root.findNode(pathStr);
+    if(node == null)
+      throw new NoSuchFileException(pathStr);
+    return node instanceof FileNode ? node.getObject() : null;
   }
 
   /**
@@ -602,17 +470,8 @@ public class GitFileStore extends FileStore implements Closeable {
    */
   boolean isDirectory(@Nonnull String pathStr) throws IOException {
     checkClosed();
-    if(pathStr.isEmpty())
-      return true;
-    synchronized(this) {
-      if(isDirectoryStagedForDeletion(pathStr))
-        return false;
-      if(isDirectoryStagedForInsertion(pathStr))
-        return true;
-      if(cache != null)
-        return DirCacheHelper.isNonTrivialDirectory(cache, pathStr);
-      return TreeWalkHelper.isDirectory(reader, pathStr, baseTree);
-    }
+    TreeNode node = root.findNode(pathStr);
+    return node != null && node.isDirectory();
   }
 
   /**
@@ -624,18 +483,8 @@ public class GitFileStore extends FileStore implements Closeable {
    */
   boolean isExecutableFile(@Nonnull String pathStr) throws IOException {
     checkClosed();
-    if(pathStr.isEmpty())
-      return false;
-    synchronized(this) {
-      if(isDirectoryStagedForDeletion(pathStr))
-        return false;
-      if(isDirectoryStagedForInsertion(pathStr))
-        return fileModes.get(pathStr) == FileMode.EXECUTABLE_FILE;
-      if(cache != null) {
-        return DirCacheHelper.isExecutableFile(cache, pathStr);
-      }
-      return TreeWalkHelper.isExecutableFile(reader, pathStr, baseTree);
-    }
+    TreeNode node = root.findNode(pathStr);
+    return node != null && node.isExecutableFile();
   }
 
   /**
@@ -647,18 +496,8 @@ public class GitFileStore extends FileStore implements Closeable {
    */
   boolean isSymbolicLink(@Nonnull String pathStr) throws IOException {
     checkClosed();
-    if(pathStr.isEmpty())
-      return false;
-    synchronized(this) {
-      if(isDirectoryStagedForDeletion(pathStr))
-        return false;
-      if(isDirectoryStagedForInsertion(pathStr))
-        return fileModes.get(pathStr) == FileMode.SYMLINK;
-      if(cache != null) {
-        return DirCacheHelper.isSymbolicLink(cache, pathStr);
-      }
-      return TreeWalkHelper.isSymbolicLink(reader, pathStr, baseTree);
-    }
+    TreeNode node = root.findNode(pathStr);
+    return node != null && node.isSymbolicLink();
   }
 
   /**
@@ -687,22 +526,6 @@ public class GitFileStore extends FileStore implements Closeable {
       if(blobId == null)
         return 0;
       return reader.getObjectSize(blobId, Constants.OBJ_BLOB);
-    }
-  }
-
-  /**
-   * Prepares {@link #cache} by loading {@link #baseTree}.
-   * If the cache is already available, this method has no effect.
-   */
-  void prepareCache() throws IOException {
-    checkClosed();
-    if(cache != null)
-      return;
-    synchronized(this) {
-      if(cache == null) {
-        assert baseTree != null;
-        cache = DirCacheHelper.forTree(reader, baseTree);
-      }
     }
   }
 
@@ -761,29 +584,6 @@ public class GitFileStore extends FileStore implements Closeable {
   }
 
   /**
-   * Clones a {@code GitFileStoreMemoryChannel} for the target path from the source channel. The result channel's buffer
-   * has the same content as the source channel.
-   *
-   * @param   sourceStr
-   *          the string path to the {@code GitFileStoreMemoryChannel} to clone
-   * @param   targetStr
-   *          the string path to the result {@code GitFileStoreMemoryChannel}
-   */
-  private void cloneChannel(@Nonnull String sourceStr, @Nonnull String targetStr) {
-    GitFileStoreMemoryChannel sourceChannel = memoryChannels.get(sourceStr);
-    if(sourceChannel != null) {
-      sourceChannel.lockBuffer();
-      try {
-        byte[] bytes = Arrays.copyOf(sourceChannel.getBytes(), (int)sourceChannel.size());
-        GitFileStoreMemoryChannel targetChannel = new GitFileStoreMemoryChannel(this, targetStr, bytes);
-        memoryChannels.put(targetStr, targetChannel);
-      } finally {
-        sourceChannel.releaseBuffer();
-      }
-    }
-  }
-
-  /**
    * Copy a file to a target file.
    *
    * @param   sourceStr
@@ -805,7 +605,6 @@ public class GitFileStore extends FileStore implements Closeable {
    */
   void copy(@Nonnull String sourceStr, @Nonnull String targetStr, boolean replaceExisting) throws IOException {
     checkClosed();
-    prepareCache();
     if(targetStr.equals(sourceStr))
       return;
     synchronized(this) {

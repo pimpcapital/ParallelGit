@@ -6,7 +6,7 @@ import javax.annotation.Nonnull;
 
 import com.beijunyi.parallelgit.filesystem.GitFileStore;
 
-public abstract class GitDirectoryStream implements DirectoryStream<Path> {
+public class GitDirectoryStream implements DirectoryStream<Path> {
 
   protected final String pathStr;
   protected final GitFileStore store;
