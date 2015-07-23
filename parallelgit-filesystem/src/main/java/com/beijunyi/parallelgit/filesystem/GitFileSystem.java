@@ -9,7 +9,9 @@ import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 
 import com.beijunyi.parallelgit.filesystem.utils.GitGlobs;
+import com.beijunyi.parallelgit.utils.CommitHelper;
 import org.eclipse.jgit.lib.AnyObjectId;
+import org.eclipse.jgit.lib.Constants;
 import org.eclipse.jgit.lib.Repository;
 import org.eclipse.jgit.revwalk.RevCommit;
 
@@ -24,17 +26,36 @@ public class GitFileSystem extends FileSystem {
     )));
 
   private final GitFileSystemProvider provider;
+  private final Repository repository;
   private final String session;
-  private final GitPath root;
   private final GitFileStore store;
+  private final GitPath rootPath;
+  private String branch;
+  private RevCommit baseCommit;
+  private AnyObjectId baseTree;
 
   private boolean closed = false;
 
-  public GitFileSystem(@Nonnull GitFileSystemProvider provider, @Nonnull Repository repo, @Nullable String branch, @Nullable AnyObjectId baseCommit, @Nullable AnyObjectId baseTree) throws IOException {
+  public GitFileSystem(@Nonnull GitFileSystemProvider provider, @Nonnull Repository repository, @Nullable String branchRef, @Nullable AnyObjectId commitId, @Nullable AnyObjectId treeId) throws IOException {
     this.provider = provider;
-    this.root = new GitPath(this, "/");
-    session = UUID.randomUUID().toString();
-    store = new GitFileStore(root, repo, branch, baseCommit, baseTree);
+    this.repository = repository;
+    this.session = UUID.randomUUID().toString();
+    this.rootPath = new GitPath(this, "/");
+
+    if((branch = branchRef) == null && commitId == null)
+      branch = Constants.R_HEADS + Constants.MASTER;
+
+    if(commitId != null)
+      baseCommit = CommitHelper.getCommit(repository, commitId);
+    else
+      baseCommit = CommitHelper.getCommit(repository, branch);
+
+    if(treeId != null)
+      baseTree = treeId;
+    else if(baseCommit != null)
+      baseTree = baseCommit.getTree();
+
+    store = new GitFileStore(repository, baseTree, rootPath);
   }
 
   /**
@@ -59,13 +80,11 @@ public class GitFileSystem extends FileSystem {
    * closeable objects associated with this file system.
    */
   @Override
-  public void close() {
-    synchronized(this) {
-      if(!closed) {
-        closed = true;
-        provider.unregister(this);
-        store.close();
-      }
+  public synchronized void close() {
+    if(!closed) {
+      closed = true;
+      provider.unregister(this);
+      store.close();
     }
   }
 
@@ -75,10 +94,8 @@ public class GitFileSystem extends FileSystem {
    * @return {@code true} if this file system is open
    */
   @Override
-  public boolean isOpen() {
-    synchronized(this) {
-      return !closed;
-    }
+  public synchronized boolean isOpen() {
+    return !closed;
   }
 
   /**
@@ -105,7 +122,7 @@ public class GitFileSystem extends FileSystem {
   @Nonnull
   @Override
   public Iterable<Path> getRootDirectories() {
-    final List<Path> allowedList = Collections.singletonList((Path)root);
+    final List<Path> allowedList = Collections.<Path>singletonList(rootPath);
     return new Iterable<Path>() {
       @Override
       public Iterator<Path> iterator() {
@@ -117,7 +134,7 @@ public class GitFileSystem extends FileSystem {
   @Nonnull
   @Override
   public Iterable<FileStore> getFileStores() {
-    final List<FileStore> allowedList = Collections.singletonList((FileStore)store);
+    final List<FileStore> allowedList = Collections.<FileStore>singletonList(store);
     return new Iterable<FileStore>() {
       @Override
       public Iterator<FileStore> iterator() {
@@ -221,8 +238,8 @@ public class GitFileSystem extends FileSystem {
    * @return the root path of this file system
    */
   @Nonnull
-  public GitPath getRoot() {
-    return root;
+  public GitPath getRootPath() {
+    return rootPath;
   }
 
   /**
@@ -268,22 +285,22 @@ public class GitFileSystem extends FileSystem {
 
   @Nonnull
   public Repository getRepository() {
-    return store.getRepository();
+    return repository;
   }
 
   @Nullable
   public String getBranch() {
-    return store.getBranch();
+    return branch;
   }
 
   @Nullable
   public RevCommit getBaseCommit() {
-    return store.getBaseCommit();
+    return baseCommit;
   }
 
   @Nullable
   public AnyObjectId getBaseTree() {
-    return store.getBaseTree();
+    return baseTree;
   }
 
 }

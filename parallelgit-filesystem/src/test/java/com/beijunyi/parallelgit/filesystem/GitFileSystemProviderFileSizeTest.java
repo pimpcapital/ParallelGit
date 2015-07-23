@@ -13,7 +13,7 @@ public class GitFileSystemProviderFileSizeTest extends AbstractGitFileSystemTest
   @Test
   public void getRootSizeTest() throws IOException {
     initGitFileSystem();
-    Assert.assertEquals(0, Files.size(gfs.getRoot()));
+    Assert.assertEquals(0, Files.size(gfs.getRootPath()));
   }
 
   @Test
@@ -45,7 +45,7 @@ public class GitFileSystemProviderFileSizeTest extends AbstractGitFileSystemTest
   public void getRootSizeInCacheTest() throws IOException {
     initGitFileSystem();
     loadCache();
-    Assert.assertEquals(0, Files.size(gfs.getRoot()));
+    Assert.assertEquals(0, Files.size(gfs.getRootPath()));
   }
 
   @Test

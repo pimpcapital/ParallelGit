@@ -27,39 +27,20 @@ public class GitFileStore extends FileStore implements Closeable {
   public static final String DETACHED = "detached";
 
   private final Repository repo;
+  private final GitPath rootPath;
   private final ObjectReader reader;
 
-  private String branch;
-  private RevCommit baseCommit;
-  private AnyObjectId baseTree;
-
-  private DirectoryNode root;
+  private DirectoryNode rootNode;
 
   private volatile boolean closed = false;
   private volatile ObjectInserter inserter;
 
 
-  GitFileStore(@Nonnull GitPath root, @Nonnull Repository repo, @Nullable String branchRef, @Nullable AnyObjectId basedRevision, @Nullable AnyObjectId baseTree) throws IOException {
+  GitFileStore(@Nonnull Repository repo, @Nonnull GitPath rootPath, @Nullable AnyObjectId baseTree) throws IOException {
     this.repo = repo;
-    this.reader = repo.newObjectReader();
-
-    if((this.branch = branchRef) == null && basedRevision == null)
-      this.branch = Constants.R_HEADS + Constants.MASTER;
-
-    if(basedRevision != null)
-      this.baseCommit = CommitHelper.getCommit(reader, basedRevision);
-    else
-      this.baseCommit = CommitHelper.getCommit(repo, branch);
-
-    if(baseTree != null)
-      this.baseTree = baseTree;
-    else if(this.baseCommit != null)
-      this.baseTree = this.baseCommit.getTree();
-
-    if(this.baseTree != null)
-      this.root = DirectoryNode.forTreeObject(this.baseTree);
-    else
-      this.root = DirectoryNode.newDirectory();
+    this.rootPath = rootPath;
+    reader = repo.newObjectReader();
+    rootNode = baseTree != null ? DirectoryNode.forTreeObject(baseTree, reader) : DirectoryNode.newRoot(reader);
   }
 
   /**
@@ -216,8 +197,8 @@ public class GitFileStore extends FileStore implements Closeable {
   }
 
   @Nonnull
-  public GitPath getRoot() {
-    return root;
+  public GitPath getRootPath() {
+    return rootNode;
   }
 
   /**
@@ -305,7 +286,7 @@ public class GitFileStore extends FileStore implements Closeable {
   @Nullable
   AnyObjectId getFileBlobId(@Nonnull String pathStr) throws IOException {
     checkClosed();
-    TreeNode node = root.findNode(pathStr);
+    TreeNode node = rootNode.findNode(pathStr);
     if(node == null)
       throw new NoSuchFileException(pathStr);
     return node instanceof FileNode ? node.getObject() : null;
@@ -470,7 +451,7 @@ public class GitFileStore extends FileStore implements Closeable {
    */
   boolean isDirectory(@Nonnull String pathStr) throws IOException {
     checkClosed();
-    TreeNode node = root.findNode(pathStr);
+    TreeNode node = rootNode.findNode(pathStr);
     return node != null && node.isDirectory();
   }
 
@@ -483,7 +464,7 @@ public class GitFileStore extends FileStore implements Closeable {
    */
   boolean isExecutableFile(@Nonnull String pathStr) throws IOException {
     checkClosed();
-    TreeNode node = root.findNode(pathStr);
+    TreeNode node = rootNode.findNode(pathStr);
     return node != null && node.isExecutableFile();
   }
 
@@ -496,7 +477,7 @@ public class GitFileStore extends FileStore implements Closeable {
    */
   boolean isSymbolicLink(@Nonnull String pathStr) throws IOException {
     checkClosed();
-    TreeNode node = root.findNode(pathStr);
+    TreeNode node = rootNode.findNode(pathStr);
     return node != null && node.isSymbolicLink();
   }
 

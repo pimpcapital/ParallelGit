@@ -52,7 +52,7 @@ public abstract class AbstractGitFileSystemTest extends AbstractParallelGitTest 
 
   protected void injectGitFileSystem(@Nonnull GitFileSystem gfs) {
     this.gfs = gfs;
-    root = gfs.getRoot();
+    root = gfs.getRootPath();
   }
 
   protected void loadCache() throws IOException {

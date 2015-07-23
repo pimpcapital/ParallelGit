@@ -363,7 +363,7 @@ public class GitFileSystemProvider extends FileSystemProvider {
         copy(sourcePath, targetPath, options);
         delete(sourcePath);
       } else if(sourceStore.isDirectory(sourcePath.getNormalizedString()))
-        throw new DirectoryNotEmptyException(source.relativize(sourceFs.getRoot()).toString());
+        throw new DirectoryNotEmptyException(source.relativize(sourceFs.getRootPath()).toString());
       return;
     }
     GitFileStore store = sourcePath.getFileSystem().getFileStore();

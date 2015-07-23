@@ -16,25 +16,25 @@ public class GitPathGetRootTest extends AbstractGitFileSystemTest {
   @Test
   public void absolutePathGetRootTest() {
     GitPath a = gfs.getPath("/a");
-    Assert.assertEquals(gfs.getRoot(), a.getRoot());
+    Assert.assertEquals(gfs.getRootPath(), a.getRoot());
   }
 
   @Test
   public void relativePathGetRootTest() {
     GitPath a = gfs.getPath("a");
-    Assert.assertEquals(gfs.getRoot(), a.getRoot());
+    Assert.assertEquals(gfs.getRootPath(), a.getRoot());
   }
 
   @Test
   public void rootPathGetRootTest() {
     GitPath a = gfs.getPath("/");
-    Assert.assertEquals(gfs.getRoot(), a.getRoot());
+    Assert.assertEquals(gfs.getRootPath(), a.getRoot());
   }
 
   @Test
   public void emptyPathGetRootTest() {
     GitPath a = gfs.getPath("");
-    Assert.assertEquals(gfs.getRoot(), a.getRoot());
+    Assert.assertEquals(gfs.getRootPath(), a.getRoot());
   }
 
 

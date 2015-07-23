@@ -18,7 +18,7 @@ public class GitFileSystemUtilsFastDeleteDirectoryTest extends AbstractGitFileSy
     commitToMaster();
     initGitFileSystem();
 
-    GitFileSystemUtils.deleteDirectory(gfs.getRoot());
+    GitFileSystemUtils.deleteDirectory(gfs.getRootPath());
     Assert.assertFalse(Files.exists(gfs.getPath("/a/a1.txt")));
     Assert.assertFalse(Files.exists(gfs.getPath("/a/a2.txt")));
     Assert.assertFalse(Files.exists(gfs.getPath("/b/b1.txt")));

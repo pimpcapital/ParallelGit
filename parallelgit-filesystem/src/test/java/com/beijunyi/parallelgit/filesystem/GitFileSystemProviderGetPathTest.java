@@ -30,7 +30,7 @@ public class GitFileSystemProviderGetPathTest extends AbstractGitFileSystemTest 
                 .file("/")
                 .build();
     GitPath path = provider.getPath(uri);
-    Assert.assertEquals(gfs.getRoot(), path);
+    Assert.assertEquals(gfs.getRootPath(), path);
   }
 
 }

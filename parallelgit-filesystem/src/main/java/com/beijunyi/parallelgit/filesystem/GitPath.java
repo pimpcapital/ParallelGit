@@ -147,7 +147,7 @@ public class GitPath implements Path {
   @Nonnull
   @Override
   public GitPath getRoot() {
-    return getFileSystem().getRoot();
+    return getFileSystem().getRootPath();
   }
 
   /**
@@ -188,7 +188,7 @@ public class GitPath implements Path {
     if(len < 0)
       return null;
     if(len == 0)
-      return gfs.getRoot();
+      return gfs.getRootPath();
 
     byte[] result = new byte[len];
     System.arraycopy(path, 0, result, 0, len);
@@ -457,7 +457,7 @@ public class GitPath implements Path {
 
     // corner case - all names removed
     if(remaining == 0) {
-      return isAbsolute ? getFileSystem().getRoot() : emptyPath();
+      return isAbsolute ? getFileSystem().getRootPath() : emptyPath();
     }
 
     // compute length of result

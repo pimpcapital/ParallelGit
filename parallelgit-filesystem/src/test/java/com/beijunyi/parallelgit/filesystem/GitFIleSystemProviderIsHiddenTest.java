@@ -16,7 +16,7 @@ public class GitFIleSystemProviderIsHiddenTest extends AbstractGitFileSystemTest
 
   @Test
   public void rootIsHiddenTest() throws IOException {
-    Assert.assertFalse(Files.isHidden(gfs.getRoot()));
+    Assert.assertFalse(Files.isHidden(gfs.getRootPath()));
   }
 
   @Test
