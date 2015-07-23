@@ -948,7 +948,7 @@ public class GitFileStore extends FileStore implements Closeable {
           memoryChannel = new GitFileStoreMemoryChannel(this, pathStr, reader.open(blobId).getBytes());
         memoryChannels.put(pathStr, memoryChannel);
       }
-      return new GitSeekableByteChannel(memoryChannel, options);
+      return null;
     }
   }
 

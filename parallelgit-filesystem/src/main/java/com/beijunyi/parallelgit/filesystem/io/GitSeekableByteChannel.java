@@ -7,33 +7,31 @@ import java.nio.file.StandardOpenOption;
 import java.util.Set;
 import javax.annotation.Nonnull;
 
+import com.beijunyi.parallelgit.filesystem.hierarchy.FileNode;
+
 public class GitSeekableByteChannel implements SeekableByteChannel {
 
-  private final GitFileStoreMemoryChannel memoryChannel;
-  private final Set<? extends OpenOption> options;
+  private final ByteBuffer buffer;
+  private final FileNode parent;
+  private final boolean readable;
+  private final boolean writable;
+  private volatile boolean closed = false;
 
-  private long position = 0;
-  private boolean closed = false;
+  public GitSeekableByteChannel(@Nonnull byte[] bytes, @Nonnull Set<? extends OpenOption> options, @Nonnull FileNode parent) {
+    this.parent = parent;
+    readable = options.contains(StandardOpenOption.READ);
+    writable = options.contains(StandardOpenOption.WRITE);
+    if(writable && options.contains(StandardOpenOption.TRUNCATE_EXISTING))
+      bytes = new byte[0];
+    buffer = ByteBuffer.wrap(bytes);
+    if(writable & options.contains(StandardOpenOption.APPEND))
+      buffer.position(buffer.limit());
+  }
 
-  public GitSeekableByteChannel(@Nonnull GitFileStoreMemoryChannel memoryChannel, @Nonnull Set<? extends OpenOption> options) {
-    this.memoryChannel = memoryChannel;
-    this.options = options;
-    memoryChannel.attach(this);
-    if(options.contains(StandardOpenOption.WRITE)) {
-      boolean truncate = options.contains(StandardOpenOption.TRUNCATE_EXISTING);
-      boolean append = !truncate && options.contains(StandardOpenOption.APPEND);
-      if(truncate || append) {
-        memoryChannel.lockBuffer();
-        try {
-          if(truncate)
-            memoryChannel.truncate(0);
-          else
-            position = memoryChannel.size();
-        } finally {
-          memoryChannel.releaseBuffer();
-        }
-      }
-    }
+  private static int copyBytes(@Nonnull ByteBuffer dst, @Nonnull ByteBuffer src) {
+    int remaining = Math.min(dst.remaining(), src.remaining());
+    dst.put(src.array(), 0, remaining);
+    return remaining;
   }
 
   /**
@@ -48,19 +46,9 @@ public class GitSeekableByteChannel implements SeekableByteChannel {
    */
   @Override
   public int read(@Nonnull ByteBuffer dst) throws ClosedChannelException {
+    checkClosed();
     checkReadAccess();
-    synchronized(this) {
-      checkClosed();
-      memoryChannel.lockBuffer();
-      try {
-        memoryChannel.position(position);
-        int result = memoryChannel.read(dst);
-        position = memoryChannel.position();
-        return result;
-      } finally {
-        memoryChannel.releaseBuffer();
-      }
-    }
+    return copyBytes(dst, buffer);
   }
 
   /**
@@ -77,19 +65,9 @@ public class GitSeekableByteChannel implements SeekableByteChannel {
    */
   @Override
   public int write(@Nonnull ByteBuffer src) throws ClosedChannelException {
+    checkClosed();
     checkWriteAccess();
-    synchronized(this) {
-      checkClosed();
-      memoryChannel.lockBuffer();
-      try {
-        memoryChannel.position(position);
-        int result = memoryChannel.write(src);
-        position = memoryChannel.position();
-        return result;
-      } finally {
-        memoryChannel.releaseBuffer();
-      }
-    }
+    return copyBytes(buffer, src);
   }
 
   /**
@@ -101,9 +79,9 @@ public class GitSeekableByteChannel implements SeekableByteChannel {
    */
   @Override
   public long position() throws ClosedChannelException {
+    checkClosed();
     synchronized(this) {
-      checkClosed();
-      return position;
+      return buffer.position();
     }
   }
 
@@ -126,11 +104,11 @@ public class GitSeekableByteChannel implements SeekableByteChannel {
    */
   @Override
   public GitSeekableByteChannel position(long newPosition) throws ClosedChannelException {
-    synchronized(this) {
-      checkClosed();
-      position = newPosition;
-      return this;
-    }
+    checkClosed();
+    if(newPosition < 0 || newPosition >= Integer.MAX_VALUE)
+      throw new IllegalArgumentException("Position must be between 0 and " + Integer.MAX_VALUE);
+    buffer.position((int) newPosition);
+    return this;
   }
 
   /**
@@ -142,15 +120,8 @@ public class GitSeekableByteChannel implements SeekableByteChannel {
    */
   @Override
   public long size() throws ClosedChannelException {
-    synchronized(this) {
-      checkClosed();
-      memoryChannel.lockBuffer();
-      try {
-        return memoryChannel.size();
-      } finally {
-        memoryChannel.releaseBuffer();
-      }
-    }
+    checkClosed();
+    return buffer.limit();
   }
 
   /**
@@ -172,19 +143,10 @@ public class GitSeekableByteChannel implements SeekableByteChannel {
    */
   @Override
   public GitSeekableByteChannel truncate(long size) throws NonWritableChannelException, ClosedChannelException, IllegalArgumentException {
+    checkClosed();
     checkWriteAccess();
-    synchronized(this) {
-      checkClosed();
-      memoryChannel.lockBuffer();
-      try {
-        memoryChannel.position(position);
-        memoryChannel.truncate(size);
-        position = memoryChannel.position();
-        return this;
-      } finally {
-        memoryChannel.releaseBuffer();
-      }
-    }
+    buffer.limit(0);
+    return this;
   }
 
   /**
@@ -194,9 +156,7 @@ public class GitSeekableByteChannel implements SeekableByteChannel {
    */
   @Override
   public boolean isOpen() {
-    synchronized(this) {
-      return !closed;
-    }
+    return !closed;
   }
 
   /**
@@ -212,30 +172,14 @@ public class GitSeekableByteChannel implements SeekableByteChannel {
    */
   @Override
   public void close() {
+    if(closed)
+      return;
     synchronized(this) {
-      if(isOpen()) {
+      if(!closed) {
         closed = true;
-        memoryChannel.detach(this);
+        parent.removeChannel(this);
       }
     }
-  }
-
-  /**
-   * Tells if this channel was opened for reading
-   *
-   * @return  {@code true} if this channel was opened for reading
-   */
-  public boolean isReadable() {
-    return options.contains(StandardOpenOption.READ);
-  }
-
-  /**
-   * Tells if this channel was opened for writing
-   *
-   * @return  {@code true} if this channel was opened for writing
-   */
-  public boolean isWritable() {
-    return options.contains(StandardOpenOption.WRITE);
   }
 
   /**
@@ -256,7 +200,7 @@ public class GitSeekableByteChannel implements SeekableByteChannel {
    *          if this channel was not opened for reading
    */
   private void checkReadAccess() throws NonReadableChannelException {
-    if(!isReadable())
+    if(!readable)
       throw new NonReadableChannelException();
   }
 
@@ -267,7 +211,7 @@ public class GitSeekableByteChannel implements SeekableByteChannel {
    *          if this channel was not opened for writing
    */
   private void checkWriteAccess() throws NonWritableChannelException {
-    if(!isWritable())
+    if(!writable)
       throw new NonWritableChannelException();
   }
 }

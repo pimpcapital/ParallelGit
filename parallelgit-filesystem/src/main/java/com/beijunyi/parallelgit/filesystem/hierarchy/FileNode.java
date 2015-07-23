@@ -1,10 +1,11 @@
 package com.beijunyi.parallelgit.filesystem.hierarchy;
 
 import java.io.IOException;
-import java.nio.ByteBuffer;
 import java.nio.file.AccessDeniedException;
+import java.nio.file.OpenOption;
 import java.util.Collection;
 import java.util.LinkedList;
+import java.util.Set;
 import javax.annotation.Nonnull;
 
 import com.beijunyi.parallelgit.filesystem.io.GitSeekableByteChannel;
@@ -13,9 +14,8 @@ import org.eclipse.jgit.lib.ObjectReader;
 
 public class FileNode extends TreeNode {
 
-  private ByteBuffer buffer;
-  private Collection<GitSeekableByteChannel> readChannels = new LinkedList<>();
-  private Collection<GitSeekableByteChannel> writeChannels = new LinkedList<>();
+  private byte[] bytes;
+  private Collection<GitSeekableByteChannel> channels = new LinkedList<>();
 
   public FileNode(@Nonnull TreeNodeType type) {
     super(type);
@@ -44,14 +44,26 @@ public class FileNode extends TreeNode {
 
   @Override
   protected void doLoad(@Nonnull ObjectReader reader) throws IOException {
-    buffer = ByteBuffer.wrap(reader.open(object).getBytes());
+    bytes = reader.open(object).getBytes();
   }
 
   @Override
   synchronized public void lock() throws AccessDeniedException {
-    if(!readChannels.isEmpty() || !writeChannels.isEmpty())
+    if(!channels.isEmpty())
       denyAccess();
     super.lock();
   }
 
+  @Nonnull
+  synchronized public GitSeekableByteChannel newChannel(@Nonnull Set<? extends OpenOption> options) throws AccessDeniedException {
+    if(locked)
+      denyAccess();
+    GitSeekableByteChannel channel = new GitSeekableByteChannel(bytes, options, this);
+    channels.add(channel);
+    return channel;
+  }
+
+  synchronized public void removeChannel(@Nonnull GitSeekableByteChannel channel) {
+    channels.remove(channel);
+  }
 }
