@@ -1,6 +1,6 @@
 package com.beijunyi.parallelgit.filesystem.hierarchy;
 
-public enum TreeNodeType {
+public enum NodeType {
   NON_EXECUTABLE_FILE(true),
   EXECUTABLE_FILE(true),
   SYMBOLIC_LINK(false),
@@ -8,7 +8,7 @@ public enum TreeNodeType {
 
   private final boolean regularFile;
 
-  TreeNodeType(boolean regularFile) {
+  NodeType(boolean regularFile) {
     this.regularFile = regularFile;
   }
 

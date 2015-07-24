@@ -10,36 +10,38 @@ import javax.annotation.Nonnull;
 
 import com.beijunyi.parallelgit.filesystem.io.GitSeekableByteChannel;
 import org.eclipse.jgit.lib.AnyObjectId;
-import org.eclipse.jgit.lib.ObjectReader;
+import org.eclipse.jgit.lib.Constants;
+import org.eclipse.jgit.lib.ObjectId;
 
-public class FileNode extends TreeNode {
+public class FileNode extends Node {
 
   private byte[] bytes;
-  private Collection<GitSeekableByteChannel> channels = new LinkedList<>();
+  private final Collection<GitSeekableByteChannel> channels = new LinkedList<>();
 
-  public FileNode(@Nonnull TreeNodeType type, @Nonnull ObjectReader reader) {
-    super(type, reader);
+  protected FileNode(@Nonnull NodeType type, @Nonnull AnyObjectId object) {
+    super(type, object);
+  }
+
+  protected FileNode(@Nonnull NodeType type) {
+    this(type, ObjectId.zeroId());
+    bytes = new byte[0];
+    loaded = true;
+    dirty = true;
   }
 
   @Nonnull
-  public static FileNode forRegularFileObject(@Nonnull AnyObjectId object, @Nonnull ObjectReader reader) {
-    FileNode node = new FileNode(TreeNodeType.NON_EXECUTABLE_FILE, reader);
-    node.object = object;
-    return node;
+  public static FileNode forRegularFileObject(@Nonnull AnyObjectId object) {
+    return new FileNode(NodeType.NON_EXECUTABLE_FILE, object);
   }
 
   @Nonnull
-  public static FileNode forExecutableFileObject(@Nonnull AnyObjectId object, @Nonnull ObjectReader reader) {
-    FileNode node = new FileNode(TreeNodeType.EXECUTABLE_FILE, reader);
-    node.object = object;
-    return node;
+  public static FileNode forExecutableFileObject(@Nonnull AnyObjectId object) {
+    return new FileNode(NodeType.EXECUTABLE_FILE, object);
   }
 
   @Nonnull
-  public static FileNode forSymlinkBlob(@Nonnull AnyObjectId object, @Nonnull ObjectReader reader) {
-    FileNode node = new FileNode(TreeNodeType.SYMBOLIC_LINK, reader);
-    node.object = object;
-    return node;
+  public static FileNode forSymlinkBlob(@Nonnull AnyObjectId object) {
+    return new FileNode(NodeType.SYMBOLIC_LINK, object);
   }
 
   @Override
@@ -50,20 +52,29 @@ public class FileNode extends TreeNode {
   @Override
   public synchronized void lock() throws AccessDeniedException {
     if(!channels.isEmpty())
-      failLock();
+      denyAccess();
     super.lock();
+  }
+
+  @Override
+  protected long calculateSize() throws IOException {
+    if(bytes != null)
+      return bytes.length;
+    return reader.getObjectSize(object, Constants.OBJ_BLOB);
   }
 
   @Nonnull
   public synchronized GitSeekableByteChannel newChannel(@Nonnull Set<? extends OpenOption> options) throws AccessDeniedException {
     if(locked)
-      failLock();
+      denyAccess();
     GitSeekableByteChannel channel = new GitSeekableByteChannel(bytes, options, this);
     channels.add(channel);
     return channel;
   }
 
   public synchronized void removeChannel(@Nonnull GitSeekableByteChannel channel) {
-    channels.remove(channel);
+    if(!channels.remove(channel))
+      throw new IllegalArgumentException();
   }
+
 }

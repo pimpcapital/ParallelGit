@@ -187,7 +187,7 @@ public class GitFileSystemProvider extends FileSystemProvider {
   public GitDirectoryStream newDirectoryStream(@Nonnull Path path, @Nullable DirectoryStream.Filter<? super Path> filter) throws IOException {
     GitPath gitPath = (GitPath) path;
     GitFileStore store = gitPath.getFileSystem().getFileStore();
-    return store.newDirectoryStream(gitPath.getNormalizedString(), filter);
+    return store.newDirectoryStream(gitPath, filter);
   }
 
   /**
@@ -206,11 +206,10 @@ public class GitFileSystemProvider extends FileSystemProvider {
    *          if a file of the target path already exists
    */
   @Override
-  public void createDirectory(@Nonnull Path dir, @Nullable FileAttribute<?>... attrs) throws IOException {
+  public void createDirectory(@Nonnull Path dir, @Nonnull FileAttribute<?>... attrs) throws IOException {
     GitPath gitPath = (GitPath) dir;
     GitFileStore store = gitPath.getFileSystem().getFileStore();
-    if(store.fileExists(gitPath.getNormalizedString()) || store.isDirectory(gitPath.getNormalizedString()))
-      throw new FileAlreadyExistsException(dir.toString());
+    store.createDirectory(gitPath);
   }
 
   /**
@@ -230,7 +229,7 @@ public class GitFileSystemProvider extends FileSystemProvider {
   public void delete(@Nonnull Path path) throws IOException {
     GitPath gitPath = (GitPath) path;
     GitFileStore store = gitPath.getFileSystem().getFileStore();
-    store.delete(gitPath.getNormalizedString());
+    store.delete(gitPath);
   }
 
   /**
@@ -267,8 +266,8 @@ public class GitFileSystemProvider extends FileSystemProvider {
    *         repository.
    */
   private static boolean useSameRepository(@Nonnull GitPath source, @Nonnull GitPath target) {
-    Repository srcRepo = source.getFileSystem().getFileStore().getRepository();
-    Repository targetRepo = target.getFileSystem().getFileStore().getRepository();
+    Repository srcRepo = source.getFileSystem().getRepository();
+    Repository targetRepo = target.getFileSystem().getRepository();
     return srcRepo.getDirectory().equals(targetRepo.getDirectory());
   }
 
@@ -313,14 +312,14 @@ public class GitFileSystemProvider extends FileSystemProvider {
     GitFileSystem targetFs = targetPath.getFileSystem();
     boolean replaceExisting = checkCopyOptions(options).contains(REPLACE_EXISTING);
     if(sourceFs.equals(targetFs))
-      sourceStore.copy(sourcePath.getNormalizedString(), targetPath.getNormalizedString(), replaceExisting);
+      sourceStore.copy(sourcePath, targetPath, replaceExisting);
     else {
-      if(sourceStore.isDirty(sourcePath.getNormalizedString()))
+      if(sourceStore.isDirty(sourcePath))
         Files.copy(newInputStream(sourcePath), targetPath, options);
       else {
-        AnyObjectId blobId = sourceStore.getFileBlobId(sourcePath.getNormalizedString());
+        AnyObjectId blobId = sourceStore.getFileBlobId(sourcePath);
         if(blobId != null)
-          targetFs.getFileStore().createFileFromBlob(targetPath.getNormalizedString(), blobId, replaceExisting);
+          targetFs.getFileStore().createFileFromBlob(targetPath, blobId, replaceExisting);
       }
     }
   }
@@ -359,15 +358,15 @@ public class GitFileSystemProvider extends FileSystemProvider {
     GitFileStore sourceStore = sourceFs.getFileStore();
     GitFileSystem targetFs = targetPath.getFileSystem();
     if(!useSameRepository(sourcePath, targetPath) || !sourceFs.equals(targetFs)) {
-      if(sourceStore.fileExists(sourcePath.getNormalizedString())) {
+      if(sourceStore.fileExists(sourcePath)) {
         copy(sourcePath, targetPath, options);
         delete(sourcePath);
-      } else if(sourceStore.isDirectory(sourcePath.getNormalizedString()))
+      } else if(sourceStore.isDirectory(sourcePath))
         throw new DirectoryNotEmptyException(source.relativize(sourceFs.getRootPath()).toString());
       return;
     }
     GitFileStore store = sourcePath.getFileSystem().getFileStore();
-    store.move(sourcePath.getNormalizedString(), targetPath.getNormalizedString(), checkCopyOptions(options).contains(REPLACE_EXISTING));
+    store.move(sourcePath, targetPath, checkCopyOptions(options).contains(REPLACE_EXISTING));
   }
 
   /**
@@ -436,11 +435,11 @@ public class GitFileSystemProvider extends FileSystemProvider {
   public void checkAccess(@Nonnull Path path, @Nonnull AccessMode... modes) throws IOException {
     GitPath gitPath = (GitPath) path;
     GitFileStore store = gitPath.getFileSystem().getFileStore();
-    if(!store.fileExists(gitPath.getNormalizedString()) && !store.isDirectory(gitPath.getNormalizedString()))
+    if(!store.fileExists(gitPath) && !store.isDirectory(gitPath))
       throw new NoSuchFileException(gitPath.toString());
 
     for(AccessMode mode : modes) {
-      if(mode == AccessMode.EXECUTE && !store.isExecutableFile(gitPath.getNormalizedString()))
+      if(mode == AccessMode.EXECUTE && !store.isExecutableFile(gitPath))
         throw new AccessDeniedException(path.toString());
     }
   }
@@ -467,9 +466,9 @@ public class GitFileSystemProvider extends FileSystemProvider {
     GitPath gitPath = (GitPath) path;
     GitFileStore store = gitPath.getFileSystem().getFileStore();
     if(type.isAssignableFrom(GitFileAttributeView.Basic.class))
-      return type.cast(new GitFileAttributeView.Basic(store, gitPath.getNormalizedString()));
+      return type.cast(new GitFileAttributeView.Basic(store, gitPath));
     if(type.isAssignableFrom(GitFileAttributeView.Posix.class))
-      return type.cast(new GitFileAttributeView.Posix(store, gitPath.getNormalizedString()));
+      return type.cast(new GitFileAttributeView.Posix(store, gitPath));
     throw new UnsupportedOperationException(type.getName());
   }
 

@@ -24,7 +24,6 @@ public class GitPath implements Path {
 
   private volatile int[] offsets;
   private volatile String stringValue;
-  private volatile String normalizedValue;
 
   GitPath(@Nonnull GitFileSystem gfs, @Nonnull byte[] path) {
     this.gfs = gfs;
@@ -456,9 +455,8 @@ public class GitPath implements Path {
       return this;
 
     // corner case - all names removed
-    if(remaining == 0) {
+    if(remaining == 0)
       return isAbsolute ? getFileSystem().getRootPath() : emptyPath();
-    }
 
     // compute length of result
     int len = remaining - 1;
@@ -766,15 +764,6 @@ public class GitPath implements Path {
     return stringValue;
   }
 
-  @Nonnull
-  public String getNormalizedString() {
-    if(normalizedValue == null) {
-      GitPath realPath = toRealPath();
-      normalizedValue = new String(realPath.path, 1, realPath.path.length - 1);
-    }
-    return normalizedValue;
-  }
-
   /**
    * Searches the names in this path and stores their offsets in {@link #offsets}.
    *
@@ -861,7 +850,7 @@ public class GitPath implements Path {
    *
    * @return  {@code true} if this path's length is 0
    */
-  private boolean isEmpty() {
+  public boolean isEmpty() {
     return path.length == 0;
   }
 
