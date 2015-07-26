@@ -44,6 +44,11 @@ public class FileNode extends Node {
     return new FileNode(NodeType.SYMBOLIC_LINK, object);
   }
 
+  @Nonnull
+  public static FileNode newFile() {
+    return new FileNode(NodeType.NON_EXECUTABLE_FILE);
+  }
+
   @Override
   protected void doLoad() throws IOException {
     bytes = reader.open(object).getBytes();
@@ -77,4 +82,11 @@ public class FileNode extends Node {
       throw new IllegalArgumentException();
   }
 
+  @Nonnull
+  @Override
+  protected synchronized FileNode prepareClone() {
+    FileNode clone = new FileNode(type, object);
+    clone.bytes = bytes.clone();
+    return clone;
+  }
 }

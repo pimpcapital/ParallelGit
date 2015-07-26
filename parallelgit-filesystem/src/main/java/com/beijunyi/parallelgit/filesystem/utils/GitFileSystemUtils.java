@@ -17,10 +17,6 @@ import org.eclipse.jgit.lib.ObjectId;
  */
 public final class GitFileSystemUtils {
 
-  public static void deleteDirectory(@Nonnull GitPath path) throws IOException {
-    path.getFileSystem().getFileStore().deleteRecursively(path);
-  }
-
   @Nullable
   public static ObjectId writeTree(@Nonnull FileStore store) throws IOException {
     return ((GitFileStore) store).persistChanges();

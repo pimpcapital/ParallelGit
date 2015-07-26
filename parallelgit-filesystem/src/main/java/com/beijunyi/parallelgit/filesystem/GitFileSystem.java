@@ -84,7 +84,6 @@ public class GitFileSystem extends FileSystem {
     if(!closed) {
       closed = true;
       provider.unregister(this);
-      store.close();
     }
   }
 

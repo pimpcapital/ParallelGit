@@ -165,7 +165,7 @@ public class GitFileSystemProvider extends FileSystemProvider {
     GitPath gitPath = (GitPath) path;
     GitFileStore store = gitPath.getFileSystem().getFileStore();
 
-    return store.newByteChannel(gitPath.getNormalizedString(), amendedOptions);
+    return store.newByteChannel(gitPath, Collections.unmodifiableSet(amendedOptions));
   }
 
   /**

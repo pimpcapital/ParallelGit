@@ -1,6 +1,7 @@
 package com.beijunyi.parallelgit.filesystem.io;
 
 import java.io.IOException;
+import java.nio.file.ClosedDirectoryStreamException;
 import java.nio.file.DirectoryStream;
 import java.nio.file.Path;
 import java.util.Iterator;
@@ -17,11 +18,17 @@ public class GitDirectoryStream implements DirectoryStream<Path> {
   private final Iterator<Node> nodeIterator;
   private final Filter<? super Path> filter;
   private final DirectoryNode parent;
+  private volatile boolean closed = false;
 
   public GitDirectoryStream(@Nonnull Iterator<Node> nodeIterator, @Nullable Filter<? super Path> filter, @Nonnull DirectoryNode parent) {
     this.nodeIterator = nodeIterator;
     this.filter = filter;
     this.parent = parent;
+  }
+
+  private void checkClosed() throws ClosedDirectoryStreamException {
+    if(closed)
+      throw new ClosedDirectoryStreamException();
   }
 
   @Nonnull
@@ -30,7 +37,6 @@ public class GitDirectoryStream implements DirectoryStream<Path> {
     return new Iterator<Path>() {
 
       private Node next;
-      private Node current;
 
       private boolean findNext() {
         while(nodeIterator.hasNext()) {
@@ -49,16 +55,17 @@ public class GitDirectoryStream implements DirectoryStream<Path> {
       }
 
       @Override
-      public boolean hasNext() {
+      public boolean hasNext() throws ClosedDirectoryStreamException {
+        checkClosed();
         return next != null || findNext();
       }
 
       @Nonnull
       @Override
-      public Path next() {
+      public Path next() throws ClosedDirectoryStreamException, NoSuchElementException {
+        checkClosed();
         if(next != null || hasNext()) {
           GitPath path = next.getPath();
-          current = next;
           next = null;
           return path;
         }
@@ -66,21 +73,18 @@ public class GitDirectoryStream implements DirectoryStream<Path> {
       }
 
       @Override
-      public void remove() {
-        if(current == null)
-          throw new IllegalStateException();
-        try {
-          current.delete();
-        } catch(IOException e) {
-          throw new RuntimeException(e);
-        }
+      public void remove() throws UnsupportedOperationException {
+        throw new UnsupportedOperationException();
       }
     };
   }
 
   @Override
-  public void close() throws IOException {
-    parent.removeStream(this);
+  public synchronized void close() throws IOException {
+    if(!closed) {
+      closed = true;
+      parent.removeStream(this);
+    }
   }
 
 }

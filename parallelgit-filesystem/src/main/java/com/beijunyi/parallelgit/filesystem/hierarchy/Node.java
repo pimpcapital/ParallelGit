@@ -19,7 +19,7 @@ public abstract class Node implements Comparable<Node> {
   protected boolean loaded = false;
   protected boolean dirty = false;
   protected boolean locked = false;
-  protected long size = -1;
+  protected volatile long size = -1;
 
   protected Node(@Nonnull NodeType type, @Nonnull AnyObjectId object) {
     this.type = type;
@@ -133,20 +133,21 @@ public abstract class Node implements Comparable<Node> {
      return parent;
   }
 
-  public void copyTo(@Nonnull DirectoryNode targetDirectory, @Nonnull String name, boolean replace) {
-
-  }
-
-  public void moveTo(@Nonnull DirectoryNode targetDirectory, @Nonnull String newName, boolean replace) throws IOException {
-    DirectoryNode sourceDirectory = ensureParent();
-    if(sourceDirectory == targetDirectory)
-      sourceDirectory.renameChild(name, newName, replace);
-    else
-      sourceDirectory.moveChild(name, targetDirectory, newName, replace);
-  }
-
   public void delete() throws IOException {
     ensureParent().deleteChild(name);
+  }
+
+  @Nonnull
+  protected abstract Node prepareClone();
+
+  @Nonnull
+  public Node makeClone() {
+    Node clone = prepareClone();
+    clone.reader = reader;
+    clone.loaded = loaded;
+    clone.dirty = dirty;
+    clone.size = size;
+    return clone;
   }
 
 }

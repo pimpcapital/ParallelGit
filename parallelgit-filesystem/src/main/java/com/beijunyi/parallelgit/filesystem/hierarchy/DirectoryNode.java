@@ -8,6 +8,7 @@ import javax.annotation.Nullable;
 
 import com.beijunyi.parallelgit.filesystem.GitPath;
 import com.beijunyi.parallelgit.filesystem.io.GitDirectoryStream;
+import com.beijunyi.parallelgit.filesystem.io.GitSeekableByteChannel;
 import org.eclipse.jgit.lib.*;
 import org.eclipse.jgit.treewalk.TreeWalk;
 
@@ -121,11 +122,6 @@ public class DirectoryNode extends Node {
     return total;
   }
 
-  public synchronized boolean isEmpty() throws IOException {
-    load();
-    return children.isEmpty();
-  }
-
   @Nonnull
   public synchronized GitDirectoryStream newStream(@Nullable DirectoryStream.Filter<? super Path> filter) throws AccessDeniedException {
     if(locked)
@@ -157,37 +153,63 @@ public class DirectoryNode extends Node {
   }
 
   @Nonnull
-  private Node lockChild(@Nonnull String name) throws NoSuchFileException, AccessDeniedException {
+  private Node ensureChild(@Nonnull String name) throws NoSuchFileException, AccessDeniedException {
     Node child = children.get(name);
     if(child == null)
       throw new NoSuchFileException(getPath().resolve(name).toString());
-    child.lock();
     return child;
+  }
+
+  @Nonnull
+  public synchronized GitSeekableByteChannel openChild(@Nonnull String name, @Nonnull Set<OpenOption> options) throws IOException {
+    Node child = children.get(name);
+    if(child == null) {
+      if(!options.contains(StandardOpenOption.CREATE) && !options.contains(StandardOpenOption.CREATE_NEW))
+        throw new NoSuchFileException(getPath().resolve(name).toString());
+      child = FileNode.newFile();
+      addChild(name, child);
+    } else if(options.contains(StandardOpenOption.CREATE_NEW))
+      throw new FileAlreadyExistsException(child.getPath().toString());
+    if(child.isDirectory())
+      throw new AccessDeniedException(child.getPath().toString());
+    return child.asFile().newChannel(options);
   }
 
   private void addChild(@Nonnull String name, @Nonnull Node node) {
     node.name = name;
     node.parent = this;
+    node.path = null;
     children.put(name, node);
     invalidateSize();
     markDirty();
   }
 
-  public synchronized void addChild(@Nonnull String name, @Nonnull Node node, boolean replace) throws IOException {
+  public synchronized void addChild(@Nonnull String name, @Nonnull Node node, boolean clone, boolean replace) throws IOException {
     load();
-    if(children.get(node.name) != null) {
+    if(children.get(name) != null) {
       if(replace)
-        deleteChild(node.name);
+        deleteChild(name);
     } else
-      throw new FileAlreadyExistsException(getPath().resolve(node.name).toString());
-    addChild(name, node);
+      throw new FileAlreadyExistsException(getPath().resolve(name).toString());
+    addChild(name, clone ? node.makeClone() : node);
+  }
+
+  public void addDirectory(@Nonnull String name, boolean replace) throws IOException {
+    addChild(name, DirectoryNode.newDirectory(), false, replace);
+  }
+
+  public void copyChild(@Nonnull String name, @Nonnull DirectoryNode targetDirectory, @Nonnull String newName, boolean replace) throws IOException {
+    load();
+    Node child = ensureChild(name);
+    targetDirectory.addChild(newName, child, true, replace);
   }
 
   public synchronized void moveChild(@Nonnull String name, @Nonnull DirectoryNode targetDirectory, @Nonnull String newName, boolean replace) throws IOException {
     load();
-    Node child = lockChild(name);
+    Node child = ensureChild(name);
+    child.lock();
     try {
-      targetDirectory.addChild(newName, child, replace);
+      targetDirectory.addChild(newName, child, false, replace);
       children.remove(name);
     } finally {
       child.unlock();
@@ -200,9 +222,10 @@ public class DirectoryNode extends Node {
     if(name.equals(newName))
       return;
     load();
-    Node child = lockChild(name);
+    Node child = ensureChild(name);
+    child.lock();
     try {
-      addChild(newName, child, replace);
+      addChild(newName, child, false, replace);
       children.remove(name);
     } finally {
       child.unlock();
@@ -212,10 +235,20 @@ public class DirectoryNode extends Node {
 
   public synchronized void deleteChild(@Nonnull String name) throws IOException {
     load();
-    lockChild(name);
+    Node child = ensureChild(name);
+    child.lock();
     children.remove(name);
     invalidateSize();
     markDirty();
   }
 
+  @Nonnull
+  @Override
+  protected synchronized DirectoryNode prepareClone() {
+    DirectoryNode clone = new DirectoryNode(object);
+    clone.children = new HashMap<>();
+    for(Map.Entry<String, Node> child : children.entrySet())
+      clone.addChild(child.getKey(), child.getValue());
+    return clone;
+  }
 }
