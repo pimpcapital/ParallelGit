@@ -2,23 +2,27 @@ package com.beijunyi.parallelgit.filesystem.hierarchy;
 
 import java.io.IOException;
 import java.nio.file.AccessDeniedException;
+import java.nio.file.CopyOption;
+import java.nio.file.NotDirectoryException;
+import java.util.Set;
 import javax.annotation.Nonnull;
 
 import com.beijunyi.parallelgit.filesystem.GitPath;
+import com.beijunyi.parallelgit.filesystem.utils.GitCopyOption;
 import org.eclipse.jgit.lib.AnyObjectId;
-import org.eclipse.jgit.lib.ObjectReader;
+import org.eclipse.jgit.lib.Repository;
 
 public abstract class Node implements Comparable<Node> {
 
   protected final NodeType type;
-  protected ObjectReader reader;
+  protected Repository repository;
   protected String name;
   protected GitPath path;
   protected DirectoryNode parent;
   protected AnyObjectId object;
-  protected boolean loaded = false;
-  protected boolean dirty = false;
-  protected boolean locked = false;
+  protected volatile boolean loaded = false;
+  protected volatile boolean dirty = false;
+  protected volatile boolean locked = false;
   protected volatile long size = -1;
 
   protected Node(@Nonnull NodeType type, @Nonnull AnyObjectId object) {
@@ -48,13 +52,24 @@ public abstract class Node implements Comparable<Node> {
   }
 
   @Nonnull
-  public FileNode asFile() {
-    return (FileNode) this;
+  public FileNode asFile() throws AccessDeniedException {
+    if(this instanceof FileNode)
+      return (FileNode) this;
+    throw new AccessDeniedException(getPath().toString());
   }
 
   @Nonnull
-  public DirectoryNode asDirectory() {
-    return (DirectoryNode) this;
+  public DirectoryNode asDirectory() throws NotDirectoryException {
+    if(this instanceof DirectoryNode)
+      return (DirectoryNode) this;
+    throw new NotDirectoryException(getPath().toString());
+  }
+
+  @Nonnull
+  public Repository getRepository() {
+    if(repository == null)
+      repository = parent.getRepository();
+    return repository;
   }
 
   @Nonnull
@@ -69,13 +84,25 @@ public abstract class Node implements Comparable<Node> {
     return object;
   }
 
-  protected abstract void doLoad() throws IOException;
+  protected abstract void doLoad(boolean recursive) throws IOException;
 
-  protected synchronized void load() throws IOException {
-    if(!loaded) {
+  protected synchronized void load(boolean recursive) throws IOException {
+    if(!loaded || recursive) {
+      doLoad(recursive);
       loaded = true;
-      doLoad();
     }
+  }
+
+  protected void checkLoaded() {
+    if(!loaded)
+      throw new IllegalStateException();
+  }
+
+  protected abstract boolean doUnload(boolean recursive);
+
+  protected synchronized void unload(boolean recursive) {
+    if((loaded || recursive) && doUnload(recursive))
+      loaded = false;
   }
 
   public boolean isDirty() {
@@ -118,36 +145,65 @@ public abstract class Node implements Comparable<Node> {
     return size;
   }
 
-  public void markDirty() {
+  public abstract void markDirty(boolean recursive);
+
+  public void markAncestorDirty() {
     if(!dirty) {
-      dirty = true;
+      markDirty(false);
       if(parent != null)
-        parent.markDirty();
+        parent.markAncestorDirty();
     }
   }
 
   @Nonnull
-  public DirectoryNode ensureParent() throws IOException {
-    if(parent == null)
-      denyAccess();
-     return parent;
-  }
-
-  public void delete() throws IOException {
-    ensureParent().deleteChild(name);
-  }
+  protected abstract Node prepareClone() throws AccessDeniedException;
 
   @Nonnull
-  protected abstract Node prepareClone();
-
-  @Nonnull
-  public Node makeClone() {
+  public Node makeClone() throws AccessDeniedException{
     Node clone = prepareClone();
-    clone.reader = reader;
+    clone.repository = repository;
     clone.loaded = loaded;
     clone.dirty = dirty;
     clone.size = size;
     return clone;
   }
 
+  private boolean baseSameRepository(@Nonnull Node target) {
+    return getRepository().getDirectory().equals(target.getRepository().getDirectory());
+  }
+
+  private void amendCopyOptions(@Nonnull Node target, @Nonnull Set<CopyOption> options) {
+    if(!baseSameRepository(target)) {
+      options.add(GitCopyOption.LOAD_BEFORE_COPY);
+      if(options.contains(GitCopyOption.CLONE))
+        options.add(GitCopyOption.MARK_DIRTY);
+    }
+  }
+
+  @Nonnull
+  private DirectoryNode getParent() throws AccessDeniedException {
+    if(parent == null)
+      throw new AccessDeniedException(getPath().toString());
+    return parent;
+  }
+
+  public void copyTo(@Nonnull DirectoryNode targetParent, @Nonnull String targetName, @Nonnull Set<CopyOption> options) throws IOException {
+    options.add(GitCopyOption.CLONE);
+    amendCopyOptions(targetParent, options);
+    targetParent.addChild(targetName, this, options);
+  }
+
+  public void moveTo(@Nonnull DirectoryNode targetParent, @Nonnull String targetName, @Nonnull Set<CopyOption> options) throws IOException {
+    String currentName = name;
+    amendCopyOptions(targetParent, options);
+    lock();
+    targetParent.addChild(targetName, this, options);
+    getParent().removeChild(currentName);
+    unlock();
+  }
+
+  public void delete() throws IOException {
+    lock();
+    getParent().removeChild(name);
+  }
 }

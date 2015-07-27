@@ -14,10 +14,8 @@ import javax.annotation.Nullable;
 import com.beijunyi.parallelgit.filesystem.io.GitDirectoryStream;
 import com.beijunyi.parallelgit.filesystem.utils.GitFileSystemBuilder;
 import com.beijunyi.parallelgit.filesystem.utils.GitUriUtils;
-import org.eclipse.jgit.lib.AnyObjectId;
-import org.eclipse.jgit.lib.Repository;
+import com.beijunyi.parallelgit.filesystem.utils.IOUtils;
 
-import static java.nio.file.StandardCopyOption.*;
 import static java.nio.file.StandardOpenOption.*;
 
 public class GitFileSystemProvider extends FileSystemProvider {
@@ -25,7 +23,6 @@ public class GitFileSystemProvider extends FileSystemProvider {
   public final static String GIT_FS_SCHEME = "gfs";
 
   public final static EnumSet<StandardOpenOption> SUPPORTED_OPEN_OPTIONS = EnumSet.of(READ, SPARSE, CREATE, CREATE_NEW, WRITE, APPEND, TRUNCATE_EXISTING);
-  public final static EnumSet<StandardCopyOption> SUPPORTED_COPY_OPTIONS = EnumSet.of(REPLACE_EXISTING, ATOMIC_MOVE);
 
   private final Map<String, GitFileSystem> fsMap = new ConcurrentHashMap<>();
 
@@ -185,9 +182,7 @@ public class GitFileSystemProvider extends FileSystemProvider {
   @Nonnull
   @Override
   public GitDirectoryStream newDirectoryStream(@Nonnull Path path, @Nullable DirectoryStream.Filter<? super Path> filter) throws IOException {
-    GitPath gitPath = (GitPath) path;
-    GitFileStore store = gitPath.getFileSystem().getFileStore();
-    return store.newDirectoryStream(gitPath, filter);
+    return IOUtils.newDirectoryStream((GitPath) path, filter);
   }
 
   /**
@@ -207,9 +202,7 @@ public class GitFileSystemProvider extends FileSystemProvider {
    */
   @Override
   public void createDirectory(@Nonnull Path dir, @Nonnull FileAttribute<?>... attrs) throws IOException {
-    GitPath gitPath = (GitPath) dir;
-    GitFileStore store = gitPath.getFileSystem().getFileStore();
-    store.createDirectory(gitPath);
+    IOUtils.createDirectory((GitPath) dir);
   }
 
   /**
@@ -227,48 +220,7 @@ public class GitFileSystemProvider extends FileSystemProvider {
    */
   @Override
   public void delete(@Nonnull Path path) throws IOException {
-    GitPath gitPath = (GitPath) path;
-    GitFileStore store = gitPath.getFileSystem().getFileStore();
-    store.delete(gitPath);
-  }
-
-  /**
-   * Checks if the given array contains a {@code CopyOption} that is not {@link #SUPPORTED_COPY_OPTIONS supported} by
-   * {@code GitFileSystem}.
-   *
-   * @param   options
-   *          the array of {@code CopyOption}s to check
-   * @return  the given {@code CopyOption}s in a {@code Set}
-   * @throws  UnsupportedOperationException
-   *          if the given array contains an unsupported {@code CopyOption}
-   */
-  @Nonnull
-  private Set<? extends CopyOption> checkCopyOptions(@Nonnull CopyOption... options) throws UnsupportedOperationException {
-    Set<? extends CopyOption> supportedOptions = new HashSet<>(SUPPORTED_COPY_OPTIONS);
-    Set<CopyOption> requestedOptions = new HashSet<>(Arrays.asList(options));
-    Set<CopyOption> failedOptions = new HashSet<>(requestedOptions);
-    failedOptions.removeAll(supportedOptions);
-    if(!failedOptions.isEmpty())
-      throw new UnsupportedOperationException(failedOptions.toString());
-
-    return requestedOptions;
-  }
-
-  /**
-   * Tests if the two {@code GitPath}s are created from {@code GitFileSystem}s that are based on the same git
-   * repository.
-   *
-   * @param  source
-   *         one path to test
-   * @param  target
-   *         the other path to test
-   * @return {@code true} if the given paths are created from {@code GitFileSystem}s that are based on the same git
-   *         repository.
-   */
-  private static boolean useSameRepository(@Nonnull GitPath source, @Nonnull GitPath target) {
-    Repository srcRepo = source.getFileSystem().getRepository();
-    Repository targetRepo = target.getFileSystem().getRepository();
-    return srcRepo.getDirectory().equals(targetRepo.getDirectory());
+    IOUtils.delete((GitPath) path);
   }
 
   /**
@@ -295,33 +247,10 @@ public class GitFileSystemProvider extends FileSystemProvider {
    *          directory
    * @throws  IOException
    *          if an I/O error occurs
-   * @throws  UnsupportedOperationException
-   *          if {@code options} contains a {@code CopyOption} that is not {@link #SUPPORTED_COPY_OPTIONS supported}
    */
   @Override
-  public void copy(@Nonnull Path source, @Nonnull Path target, @Nonnull CopyOption... options) throws IOException, UnsupportedOperationException {
-    GitPath sourcePath = (GitPath) source;
-    GitPath targetPath = (GitPath) target;
-    if(!useSameRepository(sourcePath, targetPath)) {
-      Files.copy(newInputStream(sourcePath), targetPath, options);
-      return;
-    }
-
-    GitFileSystem sourceFs = sourcePath.getFileSystem();
-    GitFileStore sourceStore = sourceFs.getFileStore();
-    GitFileSystem targetFs = targetPath.getFileSystem();
-    boolean replaceExisting = checkCopyOptions(options).contains(REPLACE_EXISTING);
-    if(sourceFs.equals(targetFs))
-      sourceStore.copy(sourcePath, targetPath, replaceExisting);
-    else {
-      if(sourceStore.isDirty(sourcePath))
-        Files.copy(newInputStream(sourcePath), targetPath, options);
-      else {
-        AnyObjectId blobId = sourceStore.getFileBlobId(sourcePath);
-        if(blobId != null)
-          targetFs.getFileStore().createFileFromBlob(targetPath, blobId, replaceExisting);
-      }
-    }
+  public void copy(@Nonnull Path source, @Nonnull Path target, @Nonnull CopyOption... options) throws IOException {
+    IOUtils.copy((GitPath) source, (GitPath) target, new HashSet<>(Arrays.asList(options)));
   }
 
   /**
@@ -347,26 +276,10 @@ public class GitFileSystemProvider extends FileSystemProvider {
    *          directory
    * @throws  IOException
    *          if an I/O error occurs
-   * @throws  UnsupportedOperationException
-   *          if {@code options} contains a {@code CopyOption} that is not {@link #SUPPORTED_COPY_OPTIONS supported}
    */
   @Override
-  public void move(@Nonnull Path source, @Nonnull Path target, @Nonnull CopyOption... options) throws IOException, UnsupportedOperationException {
-    GitPath sourcePath = (GitPath) source;
-    GitPath targetPath = (GitPath) target;
-    GitFileSystem sourceFs = sourcePath.getFileSystem();
-    GitFileStore sourceStore = sourceFs.getFileStore();
-    GitFileSystem targetFs = targetPath.getFileSystem();
-    if(!useSameRepository(sourcePath, targetPath) || !sourceFs.equals(targetFs)) {
-      if(sourceStore.fileExists(sourcePath)) {
-        copy(sourcePath, targetPath, options);
-        delete(sourcePath);
-      } else if(sourceStore.isDirectory(sourcePath))
-        throw new DirectoryNotEmptyException(source.relativize(sourceFs.getRootPath()).toString());
-      return;
-    }
-    GitFileStore store = sourcePath.getFileSystem().getFileStore();
-    store.move(sourcePath, targetPath, checkCopyOptions(options).contains(REPLACE_EXISTING));
+  public void move(@Nonnull Path source, @Nonnull Path target, @Nonnull CopyOption... options) throws IOException {
+    IOUtils.move((GitPath) source, (GitPath) target, new HashSet<>(Arrays.asList(options)));
   }
 
   /**
@@ -410,9 +323,8 @@ public class GitFileSystemProvider extends FileSystemProvider {
    */
   @Nonnull
   @Override
-  public GitFileStore getFileStore(@Nonnull Path path)  {
-    GitPath gitPath = (GitPath) path;
-    return gitPath.getFileSystem().getFileStore();
+  public GitFileStore getFileStore(@Nonnull Path path) {
+    return ((GitPath) path).getFileStore();
   }
 
   /**

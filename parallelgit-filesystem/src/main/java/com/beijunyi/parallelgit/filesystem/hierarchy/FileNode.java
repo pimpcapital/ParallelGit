@@ -50,8 +50,17 @@ public class FileNode extends Node {
   }
 
   @Override
-  protected void doLoad() throws IOException {
-    bytes = reader.open(object).getBytes();
+  protected void doLoad(boolean recursive) throws IOException {
+    bytes = getRepository().newObjectReader().open(object).getBytes();
+  }
+
+  @Override
+  protected boolean doUnload(boolean recursive) {
+    if(!dirty) {
+      bytes = null;
+      return true;
+    }
+    return false;
   }
 
   @Override
@@ -65,7 +74,7 @@ public class FileNode extends Node {
   protected long calculateSize() throws IOException {
     if(bytes != null)
       return bytes.length;
-    return reader.getObjectSize(object, Constants.OBJ_BLOB);
+    return getRepository().newObjectReader().getObjectSize(object, Constants.OBJ_BLOB);
   }
 
   @Nonnull
@@ -80,6 +89,12 @@ public class FileNode extends Node {
   public synchronized void removeChannel(@Nonnull GitSeekableByteChannel channel) {
     if(!channels.remove(channel))
       throw new IllegalArgumentException();
+  }
+
+  @Override
+  public void markDirty(boolean recursive) {
+    checkLoaded();
+    dirty = true;
   }
 
   @Nonnull

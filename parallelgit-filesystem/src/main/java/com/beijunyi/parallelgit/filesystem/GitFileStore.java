@@ -12,22 +12,25 @@ import javax.annotation.Nullable;
 import com.beijunyi.parallelgit.filesystem.hierarchy.DirectoryNode;
 import com.beijunyi.parallelgit.filesystem.hierarchy.FileNode;
 import com.beijunyi.parallelgit.filesystem.hierarchy.Node;
-import com.beijunyi.parallelgit.filesystem.io.GitDirectoryStream;
 import com.beijunyi.parallelgit.filesystem.io.GitSeekableByteChannel;
 import com.beijunyi.parallelgit.utils.BranchHelper;
 import com.beijunyi.parallelgit.utils.CommitHelper;
-import com.beijunyi.parallelgit.utils.TreeWalkHelper;
 import org.eclipse.jgit.lib.*;
 import org.eclipse.jgit.revwalk.RevCommit;
-import org.eclipse.jgit.treewalk.TreeWalk;
 
 public class GitFileStore extends FileStore implements Closeable {
 
+  private final Repository repository;
+  private final ObjectReader reader;
+  private final GitPath rootPath;
   private DirectoryNode root;
   private volatile boolean closed = false;
 
 
-  GitFileStore(@Nonnull ObjectReader reader, @Nonnull GitPath rootPath, @Nullable AnyObjectId baseTree) throws IOException {
+  GitFileStore(@Nonnull Repository repository, @Nonnull GitPath rootPath, @Nullable AnyObjectId baseTree) throws IOException {
+    this.repository = repository;
+    this.rootPath = rootPath;
+    reader = repository.newObjectReader();
     root = DirectoryNode.newRoot(rootPath, baseTree, reader);
   }
 
@@ -160,8 +163,30 @@ public class GitFileStore extends FileStore implements Closeable {
   public synchronized void close() throws IOException {
     if(!closed) {
       root.lock();
+      reader.release();
+      repository.close();
       closed = true;
     }
+  }
+
+  @Nonnull
+  public Repository getRepository() {
+    return repository;
+  }
+
+  @Nullable
+  public Node findNode(@Nonnull GitPath path) throws IOException {
+    if(!path.isAbsolute())
+      throw new IllegalArgumentException(path.toString());
+    Node current = root;
+    path = rootPath.relativize(path);
+    while(!path.isEmpty() && current != null && current.isDirectory()) {
+      GitPath name = path.getFileName();
+      if(name == null)
+        throw new IllegalStateException();
+      current = current.asDirectory().getChild(name.toString());
+    }
+    return current;
   }
 
   @Nonnull
@@ -298,84 +323,6 @@ public class GitFileStore extends FileStore implements Closeable {
   }
 
   /**
-   * Deletes a file.
-   *
-   * @param   path
-   *          the path to the file to delete
-   * @throws  AccessDeniedException
-   *          if the file is associated with an open {@code GitSeekableByteChannel} or if its parent directories are
-   *          associated with an open {@code GitDirectoryStream}
-   * @throws  DirectoryNotEmptyException
-   *          if the file is a non-empty directory
-   * @throws  NoSuchFileException
-   *          if the file does not exist
-   */
-  public void delete(@Nonnull GitPath path) throws IOException {
-    checkClosed();
-    DirectoryNode parent = ensureParentDirectory(path);
-    parent.deleteChild(getFileName(path));
-  }
-
-  /**
-   * Copy a file to a target file.
-   *
-   * @param   source
-   *          the path to the file to copy
-   * @param   target
-   *          the path to the target file
-   * @param   replace
-   *          whether to replace the target file if it already exists
-   * @throws  AccessDeniedException
-   *          if the file to copy or the target file is associated with an open {@code GitSeekableByteChannel} or their
-   *          parent directories are associated with an open {@code GitDirectoryStream}
-   * @throws  NoSuchFileException
-   *          if the file to copy does not exist
-   * @throws  FileAlreadyExistsException
-   *          if the target file exists but cannot be replaced because {@code replaceExisting} is {@code false}
-   * @throws  DirectoryNotEmptyException
-   *          if {@code replaceExisting} is {@code true} but the file cannot be replaced because it is a non-empty
-   *          directory
-   */
-  public void copy(@Nonnull GitPath source, @Nonnull GitPath target, boolean replace) throws IOException {
-    checkClosed();
-    DirectoryNode sourceParent = ensureParentDirectory(source);
-    String sourceName = getFileName(source);
-    DirectoryNode targetParent = ensureParentDirectory(target);
-    String targetName = getFileName(target);
-    sourceParent.copyChild(sourceName, targetParent, targetName, replace);
-  }
-
-  public void copyForeignRepository(@Nonnull GitPath source, @Nonnull GitPath target, boolean replace)
-
-  /**
-   * Move or rename a file to a target file.
-   *
-   * @param   source
-   *          the path to the file to move.
-   * @param   target
-   *          the path to the target file.
-   * @param   replace
-   *          whether to replace the target file if it already exists.
-   * @throws  NoSuchFileException
-   *          If the file to move does not exist.
-   * @throws  AccessDeniedException
-   *          if the file to move or the target file is associated with an open {@code GitSeekableByteChannel} or if
-   *          their parent directories are associated with an open open {@code GitDirectoryStream}
-   * @throws  FileAlreadyExistsException
-   *          If the target file already exists but {@code replaceExisting} is set to {@code false}.
-   * @throws  DirectoryNotEmptyException
-   *          If {@code replaceExisting} is set to {@code true} but the target file is a directory.
-   */
-  public void move(@Nonnull GitPath source, @Nonnull GitPath target, boolean replace) throws IOException {
-    checkClosed();
-    DirectoryNode sourceParent = ensureParentDirectory(source);
-    String sourceName = getFileName(source);
-    DirectoryNode targetParent = ensureParentDirectory(target);
-    String targetName = getFileName(target);
-    sourceParent.moveChild(sourceName, targetParent, targetName, replace);
-  }
-
-  /**
    * Opens or creates a file, returning a {@code GitSeekableByteChannel} to access the file. This method works in
    * exactly the manner specified by the {@link Files#newByteChannel(Path,Set, java.nio.file.attribute.FileAttribute[])} method.
    *
@@ -399,33 +346,6 @@ public class GitFileStore extends FileStore implements Closeable {
     checkClosed();
     DirectoryNode parent = ensureParentDirectory(path);
     return parent.openChild(getFileName(path), options);
-  }
-
-  /**
-   * Opens a directory, returning a {@code GitDirectoryStream} to iterate over the entries in the directory.
-   *
-   * @param   path
-   *          the path to the directory
-   * @param   filter
-   *          the directory stream filter
-   *
-   * @return  a new and open {@code GitDirectoryStream} object
-   *
-   * @throws  NotDirectoryException
-   *          if the file could not otherwise be opened because it is not a directory
-   */
-  @Nonnull
-  GitDirectoryStream newDirectoryStream(@Nonnull GitPath path, @Nullable DirectoryStream.Filter<? super Path> filter) throws IOException {
-    checkClosed();
-    DirectoryNode node = ensureDirectoryNode(path);
-    return node.newStream(filter);
-  }
-
-  public void createDirectory(@Nonnull GitPath path) throws IOException {
-    checkClosed();
-    DirectoryNode parent = ensureParentDirectory(path);
-    String childName = getFileName(path);
-    parent.addDirectory(childName, false);
   }
 
   /**

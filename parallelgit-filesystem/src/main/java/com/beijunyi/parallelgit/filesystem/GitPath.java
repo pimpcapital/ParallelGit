@@ -1,6 +1,7 @@
 package com.beijunyi.parallelgit.filesystem;
 
 import java.io.File;
+import java.io.IOException;
 import java.lang.ref.SoftReference;
 import java.net.URI;
 import java.nio.ByteBuffer;
@@ -13,6 +14,8 @@ import java.util.NoSuchElementException;
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 
+import com.beijunyi.parallelgit.filesystem.hierarchy.DirectoryNode;
+import com.beijunyi.parallelgit.filesystem.hierarchy.Node;
 import com.beijunyi.parallelgit.filesystem.utils.GitUriBuilder;
 
 public class GitPath implements Path {
@@ -128,6 +131,11 @@ public class GitPath implements Path {
   @Override
   public GitFileSystem getFileSystem() {
     return gfs;
+  }
+
+  @Nonnull
+  public GitFileStore getFileStore() {
+    return gfs.getFileStore();
   }
 
   /**
@@ -862,6 +870,22 @@ public class GitPath implements Path {
   @Nonnull
   private GitPath emptyPath() {
     return new GitPath(gfs, new byte[0]);
+  }
+
+  @Nonnull
+  public Node getNode() throws IOException {
+    Node node = getFileStore().findNode(this);
+    if(node == null)
+      throw new NoSuchFileException(toString());
+    return node;
+  }
+
+  @Nonnull
+  public DirectoryNode getParentNode() throws IOException {
+    GitPath parent = getParent();
+    if(parent == null)
+      throw new AccessDeniedException(toString());
+    return parent.getNode().asDirectory();
   }
 
 }

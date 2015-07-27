@@ -9,6 +9,7 @@ import javax.annotation.Nullable;
 import com.beijunyi.parallelgit.filesystem.GitPath;
 import com.beijunyi.parallelgit.filesystem.io.GitDirectoryStream;
 import com.beijunyi.parallelgit.filesystem.io.GitSeekableByteChannel;
+import com.beijunyi.parallelgit.filesystem.utils.GitCopyOption;
 import org.eclipse.jgit.lib.*;
 import org.eclipse.jgit.treewalk.TreeWalk;
 
@@ -17,14 +18,14 @@ public class DirectoryNode extends Node {
   private Map<String, Node> children;
   private final Collection<GitDirectoryStream> streams = new LinkedList<>();
 
-  protected DirectoryNode(@Nonnull GitPath root, @Nonnull AnyObjectId object, @Nonnull ObjectReader reader) {
+  protected DirectoryNode(@Nonnull GitPath root, @Nonnull AnyObjectId object, @Nonnull Repository repository) {
     super(NodeType.DIRECTORY, object);
-    path = root;
-    this.reader = reader;
+    this.path = root;
+    this.repository = repository;
   }
 
-  protected DirectoryNode(@Nonnull GitPath root, @Nonnull ObjectReader reader) {
-    this(root, ObjectId.zeroId(), reader);
+  protected DirectoryNode(@Nonnull GitPath root, @Nonnull Repository repository) {
+    this(root, ObjectId.zeroId(), repository);
     children = new HashMap<>();
     loaded = true;
     dirty = true;
@@ -52,14 +53,14 @@ public class DirectoryNode extends Node {
   }
 
   @Nonnull
-  public static DirectoryNode newRoot(@Nonnull GitPath rootPath, @Nullable AnyObjectId treeId, @Nonnull ObjectReader reader) {
-    return treeId != null ? new DirectoryNode(rootPath, treeId, reader) : new DirectoryNode(rootPath, reader);
+  public static DirectoryNode newRoot(@Nonnull GitPath rootPath, @Nullable AnyObjectId treeId, @Nonnull Repository repository) {
+    return treeId != null ? new DirectoryNode(rootPath, treeId, repository) : new DirectoryNode(rootPath, repository);
   }
 
   @Override
-  protected void doLoad() throws IOException {
+  protected void doLoad(boolean recursive) throws IOException {
     children = new HashMap<>();
-    TreeWalk tw = new TreeWalk(reader);
+    TreeWalk tw = new TreeWalk(repository);
     try {
       while(tw.next()) {
         AnyObjectId object = tw.getObjectId(0);
@@ -76,10 +77,24 @@ public class DirectoryNode extends Node {
         else
           throw new UnsupportedOperationException("File mode " + mode + " is not supported");
         addChild(tw.getNameString(), node);
+        if(recursive)
+          node.load(true);
       }
     } finally {
       tw.release();
     }
+  }
+
+  @Override
+  protected boolean doUnload(boolean recursive) {
+    if(!dirty) {
+      children = null;
+      return true;
+    } else if(recursive) {
+      for(Node child : children.values())
+        child.unload(true);
+    }
+    return false;
   }
 
   @Override
@@ -115,7 +130,7 @@ public class DirectoryNode extends Node {
 
   @Override
   protected long calculateSize() throws IOException {
-    load();
+    load(false);
     long total = 0;
     for(Node child : children.values())
       total += child.getSize();
@@ -139,25 +154,10 @@ public class DirectoryNode extends Node {
   }
 
   @Nullable
-  public synchronized Node findNode(@Nonnull GitPath path) throws IOException {
-    if(path.isAbsolute())
-      path = getPath().relativize(path);
-    if(path.isEmpty())
-      return this;
-    String childName = path.getName(0).toString();
-    load();
-    Node child = children.get(childName);
-    if(child != null && child.isDirectory() && path.getNameCount() > 1)
-      return child.asDirectory().findNode(path.subpath(1, path.getNameCount()));
-    return child;
-  }
-
-  @Nonnull
-  private Node ensureChild(@Nonnull String name) throws NoSuchFileException, AccessDeniedException {
-    Node child = children.get(name);
-    if(child == null)
-      throw new NoSuchFileException(getPath().resolve(name).toString());
-    return child;
+  public Node getChild(@Nonnull String name) throws IOException {
+    checkLocked();
+    load(false);
+    return children.get(name);
   }
 
   @Nonnull
@@ -181,74 +181,51 @@ public class DirectoryNode extends Node {
     node.path = null;
     children.put(name, node);
     invalidateSize();
-    markDirty();
+    markAncestorDirty();
   }
 
-  public synchronized void addChild(@Nonnull String name, @Nonnull Node node, boolean clone, boolean replace) throws IOException {
-    load();
+  public synchronized void addChild(@Nonnull String name, @Nonnull Node node, @Nonnull Set<CopyOption> options) throws IOException {
+    load(false);
     if(children.get(name) != null) {
-      if(replace)
-        deleteChild(name);
+      if(options.contains(StandardCopyOption.REPLACE_EXISTING))
+        removeChild(name);
     } else
       throw new FileAlreadyExistsException(getPath().resolve(name).toString());
-    addChild(name, clone ? node.makeClone() : node);
+    if(options.contains(GitCopyOption.LOAD_BEFORE_COPY))
+      node.load(true);
+    Node toAdd = options.contains(GitCopyOption.CLONE) ? node.makeClone() : node;
+    if(options.contains(GitCopyOption.MARK_DIRTY))
+      toAdd.markDirty(true);
+    addChild(name, toAdd);
+    if(options.contains(GitCopyOption.UNLOAD_AFTER_COPY))
+      node.unload(true);
   }
 
-  public void addDirectory(@Nonnull String name, boolean replace) throws IOException {
-    addChild(name, DirectoryNode.newDirectory(), false, replace);
-  }
-
-  public void copyChild(@Nonnull String name, @Nonnull DirectoryNode targetDirectory, @Nonnull String newName, boolean replace) throws IOException {
-    load();
-    Node child = ensureChild(name);
-    targetDirectory.addChild(newName, child, true, replace);
-  }
-
-  public synchronized void moveChild(@Nonnull String name, @Nonnull DirectoryNode targetDirectory, @Nonnull String newName, boolean replace) throws IOException {
-    load();
-    Node child = ensureChild(name);
-    child.lock();
-    try {
-      targetDirectory.addChild(newName, child, false, replace);
-      children.remove(name);
-    } finally {
-      child.unlock();
-    }
-    invalidateSize();
-    markDirty();
-  }
-
-  public synchronized void renameChild(@Nonnull String name, @Nonnull String newName, boolean replace) throws IOException {
-    if(name.equals(newName))
-      return;
-    load();
-    Node child = ensureChild(name);
-    child.lock();
-    try {
-      addChild(newName, child, false, replace);
-      children.remove(name);
-    } finally {
-      child.unlock();
-    }
-    markDirty();
-  }
-
-  public synchronized void deleteChild(@Nonnull String name) throws IOException {
-    load();
-    Node child = ensureChild(name);
-    child.lock();
+  public synchronized void removeChild(@Nonnull String name) throws IOException {
+    load(false);
     children.remove(name);
-    invalidateSize();
-    markDirty();
+  }
+
+  @Override
+  public void markDirty(boolean recursive) {
+    checkLoaded();
+    dirty = true;
+    if(recursive) {
+      for(Node child : children.values())
+        child.markDirty(true);
+    }
   }
 
   @Nonnull
   @Override
-  protected synchronized DirectoryNode prepareClone() {
+  protected synchronized DirectoryNode prepareClone() throws AccessDeniedException {
     DirectoryNode clone = new DirectoryNode(object);
     clone.children = new HashMap<>();
-    for(Map.Entry<String, Node> child : children.entrySet())
-      clone.addChild(child.getKey(), child.getValue());
+    for(Map.Entry<String, Node> child : children.entrySet()) {
+      Node node = child.getValue();
+      node.checkLocked();
+      clone.addChild(child.getKey(), node);
+    }
     return clone;
   }
 }
