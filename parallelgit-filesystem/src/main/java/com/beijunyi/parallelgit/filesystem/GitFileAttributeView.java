@@ -2,20 +2,19 @@ package com.beijunyi.parallelgit.filesystem;
 
 import java.io.IOException;
 import java.nio.file.Files;
-import java.nio.file.NoSuchFileException;
 import java.nio.file.Path;
 import java.nio.file.attribute.*;
 import java.util.*;
 import javax.annotation.Nonnull;
 
+import com.beijunyi.parallelgit.filesystem.hierarchy.Node;
+
 public abstract class GitFileAttributeView implements FileAttributeView {
 
-  protected final GitFileStore store;
-  protected final GitPath path;
+  protected final Node node;
 
-  public GitFileAttributeView(@Nonnull GitFileStore store, @Nonnull GitPath path) {
-    this.store = store;
-    this.path = path;
+  public GitFileAttributeView(@Nonnull Node node) {
+    this.node = node;
   }
 
   @Nonnull
@@ -49,8 +48,8 @@ public abstract class GitFileAttributeView implements FileAttributeView {
                                                         IS_OTHER_NAME
       ));
 
-    public Basic(@Nonnull GitFileStore store, @Nonnull GitPath path) {
-      super(store, path);
+    public Basic(@Nonnull Node node) {
+      super(node);
     }
 
     @Nonnull
@@ -73,14 +72,11 @@ public abstract class GitFileAttributeView implements FileAttributeView {
     @Nonnull
     @Override
     public Map<String, Object> readAttributes(@Nonnull Collection<String> keys) throws IOException {
-      if(!store.fileExists(path) && !store.isDirectory(path))
-        throw new NoSuchFileException(path);
-
       Map<String, Object> result = new HashMap<>();
       for(String key : keys) {
         switch(key) {
           case SIZE_NAME:
-            result.put(key, store.getFileSize(path));
+            result.put(key, node.getSize());
             break;
           case CREATION_TIME_NAME:
             result.put(key, EPOCH);
@@ -95,13 +91,13 @@ public abstract class GitFileAttributeView implements FileAttributeView {
             result.put(key, null);
             break;
           case IS_DIRECTORY_NAME:
-            result.put(key, store.isDirectory(path));
+            result.put(key, node.isDirectory());
             break;
           case IS_REGULAR_FILE_NAME:
-            result.put(key, store.isRegularFile(path));
+            result.put(key, node.isRegularFile());
             break;
           case IS_SYMBOLIC_LINK_NAME:
-            result.put(key, store.isSymbolicLink(path));
+            result.put(key, node.isSymbolicLink());
             break;
           case IS_OTHER_NAME:
             result.put(key, false);
@@ -148,14 +144,14 @@ public abstract class GitFileAttributeView implements FileAttributeView {
     private Path repoDir;
     private PosixFileAttributes repoAttributes;
 
-    public Posix(@Nonnull GitFileStore store, @Nonnull GitPath path) {
-      super(store, path);
+    public Posix(@Nonnull Node node) {
+      super(node);
     }
 
     @Nonnull
     public Path getRepoDir() {
       if(repoDir == null)
-        repoDir = store.getRepository().getDirectory().toPath();
+        repoDir = node.store().getRepository().getDirectory().toPath();
       return repoDir;
     }
 
@@ -181,7 +177,7 @@ public abstract class GitFileAttributeView implements FileAttributeView {
     @Nonnull
     public Set<PosixFilePermission> getPermissions() throws IOException {
       Set<PosixFilePermission> perms = new HashSet<>(DEFAULT_PERMISSIONS);
-      if(store.isExecutableFile(path))
+      if(node.isExecutableFile())
         perms.add(PosixFilePermission.OWNER_EXECUTE);
       return Collections.unmodifiableSet(perms);
     }

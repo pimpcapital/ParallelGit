@@ -1,9 +1,9 @@
 package com.beijunyi.parallelgit.filesystem.utils;
 
 import java.io.IOException;
-import java.nio.file.CopyOption;
-import java.nio.file.DirectoryStream;
-import java.nio.file.Path;
+import java.nio.file.*;
+import java.nio.file.attribute.FileAttribute;
+import java.util.Collection;
 import java.util.Collections;
 import java.util.Set;
 import javax.annotation.Nonnull;
@@ -13,11 +13,12 @@ import com.beijunyi.parallelgit.filesystem.GitPath;
 import com.beijunyi.parallelgit.filesystem.hierarchy.DirectoryNode;
 import com.beijunyi.parallelgit.filesystem.hierarchy.Node;
 import com.beijunyi.parallelgit.filesystem.io.GitDirectoryStream;
+import com.beijunyi.parallelgit.filesystem.io.GitSeekableByteChannel;
 
 public final class IOUtils {
 
   @Nonnull
-  public static String getFileName(@Nonnull GitPath path) throws IOException {
+  private static String getFileName(@Nonnull GitPath path) throws IOException {
     GitPath name = path.getFileName();
     if(name == null)
       throw new IllegalArgumentException(path.toString());
@@ -25,10 +26,20 @@ public final class IOUtils {
   }
 
   @Nonnull
+  public static GitSeekableByteChannel newByteChannel(@Nonnull GitPath path, @Nonnull Set<OpenOption> options, @Nonnull Collection<FileAttribute> attrs) throws IOException {
+    if(options.contains(StandardOpenOption.CREATE) || options.contains(StandardOpenOption.CREATE_NEW)) {
+      DirectoryNode parent = path.getParentNode();
+      if(options.contains(StandardOpenOption.CREATE_NEW) || parent.getChild(getFileName(path)) == null) {
+        parent.addNewFile(getFileName(path), FileAttributeReader.read(attrs).isExecutable());
+      }
+    }
+    return path.getNode().asFile().newChannel(options);
+  }
+
+  @Nonnull
   public static GitDirectoryStream newDirectoryStream(@Nonnull GitPath path, @Nullable DirectoryStream.Filter<? super Path> filter) throws IOException {
     return path.getNode().asDirectory().newStream(filter);
   }
-
 
   public static void createDirectory(@Nonnull GitPath path) throws IOException {
     DirectoryNode parent = path.getParentNode();
@@ -52,6 +63,14 @@ public final class IOUtils {
 
   public static void delete(@Nonnull GitPath source) throws IOException {
     source.getNode().delete();
+  }
+
+  public static void checkAccess(@Nonnull GitPath path, @Nonnull Set<AccessMode> modes) throws IOException {
+    Node node = path.getNode();
+    for(AccessMode mode : modes) {
+      if(mode == AccessMode.EXECUTE && !node.isExecutableFile())
+        throw new AccessDeniedException(path.toString());
+    }
   }
 
 }

@@ -3,15 +3,15 @@ package com.beijunyi.parallelgit.filesystem.hierarchy;
 import java.io.IOException;
 import java.nio.file.AccessDeniedException;
 import java.nio.file.OpenOption;
-import java.util.Collection;
-import java.util.LinkedList;
-import java.util.Set;
+import java.util.*;
 import javax.annotation.Nonnull;
 
+import com.beijunyi.parallelgit.filesystem.GitFileStore;
 import com.beijunyi.parallelgit.filesystem.io.GitSeekableByteChannel;
 import org.eclipse.jgit.lib.AnyObjectId;
-import org.eclipse.jgit.lib.Constants;
 import org.eclipse.jgit.lib.ObjectId;
+
+import static java.nio.file.StandardOpenOption.*;
 
 public class FileNode extends Node {
 
@@ -30,37 +30,31 @@ public class FileNode extends Node {
   }
 
   @Nonnull
-  public static FileNode forRegularFileObject(@Nonnull AnyObjectId object) {
-    return new FileNode(NodeType.NON_EXECUTABLE_FILE, object);
+  protected static FileNode forBlobObject(@Nonnull AnyObjectId object, @Nonnull NodeType type) {
+    return new FileNode(type, object);
   }
 
   @Nonnull
-  public static FileNode forExecutableFileObject(@Nonnull AnyObjectId object) {
-    return new FileNode(NodeType.EXECUTABLE_FILE, object);
-  }
-
-  @Nonnull
-  public static FileNode forSymlinkBlob(@Nonnull AnyObjectId object) {
-    return new FileNode(NodeType.SYMBOLIC_LINK, object);
-  }
-
-  @Nonnull
-  public static FileNode newFile() {
-    return new FileNode(NodeType.NON_EXECUTABLE_FILE);
+  protected static FileNode newFile(boolean executable) {
+    return new FileNode(executable ? NodeType.EXECUTABLE_FILE : NodeType.NON_EXECUTABLE_FILE);
   }
 
   @Override
-  protected void doLoad(boolean recursive) throws IOException {
-    bytes = getRepository().newObjectReader().open(object).getBytes();
-  }
-
-  @Override
-  protected boolean doUnload(boolean recursive) {
-    if(!dirty) {
-      bytes = null;
-      return true;
+  protected void load(@Nonnull GitFileStore store, boolean recursive) throws IOException {
+    if(!loaded) {
+      bytes = store.getBlobBytes(object);
+      loaded = true;
     }
-    return false;
+    if(recursive)
+      dirty = true;
+  }
+
+  @Nonnull
+  @Override
+  public AnyObjectId save() throws IOException {
+    if(!dirty)
+      return object;
+    return store().insertBlob(bytes);
   }
 
   @Override
@@ -74,14 +68,25 @@ public class FileNode extends Node {
   protected long calculateSize() throws IOException {
     if(bytes != null)
       return bytes.length;
-    return getRepository().newObjectReader().getObjectSize(object, Constants.OBJ_BLOB);
+    return store().getBlobSize(object);
   }
 
   @Nonnull
-  public synchronized GitSeekableByteChannel newChannel(@Nonnull Set<? extends OpenOption> options) throws AccessDeniedException {
-    if(locked)
-      denyAccess();
-    GitSeekableByteChannel channel = new GitSeekableByteChannel(bytes, options, this);
+  private Set<OpenOption> amendOpenOptions(@Nonnull Set<? extends OpenOption> options) {
+    Set<OpenOption> ret = new HashSet<>(options);
+    if(!options.contains(READ) && !options.contains(WRITE)) {
+      if(options.contains(APPEND))
+        ret.add(WRITE);
+      else
+        ret.add(READ);
+    }
+    return ret;
+  }
+
+  @Nonnull
+  public synchronized GitSeekableByteChannel newChannel(@Nonnull Set<OpenOption> options) throws AccessDeniedException {
+    checkNotLocked();
+    GitSeekableByteChannel channel = new GitSeekableByteChannel(bytes, amendOpenOptions(options), this);
     channels.add(channel);
     return channel;
   }
@@ -91,17 +96,18 @@ public class FileNode extends Node {
       throw new IllegalArgumentException();
   }
 
-  @Override
-  public void markDirty(boolean recursive) {
-    checkLoaded();
-    dirty = true;
-  }
-
   @Nonnull
   @Override
-  protected synchronized FileNode prepareClone() {
+  protected synchronized FileNode clone(boolean deepClone) throws IOException {
     FileNode clone = new FileNode(type, object);
-    clone.bytes = bytes.clone();
+    if(deepClone || dirty) {
+      if(loaded) {
+        clone.bytes = bytes.clone();
+        clone.loaded = true;
+        clone.dirty = true;
+      } else
+        clone.load(store(), true);
+    }
     return clone;
   }
 }

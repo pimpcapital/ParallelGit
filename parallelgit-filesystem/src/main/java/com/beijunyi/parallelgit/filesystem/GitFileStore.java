@@ -1,37 +1,32 @@
 package com.beijunyi.parallelgit.filesystem;
 
-import java.io.Closeable;
 import java.io.IOException;
-import java.nio.file.*;
+import java.nio.file.ClosedFileSystemException;
+import java.nio.file.DirectoryStream;
+import java.nio.file.FileStore;
 import java.nio.file.attribute.FileAttributeView;
 import java.nio.file.attribute.FileStoreAttributeView;
-import java.util.*;
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 
 import com.beijunyi.parallelgit.filesystem.hierarchy.DirectoryNode;
-import com.beijunyi.parallelgit.filesystem.hierarchy.FileNode;
 import com.beijunyi.parallelgit.filesystem.hierarchy.Node;
-import com.beijunyi.parallelgit.filesystem.io.GitSeekableByteChannel;
-import com.beijunyi.parallelgit.utils.BranchHelper;
-import com.beijunyi.parallelgit.utils.CommitHelper;
 import org.eclipse.jgit.lib.*;
-import org.eclipse.jgit.revwalk.RevCommit;
+import org.eclipse.jgit.treewalk.TreeWalk;
 
-public class GitFileStore extends FileStore implements Closeable {
+public class GitFileStore extends FileStore {
 
   private final Repository repository;
-  private final ObjectReader reader;
   private final GitPath rootPath;
+  private ObjectReader reader;
+  private ObjectInserter inserter;
   private DirectoryNode root;
-  private volatile boolean closed = false;
 
 
   GitFileStore(@Nonnull Repository repository, @Nonnull GitPath rootPath, @Nullable AnyObjectId baseTree) throws IOException {
     this.repository = repository;
     this.rootPath = rootPath;
-    reader = repository.newObjectReader();
-    root = DirectoryNode.newRoot(rootPath, baseTree, reader);
+    root = DirectoryNode.newRoot(rootPath, baseTree, this);
   }
 
   /**
@@ -159,14 +154,62 @@ public class GitFileStore extends FileStore implements Closeable {
    * Closing a file store will close all open {@link java.nio.channels.Channel}, {@link DirectoryStream}, and other
    * closeable objects associated with this file store.
    */
-  @Override
-  public synchronized void close() throws IOException {
-    if(!closed) {
-      root.lock();
+  public synchronized void release() throws IOException {
+    root.lock();
+    if(reader != null)
       reader.release();
-      repository.close();
-      closed = true;
+    if(inserter != null)
+      inserter.release();
+  }
+
+  @Nonnull
+  private ObjectReader reader() {
+    if(reader != null)
+      return reader;
+    synchronized(this) {
+      if(reader == null)
+        reader = repository.newObjectReader();
+      return reader;
     }
+  }
+
+  @Nonnull
+  private ObjectInserter inserter() {
+    if(inserter != null)
+      return inserter;
+    synchronized(this) {
+      if(inserter == null)
+        inserter = repository.newObjectInserter();
+      return inserter;
+    }
+  }
+
+  public long getBlobSize(@Nonnull AnyObjectId blobId) throws IOException {
+    return reader().getObjectSize(blobId, Constants.OBJ_BLOB);
+  }
+
+  @Nonnull
+  public byte[] getBlobBytes(@Nonnull AnyObjectId blobId) throws IOException {
+    return reader().open(blobId).getBytes();
+  }
+
+  @Nonnull
+  public TreeWalk newTreeWalk() {
+    return new TreeWalk(reader());
+  }
+
+  @Nonnull
+  public AnyObjectId insertBlob(@Nonnull byte[] bytes) throws IOException {
+    return inserter().insert(Constants.OBJ_BLOB, bytes);
+  }
+
+  @Nonnull
+  public AnyObjectId insertTree(@Nonnull TreeFormatter tf) throws IOException {
+    return inserter().insert(tf);
+  }
+
+  public boolean baseSameRepository(@Nonnull GitFileStore store) {
+    return repository.getDirectory().equals(store.repository.getDirectory());
   }
 
   @Nonnull
@@ -190,277 +233,8 @@ public class GitFileStore extends FileStore implements Closeable {
   }
 
   @Nonnull
-  private Node ensureNode(@Nonnull GitPath path) throws IOException {
-    Node node = root.findNode(path);
-    if(node == null)
-      throw new NoSuchFileException(path.toString());
-    return node;
-  }
-
-  @Nonnull
-  private DirectoryNode ensureDirectoryNode(@Nonnull GitPath path) throws IOException {
-    Node node = ensureNode(path);
-    if(!node.isDirectory())
-      throw new NotDirectoryException(path.toString());
-    return node.asDirectory();
-  }
-
-  @Nonnull
-  private DirectoryNode ensureParentDirectory(@Nonnull GitPath path) throws IOException {
-    GitPath parentPath = path.getParent();
-    if(parentPath == null)
-      throw new AccessDeniedException(path.toString());
-    return ensureDirectoryNode(parentPath);
-  }
-
-  @Nonnull
-  private String getFileName(@Nonnull GitPath path) {
-    GitPath fileName = path.getFileName();
-    if(fileName == null || fileName.isEmpty())
-      throw new IllegalStateException();
-    return fileName.toString();
-  }
-
-  /**
-   * Tests if the file referenced by the specified path has been modified in this file store.
-   *
-   * @param path a file path
-   * @return {@code true} if the file has been modified
-   */
-  public boolean isDirty(@Nonnull GitPath path) throws IOException {
-    checkClosed();
-    return ensureNode(path).isDirty();
-  }
-
-  /**
-   * Returns the {@code ObjectId} of a file.
-   *
-   * @param   pathStr
-   *          the string path to file whose {@code ObjectId} is to be returned
-   * @return  the {@code ObjectId} of the file or {@code null} if it is a directory
-   * @throws  NoSuchFileException
-   *          if the specified file does not exist
-   */
-  @Nullable
-  AnyObjectId getFileBlobId(@Nonnull String pathStr) throws IOException {
-    checkClosed();
-    Node node = root.findNode(pathStr);
-    if(node == null)
-      throw new NoSuchFileException(pathStr);
-    return node instanceof FileNode ? node.getObject() : null;
-  }
-
-  public boolean fileExists(@Nonnull GitPath path) throws IOException {
-    checkClosed();
-    return root.findNode(path) != null;
-  }
-
-  /**
-   * Tests if a file is a regular file.
-   *
-   * @param   path
-   *          the path to the file to test
-   * @return  {@code true} if the file is a regular file
-   */
-  public boolean isRegularFile(@Nonnull GitPath path) throws IOException {
-    checkClosed();
-    Node node = root.findNode(path);
-    return node != null && node.isRegularFile();
-  }
-
-  /**
-   * Tests if a file is a directory.
-   *
-   * @param   path
-   *          the path to the file to test
-   * @return  {@code true} if the file is a directory
-   */
-  public boolean isDirectory(@Nonnull GitPath path) throws IOException {
-    checkClosed();
-    Node node = root.findNode(path);
-    return node != null && node.isDirectory();
-  }
-
-  /**
-   * Tests if a file is executable.
-   *
-   * @param   path
-   *          the string path to the file to test
-   * @return  {@code true} if the file is executable
-   */
-  public boolean isExecutableFile(@Nonnull GitPath path) throws IOException {
-    checkClosed();
-    Node node = root.findNode(path);
-    return node != null && node.isExecutableFile();
-  }
-
-  /**
-   * Tests if a file is a symbolic link.
-   *
-   * @param   path
-   *          the string path to the file to test
-   * @return  {@code true} if the file is a symbolic link
-   */
-  public boolean isSymbolicLink(@Nonnull GitPath path) throws IOException {
-    checkClosed();
-    Node node = root.findNode(path);
-    return node != null && node.isSymbolicLink();
-  }
-
-  /**
-   * Returns a file's size in bytes. A non-empty directory is considered to have 0 byte.
-   *
-   * @param   path
-   *          the path to the file
-   * @return  the file's size in bytes
-   *
-   * @throws  NoSuchFileException
-   *          if the file does not exist
-   */
-  public long getFileSize(@Nonnull GitPath path) throws IOException {
-    checkClosed();
-    return ensureNode(path).getSize();
-  }
-
-  /**
-   * Opens or creates a file, returning a {@code GitSeekableByteChannel} to access the file. This method works in
-   * exactly the manner specified by the {@link Files#newByteChannel(Path,Set, java.nio.file.attribute.FileAttribute[])} method.
-   *
-   * @param   path
-   *          the path to the file to open or create
-   * @param   options
-   *          options specifying how the file is opened
-   *
-   * @return  a {@code GitSeekableByteChannel} to access the target file
-   *
-   * @throws  NoSuchFileException
-   *          if the file does not exists and neither {@link StandardOpenOption#CREATE} nor {@link
-   *          StandardOpenOption#CREATE_NEW} option is specified
-   * @throws  AccessDeniedException
-   *          if the file is a directory
-   * @throws  FileAlreadyExistsException
-   *          if the file already exists and {@link StandardOpenOption#CREATE_NEW} option is specified
-   */
-  @Nonnull
-  GitSeekableByteChannel newByteChannel(@Nonnull GitPath path, @Nonnull Set<OpenOption> options) throws IOException {
-    checkClosed();
-    DirectoryNode parent = ensureParentDirectory(path);
-    return parent.openChild(getFileName(path), options);
-  }
-
-  /**
-   * Writes the cached files into the repository creating a new tree and updates the {@link #baseTree} of this store to
-   * the root of the new tree. In the case that no file has been changed or the new tree is exactly the same as the
-   * current tree, the {@link #baseTree} value will not be changed and {@code null} will be returned.
-   *
-   * @return  the {@code ObjectId} of the new tree or {@code null} if no new tree is created
-   */
-  @Nullable
-  public ObjectId persistChanges() throws IOException {
-    checkClosed();
-    if(cache == null)
-      return null;
-    synchronized(this) {
-      flushStagedChanges();
-
-      // iterate through the memory channels and flush the byte array into the repository
-      Iterator<Map.Entry<String, GitFileStoreMemoryChannel>> channelsIt = memoryChannels.entrySet().iterator();
-      while(channelsIt.hasNext()) {
-        GitFileStoreMemoryChannel channel = channelsIt.next().getValue();
-        try {
-          if(!channel.isModified())
-            continue;
-          channel.lockBuffer();
-          byte[] blob = channel.getBytes();
-          ObjectId blobId = getInserter().insert(Constants.OBJ_BLOB, blob);
-          cache.getEntry(channel.getPathStr()).setObjectId(blobId);
-          // if nothing relies on this channel
-          if(channel.countAttachedChannels() == 0) {
-            channel.close();
-            channelsIt.remove();
-          } else {
-            // reset its modified flag to false, since it is already consistent with the repository
-            channel.setModified(false);
-          }
-        } finally {
-          channel.releaseBuffer();
-        }
-      }
-
-      ObjectId newTreeId = cache.writeTree(getInserter());
-      if(newTreeId.equals(baseTree))
-        return null;
-
-      baseTree = newTreeId;
-      return newTreeId;
-    }
-  }
-
-  /**
-   * Writes the cached files into the repository creating a new commit and update the {@link #baseCommit} of this store
-   * to the new commit. This method relies on {@link #persistChanges()} to create a new tree from the cache. In the
-   * case that no new tree is created, the {@link #baseCommit} value will not be changed, and {@code null} will be
-   * returned.
-   *
-   * @return  the new {@code RevCommit} or {@code null} if no new commit is created
-   */
-  @Nullable
-  public RevCommit writeCommit(@Nullable PersonIdent author, @Nullable PersonIdent committer, @Nullable String message, boolean amend) throws IOException {
-    checkClosed();
-    synchronized(this) {
-      AnyObjectId commitTree = persistChanges();
-      if(commitTree == null && !amend)
-        return null;
-
-      List<AnyObjectId> parents = new ArrayList<>();
-      if(amend) {
-        if(baseCommit == null)
-          throw new IllegalArgumentException("Could not amend without base commit");
-        if(commitTree == null)
-          commitTree = baseTree;
-        if(author == null)
-          author = baseCommit.getAuthorIdent();
-        if(committer == null)
-          committer = baseCommit.getCommitterIdent();
-        if(message == null)
-          message = baseCommit.getFullMessage();
-        for(RevCommit p : baseCommit.getParents())
-          parents.add(p.getId());
-      } else if(baseCommit != null)
-        parents.add(baseCommit);
-
-      if(author == null)
-        throw new IllegalArgumentException("Missing author");
-      if(committer == null)
-        throw new IllegalArgumentException("Missing committer");
-
-      ObjectId newCommitId = CommitHelper.createCommit(getInserter(), commitTree, author, committer, message, parents);
-      getInserter().flush();
-
-      RevCommit newCommit = CommitHelper.getCommit(reader, newCommitId);
-      if(branch != null) {
-        if(baseCommit == null)
-          BranchHelper.initBranchHead(repo, branch, newCommit, newCommit.getShortMessage());
-        else if(amend)
-          BranchHelper.amendBranchHead(repo, branch, newCommit, newCommit.getShortMessage());
-        else
-          BranchHelper.commitBranchHead(repo, branch, newCommit, newCommit.getShortMessage());
-      }
-      baseCommit = newCommit;
-
-      return baseCommit;
-    }
-  }
-
-  /**
-   * Checks if this {@code GitFileStore} is closed.
-   *
-   * @throws  ClosedFileSystemException
-   *          if this {@code GitFileStore} is closed
-   */
-  private void checkClosed() throws ClosedFileSystemException {
-    if(closed)
-      throw new ClosedFileSystemException();
+  public AnyObjectId persistChanges() throws IOException {
+    return root.save();
   }
 
 }

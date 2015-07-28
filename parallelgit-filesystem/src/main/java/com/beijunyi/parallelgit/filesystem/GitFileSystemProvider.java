@@ -11,6 +11,7 @@ import java.util.concurrent.ConcurrentHashMap;
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 
+import com.beijunyi.parallelgit.filesystem.hierarchy.Node;
 import com.beijunyi.parallelgit.filesystem.io.GitDirectoryStream;
 import com.beijunyi.parallelgit.filesystem.utils.GitFileSystemBuilder;
 import com.beijunyi.parallelgit.filesystem.utils.GitUriUtils;
@@ -140,29 +141,11 @@ public class GitFileSystemProvider extends FileSystemProvider {
    *          if the target file is a directory
    * @throws  FileAlreadyExistsException
    *          if the target file already exists and {@link StandardOpenOption#CREATE_NEW} option is specified
-   * @throws  UnsupportedOperationException
-   *          if an unsupported open option is specified
    */
   @Nonnull
   @Override
   public SeekableByteChannel newByteChannel(@Nonnull Path path, @Nonnull Set<? extends OpenOption> options, @Nonnull FileAttribute<?>... attrs) throws IOException {
-    Set<OpenOption> unsupportedOperations = new HashSet<>(options);
-    unsupportedOperations.removeAll(SUPPORTED_OPEN_OPTIONS);
-    if(!unsupportedOperations.isEmpty())
-      throw new UnsupportedOperationException(unsupportedOperations.toString());
-
-    Set<OpenOption> amendedOptions = new HashSet<>(options);
-    if(!options.contains(READ) && !options.contains(WRITE)) {
-      if(options.contains(APPEND))
-        amendedOptions.add(WRITE);
-      else
-        amendedOptions.add(READ);
-    }
-
-    GitPath gitPath = (GitPath) path;
-    GitFileStore store = gitPath.getFileSystem().getFileStore();
-
-    return store.newByteChannel(gitPath, Collections.unmodifiableSet(amendedOptions));
+    return IOUtils.newByteChannel((GitPath) path, new HashSet<>(options), Arrays.<FileAttribute>asList(attrs));
   }
 
   /**
@@ -345,15 +328,7 @@ public class GitFileSystemProvider extends FileSystemProvider {
    */
   @Override
   public void checkAccess(@Nonnull Path path, @Nonnull AccessMode... modes) throws IOException {
-    GitPath gitPath = (GitPath) path;
-    GitFileStore store = gitPath.getFileSystem().getFileStore();
-    if(!store.fileExists(gitPath) && !store.isDirectory(gitPath))
-      throw new NoSuchFileException(gitPath.toString());
-
-    for(AccessMode mode : modes) {
-      if(mode == AccessMode.EXECUTE && !store.isExecutableFile(gitPath))
-        throw new AccessDeniedException(path.toString());
-    }
+    IOUtils.checkAccess((GitPath) path, new HashSet<>(Arrays.asList(modes)));
   }
 
   /**
@@ -372,15 +347,19 @@ public class GitFileSystemProvider extends FileSystemProvider {
    * @throws  UnsupportedOperationException
    *          if file attribute view of the specified type is not supported
    */
-  @Nonnull
+  @Nullable
   @Override
   public <V extends FileAttributeView> V getFileAttributeView(@Nonnull Path path, @Nonnull Class<V> type, @Nonnull LinkOption... options) throws UnsupportedOperationException {
-    GitPath gitPath = (GitPath) path;
-    GitFileStore store = gitPath.getFileSystem().getFileStore();
+    Node node;
+    try {
+      node = ((GitPath) path).getNode();
+    } catch(IOException e) {
+      return null;
+    }
     if(type.isAssignableFrom(GitFileAttributeView.Basic.class))
-      return type.cast(new GitFileAttributeView.Basic(store, gitPath));
+      return type.cast(new GitFileAttributeView.Basic(node));
     if(type.isAssignableFrom(GitFileAttributeView.Posix.class))
-      return type.cast(new GitFileAttributeView.Posix(store, gitPath));
+      return type.cast(new GitFileAttributeView.Posix(node));
     throw new UnsupportedOperationException(type.getName());
   }
 
@@ -405,14 +384,17 @@ public class GitFileSystemProvider extends FileSystemProvider {
   @Nonnull
   @Override
   public <A extends BasicFileAttributes> A readAttributes(@Nonnull Path path, @Nonnull Class<A> type, @Nonnull LinkOption... options) throws IOException {
-    Class<? extends BasicFileAttributeView> view;
+    Class<? extends BasicFileAttributeView> viewType;
     if(type.isAssignableFrom(GitFileAttributes.Basic.class))
-      view = GitFileAttributeView.Basic.class;
+      viewType = GitFileAttributeView.Basic.class;
     else if(type.isAssignableFrom(GitFileAttributes.Posix.class))
-      view = GitFileAttributeView.Posix.class;
+      viewType = GitFileAttributeView.Posix.class;
     else
       throw new UnsupportedOperationException(type.getName());
-    return type.cast(getFileAttributeView(path, view, options).readAttributes());
+    BasicFileAttributeView view = getFileAttributeView(path, viewType, options);
+    if(view == null)
+      throw new NoSuchFileException(path.toString());
+    return type.cast(view.readAttributes());
   }
 
   /**
@@ -442,18 +424,21 @@ public class GitFileSystemProvider extends FileSystemProvider {
     int viewNameEnd = attributes.indexOf(':');
     String viewName = viewNameEnd >= 0 ? attributes.substring(0, viewNameEnd) : GitFileAttributeView.Basic.BASIC_VIEW;
     String keys = viewNameEnd >= 0 ? attributes.substring(viewNameEnd + 1) : attributes;
-    Class<? extends GitFileAttributeView> viewClass;
+    Class<? extends GitFileAttributeView> viewType;
     switch(viewName) {
       case GitFileAttributeView.Basic.BASIC_VIEW:
-        viewClass = GitFileAttributeView.Basic.class;
+        viewType = GitFileAttributeView.Basic.class;
         break;
       case GitFileAttributeView.Posix.POSIX_VIEW:
-        viewClass = GitFileAttributeView.Posix.class;
+        viewType = GitFileAttributeView.Posix.class;
         break;
       default:
         throw new UnsupportedOperationException("View \"" + viewName + "\" is not available");
     }
-    return getFileAttributeView(path, viewClass, options).readAttributes(Arrays.asList(keys.split(",")));
+    GitFileAttributeView view = getFileAttributeView(path, viewType, options);
+    if(view == null)
+      throw new NoSuchFileException(path.toString());
+    return view.readAttributes(Arrays.asList(keys.split(",")));
   }
 
   /**

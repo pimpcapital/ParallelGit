@@ -55,7 +55,7 @@ public class GitFileSystem extends FileSystem {
     else if(baseCommit != null)
       baseTree = baseCommit.getTree();
 
-    store = new GitFileStore(repository, baseTree, rootPath);
+    store = new GitFileStore(repository, rootPath, baseTree);
   }
 
   /**
