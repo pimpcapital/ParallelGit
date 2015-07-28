@@ -1,7 +1,6 @@
 package com.beijunyi.parallelgit.utils;
 
 import java.io.IOException;
-import java.util.Collections;
 import java.util.List;
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
@@ -53,63 +52,28 @@ public final class CommitHelper {
     return iterateCommits(repo.newObjectReader(), start);
   }
 
-  /**
-   * Constructs a new commit.
-   *
-   * @param inserter a object inserter
-   * @param treeId the root of the commit
-   * @param author the author information
-   * @param committer the committer information
-   * @param message the commit message
-   * @param parents the entire list of parents for this commit
-   * @return a {@link org.eclipse.jgit.lib.ObjectId} object representing the successful commit.
-   */
   @Nonnull
-  public static ObjectId createCommit(@Nonnull ObjectInserter inserter, @Nonnull AnyObjectId treeId, @Nonnull PersonIdent author, @Nonnull PersonIdent committer, @Nullable String message, @Nullable List<AnyObjectId> parents) throws IOException {
+  public static RevCommit createCommit(@Nonnull Repository repo, @Nonnull AnyObjectId treeId, @Nonnull PersonIdent author, @Nonnull PersonIdent committer, @Nullable String message, @Nonnull List<AnyObjectId> parents) throws IOException {
     CommitBuilder commit = new CommitBuilder();
     commit.setCommitter(committer);
     commit.setAuthor(author);
     commit.setMessage(message);
     commit.setTreeId(treeId);
-    if(parents != null)
-      commit.setParentIds(parents);
+    commit.setParentIds(parents);
 
-    return inserter.insert(commit);
-  }
-
-  @Nonnull
-  public static ObjectId createCommit(@Nonnull ObjectInserter inserter, @Nonnull AnyObjectId treeId, @Nonnull PersonIdent author, @Nonnull PersonIdent committer, @Nullable String message, @Nullable AnyObjectId parent) throws IOException {
-    List<AnyObjectId> parents = parent != null ? Collections.singletonList(parent) : null;
-    return createCommit(inserter, treeId, author, committer, message, parents);
-  }
-
-  @Nonnull
-  public static ObjectId createCommit(@Nonnull ObjectInserter inserter, @Nonnull DirCache cache, @Nonnull PersonIdent author, @Nonnull PersonIdent committer, @Nullable String message, @Nullable List<AnyObjectId> parents) throws IOException {
-    ObjectId treeId = cache.writeTree(inserter);
-    return createCommit(inserter, treeId, author, committer, message, parents);
-  }
-
-  @Nonnull
-  public static ObjectId createCommit(@Nonnull ObjectInserter inserter, @Nonnull DirCache cache, @Nonnull PersonIdent author, @Nonnull PersonIdent committer, @Nullable String message, @Nullable AnyObjectId parent) throws IOException {
-    List<AnyObjectId> parents = parent != null ? Collections.singletonList(parent) : null;
-    return createCommit(inserter, cache, author, committer, message, parents);
-  }
-
-  @Nonnull
-  public static ObjectId createCommit(@Nonnull Repository repo, @Nonnull DirCache cache, @Nonnull PersonIdent author, @Nonnull PersonIdent committer, @Nullable String message, @Nullable AnyObjectId parent) throws IOException {
     ObjectInserter inserter = repo.newObjectInserter();
     try {
-      ObjectId resultCommitId = createCommit(inserter, cache, author, committer, message, parent);
+      AnyObjectId commitId = inserter.insert(commit);
       inserter.flush();
-      return resultCommitId;
+      return getCommit(repo, commitId);
     } finally {
       inserter.release();
     }
   }
 
   @Nonnull
-  public static ObjectId createCommit(@Nonnull Repository repo, @Nonnull DirCache cache, @Nonnull PersonIdent author, @Nullable String message, @Nullable ObjectId parent) throws IOException {
-    return createCommit(repo, cache, author, author, message, parent);
+  public static RevCommit createCommit(@Nonnull Repository repo, @Nonnull DirCache cache, @Nonnull PersonIdent author, @Nonnull PersonIdent committer, @Nullable String message, @Nonnull List<AnyObjectId> parents) throws IOException {
+    return createCommit(repo, DirCacheHelper.writeTree(repo, cache), author, committer, message, parents);
   }
 
 }

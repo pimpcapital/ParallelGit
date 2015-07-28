@@ -234,7 +234,9 @@ public class GitFileStore extends FileStore {
 
   @Nonnull
   public AnyObjectId persistChanges() throws IOException {
-    return root.save();
+    AnyObjectId tree = root.save();
+    inserter().flush();
+    return tree;
   }
 
 }

@@ -43,6 +43,13 @@ public final class CommitRequest extends GitFileSystemRequest<CommitRequest, Rev
   }
 
   @Nonnull
+  public PersonIdent author() {
+    if(author == null)
+      throw new IllegalStateException();
+    return author;
+  }
+
+  @Nonnull
   public CommitRequest committer(@Nullable PersonIdent committer) {
     this.committer = committer;
     return this;
@@ -56,15 +63,31 @@ public final class CommitRequest extends GitFileSystemRequest<CommitRequest, Rev
   }
 
   @Nonnull
+  public PersonIdent committer() {
+    if(committer == null)
+      throw new IllegalStateException();
+    return committer;
+  }
+
+  @Nonnull
   public CommitRequest message(@Nullable String message) {
     this.message = message;
     return this;
+  }
+
+  @Nullable
+  public String message() {
+    return message;
   }
 
   @Nonnull
   public CommitRequest amend(boolean amend) {
     this.amend = amend;
     return this;
+  }
+
+  public boolean amend() {
+    return amend;
   }
 
   private void prepareCommitter() {
@@ -116,6 +139,6 @@ public final class CommitRequest extends GitFileSystemRequest<CommitRequest, Rev
   public RevCommit doExecute() throws IOException {
     prepareCommitter();
     prepareAuthor();
-    return gfs.getFileStore().writeCommit(author, committer, message, amend);
+    return gfs.commit(this);
   }
 }

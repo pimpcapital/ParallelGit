@@ -8,7 +8,9 @@ import java.util.regex.Pattern;
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 
+import com.beijunyi.parallelgit.filesystem.requests.CommitRequest;
 import com.beijunyi.parallelgit.filesystem.utils.GitGlobs;
+import com.beijunyi.parallelgit.utils.BranchHelper;
 import com.beijunyi.parallelgit.utils.CommitHelper;
 import org.eclipse.jgit.lib.AnyObjectId;
 import org.eclipse.jgit.lib.Constants;
@@ -300,6 +302,38 @@ public class GitFileSystem extends FileSystem {
   @Nullable
   public AnyObjectId getBaseTree() {
     return baseTree;
+  }
+
+  @Nonnull
+  private List<AnyObjectId> resolveParents(boolean amend) throws IOException {
+    if(baseCommit == null)
+      return Collections.emptyList();
+    else if(amend)
+      return Collections.<AnyObjectId>singletonList(baseCommit);
+    else
+      return Arrays.<AnyObjectId>asList(baseCommit.getParents());
+  }
+
+  private void updateBranchRef(@Nonnull RevCommit commit, boolean amend) throws IOException {
+    if(branch != null) {
+      if(baseCommit == null)
+        BranchHelper.initBranchHead(repository, branch, commit, commit.getShortMessage());
+      else if(amend)
+        BranchHelper.amendBranchHead(repository, branch, commit, commit.getShortMessage());
+      else
+        BranchHelper.commitBranchHead(repository, branch, commit, commit.getShortMessage());
+    }
+  }
+
+  @Nullable
+  public RevCommit commit(@Nonnull CommitRequest request) throws IOException {
+    AnyObjectId rootTree = store.persistChanges();
+    if(rootTree.equals(baseTree))
+      return null;
+    boolean amend = request.amend();
+    RevCommit commit = CommitHelper.createCommit(repository, rootTree, request.author(), request.committer(), request.message(), resolveParents(amend));
+    updateBranchRef(commit, amend);
+    return commit;
   }
 
 }
