@@ -63,6 +63,7 @@ public class DirectoryNode extends Node {
       children = new HashMap<>();
       TreeWalk tw = store.newTreeWalk();
       try {
+        tw.addTree(object);
         while(tw.next()) {
           Node node = forObject(tw.getObjectId(0), tw.getFileMode(0));
           addChild(tw.getNameString(), node);
