@@ -41,7 +41,7 @@ public class GitDirectoryStream implements DirectoryStream<Path> {
       private boolean findNext() {
         while(nodeIterator.hasNext()) {
           Node node = nodeIterator.next();
-          GitPath path = node.getPath();
+          GitPath path = node.path();
           try {
             if(filter == null || filter.accept(path)) {
               next = node;
@@ -65,7 +65,7 @@ public class GitDirectoryStream implements DirectoryStream<Path> {
       public Path next() throws ClosedDirectoryStreamException, NoSuchElementException {
         checkClosed();
         if(next != null || hasNext()) {
-          GitPath path = next.getPath();
+          GitPath path = next.path();
           next = null;
           return path;
         }

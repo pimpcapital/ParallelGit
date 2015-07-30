@@ -1,6 +1,8 @@
 package com.beijunyi.parallelgit.utils;
 
 import java.io.IOException;
+import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
@@ -37,19 +39,22 @@ public final class CommitHelper {
   }
 
   @Nonnull
-  public static RevWalk iterateCommits(@Nonnull RevWalk revWalk, @Nonnull RevCommit start) throws IOException {
-    revWalk.markStart(start);
-    return revWalk;
+  public static List<RevCommit> getCommitHistory(@Nonnull ObjectReader reader, @Nonnull RevCommit start) throws IOException {
+    RevWalk rw = new RevWalk(reader);
+    try {
+      rw.markStart(start);
+      List<RevCommit> commits = new ArrayList<>();
+      for(RevCommit commit : rw)
+        commits.add(commit);
+      return commits;
+    } finally {
+      rw.release();
+    }
   }
 
   @Nonnull
-  public static RevWalk iterateCommits(@Nonnull ObjectReader reader, @Nonnull RevCommit start) throws IOException {
-    return iterateCommits(new RevWalk(reader), start);
-  }
-
-  @Nonnull
-  public static RevWalk iterateCommits(@Nonnull Repository repo, @Nonnull RevCommit start) throws IOException {
-    return iterateCommits(repo.newObjectReader(), start);
+  public static List<RevCommit> getCommitHistory(@Nonnull Repository repo, @Nonnull RevCommit start) throws IOException {
+    return getCommitHistory(repo.newObjectReader(), start);
   }
 
   @Nonnull
@@ -74,6 +79,17 @@ public final class CommitHelper {
   @Nonnull
   public static RevCommit createCommit(@Nonnull Repository repo, @Nonnull DirCache cache, @Nonnull PersonIdent author, @Nonnull PersonIdent committer, @Nullable String message, @Nonnull List<AnyObjectId> parents) throws IOException {
     return createCommit(repo, DirCacheHelper.writeTree(repo, cache), author, committer, message, parents);
+  }
+
+  @Nonnull
+  public static RevCommit createCommit(@Nonnull Repository repo, @Nonnull DirCache cache, @Nonnull PersonIdent committer, @Nullable String message, @Nonnull List<AnyObjectId> parents) throws IOException {
+    return createCommit(repo, cache, committer, committer, message, parents);
+  }
+
+  @Nonnull
+  public static RevCommit createCommit(@Nonnull Repository repo, @Nonnull DirCache cache, @Nonnull PersonIdent committer, @Nullable String message, @Nullable AnyObjectId parent) throws IOException {
+    List<AnyObjectId> parents = parent != null ? Collections.singletonList(parent) : Collections.<AnyObjectId>emptyList();
+    return createCommit(repo, cache, committer, message, parents);
   }
 
 }

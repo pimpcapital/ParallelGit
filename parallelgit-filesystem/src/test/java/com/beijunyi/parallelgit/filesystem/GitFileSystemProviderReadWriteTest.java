@@ -76,30 +76,4 @@ public class GitFileSystemProviderReadWriteTest extends AbstractGitFileSystemTes
     Files.readAllBytes(path);
   }
 
-  @Test(expected = NoSuchFileException.class)
-  public void readFromNonExistentFileInCacheTest() throws IOException {
-    initGitFileSystem();
-    loadCache();
-    Files.readAllBytes(root.resolve("a.txt"));
-  }
-
-  @Test(expected = AccessDeniedException.class)
-  public void readFromRootInCacheTest() throws IOException {
-    initGitFileSystem();
-    loadCache();
-    Files.readAllBytes(root);
-  }
-
-  @Test(expected = AccessDeniedException.class)
-  public void readFromDirectoryInCacheTest() throws IOException {
-    initRepository();
-    String dir = "a";
-    writeFile(dir + "/b.txt", "some text");
-    commitToMaster();
-    initGitFileSystem();
-    loadCache();
-    GitPath path = root.resolve(dir);
-    Files.readAllBytes(path);
-  }
-
 }

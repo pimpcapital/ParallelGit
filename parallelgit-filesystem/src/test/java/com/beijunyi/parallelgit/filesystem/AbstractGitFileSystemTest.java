@@ -55,10 +55,4 @@ public abstract class AbstractGitFileSystemTest extends AbstractParallelGitTest 
     root = gfs.getRootPath();
   }
 
-  protected void loadCache() throws IOException {
-    gfs.getFileStore().prepareCache();
-  }
-
-
-
 }

@@ -159,6 +159,14 @@ public class GitSeekableByteChannel implements SeekableByteChannel {
     return !closed;
   }
 
+  public boolean isReadable() {
+    return readable;
+  }
+
+  public boolean isWritable() {
+    return writable;
+  }
+
   /**
    * Closes this channel.
    *

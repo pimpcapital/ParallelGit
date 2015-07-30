@@ -21,7 +21,7 @@ import org.eclipse.jgit.dircache.DirCache;
 import org.eclipse.jgit.lib.*;
 import org.eclipse.jgit.revwalk.RevCommit;
 
-public final class ParallelCommitCommand extends CacheBasedCommand<ParallelCommitCommand, ObjectId> {
+public final class ParallelCommitCommand extends CacheBasedCommand<ParallelCommitCommand, AnyObjectId> {
   private AnyObjectId revisionId;
   private String revisionIdStr;
   private String branch;
@@ -425,9 +425,20 @@ public final class ParallelCommitCommand extends CacheBasedCommand<ParallelCommi
     }
   }
 
+  @Nonnull
+  private AnyObjectId buildCommit(@Nonnull ObjectInserter inserter) throws IOException {
+    CommitBuilder builder = new CommitBuilder();
+    builder.setTreeId(treeId);
+    builder.setAuthor(author);
+    builder.setCommitter(committer);
+    builder.setMessage(message);
+    builder.setParentIds(parents);
+    return inserter.insert(builder);
+  }
+
   @Nullable
   @Override
-  protected ObjectId doCall() throws IOException {
+  protected AnyObjectId doCall() throws IOException {
     assert repository != null;
     ObjectInserter inserter = repository.newObjectInserter();
     try {
@@ -440,7 +451,7 @@ public final class ParallelCommitCommand extends CacheBasedCommand<ParallelCommi
       prepareMessage();
       if(!isDifferentTree())
         return null;
-      ObjectId commit = CommitHelper.createCommit(inserter, treeId, author, committer, message, parents);
+      AnyObjectId commit = buildCommit(inserter);
       inserter.flush();
       updateBranchRef(commit);
       return commit;

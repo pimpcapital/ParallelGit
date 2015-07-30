@@ -42,34 +42,6 @@ public class GitFileSystemProviderFileSizeTest extends AbstractGitFileSystemTest
   }
 
   @Test
-  public void getRootSizeInCacheTest() throws IOException {
-    initGitFileSystem();
-    loadCache();
-    Assert.assertEquals(0, Files.size(gfs.getRootPath()));
-  }
-
-  @Test
-  public void getDirectorySizeInCacheTest() throws IOException {
-    initRepository();
-    writeFile("a/b.txt");
-    commitToMaster();
-    initGitFileSystem();
-    loadCache();
-    Assert.assertEquals(0, Files.size(gfs.getPath("/a")));
-  }
-
-  @Test
-  public void getFileSizeInCacheTest() throws IOException {
-    initRepository();
-    byte[] data = Constants.encode("some plain text data");
-    writeFile("a.txt", data);
-    commitToMaster();
-    initGitFileSystem();
-    loadCache();
-    Assert.assertEquals(data.length, Files.size(gfs.getPath("/a.txt")));
-  }
-
-  @Test
   public void getSizeOfFileAttachedToMemoryChannelTest() throws IOException {
     initRepository();
     writeFile("a.txt");

@@ -25,31 +25,9 @@ public class GitFileSystemProviderNewByteChannelTest extends AbstractGitFileSyst
     }
   }
 
-  @Test
-  public void newReadOnlyByteChannelOfExistingFileInCacheTest() throws IOException {
-    initRepository();
-    writeFile("dir/file.txt", ORIGINAL_TEXT_BYTES);
-    commitToMaster();
-    initGitFileSystem();
-    loadCache();
-    try(GitSeekableByteChannel channel = (GitSeekableByteChannel) Files.newByteChannel(gfs.getPath("/dir/file.txt"), StandardOpenOption.READ)) {
-      Assert.assertTrue(channel.isReadable());
-      Assert.assertFalse(channel.isWritable());
-      Assert.assertEquals(0, channel.position());
-      Assert.assertEquals(ORIGINAL_TEXT_BYTES.length, channel.size());
-    }
-  }
-
   @Test(expected = NoSuchFileException.class)
   public void newReadOnlyByteChannelOfNonExistentFileTest() throws IOException {
     initGitFileSystem();
-    Files.newByteChannel(gfs.getPath("/dir/file.txt"), StandardOpenOption.READ);
-  }
-
-  @Test(expected = NoSuchFileException.class)
-  public void newReadOnlyByteChannelOfNonExistentFileInCacheTest() throws IOException {
-    initGitFileSystem();
-    loadCache();
     Files.newByteChannel(gfs.getPath("/dir/file.txt"), StandardOpenOption.READ);
   }
 
@@ -59,16 +37,6 @@ public class GitFileSystemProviderNewByteChannelTest extends AbstractGitFileSyst
     writeFile("dir/file.txt");
     commitToMaster();
     initGitFileSystem();
-    Files.newByteChannel(gfs.getPath("/dir"), StandardOpenOption.READ);
-  }
-
-  @Test(expected = AccessDeniedException.class)
-  public void newReadOnlyByteChannelOfDirectoryInCacheTest() throws IOException {
-    initRepository();
-    writeFile("dir/file.txt");
-    commitToMaster();
-    initGitFileSystem();
-    loadCache();
     Files.newByteChannel(gfs.getPath("/dir"), StandardOpenOption.READ);
   }
 
@@ -174,16 +142,6 @@ public class GitFileSystemProviderNewByteChannelTest extends AbstractGitFileSyst
     writeFile("dir/file.txt", ORIGINAL_TEXT_BYTES);
     commitToMaster();
     initGitFileSystem();
-    Files.newByteChannel(gfs.getPath("/dir/file.txt"), StandardOpenOption.CREATE_NEW);
-  }
-
-  @Test(expected = FileAlreadyExistsException.class)
-  public void newByteChannelOfExistingFileInCacheWithCreateNewOpenOptionTest() throws IOException {
-    initRepository();
-    writeFile("dir/file.txt");
-    commitToMaster();
-    initGitFileSystem();
-    loadCache();
     Files.newByteChannel(gfs.getPath("/dir/file.txt"), StandardOpenOption.CREATE_NEW);
   }
 

@@ -1,6 +1,7 @@
 package com.beijunyi.parallelgit.utils;
 
 import java.io.IOException;
+import java.util.List;
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 
@@ -9,6 +10,15 @@ import org.eclipse.jgit.revwalk.RevCommit;
 import org.eclipse.jgit.revwalk.RevWalk;
 
 public final class BranchHelper {
+
+  @Nonnull
+  public static List<RevCommit> getBranchHistory(@Nonnull Repository repo, @Nonnull String name) throws IOException {
+    String branchRef = RefHelper.getBranchRefName(name);
+    RevCommit head = CommitHelper.getCommit(repo, branchRef);
+    if(head == null)
+      throw new IllegalArgumentException("Branch " + name + " does not exist");
+    return CommitHelper.getCommitHistory(repo, head);
+  }
 
   /**
    * Checks if a branch with the given name exists.
