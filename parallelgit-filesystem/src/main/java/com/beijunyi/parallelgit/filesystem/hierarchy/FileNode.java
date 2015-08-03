@@ -18,11 +18,11 @@ public class FileNode extends Node {
   private byte[] bytes;
   private final Collection<GitSeekableByteChannel> channels = new LinkedList<>();
 
-  protected FileNode(@Nonnull NodeType type, @Nonnull AnyObjectId object) {
+  private FileNode(@Nonnull NodeType type, @Nonnull AnyObjectId object) {
     super(type, object);
   }
 
-  protected FileNode(@Nonnull NodeType type) {
+  private FileNode(@Nonnull NodeType type) {
     this(type, ObjectId.zeroId());
     bytes = new byte[0];
     loaded = true;
@@ -51,7 +51,7 @@ public class FileNode extends Node {
 
   @Nonnull
   @Override
-  public AnyObjectId doSave() throws IOException {
+  public AnyObjectId doSave(boolean allowEmpty) throws IOException {
     if(!dirty)
       return object;
     return store().insertBlob(bytes);

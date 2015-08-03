@@ -128,7 +128,7 @@ public class GitFileSystemProviderNewByteChannelTest extends AbstractGitFileSyst
   @Test
   public void newByteChannelOfNonExistingFileWithCreateOpenOptionTest() throws IOException {
     initGitFileSystem();
-    try(GitSeekableByteChannel channel = (GitSeekableByteChannel) Files.newByteChannel(gfs.getPath("/dir/file.txt"), StandardOpenOption.CREATE)) {
+    try(GitSeekableByteChannel channel = (GitSeekableByteChannel) Files.newByteChannel(gfs.getPath("/file.txt"), StandardOpenOption.CREATE)) {
       Assert.assertTrue(channel.isReadable());
       Assert.assertFalse(channel.isWritable());
       Assert.assertEquals(0, channel.position());
@@ -148,7 +148,7 @@ public class GitFileSystemProviderNewByteChannelTest extends AbstractGitFileSyst
   @Test(expected = FileAlreadyExistsException.class)
   public void newByteChannelOfModifiedFileWithCreateNewOpenOptionTest() throws IOException {
     initGitFileSystem();
-    GitPath path = gfs.getPath("/dir/file.txt");
+    GitPath path = gfs.getPath("/file.txt");
     Files.write(path, "some data".getBytes());
     Files.newByteChannel(path, StandardOpenOption.CREATE_NEW);
   }
@@ -156,7 +156,7 @@ public class GitFileSystemProviderNewByteChannelTest extends AbstractGitFileSyst
   @Test
   public void newByteChannelOfNonExistingFileWithCreateNewOpenOptionTest() throws IOException {
     initGitFileSystem();
-    try(GitSeekableByteChannel channel = (GitSeekableByteChannel) Files.newByteChannel(gfs.getPath("/dir/file.txt"), StandardOpenOption.CREATE_NEW)) {
+    try(GitSeekableByteChannel channel = (GitSeekableByteChannel) Files.newByteChannel(gfs.getPath("/file.txt"), StandardOpenOption.CREATE_NEW)) {
       Assert.assertTrue(channel.isReadable());
       Assert.assertFalse(channel.isWritable());
       Assert.assertEquals(0, channel.position());

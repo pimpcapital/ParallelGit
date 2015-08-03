@@ -7,6 +7,7 @@ import com.beijunyi.parallelgit.utils.CommitHelper;
 import com.beijunyi.parallelgit.utils.RefHelper;
 import com.beijunyi.parallelgit.utils.RevTreeHelper;
 import org.eclipse.jgit.lib.ObjectId;
+import org.eclipse.jgit.revwalk.RevCommit;
 import org.junit.Assert;
 import org.junit.Test;
 
@@ -17,7 +18,7 @@ public class GitFileStoreNameTest extends AbstractGitFileSystemTest {
     initRepository();
     writeFile("a.txt");
     String branch = "test_branch";
-    ObjectId commit = commitToBranch(branch);
+    RevCommit commit = commitToBranch(branch);
     initGitFileSystemForBranch(branch);
 
     String expectedName = repoDir.getAbsolutePath()

@@ -4,7 +4,6 @@ import java.io.IOException;
 import java.nio.file.*;
 import java.nio.file.attribute.FileAttribute;
 import java.util.Collection;
-import java.util.Collections;
 import java.util.Set;
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
@@ -42,9 +41,11 @@ public final class IOUtils {
   }
 
   public static void createDirectory(@Nonnull GitPath path) throws IOException {
+    if(path.isRoot())
+      throw new FileAlreadyExistsException(path.toString());
     DirectoryNode parent = path.getParentNode();
     String name = getFileName(path);
-    parent.addChild(name, DirectoryNode.newDirectory(), Collections.<CopyOption>emptySet());
+    parent.addNewDirectory(name);
   }
 
   public static void copy(@Nonnull GitPath source, @Nonnull GitPath target, @Nonnull Set<CopyOption> options) throws IOException {

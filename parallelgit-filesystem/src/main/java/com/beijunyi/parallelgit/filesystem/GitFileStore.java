@@ -9,8 +9,8 @@ import java.nio.file.attribute.FileStoreAttributeView;
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 
-import com.beijunyi.parallelgit.filesystem.hierarchy.DirectoryNode;
 import com.beijunyi.parallelgit.filesystem.hierarchy.Node;
+import com.beijunyi.parallelgit.filesystem.hierarchy.RootNode;
 import org.eclipse.jgit.lib.*;
 import org.eclipse.jgit.treewalk.TreeWalk;
 
@@ -20,13 +20,13 @@ public class GitFileStore extends FileStore {
   private final GitPath rootPath;
   private ObjectReader reader;
   private ObjectInserter inserter;
-  private DirectoryNode root;
+  private RootNode root;
 
 
   GitFileStore(@Nonnull Repository repository, @Nonnull GitPath rootPath, @Nullable AnyObjectId baseTree) throws IOException {
     this.repository = repository;
     this.rootPath = rootPath;
-    root = DirectoryNode.newRoot(rootPath, baseTree, this);
+    root = RootNode.newRoot(rootPath, baseTree, this);
   }
 
   /**

@@ -17,21 +17,14 @@ import org.eclipse.jgit.treewalk.TreeWalk;
 
 public class DirectoryNode extends Node {
 
-  private Map<String, Node> children;
+  protected Map<String, Node> children;
   private final Collection<GitDirectoryStream> streams = new LinkedList<>();
 
   protected DirectoryNode(@Nonnull AnyObjectId object, @Nonnull GitPath root, @Nonnull GitFileStore store) {
     super(NodeType.DIRECTORY, object, root, store);
   }
 
-  protected DirectoryNode(@Nonnull GitPath root, @Nonnull GitFileStore store) {
-    this(ObjectId.zeroId(), root, store);
-    children = new HashMap<>();
-    loaded = true;
-    dirty = true;
-  }
-
-  protected DirectoryNode(@Nonnull AnyObjectId object) {
+  private DirectoryNode(@Nonnull AnyObjectId object) {
     super(NodeType.DIRECTORY, object);
   }
 
@@ -50,11 +43,6 @@ public class DirectoryNode extends Node {
   @Nonnull
   public static DirectoryNode newDirectory() {
     return new DirectoryNode();
-  }
-
-  @Nonnull
-  public static DirectoryNode newRoot(@Nonnull GitPath rootPath, @Nullable AnyObjectId treeId, @Nonnull GitFileStore store) {
-    return treeId != null ? new DirectoryNode(treeId, rootPath, store) : new DirectoryNode(rootPath, store);
   }
 
   @Override
@@ -80,18 +68,25 @@ public class DirectoryNode extends Node {
     }
   }
 
-  @Nonnull
+  @Nullable
   @Override
-  public AnyObjectId doSave() throws IOException {
+  public AnyObjectId doSave(boolean allowEmpty) throws IOException {
     if(!dirty)
       return object;
     TreeFormatter formatter = new TreeFormatter();
+    int count = 0;
     for(Map.Entry<String, Node> child : new TreeMap<>(children).entrySet()) {
       String name = child.getKey();
       Node node = child.getValue();
-      formatter.append(name, node.getType().toFileMode(), node.save());
+      AnyObjectId childObject = node.save();
+      if(childObject != null) {
+        formatter.append(name, node.getType().toFileMode(), childObject);
+        count++;
+      }
     }
-    return store().insertTree(formatter);
+    if(allowEmpty || count != 0)
+      return store().insertTree(formatter);
+    return null;
   }
 
   @Override
@@ -169,14 +164,20 @@ public class DirectoryNode extends Node {
     if(children.get(name) != null) {
       if(options.contains(StandardCopyOption.REPLACE_EXISTING))
         removeChild(name);
-    } else
-      throw new FileAlreadyExistsException(path().resolve(name).toString());
+      else
+        throw new FileAlreadyExistsException(path().resolve(name).toString());
+    }
     addChild(name, options.contains(GitCopyOption.CLONE) ? child.clone(options.contains(GitCopyOption.DEEP_CLONE)) : child);
   }
 
-  public void addNewFile(@Nonnull String name, boolean executable) {
-    addChild(name, FileNode.newFile(executable));
+  public void addNewFile(@Nonnull String name, boolean executable) throws IOException {
+    addChild(name, FileNode.newFile(executable), Collections.<CopyOption>emptySet());
   }
+
+  public void addNewDirectory(@Nonnull String name) throws IOException {
+    addChild(name, DirectoryNode.newDirectory(), Collections.<CopyOption>emptySet());
+  }
+
 
   public synchronized void removeChild(@Nonnull String name) throws IOException {
     load();

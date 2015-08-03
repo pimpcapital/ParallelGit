@@ -864,6 +864,10 @@ public class GitPath implements Path {
     return path.length == 0;
   }
 
+  public boolean isRoot() {
+    return path.length == 1 && path[0] == '/';
+  }
+
   /**
    * Creates a new empty path from the same {@code GitFileSystem}.
    *

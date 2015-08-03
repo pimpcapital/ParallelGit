@@ -97,12 +97,12 @@ public abstract class Node implements Comparable<Node> {
     doLoad(store(), false);
   }
 
-  @Nonnull
-  public abstract AnyObjectId doSave() throws IOException;
+  @Nullable
+  public abstract AnyObjectId doSave(boolean allowEmpty) throws IOException;
 
-  @Nonnull
+  @Nullable
   public AnyObjectId save() throws IOException {
-    object = doSave();
+    object = doSave(false);
     dirty = false;
     return object;
   }
