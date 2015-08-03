@@ -49,7 +49,7 @@ public class FileSystemsTest extends AbstractParallelGitTest {
                 .repository(repoDir)
                 .build();
     FileSystem fs = FileSystems.newFileSystem(uri, GitParams.emptyMap().setRevision(head));
-    Assert.assertEquals(head, ((GitFileSystem)fs).getBaseCommit());
+    Assert.assertEquals(head, ((GitFileSystem)fs).getCommit());
   }
 
   @Test
@@ -59,7 +59,7 @@ public class FileSystemsTest extends AbstractParallelGitTest {
                 .build();
     AnyObjectId treeId = RevTreeHelper.getRootTree(repo, head);
     FileSystem fs = FileSystems.newFileSystem(uri, GitParams.emptyMap().setTree(treeId));
-    Assert.assertEquals(treeId, ((GitFileSystem)fs).getBaseTree());
+    Assert.assertEquals(treeId, ((GitFileSystem)fs).getTree());
   }
 
 

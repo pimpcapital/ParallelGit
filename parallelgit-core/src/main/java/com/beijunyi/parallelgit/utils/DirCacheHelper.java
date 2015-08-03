@@ -394,7 +394,9 @@ public final class DirCacheHelper {
   public static AnyObjectId writeTree(@Nonnull Repository repo, @Nonnull DirCache cache) throws IOException {
     ObjectInserter inserter = repo.newObjectInserter();
     try {
-      return cache.writeTree(inserter);
+      AnyObjectId tree = cache.writeTree(inserter);
+      inserter.flush();
+      return tree;
     } finally {
       inserter.release();
     }

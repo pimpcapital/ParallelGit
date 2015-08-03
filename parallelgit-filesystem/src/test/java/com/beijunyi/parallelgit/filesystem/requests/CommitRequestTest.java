@@ -107,8 +107,8 @@ public class CommitRequestTest extends AbstractGitFileSystemTest {
   @Test
   public void commitAmend() throws IOException {
     Files.write(gfs.getPath("some_new_file.txt"), "some_new_content".getBytes());
-    assert gfs.getBaseCommit() != null;
-    RevCommit[] parents = gfs.getBaseCommit().getParents();
+    assert gfs.getCommit() != null;
+    RevCommit[] parents = gfs.getCommit().getParents();
     RevCommit commit = CommitRequest.prepare(gfs)
                          .amend(true)
                          .execute();

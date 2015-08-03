@@ -58,7 +58,7 @@ public class DirectoryNode extends Node {
   }
 
   @Override
-  protected void load(@Nonnull GitFileStore store, boolean recursive) throws IOException {
+  protected void doLoad(@Nonnull GitFileStore store, boolean recursive) throws IOException {
     if(!loaded) {
       children = new HashMap<>();
       TreeWalk tw = store.newTreeWalk();
@@ -75,14 +75,14 @@ public class DirectoryNode extends Node {
     }
     if(recursive) {
       for(Node child : children.values())
-        child.load(store, true);
+        child.doLoad(store, true);
       dirty = true;
     }
   }
 
   @Nonnull
   @Override
-  public AnyObjectId save() throws IOException {
+  public AnyObjectId doSave() throws IOException {
     if(!dirty)
       return object;
     TreeFormatter formatter = new TreeFormatter();
@@ -195,7 +195,7 @@ public class DirectoryNode extends Node {
         clone.loaded = true;
         clone.dirty = true;
       } else
-        clone.load(store(), true);
+        clone.doLoad(store(), true);
     }
     return clone;
   }

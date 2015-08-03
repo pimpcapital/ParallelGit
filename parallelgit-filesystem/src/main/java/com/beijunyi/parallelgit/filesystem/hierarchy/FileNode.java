@@ -40,7 +40,7 @@ public class FileNode extends Node {
   }
 
   @Override
-  protected void load(@Nonnull GitFileStore store, boolean recursive) throws IOException {
+  protected void doLoad(@Nonnull GitFileStore store, boolean recursive) throws IOException {
     if(!loaded) {
       bytes = store.getBlobBytes(object);
       loaded = true;
@@ -51,7 +51,7 @@ public class FileNode extends Node {
 
   @Nonnull
   @Override
-  public AnyObjectId save() throws IOException {
+  public AnyObjectId doSave() throws IOException {
     if(!dirty)
       return object;
     return store().insertBlob(bytes);
@@ -84,8 +84,9 @@ public class FileNode extends Node {
   }
 
   @Nonnull
-  public synchronized GitSeekableByteChannel newChannel(@Nonnull Set<OpenOption> options) throws AccessDeniedException {
+  public synchronized GitSeekableByteChannel newChannel(@Nonnull Set<OpenOption> options) throws IOException {
     checkNotLocked();
+    load();
     GitSeekableByteChannel channel = new GitSeekableByteChannel(bytes, amendOpenOptions(options), this);
     channels.add(channel);
     return channel;
@@ -94,6 +95,7 @@ public class FileNode extends Node {
   public synchronized void removeChannel(@Nonnull GitSeekableByteChannel channel) {
     if(!channels.remove(channel))
       throw new IllegalArgumentException();
+    bytes = channel.bytes();
   }
 
   @Nonnull
@@ -106,7 +108,7 @@ public class FileNode extends Node {
         clone.loaded = true;
         clone.dirty = true;
       } else
-        clone.load(store(), true);
+        clone.doLoad(store(), true);
     }
     return clone;
   }

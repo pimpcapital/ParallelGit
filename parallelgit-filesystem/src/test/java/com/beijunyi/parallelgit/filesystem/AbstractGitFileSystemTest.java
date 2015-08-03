@@ -5,8 +5,8 @@ import javax.annotation.Nonnull;
 
 import com.beijunyi.parallelgit.AbstractParallelGitTest;
 import com.beijunyi.parallelgit.filesystem.utils.GitFileSystemBuilder;
+import org.eclipse.jgit.lib.AnyObjectId;
 import org.eclipse.jgit.lib.Constants;
-import org.eclipse.jgit.lib.ObjectId;
 
 public abstract class AbstractGitFileSystemTest extends AbstractParallelGitTest {
 
@@ -26,7 +26,7 @@ public abstract class AbstractGitFileSystemTest extends AbstractParallelGitTest 
                             .build());
   }
 
-  protected void initGitFileSystemForRevision(@Nonnull ObjectId revisionId) throws IOException {
+  protected void initGitFileSystemForRevision(@Nonnull AnyObjectId revisionId) throws IOException {
     assert repo != null;
     if(gfs == null)
       injectGitFileSystem(GitFileSystemBuilder.prepare()
@@ -35,7 +35,7 @@ public abstract class AbstractGitFileSystemTest extends AbstractParallelGitTest 
                             .build());
   }
 
-  protected void initGitFileSystemForTree(@Nonnull ObjectId treeId) throws IOException {
+  protected void initGitFileSystemForTree(@Nonnull AnyObjectId treeId) throws IOException {
     assert repo != null;
     if(gfs == null)
       injectGitFileSystem(GitFileSystemBuilder.prepare()

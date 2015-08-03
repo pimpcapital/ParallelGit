@@ -217,17 +217,22 @@ public class GitFileStore extends FileStore {
     return repository;
   }
 
+  @Nonnull
+  public AnyObjectId getTree() {
+    return root.getObject();
+  }
+
   @Nullable
   public Node findNode(@Nonnull GitPath path) throws IOException {
     if(!path.isAbsolute())
       throw new IllegalArgumentException(path.toString());
     Node current = root;
     path = rootPath.relativize(path);
-    while(!path.isEmpty() && current != null && current.isDirectory()) {
-      GitPath name = path.getFileName();
-      if(name == null)
-        throw new IllegalStateException();
+    for(int i = 0; i < path.getNameCount(); i++) {
+      GitPath name = path.getName(i);
       current = current.asDirectory().getChild(name.toString());
+      if(current == null)
+        break;
     }
     return current;
   }

@@ -145,7 +145,7 @@ public class GitFileSystemProvider extends FileSystemProvider {
   @Nonnull
   @Override
   public SeekableByteChannel newByteChannel(@Nonnull Path path, @Nonnull Set<? extends OpenOption> options, @Nonnull FileAttribute<?>... attrs) throws IOException {
-    return IOUtils.newByteChannel((GitPath) path, new HashSet<>(options), Arrays.<FileAttribute>asList(attrs));
+    return IOUtils.newByteChannel(((GitPath) path).toRealPath(), new HashSet<>(options), Arrays.<FileAttribute>asList(attrs));
   }
 
   /**
@@ -165,7 +165,7 @@ public class GitFileSystemProvider extends FileSystemProvider {
   @Nonnull
   @Override
   public GitDirectoryStream newDirectoryStream(@Nonnull Path path, @Nullable DirectoryStream.Filter<? super Path> filter) throws IOException {
-    return IOUtils.newDirectoryStream((GitPath) path, filter);
+    return IOUtils.newDirectoryStream(((GitPath) path).toRealPath(), filter);
   }
 
   /**
@@ -203,7 +203,7 @@ public class GitFileSystemProvider extends FileSystemProvider {
    */
   @Override
   public void delete(@Nonnull Path path) throws IOException {
-    IOUtils.delete((GitPath) path);
+    IOUtils.delete(((GitPath) path).toRealPath());
   }
 
   /**
@@ -328,7 +328,7 @@ public class GitFileSystemProvider extends FileSystemProvider {
    */
   @Override
   public void checkAccess(@Nonnull Path path, @Nonnull AccessMode... modes) throws IOException {
-    IOUtils.checkAccess((GitPath) path, new HashSet<>(Arrays.asList(modes)));
+    IOUtils.checkAccess(((GitPath) path).toRealPath(), new HashSet<>(Arrays.asList(modes)));
   }
 
   /**
@@ -352,7 +352,7 @@ public class GitFileSystemProvider extends FileSystemProvider {
   public <V extends FileAttributeView> V getFileAttributeView(@Nonnull Path path, @Nonnull Class<V> type, @Nonnull LinkOption... options) throws UnsupportedOperationException {
     Node node;
     try {
-      node = ((GitPath) path).getNode();
+      node = (((GitPath) path).toRealPath()).getNode();
     } catch(IOException e) {
       return null;
     }

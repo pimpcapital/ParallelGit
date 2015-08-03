@@ -22,15 +22,7 @@ public class PersistRequestTest extends AbstractGitFileSystemTest {
     AnyObjectId treeId = PersistRequest.prepare(gfs)
                            .execute();
     Assert.assertNotNull(treeId);
-    Assert.assertEquals(treeId, gfs.getBaseTree());
+    Assert.assertEquals(treeId, gfs.getTree());
   }
-
-  @Test
-  public void persistNoChange() throws IOException {
-    AnyObjectId treeId = PersistRequest.prepare(gfs)
-                           .execute();
-    Assert.assertNull(treeId);
-  }
-
 
 }

@@ -237,12 +237,14 @@ public class GitPath implements Path {
 
     if(beginIndex < 0)
       throw new IllegalArgumentException();
-    if(beginIndex >= offsets.length)
+    if(beginIndex > offsets.length)
       throw new IllegalArgumentException();
     if(endIndex > offsets.length)
       throw new IllegalArgumentException();
-    if(beginIndex >= endIndex)
+    if(beginIndex > endIndex)
       throw new IllegalArgumentException();
+    if(beginIndex == endIndex)
+      return emptyPath();
 
     // starting offset and length
     int begin = offsets[beginIndex];

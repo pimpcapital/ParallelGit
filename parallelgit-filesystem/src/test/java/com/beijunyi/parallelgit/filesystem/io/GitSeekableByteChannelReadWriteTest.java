@@ -15,18 +15,20 @@ import org.junit.Test;
 public class GitSeekableByteChannelReadWriteTest extends AbstractGitFileSystemTest {
 
   private static final byte[] ORIGINAL_TEXT_BYTES = "some plain text data".getBytes();
+  private GitPath file;
 
   @Before
   public void setupFileSystem() throws IOException {
     initRepository();
-    writeFile("file.txt", ORIGINAL_TEXT_BYTES);
+    String filePath = "file.txt";
+    writeFile(filePath, ORIGINAL_TEXT_BYTES);
     commitToMaster();
     initGitFileSystem();
+    file = gfs.getRootPath().resolve(filePath);
   }
 
   @Test
   public void gitByteChannelReadTest() throws IOException {
-    GitPath file = gfs.getPath("/file.txt");
     try(SeekableByteChannel channel = Files.newByteChannel(file, StandardOpenOption.READ)) {
       ByteBuffer buf = ByteBuffer.allocate(ORIGINAL_TEXT_BYTES.length);
       Assert.assertEquals(ORIGINAL_TEXT_BYTES.length, channel.read(buf));
@@ -36,7 +38,6 @@ public class GitSeekableByteChannelReadWriteTest extends AbstractGitFileSystemTe
 
   @Test
   public void gitByteChannelReadWithSmallBufferTest() throws IOException {
-    GitPath file = gfs.getPath("/file.txt");
     try(SeekableByteChannel channel = Files.newByteChannel(file, StandardOpenOption.READ)) {
       int size = ORIGINAL_TEXT_BYTES.length / 2;
       ByteBuffer buf = ByteBuffer.allocate(size);
@@ -49,7 +50,6 @@ public class GitSeekableByteChannelReadWriteTest extends AbstractGitFileSystemTe
 
   @Test
   public void gitByteChannelReadWithBigBufferTest() throws IOException {
-    GitPath file = gfs.getPath("/file.txt");
     try(SeekableByteChannel channel = Files.newByteChannel(file, StandardOpenOption.READ)) {
       int size = ORIGINAL_TEXT_BYTES.length * 2;
       ByteBuffer buf = ByteBuffer.allocate(size);
@@ -62,7 +62,6 @@ public class GitSeekableByteChannelReadWriteTest extends AbstractGitFileSystemTe
 
   @Test
   public void gitByteChannelPartialOverwriteFromMiddleTest() throws IOException {
-    GitPath file = gfs.getPath("/file.txt");
     int overwritePos = 5;
     byte[] data = "other".getBytes();
     try(SeekableByteChannel channel = Files.newByteChannel(file, StandardOpenOption.WRITE)) {
@@ -78,7 +77,6 @@ public class GitSeekableByteChannelReadWriteTest extends AbstractGitFileSystemTe
 
   @Test
   public void gitByteChannelPartialOverwriteFromBeginningTest() throws IOException {
-    GitPath file = gfs.getPath("/file.txt");
     byte[] data = "test".getBytes();
     try(SeekableByteChannel channel = Files.newByteChannel(file, StandardOpenOption.WRITE)) {
       ByteBuffer buf = ByteBuffer.wrap(data);
@@ -87,12 +85,12 @@ public class GitSeekableByteChannelReadWriteTest extends AbstractGitFileSystemTe
     byte[] expect = new byte[ORIGINAL_TEXT_BYTES.length];
     System.arraycopy(data, 0, expect, 0, data.length);
     System.arraycopy(ORIGINAL_TEXT_BYTES, data.length, expect, data.length, ORIGINAL_TEXT_BYTES.length - data.length);
-    Assert.assertArrayEquals(expect, Files.readAllBytes(file));
+    byte[] actual = Files.readAllBytes(file);
+    Assert.assertArrayEquals(expect, actual);
   }
 
   @Test
   public void gitByteChannelCompleteOverwriteTest() throws IOException {
-    GitPath file = gfs.getPath("/file.txt");
     byte[] data = "this is a big data array that will completely overwrite".getBytes();
     try(SeekableByteChannel channel = Files.newByteChannel(file, StandardOpenOption.WRITE)) {
       ByteBuffer buf = ByteBuffer.wrap(data);
@@ -103,7 +101,6 @@ public class GitSeekableByteChannelReadWriteTest extends AbstractGitFileSystemTe
 
   @Test
   public void gitByteChannelTruncateAfterCurrentPositionTest() throws IOException {
-    GitPath file = gfs.getPath("/file.txt");
     int pos = 4;
     int truncatePos = 10;
     byte[] expect = new byte[truncatePos];
@@ -119,7 +116,6 @@ public class GitSeekableByteChannelReadWriteTest extends AbstractGitFileSystemTe
 
   @Test
   public void gitByteChannelTruncateBeforeCurrentPositionTest() throws IOException {
-    GitPath file = gfs.getPath("/file.txt");
     int pos = 10;
     int truncatePos = 4;
     byte[] expect = new byte[truncatePos];
@@ -135,7 +131,6 @@ public class GitSeekableByteChannelReadWriteTest extends AbstractGitFileSystemTe
 
   @Test(expected = NonReadableChannelException.class)
   public void nonReadableGitByteChannelTest() throws IOException {
-    GitPath file = gfs.getPath("/file.txt");
     try(SeekableByteChannel channel = Files.newByteChannel(file, StandardOpenOption.WRITE)) {
       channel.read(ByteBuffer.allocate(32));
     }
@@ -143,7 +138,6 @@ public class GitSeekableByteChannelReadWriteTest extends AbstractGitFileSystemTe
 
   @Test(expected = NonWritableChannelException.class)
   public void nonWritableGitByteChannelTest() throws IOException {
-    GitPath file = gfs.getPath("/file.txt");
     try(SeekableByteChannel channel = Files.newByteChannel(file, StandardOpenOption.READ)) {
       channel.write(ByteBuffer.wrap("some data".getBytes()));
     }
@@ -151,7 +145,6 @@ public class GitSeekableByteChannelReadWriteTest extends AbstractGitFileSystemTe
 
   @Test(expected = ClosedChannelException.class)
   public void closedGitByteChannelTest() throws IOException {
-    GitPath file = gfs.getPath("/file.txt");
     try(SeekableByteChannel channel = Files.newByteChannel(file, StandardOpenOption.READ)) {
       channel.close();
       channel.read(ByteBuffer.allocate(32));

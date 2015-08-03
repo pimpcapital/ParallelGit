@@ -1,15 +1,26 @@
 package com.beijunyi.parallelgit.filesystem.requests;
 
 import java.io.IOException;
+import java.util.Arrays;
+import java.util.Collections;
+import java.util.List;
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 
 import com.beijunyi.parallelgit.filesystem.GitFileSystem;
+import com.beijunyi.parallelgit.utils.BranchHelper;
+import com.beijunyi.parallelgit.utils.CommitHelper;
+import com.beijunyi.parallelgit.utils.RefHelper;
+import com.beijunyi.parallelgit.utils.exception.RefUpdateValidator;
+import org.eclipse.jgit.lib.AnyObjectId;
 import org.eclipse.jgit.lib.PersonIdent;
+import org.eclipse.jgit.lib.RefUpdate;
 import org.eclipse.jgit.revwalk.RevCommit;
 
-public final class CommitRequest extends GitFileSystemRequest<CommitRequest, RevCommit> {
+public final class CommitRequest extends GitFileSystemRequest<RevCommit> {
 
+  private final String branchRef;
+  private final RevCommit commit;
   private PersonIdent author;
   private String authorName;
   private String authorEmail;
@@ -17,16 +28,20 @@ public final class CommitRequest extends GitFileSystemRequest<CommitRequest, Rev
   private String committerName;
   private String committerEmail;
   private String message;
+  private List<AnyObjectId> parents;
   private boolean amend = false;
+  private boolean allowEmpty = false;
 
-  @Nonnull
-  public static CommitRequest prepare() {
-    return new CommitRequest();
+  private CommitRequest(@Nonnull GitFileSystem gfs) {
+    super(gfs);
+    String branch = gfs.getBranch();
+    branchRef = branch != null ? RefHelper.getBranchRefName(branch) : null;
+    commit = gfs.getCommit();
   }
 
   @Nonnull
-  public static CommitRequest prepare(@Nonnull GitFileSystem gfs) {
-    return prepare().gfs(gfs);
+  static CommitRequest prepare(@Nonnull GitFileSystem gfs) {
+    return new CommitRequest(gfs);
   }
 
   @Nonnull
@@ -43,13 +58,6 @@ public final class CommitRequest extends GitFileSystemRequest<CommitRequest, Rev
   }
 
   @Nonnull
-  public PersonIdent author() {
-    if(author == null)
-      throw new IllegalStateException();
-    return author;
-  }
-
-  @Nonnull
   public CommitRequest committer(@Nullable PersonIdent committer) {
     this.committer = committer;
     return this;
@@ -63,21 +71,20 @@ public final class CommitRequest extends GitFileSystemRequest<CommitRequest, Rev
   }
 
   @Nonnull
-  public PersonIdent committer() {
-    if(committer == null)
-      throw new IllegalStateException();
-    return committer;
-  }
-
-  @Nonnull
   public CommitRequest message(@Nullable String message) {
     this.message = message;
     return this;
   }
 
-  @Nullable
-  public String message() {
-    return message;
+  public void parents(@Nonnull List<AnyObjectId> parents) {
+    this.parents = parents;
+  }
+
+  public void parent(@Nullable AnyObjectId parent) {
+    if(parent == null)
+      parents = Collections.emptyList();
+    else
+      parents = Collections.singletonList(parent);
   }
 
   @Nonnull
@@ -86,52 +93,73 @@ public final class CommitRequest extends GitFileSystemRequest<CommitRequest, Rev
     return this;
   }
 
-  public boolean amend() {
-    return amend;
+  @Nonnull
+  public CommitRequest allowEmpty(boolean allowEmpty) {
+    this.allowEmpty = allowEmpty;
+    return this;
+  }
+
+  @Nonnull
+  private RevCommit amendedCommit() {
+    if(commit == null)
+      throw new IllegalStateException("No commit to amend");
+    return commit;
   }
 
   private void prepareCommitter() {
-    if(committer != null) {
-      if(committerName != null && committer.getName().equals(committerName))
-        throw new IllegalArgumentException("Different committer name found: " + committer.getName() + ", " + committerName);
-      if(committerEmail != null && committer.getEmailAddress().equals(committerEmail))
-        throw new IllegalArgumentException("Different committer email found: " + committer.getEmailAddress() + ", " + committerEmail);
-    } else {
+    if(committer == null) {
       if(committerName != null && committerEmail != null)
         committer = new PersonIdent(committerName, committerEmail);
-      else if(!amend) {
-        if(committerName == null && committerEmail == null && gfs != null) {
-          committer = new PersonIdent(gfs.getRepository());
-        } else
-          throw new IllegalStateException();
-      } else if(committerName != null || committerEmail != null)
-        throw new IllegalArgumentException("Incomplete committer information: " + committerName + " <" + committerEmail + ">");
+      else if(committerName == null && committerEmail == null)
+        committer = new PersonIdent(repository);
+      else
+        throw new IllegalStateException();
     }
   }
 
   private void prepareAuthor() {
-    if(author != null) {
-      if(authorName != null && author.getName().equals(authorName))
-        throw new IllegalArgumentException("Different author name found: " + author.getName() + ", " + authorName);
-      if(authorEmail != null && author.getEmailAddress().equals(authorEmail))
-        throw new IllegalArgumentException("Different author email found: " + author.getEmailAddress() + ", " + authorEmail);
-    } else {
-      if(authorName != null && authorEmail != null)
-        author = new PersonIdent(authorName, authorEmail);
-      else if(!amend) {
-        if(authorName == null && authorEmail == null && committer != null) {
+    if(author == null) {
+      if(!amend) {
+        if(authorName != null && authorEmail != null)
+          author = new PersonIdent(authorName, authorEmail);
+        else if(authorName == null && authorEmail == null && committer != null)
           author = committer;
-        } else
+        else
           throw new IllegalStateException();
-      } else if(authorName != null || authorEmail != null)
-        throw new IllegalArgumentException("Incomplete author information: " + authorName + " <" + authorEmail + ">");
+      } else {
+        RevCommit amendedCommit = amendedCommit();
+        PersonIdent amendedAuthor = amendedCommit.getAuthorIdent();
+        author = new PersonIdent(authorName != null ? authorName : amendedAuthor.getName(),
+                                  authorEmail != null ? authorEmail : amendedAuthor.getEmailAddress());
+      }
     }
   }
 
-  @Nonnull
-  @Override
-  protected CommitRequest self() {
-    return this;
+  private void prepareParents() {
+    if(parents == null) {
+      if(!amend) {
+        if(commit != null)
+          parents = Collections.<AnyObjectId>singletonList(commit);
+        else
+          parents = Collections.emptyList();
+      } else
+        parents = Arrays.<AnyObjectId>asList(amendedCommit().getParents());
+    }
+  }
+
+  private void updateRef(@Nonnull RevCommit head) throws IOException {
+    RefUpdate.Result result;
+    if(amend)
+      result = BranchHelper.amendBranchHead(repository, branchRef, head);
+    else if(commit != null)
+      result = BranchHelper.commitBranchHead(repository, branchRef, head);
+    else
+      result = BranchHelper.initBranchHead(repository, branchRef, head);
+    RefUpdateValidator.validate(branchRef, result);
+  }
+
+  private void updateFileSystem(@Nonnull RevCommit head) {
+    gfs.setCommit(head);
   }
 
   @Nullable
@@ -139,6 +167,13 @@ public final class CommitRequest extends GitFileSystemRequest<CommitRequest, Rev
   public RevCommit doExecute() throws IOException {
     prepareCommitter();
     prepareAuthor();
-    return gfs.commit(this);
+    prepareParents();
+    AnyObjectId tree = gfs.getFileStore().persistChanges();
+    if(!allowEmpty && tree.equals(commit.getTree()))
+      return null;
+    RevCommit result = CommitHelper.createCommit(repository, tree, author, committer, message, parents);
+    updateRef(result);
+    updateFileSystem(result);
+    return result;
   }
 }

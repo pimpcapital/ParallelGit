@@ -10,11 +10,13 @@ import javax.annotation.Nullable;
 
 import com.beijunyi.parallelgit.filesystem.GitFileSystem;
 import com.beijunyi.parallelgit.filesystem.GitFileSystemProvider;
+import com.beijunyi.parallelgit.utils.CommitHelper;
 import com.beijunyi.parallelgit.utils.RefHelper;
 import org.eclipse.jgit.internal.storage.file.FileRepository;
 import org.eclipse.jgit.lib.AnyObjectId;
 import org.eclipse.jgit.lib.Constants;
 import org.eclipse.jgit.lib.Repository;
+import org.eclipse.jgit.revwalk.RevCommit;
 
 public class GitFileSystemBuilder {
 
@@ -25,6 +27,8 @@ public class GitFileSystemBuilder {
   private Boolean create;
   private Boolean bare;
   private String branch;
+  private String branchRef;
+  private RevCommit commit;
   private AnyObjectId commitId;
   private String commitIdStr;
   private AnyObjectId treeId;
@@ -112,6 +116,12 @@ public class GitFileSystemBuilder {
   }
 
   @Nonnull
+  public GitFileSystemBuilder commit(@Nullable RevCommit commit) {
+    this.commit = commit;
+    return this;
+  }
+
+  @Nonnull
   public GitFileSystemBuilder commit(@Nullable AnyObjectId commitId) {
     this.commitId = commitId;
     return this;
@@ -139,24 +149,12 @@ public class GitFileSystemBuilder {
     throw new IllegalArgumentException("No repository provided");
   }
 
-  private void errorDifferentRepositories(@Nonnull String r1, @Nonnull String r2) {
-    throw new IllegalArgumentException("Different repositories found: " + r1 + ", " + r2);
-  }
-
   private void errorUnsupportedLocation(@Nonnull String dir) {
     throw new UnsupportedOperationException(dir + " is not a valid location");
   }
 
   private void errorUnsupportedRepository(@Nonnull String dir) {
     throw new UnsupportedOperationException(dir + " is not a valid repository");
-  }
-
-  private void errorDifferentRevisions(@Nonnull String r1, @Nonnull String r2) {
-    throw new IllegalArgumentException("Different revisions found: " + r1 + ", " + r2);
-  }
-
-  private void errorDifferentTrees(@Nonnull String t1, @Nonnull String t2) {
-    throw new IllegalArgumentException("Different trees found: " + t1 + ", " + t2);
   }
 
   private void prepareProvider() {
@@ -170,11 +168,6 @@ public class GitFileSystemBuilder {
       repository = new FileRepository(repoDir);
       if(create != null && create)
         repository.create(bare == null || bare);
-    } else {
-      if(repoDir != null && !repository.getDirectory().equals(repoDir))
-        errorDifferentRepositories(repository.getDirectory().toString(), repoDir.toString());
-      if(repoDirPath != null && !repository.getDirectory().equals(new File(repoDirPath)))
-        errorDifferentRepositories(repository.getDirectory().toString(), repoDirPath);
     }
     if(!repository.getObjectDatabase().exists())
       errorUnsupportedRepository(repository.getDirectory().getAbsolutePath());
@@ -185,8 +178,7 @@ public class GitFileSystemBuilder {
       if(repoDirPath == null)
         errorNoRepositories();
       repoDir = new File(repoDirPath);
-    } else if(repoDirPath != null && !repoDir.equals(new File(repoDirPath)))
-      errorDifferentRepositories(repoDir.toString(), repoDirPath);
+    }
     if(!repoDir.isDirectory())
       errorUnsupportedLocation(repoDir.getAbsolutePath());
     useDotGit();
@@ -202,26 +194,37 @@ public class GitFileSystemBuilder {
   }
 
   private void prepareBranch() throws IOException {
-    if(branch != null)
-      branch = RefHelper.getBranchRefName(branch);
+    if(branch != null) {
+      branchRef = RefHelper.getBranchRefName(branch);
+      branch = branchRef.substring(Constants.R_HEADS.length());
+    }
   }
 
-  private void prepareRevision() throws IOException {
+  private void prepareCommitId() throws IOException {
     if(commitId == null) {
       if(commitIdStr != null)
         commitId = repository.resolve(commitIdStr);
       else if(branch != null)
-        commitId = repository.resolve(branch);
-    } else if(commitIdStr != null && !commitId.getName().equals(commitIdStr))
-      errorDifferentRevisions(commitId.getName(), commitIdStr);
+        commitId = repository.resolve(branchRef);
+    }
+  }
+
+  private void prepareCommit() throws IOException {
+    if(commit == null) {
+      prepareCommitId();
+      if(commitId != null)
+        commit = CommitHelper.getCommit(repository, commitId);
+    }
+
   }
 
   private void prepareTree() throws IOException {
     if(treeId == null) {
       if(treeIdStr != null)
         treeId = repository.resolve(treeIdStr);
-    } else if(treeIdStr != null && !treeId.getName().equals(treeIdStr))
-      errorDifferentTrees(treeId.getName(), treeIdStr);
+      else if(commit != null)
+        treeId = commit.getTree();
+    }
   }
 
   @Nonnull
@@ -229,9 +232,9 @@ public class GitFileSystemBuilder {
     prepareProvider();
     prepareRepository();
     prepareBranch();
-    prepareRevision();
+    prepareCommit();
     prepareTree();
-    GitFileSystem fs = new GitFileSystem(provider, repository, branch, commitId, treeId);
+    GitFileSystem fs = new GitFileSystem(provider, repository, branch, commit, treeId);
     provider.register(fs);
     return fs;
   }

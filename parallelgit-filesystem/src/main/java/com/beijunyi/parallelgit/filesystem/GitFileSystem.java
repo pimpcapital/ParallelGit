@@ -8,12 +8,8 @@ import java.util.regex.Pattern;
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 
-import com.beijunyi.parallelgit.filesystem.requests.CommitRequest;
 import com.beijunyi.parallelgit.filesystem.utils.GitGlobs;
-import com.beijunyi.parallelgit.utils.BranchHelper;
-import com.beijunyi.parallelgit.utils.CommitHelper;
 import org.eclipse.jgit.lib.AnyObjectId;
-import org.eclipse.jgit.lib.Constants;
 import org.eclipse.jgit.lib.Repository;
 import org.eclipse.jgit.revwalk.RevCommit;
 
@@ -33,31 +29,18 @@ public class GitFileSystem extends FileSystem {
   private final GitFileStore store;
   private final GitPath rootPath;
   private String branch;
-  private RevCommit baseCommit;
-  private AnyObjectId baseTree;
+  private RevCommit commit;
 
   private boolean closed = false;
 
-  public GitFileSystem(@Nonnull GitFileSystemProvider provider, @Nonnull Repository repository, @Nullable String branchRef, @Nullable AnyObjectId commitId, @Nullable AnyObjectId treeId) throws IOException {
+  public GitFileSystem(@Nonnull GitFileSystemProvider provider, @Nonnull Repository repository, @Nullable String branch, @Nullable RevCommit commit, @Nullable AnyObjectId tree) throws IOException {
     this.provider = provider;
     this.repository = repository;
     this.session = UUID.randomUUID().toString();
     this.rootPath = new GitPath(this, "/");
-
-    if((branch = branchRef) == null && commitId == null)
-      branch = Constants.R_HEADS + Constants.MASTER;
-
-    if(commitId != null)
-      baseCommit = CommitHelper.getCommit(repository, commitId);
-    else
-      baseCommit = CommitHelper.getCommit(repository, branch);
-
-    if(treeId != null)
-      baseTree = treeId;
-    else if(baseCommit != null)
-      baseTree = baseCommit.getTree();
-
-    store = new GitFileStore(repository, rootPath, baseTree);
+    this.branch = branch;
+    this.commit = commit;
+    store = new GitFileStore(repository, rootPath, tree);
   }
 
   /**
@@ -294,46 +277,22 @@ public class GitFileSystem extends FileSystem {
     return branch;
   }
 
-  @Nullable
-  public RevCommit getBaseCommit() {
-    return baseCommit;
+  public void setBranch(@Nullable String branch) {
+    this.branch = branch;
   }
 
   @Nullable
-  public AnyObjectId getBaseTree() {
-    return baseTree;
-  }
-
-  @Nonnull
-  private List<AnyObjectId> resolveParents(boolean amend) throws IOException {
-    if(baseCommit == null)
-      return Collections.emptyList();
-    else if(amend)
-      return Collections.<AnyObjectId>singletonList(baseCommit);
-    else
-      return Arrays.<AnyObjectId>asList(baseCommit.getParents());
-  }
-
-  private void updateBranchRef(@Nonnull RevCommit commit, boolean amend) throws IOException {
-    if(branch != null) {
-      if(baseCommit == null)
-        BranchHelper.initBranchHead(repository, branch, commit, commit.getShortMessage());
-      else if(amend)
-        BranchHelper.amendBranchHead(repository, branch, commit, commit.getShortMessage());
-      else
-        BranchHelper.commitBranchHead(repository, branch, commit, commit.getShortMessage());
-    }
-  }
-
-  @Nullable
-  public RevCommit commit(@Nonnull CommitRequest request) throws IOException {
-    AnyObjectId rootTree = store.persistChanges();
-    if(rootTree.equals(baseTree))
-      return null;
-    boolean amend = request.amend();
-    RevCommit commit = CommitHelper.createCommit(repository, rootTree, request.author(), request.committer(), request.message(), resolveParents(amend));
-    updateBranchRef(commit, amend);
+  public RevCommit getCommit() {
     return commit;
+  }
+
+  public void setCommit(@Nullable RevCommit commit) {
+    this.commit = commit;
+  }
+
+  @Nullable
+  public AnyObjectId getTree() {
+    return store.getTree();
   }
 
 }

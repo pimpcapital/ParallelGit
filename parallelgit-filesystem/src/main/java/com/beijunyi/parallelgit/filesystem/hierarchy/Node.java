@@ -48,7 +48,7 @@ public abstract class Node implements Comparable<Node> {
 
   @Override
   public int compareTo(@Nonnull Node that) {
-    return this.path.compareTo(that.path);
+    return this.path().compareTo(that.path());
   }
 
   @Nonnull
@@ -76,14 +76,14 @@ public abstract class Node implements Comparable<Node> {
   public FileNode asFile() throws AccessDeniedException {
     if(this instanceof FileNode)
       return (FileNode) this;
-    throw new AccessDeniedException(path.toString());
+    throw new AccessDeniedException(path().toString());
   }
 
   @Nonnull
   public DirectoryNode asDirectory() throws NotDirectoryException {
     if(this instanceof DirectoryNode)
       return (DirectoryNode) this;
-    throw new NotDirectoryException(path.toString());
+    throw new NotDirectoryException(path().toString());
   }
 
   @Nonnull
@@ -91,17 +91,24 @@ public abstract class Node implements Comparable<Node> {
     return object;
   }
 
-  protected abstract void load(@Nonnull GitFileStore store, boolean recursive) throws IOException;
+  protected abstract void doLoad(@Nonnull GitFileStore store, boolean recursive) throws IOException;
 
   protected void load() throws IOException {
-    load(store, false);
+    doLoad(store(), false);
   }
 
   @Nonnull
-  public abstract AnyObjectId save() throws IOException ;
+  public abstract AnyObjectId doSave() throws IOException;
+
+  @Nonnull
+  public AnyObjectId save() throws IOException {
+    object = doSave();
+    dirty = false;
+    return object;
+  }
 
   protected void denyAccess() throws AccessDeniedException {
-    throw new AccessDeniedException(path.toString());
+    throw new AccessDeniedException(path().toString());
   }
 
   protected void checkNotLocked() throws AccessDeniedException {
@@ -116,7 +123,7 @@ public abstract class Node implements Comparable<Node> {
 
   public synchronized void unlock() throws IllegalStateException {
     if(!locked)
-      throw new IllegalStateException(path.toString());
+      throw new IllegalStateException(path().toString());
     locked = false;
   }
 
@@ -155,7 +162,7 @@ public abstract class Node implements Comparable<Node> {
   protected abstract Node clone(boolean deepClone) throws IOException;
 
   private boolean baseSameRepository(@Nonnull Node target) {
-    return store.baseSameRepository(target.store);
+    return store().baseSameRepository(target.store());
   }
 
   private void amendCopyOptions(@Nonnull Node target, @Nonnull Set<CopyOption> options) {
@@ -168,7 +175,7 @@ public abstract class Node implements Comparable<Node> {
   @Nonnull
   private DirectoryNode getParent() throws AccessDeniedException {
     if(parent == null)
-      throw new AccessDeniedException(path.toString());
+      throw new AccessDeniedException(path().toString());
     return parent;
   }
 

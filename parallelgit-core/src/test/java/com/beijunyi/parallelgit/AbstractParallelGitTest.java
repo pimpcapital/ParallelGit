@@ -11,6 +11,7 @@ import org.eclipse.jgit.errors.NoWorkTreeException;
 import org.eclipse.jgit.internal.storage.dfs.DfsRepositoryDescription;
 import org.eclipse.jgit.internal.storage.dfs.InMemoryRepository;
 import org.eclipse.jgit.lib.*;
+import org.eclipse.jgit.revwalk.RevCommit;
 import org.eclipse.jgit.util.FileUtils;
 import org.junit.After;
 
@@ -61,45 +62,45 @@ public abstract class AbstractParallelGitTest {
   }
 
   @Nonnull
-  protected ObjectId commit(@Nonnull String message, @Nullable ObjectId parent) throws IOException {
+  protected RevCommit commit(@Nonnull String message, @Nullable ObjectId parent) throws IOException {
     return CommitHelper.createCommit(repo, cache, new PersonIdent(getClass().getSimpleName(), ""), message, parent);
   }
 
-  protected void updateBranchHead(@Nonnull String branch, @Nonnull ObjectId commitId) throws IOException {
-    BranchHelper.commitBranchHead(repo, branch, commitId, CommitHelper.getCommit(repo, commitId).getShortMessage());
+  protected void updateBranchHead(@Nonnull String branch, @Nonnull RevCommit commit) throws IOException {
+    BranchHelper.commitBranchHead(repo, branch, commit, commit.getShortMessage());
   }
 
   @Nonnull
-  protected ObjectId commitToBranch(@Nonnull String branch, @Nonnull String message, @Nullable ObjectId parent) throws IOException {
+  protected RevCommit commitToBranch(@Nonnull String branch, @Nonnull String message, @Nullable ObjectId parent) throws IOException {
     if(parent == null)
       parent = BranchHelper.getBranchHeadCommitId(repo, branch);
-    ObjectId commitId = commit(message, parent);
+    RevCommit commitId = commit(message, parent);
     updateBranchHead(branch, commitId);
     return commitId;
   }
 
   @Nonnull
-  protected ObjectId commitToBranch(@Nonnull String branch, @Nullable ObjectId parent) throws IOException {
+  protected RevCommit commitToBranch(@Nonnull String branch, @Nullable ObjectId parent) throws IOException {
     return commitToBranch(branch, getClass().getSimpleName() + " test commit: " + System.currentTimeMillis(), parent);
   }
 
   @Nonnull
-  protected ObjectId commitToBranch(@Nonnull String branch) throws IOException {
+  protected RevCommit commitToBranch(@Nonnull String branch) throws IOException {
     return commitToBranch(branch, getClass().getSimpleName() + " test commit: " + System.currentTimeMillis(), null);
   }
 
   @Nonnull
-  protected ObjectId commitToMaster(@Nonnull String message, @Nullable ObjectId parent) throws IOException {
+  protected RevCommit commitToMaster(@Nonnull String message, @Nullable ObjectId parent) throws IOException {
     return commitToBranch(Constants.MASTER, message, parent);
   }
 
   @Nonnull
-  protected ObjectId commitToMaster(@Nonnull String message) throws IOException {
+  protected RevCommit commitToMaster(@Nonnull String message) throws IOException {
     return commitToBranch(Constants.MASTER, message, null);
   }
 
   @Nonnull
-  protected ObjectId commitToMaster() throws IOException {
+  protected RevCommit commitToMaster() throws IOException {
     return commitToBranch(Constants.MASTER);
   }
 
@@ -113,7 +114,7 @@ public abstract class AbstractParallelGitTest {
   }
 
   @Nonnull
-  protected ObjectId initRepository(boolean memory, boolean bare) throws IOException {
+  protected RevCommit initRepository(boolean memory, boolean bare) throws IOException {
     initRepositoryDir(memory);
     repo = memory ? new TestRepository(getClass().getName(), repoDir, bare) : RepositoryHelper.createRepository(repoDir, bare);
     cache = DirCache.newInCore();
@@ -124,12 +125,12 @@ public abstract class AbstractParallelGitTest {
   }
 
   @Nonnull
-  protected ObjectId initFileRepository(boolean bare) throws IOException {
+  protected RevCommit initFileRepository(boolean bare) throws IOException {
     return initRepository(false, bare);
   }
 
   @Nonnull
-  protected ObjectId initRepository() throws IOException {
+  protected RevCommit initRepository() throws IOException {
     return initRepository(true, true);
   }
 

@@ -5,28 +5,21 @@ import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 
 import com.beijunyi.parallelgit.filesystem.GitFileSystem;
+import org.eclipse.jgit.lib.Repository;
 
-public abstract class GitFileSystemRequest<Request extends GitFileSystemRequest, Result> {
+public abstract class GitFileSystemRequest<Result> {
 
-  protected GitFileSystem gfs;
+  protected final GitFileSystem gfs;
+  protected final Repository repository;
   protected volatile boolean executed = false;
 
-  @Nonnull
-  protected abstract Request self();
+  protected GitFileSystemRequest(@Nonnull GitFileSystem gfs) {
+    this.gfs = gfs;
+    this.repository = gfs.getRepository();
+  }
 
   @Nullable
   protected abstract Result doExecute() throws IOException;
-
-  @Nonnull
-  public Request gfs(@Nonnull GitFileSystem gfs) {
-    this.gfs = gfs;
-    return self();
-  }
-
-  protected void ensureFileSystem() {
-    if(gfs == null)
-      throw new IllegalArgumentException("Missing file system");
-  }
 
   private void checkExecuted() {
     if(executed)
@@ -38,7 +31,6 @@ public abstract class GitFileSystemRequest<Request extends GitFileSystemRequest,
     checkExecuted();
     synchronized(this) {
       checkExecuted();
-      ensureFileSystem();
       executed = true;
       return doExecute();
     }

@@ -33,6 +33,7 @@ public class GitFileSystemProviderReadAttributesTest extends AbstractGitFileSyst
   @Test
   public void readDirectoryAttributesTest() throws IOException {
     initRepository();
+
     writeFile("a/b");
     commitToMaster();
     initGitFileSystem();

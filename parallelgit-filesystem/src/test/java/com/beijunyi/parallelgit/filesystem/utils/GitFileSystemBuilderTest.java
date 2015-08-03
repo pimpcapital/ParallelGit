@@ -95,7 +95,7 @@ public class GitFileSystemBuilderTest extends AbstractParallelGitTest {
                           .repository(repo)
                           .commit(commit)
                           .build();
-    Assert.assertEquals(commit, gfs.getBaseCommit());
+    Assert.assertEquals(commit, gfs.getCommit());
   }
 
   @Test
@@ -106,7 +106,7 @@ public class GitFileSystemBuilderTest extends AbstractParallelGitTest {
                           .repository(repo)
                           .commit(commit.getName())
                           .build();
-    Assert.assertEquals(commit, gfs.getBaseCommit());
+    Assert.assertEquals(commit, gfs.getCommit());
   }
 
   @Test
@@ -117,7 +117,7 @@ public class GitFileSystemBuilderTest extends AbstractParallelGitTest {
                           .repository(repo)
                           .tree(tree)
                           .build();
-    Assert.assertEquals(tree, gfs.getBaseTree());
+    Assert.assertEquals(tree, gfs.getTree());
   }
 
   @Test
@@ -128,6 +128,6 @@ public class GitFileSystemBuilderTest extends AbstractParallelGitTest {
                           .repository(repo)
                           .tree(tree.getName())
                           .build();
-    Assert.assertEquals(tree, gfs.getBaseTree());
+    Assert.assertEquals(tree, gfs.getTree());
   }
 }

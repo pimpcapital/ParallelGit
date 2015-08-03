@@ -11,26 +11,27 @@ import com.beijunyi.parallelgit.filesystem.hierarchy.FileNode;
 
 public class GitSeekableByteChannel implements SeekableByteChannel {
 
-  private final ByteBuffer buffer;
   private final FileNode parent;
   private final boolean readable;
   private final boolean writable;
+  private ByteBuffer buffer;
   private volatile boolean closed = false;
 
   public GitSeekableByteChannel(@Nonnull byte[] bytes, @Nonnull Set<? extends OpenOption> options, @Nonnull FileNode parent) {
     this.parent = parent;
     readable = options.contains(StandardOpenOption.READ);
     writable = options.contains(StandardOpenOption.WRITE);
-    if(writable && options.contains(StandardOpenOption.TRUNCATE_EXISTING))
-      bytes = new byte[0];
     buffer = ByteBuffer.wrap(bytes);
+    if(writable && options.contains(StandardOpenOption.TRUNCATE_EXISTING))
+      buffer.limit(0);
     if(writable & options.contains(StandardOpenOption.APPEND))
       buffer.position(buffer.limit());
   }
 
   private static int copyBytes(@Nonnull ByteBuffer dst, @Nonnull ByteBuffer src) {
-    int remaining = Math.min(dst.remaining(), src.remaining());
-    dst.put(src.array(), 0, remaining);
+    int remaining = Math.min(src.remaining(), dst.remaining());
+    for(int i = 0; i < remaining; i++)
+      dst.put(src.get());
     return remaining;
   }
 
@@ -48,7 +49,9 @@ public class GitSeekableByteChannel implements SeekableByteChannel {
   public int read(@Nonnull ByteBuffer dst) throws ClosedChannelException {
     checkClosed();
     checkReadAccess();
-    return copyBytes(dst, buffer);
+    synchronized(this) {
+      return copyBytes(dst, buffer);
+    }
   }
 
   /**
@@ -67,7 +70,16 @@ public class GitSeekableByteChannel implements SeekableByteChannel {
   public int write(@Nonnull ByteBuffer src) throws ClosedChannelException {
     checkClosed();
     checkWriteAccess();
-    return copyBytes(buffer, src);
+    synchronized(this) {
+      if(buffer.remaining() < src.remaining()) {
+        int position = buffer.position();
+        byte[] bytes = new byte[position + src.remaining()];
+        System.arraycopy(buffer.array(), 0, bytes, 0, position);
+        buffer = ByteBuffer.wrap(bytes);
+        buffer.position(position);
+      }
+      return copyBytes(buffer, src);
+    }
   }
 
   /**
@@ -80,9 +92,7 @@ public class GitSeekableByteChannel implements SeekableByteChannel {
   @Override
   public long position() throws ClosedChannelException {
     checkClosed();
-    synchronized(this) {
-      return buffer.position();
-    }
+    return buffer.position();
   }
 
   /**
@@ -107,7 +117,9 @@ public class GitSeekableByteChannel implements SeekableByteChannel {
     checkClosed();
     if(newPosition < 0 || newPosition >= Integer.MAX_VALUE)
       throw new IllegalArgumentException("Position must be between 0 and " + Integer.MAX_VALUE);
-    buffer.position((int) newPosition);
+    synchronized(this) {
+      buffer.position((int) newPosition);
+    }
     return this;
   }
 
@@ -145,7 +157,9 @@ public class GitSeekableByteChannel implements SeekableByteChannel {
   public GitSeekableByteChannel truncate(long size) throws NonWritableChannelException, ClosedChannelException, IllegalArgumentException {
     checkClosed();
     checkWriteAccess();
-    buffer.limit(0);
+    synchronized(this) {
+      buffer.limit(0);
+    }
     return this;
   }
 
@@ -221,5 +235,10 @@ public class GitSeekableByteChannel implements SeekableByteChannel {
   private void checkWriteAccess() throws NonWritableChannelException {
     if(!writable)
       throw new NonWritableChannelException();
+  }
+
+  @Nonnull
+  public byte[] bytes() {
+    return buffer.array();
   }
 }
