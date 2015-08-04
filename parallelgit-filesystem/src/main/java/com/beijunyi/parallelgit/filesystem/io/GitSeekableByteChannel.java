@@ -95,6 +95,12 @@ public class GitSeekableByteChannel implements SeekableByteChannel {
     return buffer.position();
   }
 
+  private static int long2Int(long num) {
+    if(num < 0 || num >= Integer.MAX_VALUE)
+      throw new IllegalArgumentException("Input must be between 0 and " + Integer.MAX_VALUE);
+    return (int) num;
+  }
+
   /**
    * Sets this channel's position.
    *
@@ -115,10 +121,8 @@ public class GitSeekableByteChannel implements SeekableByteChannel {
   @Override
   public GitSeekableByteChannel position(long newPosition) throws ClosedChannelException {
     checkClosed();
-    if(newPosition < 0 || newPosition >= Integer.MAX_VALUE)
-      throw new IllegalArgumentException("Position must be between 0 and " + Integer.MAX_VALUE);
     synchronized(this) {
-      buffer.position((int) newPosition);
+      buffer.position(long2Int(newPosition));
     }
     return this;
   }
@@ -158,7 +162,7 @@ public class GitSeekableByteChannel implements SeekableByteChannel {
     checkClosed();
     checkWriteAccess();
     synchronized(this) {
-      buffer.limit(0);
+      buffer.limit(long2Int(size));
     }
     return this;
   }
@@ -239,6 +243,9 @@ public class GitSeekableByteChannel implements SeekableByteChannel {
 
   @Nonnull
   public byte[] bytes() {
-    return buffer.array();
+    byte[] bytes = new byte[buffer.limit()];
+    buffer.position(0);
+    buffer.get(bytes);
+    return bytes;
   }
 }

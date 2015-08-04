@@ -130,9 +130,10 @@ public class DirectoryNode extends Node {
   }
 
   @Nonnull
-  public synchronized GitDirectoryStream newStream(@Nullable DirectoryStream.Filter<? super Path> filter) throws AccessDeniedException {
+  public synchronized GitDirectoryStream newStream(@Nullable DirectoryStream.Filter<? super Path> filter) throws IOException {
     if(locked)
       denyAccess();
+    load();
     List<Node> nodes = new ArrayList<>(children.values());
     Collections.sort(nodes);
     GitDirectoryStream stream = new GitDirectoryStream(nodes.iterator(), filter, this);

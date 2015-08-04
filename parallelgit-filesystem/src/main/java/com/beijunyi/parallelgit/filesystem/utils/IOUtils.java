@@ -51,6 +51,8 @@ public final class IOUtils {
   public static void copy(@Nonnull GitPath source, @Nonnull GitPath target, @Nonnull Set<CopyOption> options) throws IOException {
     if(source.equals(target))
       return;
+    if(target.isRoot())
+      throw new FileAlreadyExistsException(target.toString());
     Node sourceNode = source.getNode();
     sourceNode.copyTo(target.getParentNode(), getFileName(target), options);
   }
@@ -58,6 +60,8 @@ public final class IOUtils {
   public static void move(@Nonnull GitPath source, @Nonnull GitPath target, @Nonnull Set<CopyOption> options) throws IOException {
     if(source.equals(target))
       return;
+    if(target.isRoot())
+      throw new FileAlreadyExistsException(target.toString());
     Node sourceNode = source.getNode();
     sourceNode.moveTo(target.getParentNode(), getFileName(target), options);
   }

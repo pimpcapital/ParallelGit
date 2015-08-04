@@ -40,7 +40,7 @@ public class GitFileStore extends FileStore {
   @Nonnull
   @Override
   public String name() {
-    return root.getObject().getName();
+    return repository.getDirectory().getAbsolutePath();
   }
 
   /**
