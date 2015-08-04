@@ -37,7 +37,7 @@ public final class IOUtils {
 
   @Nonnull
   public static GitDirectoryStream newDirectoryStream(@Nonnull GitPath path, @Nullable DirectoryStream.Filter<? super Path> filter) throws IOException {
-    return path.getNode().asDirectory().newStream(filter);
+    return path.getDirectoryNode().newStream(filter);
   }
 
   public static void createDirectory(@Nonnull GitPath path) throws IOException {

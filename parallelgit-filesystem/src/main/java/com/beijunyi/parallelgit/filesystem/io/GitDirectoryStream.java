@@ -26,7 +26,7 @@ public class GitDirectoryStream implements DirectoryStream<Path> {
     this.parent = parent;
   }
 
-  private void checkClosed() throws ClosedDirectoryStreamException {
+  private void checkNotClosed() throws ClosedDirectoryStreamException {
     if(closed)
       throw new ClosedDirectoryStreamException();
   }
@@ -47,8 +47,7 @@ public class GitDirectoryStream implements DirectoryStream<Path> {
               next = node;
               return true;
             }
-          } catch(IOException e) {
-            throw new RuntimeException(e);
+          } catch(IOException ignore) {
           }
         }
         return false;
@@ -56,14 +55,14 @@ public class GitDirectoryStream implements DirectoryStream<Path> {
 
       @Override
       public boolean hasNext() throws ClosedDirectoryStreamException {
-        checkClosed();
+        checkNotClosed();
         return next != null || findNext();
       }
 
       @Nonnull
       @Override
       public Path next() throws ClosedDirectoryStreamException, NoSuchElementException {
-        checkClosed();
+        checkNotClosed();
         if(next != null || hasNext()) {
           GitPath path = next.path();
           next = null;

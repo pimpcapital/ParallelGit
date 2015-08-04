@@ -1,74 +1,35 @@
 package com.beijunyi.parallelgit.filesystem;
 
 import java.io.IOException;
-import java.nio.file.*;
-import java.util.Iterator;
-import java.util.NoSuchElementException;
+import java.nio.file.NotDirectoryException;
 
 import org.junit.Assert;
 import org.junit.Test;
 
 public class GitFileSystemProviderDirectoryStreamTest extends AbstractGitFileSystemTest {
 
-  @Test
-  public void directoryStreamOfDirectoryTest() throws IOException {
+ @Test
+ public void openDirectory_shouldReturnDirectoryStream() throws IOException {
+   initRepository();
+   writeFile("/dir/file.txt");
+   commitToMaster();
+   initGitFileSystem();
+   Assert.assertNotNull(provider.newDirectoryStream(gfs.getPath("/dir"), null));
+ }
+
+  @Test(expected = NotDirectoryException.class)
+  public void openRegularFile_shouldThrowException() throws IOException {
     initRepository();
-    String[] files = new String[] {"a/b.txt", "a/c/c1.txt", "a/d/d1.txt", "a/d/d2.txt", "a/e.txt", "f.txt", "g/h.txt"};
-    for(String file : files)
-      writeFile(file);
+    writeFile("/file.txt");
     commitToMaster();
     initGitFileSystem();
-
-    try(DirectoryStream<Path> ds = Files.newDirectoryStream(gfs.getPath("/a"))) {
-      String[] filesInA = new String[] {"/a/b.txt", "/a/c", "/a/d", "/a/e.txt"};
-      Iterator<Path> dsIt = ds.iterator();
-      for(String file : filesInA) {
-        Assert.assertTrue(dsIt.hasNext());
-        Assert.assertEquals(file, dsIt.next().toString());
-      }
-      Assert.assertFalse(dsIt.hasNext());
-    }
-  }
-
-  @Test(expected = NoSuchElementException.class)
-  public void directoryStreamOfDirectoryNoSuchElementTest() throws IOException {
-    initRepository();
-    writeFile("a/b");
-    commitToMaster();
-    initGitFileSystem();
-    try(DirectoryStream<Path> ds = Files.newDirectoryStream(gfs.getPath("/a"))) {
-      Iterator<Path> dsIt = ds.iterator();
-      dsIt.next();
-      dsIt.next();
-    }
-  }
-
-  @Test(expected = UnsupportedOperationException.class)
-  public void directoryStreamOfDirectoryRemoveTest() throws IOException {
-    initRepository();
-    writeFile("a/b");
-    commitToMaster();
-    initGitFileSystem();
-    try(DirectoryStream<Path> ds = Files.newDirectoryStream(gfs.getPath("/a"))) {
-      Iterator<Path> dsIt = ds.iterator();
-      dsIt.next();
-      dsIt.remove();
-    }
+    provider.newDirectoryStream(gfs.getPath("/file.txt"), null);
   }
 
   @Test(expected = NotDirectoryException.class)
-  public void directoryStreamOfFileTest() throws IOException {
-    initRepository();
-    writeFile("a/b");
-    commitToMaster();
+  public void openNonExistentDirectory_shouldThrowException() throws IOException {
     initGitFileSystem();
-    Files.newDirectoryStream(gfs.getPath("/a.txt"));
-  }
-
-  @Test(expected = NotDirectoryException.class)
-  public void directoryStreamOfNonExistentEntryTest() throws IOException {
-    initGitFileSystem();
-    Files.newDirectoryStream(gfs.getPath("/a"));
+    provider.newDirectoryStream(gfs.getPath("/non_existent_directory"), null);
   }
 
 }

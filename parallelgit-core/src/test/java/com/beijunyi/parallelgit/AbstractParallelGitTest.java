@@ -32,6 +32,8 @@ public abstract class AbstractParallelGitTest {
   @Nonnull
   protected ObjectId writeFile(@Nonnull String path, @Nonnull byte[] content, @Nonnull FileMode mode) throws IOException {
     ObjectId blobId = BlobHelper.insert(repo, content);
+    if(path.startsWith("/"))
+      path = path.substring(1);
     DirCacheHelper.addFile(cache, mode, path, blobId);
     return blobId;
   }

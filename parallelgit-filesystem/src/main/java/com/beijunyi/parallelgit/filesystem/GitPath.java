@@ -887,6 +887,14 @@ public class GitPath implements Path {
   }
 
   @Nonnull
+  public DirectoryNode getDirectoryNode() throws IOException {
+    Node node = getFileStore().findNode(this);
+    if(node == null)
+      throw new NotDirectoryException(toString());
+    return node.asDirectory();
+  }
+
+  @Nonnull
   public DirectoryNode getParentNode() throws IOException {
     GitPath parent = getParent();
     if(parent == null)

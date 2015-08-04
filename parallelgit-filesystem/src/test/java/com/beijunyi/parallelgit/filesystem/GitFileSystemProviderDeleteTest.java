@@ -1,8 +1,8 @@
 package com.beijunyi.parallelgit.filesystem;
 
 import java.io.IOException;
-import java.nio.file.DirectoryNotEmptyException;
 import java.nio.file.Files;
+import java.nio.file.NoSuchFileException;
 
 import org.junit.Assert;
 import org.junit.Test;
@@ -10,61 +10,47 @@ import org.junit.Test;
 public class GitFileSystemProviderDeleteTest extends AbstractGitFileSystemTest {
 
   @Test
-  public void deleteFileTest() throws IOException {
+  public void deleteFile_fileShouldNotExistAfterDeletion() throws IOException {
     initRepository();
-    writeFile("a.txt");
+    writeFile("/file.txt");
     commitToMaster();
     initGitFileSystem();
 
-    GitPath path = gfs.getPath("/a.txt");
-    Files.delete(path);
+    GitPath path = gfs.getPath("/file.txt");
+    provider.delete(path);
     Assert.assertFalse(Files.exists(path));
   }
 
   @Test
-  public void deleteAllFilesInDirectoryTest() throws IOException {
+  public void deleteEmptyDirectory_directoryShouldNotExistAfterDeletion() throws IOException {
     initRepository();
-    writeFile("a/b1.txt");
-    writeFile("a/b2.txt");
+    writeFile("/dir/file.txt");
     commitToMaster();
     initGitFileSystem();
 
-    Files.delete(gfs.getPath("/a/b1.txt"));
-    Files.delete(gfs.getPath("/a/b2.txt"));
-    Assert.assertFalse(Files.exists(gfs.getPath("/a")));
+    GitPath file = gfs.getPath("/dir/file.txt");
+    provider.delete(file);
+    GitPath dir = gfs.getPath("/dir");
+    provider.delete(dir);
+    Assert.assertFalse(Files.exists(dir));
   }
 
   @Test
-  public void deleteSomeFilesInDirectoryTest() throws IOException {
+  public void deleteNonEmptyDirectory_directoryShouldNotExistAfterDeletion() throws IOException {
     initRepository();
-    writeFile("a/b1.txt");
-    writeFile("a/b2.txt");
+    writeFile("/dir/file.txt");
     commitToMaster();
     initGitFileSystem();
 
-    Files.delete(gfs.getPath("/a/b1.txt"));
-    Assert.assertTrue(Files.exists(gfs.getPath("/a")));
+    GitPath dir = gfs.getPath("/dir");
+    provider.delete(dir);
+    Assert.assertFalse(Files.exists(dir));
   }
 
-  @Test
-  public void deleteModifiedFileTest() throws IOException {
+  @Test(expected = NoSuchFileException.class)
+  public void deleteNonExistentFile_shouldThrowException() throws IOException {
     initGitFileSystem();
-
-    GitPath path = gfs.getPath("/a.txt");
-    Files.write(path, "some data".getBytes());
-    Files.delete(path);
-    Assert.assertFalse(Files.exists(path));
-  }
-
-  @Test(expected = DirectoryNotEmptyException.class)
-  public void deleteDirectoryTest() throws IOException {
-    initRepository();
-    writeFile("a/b.txt");
-    commitToMaster();
-    initGitFileSystem();
-
-    GitPath path = gfs.getPath("/a");
-    Files.delete(path);
+    provider.delete(gfs.getPath("/non_existent_file.txt"));
   }
 
 }
