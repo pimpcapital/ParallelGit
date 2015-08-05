@@ -31,7 +31,14 @@
       <version>0.9.3-SNAPSHOT</version>
       <scope>test</scope>
     </dependency>
-
   </dependencies>
+
+  <build>
+    <resources>
+      <resource>
+        <directory>src/main/resources</directory>
+      </resource>
+    </resources>
+  </build>
 
 </project>

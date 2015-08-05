@@ -16,15 +16,6 @@ public class GitFileStoreBasicPropertiesTest extends AbstractGitFileSystemTest {
     Assert.assertTrue(store.supportsFileAttributeView("basic"));
   }
 
-  @Test
-  public void fileStoreGetAttributeTest() throws IOException {
-    initGitFileSystem();
-    GitFileStore store = gfs.getFileStore();
-    Assert.assertEquals(repoDir.getTotalSpace(), store.getAttribute("totalSpace"));
-    Assert.assertEquals(repoDir.getUsableSpace(), store.getAttribute("usableSpace"));
-    Assert.assertEquals(repoDir.getFreeSpace(), store.getAttribute("unallocatedSpace"));
-  }
-
   @Test(expected = UnsupportedOperationException.class)
   public void fileStoreGetUnsupportedAttributeTest() throws IOException {
     initGitFileSystem();
