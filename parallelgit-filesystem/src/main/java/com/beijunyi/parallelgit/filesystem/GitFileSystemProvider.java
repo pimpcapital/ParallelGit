@@ -11,7 +11,6 @@ import java.util.concurrent.ConcurrentHashMap;
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 
-import com.beijunyi.parallelgit.filesystem.hierarchy.Node;
 import com.beijunyi.parallelgit.filesystem.io.GitDirectoryStream;
 import com.beijunyi.parallelgit.filesystem.utils.GitFileSystemBuilder;
 import com.beijunyi.parallelgit.filesystem.utils.GitUriUtils;
@@ -350,17 +349,11 @@ public class GitFileSystemProvider extends FileSystemProvider {
   @Nullable
   @Override
   public <V extends FileAttributeView> V getFileAttributeView(@Nonnull Path path, @Nonnull Class<V> type, @Nonnull LinkOption... options) throws UnsupportedOperationException {
-    Node node;
     try {
-      node = (((GitPath) path).toRealPath()).getNode();
+      return IOUtils.getFileAttributeView(((GitPath) path).toRealPath(), type);
     } catch(IOException e) {
       return null;
     }
-    if(type.isAssignableFrom(GitFileAttributeView.Basic.class))
-      return type.cast(new GitFileAttributeView.Basic(node));
-    if(type.isAssignableFrom(GitFileAttributeView.Posix.class))
-      return type.cast(new GitFileAttributeView.Posix(node));
-    throw new UnsupportedOperationException(type.getName());
   }
 
   /**

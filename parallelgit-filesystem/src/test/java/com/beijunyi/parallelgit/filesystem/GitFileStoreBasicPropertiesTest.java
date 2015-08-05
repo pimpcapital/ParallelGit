@@ -9,22 +9,6 @@ import org.junit.Test;
 public class GitFileStoreBasicPropertiesTest extends AbstractGitFileSystemTest {
 
   @Test
-  public void fileStoreReadOnlyTest() throws IOException {
-    initGitFileSystem();
-    GitFileStore store = gfs.getFileStore();
-    Assert.assertFalse(store.isReadOnly());
-  }
-
-  @Test
-  public void fileStoreSpaceTest() throws IOException {
-    initGitFileSystem();
-    GitFileStore store = gfs.getFileStore();
-    Assert.assertEquals(repoDir.getTotalSpace(), store.getTotalSpace());
-    Assert.assertEquals(repoDir.getUsableSpace(), store.getUsableSpace());
-    Assert.assertEquals(repoDir.getFreeSpace(), store.getUnallocatedSpace());
-  }
-
-  @Test
   public void fileStoreFileSupportsAttributeViewTest() throws IOException {
     initGitFileSystem();
     GitFileStore store = gfs.getFileStore();

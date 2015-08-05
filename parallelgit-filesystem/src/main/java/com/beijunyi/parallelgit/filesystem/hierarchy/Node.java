@@ -3,14 +3,12 @@ package com.beijunyi.parallelgit.filesystem.hierarchy;
 import java.io.IOException;
 import java.nio.file.AccessDeniedException;
 import java.nio.file.CopyOption;
-import java.nio.file.NotDirectoryException;
+import java.nio.file.attribute.FileAttributeView;
 import java.util.Set;
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 
-import com.beijunyi.parallelgit.filesystem.GitCopyOption;
-import com.beijunyi.parallelgit.filesystem.GitFileStore;
-import com.beijunyi.parallelgit.filesystem.GitPath;
+import com.beijunyi.parallelgit.filesystem.*;
 import org.eclipse.jgit.lib.AnyObjectId;
 import org.eclipse.jgit.lib.FileMode;
 
@@ -70,20 +68,6 @@ public abstract class Node implements Comparable<Node> {
 
   public boolean isDirectory() {
     return type == NodeType.DIRECTORY;
-  }
-
-  @Nonnull
-  public FileNode asFile() throws AccessDeniedException {
-    if(this instanceof FileNode)
-      return (FileNode) this;
-    throw new AccessDeniedException(path().toString());
-  }
-
-  @Nonnull
-  public DirectoryNode asDirectory() throws NotDirectoryException {
-    if(this instanceof DirectoryNode)
-      return (DirectoryNode) this;
-    throw new NotDirectoryException(path().toString());
   }
 
   @Nonnull
@@ -197,5 +181,14 @@ public abstract class Node implements Comparable<Node> {
   public void delete() throws IOException {
     lock();
     getParent().removeChild(name);
+  }
+
+  @Nonnull
+  public <V extends FileAttributeView> V getFileAttributeView(@Nonnull Class<V> type) throws UnsupportedOperationException {
+    if(type.isAssignableFrom(GitFileAttributeView.Basic.class))
+      return type.cast(new GitFileAttributeView.Basic(this));
+    if(type.isAssignableFrom(GitFileAttributeView.Posix.class))
+      return type.cast(new GitFileAttributeView.Posix(this));
+    throw new UnsupportedOperationException(type.getName());
   }
 }

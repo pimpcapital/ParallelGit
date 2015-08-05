@@ -9,7 +9,6 @@ import java.nio.file.attribute.FileStoreAttributeView;
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 
-import com.beijunyi.parallelgit.filesystem.hierarchy.Node;
 import com.beijunyi.parallelgit.filesystem.hierarchy.RootNode;
 import org.eclipse.jgit.lib.*;
 import org.eclipse.jgit.treewalk.TreeWalk;
@@ -17,7 +16,6 @@ import org.eclipse.jgit.treewalk.TreeWalk;
 public class GitFileStore extends FileStore {
 
   private final Repository repository;
-  private final GitPath rootPath;
   private ObjectReader reader;
   private ObjectInserter inserter;
   private RootNode root;
@@ -25,7 +23,6 @@ public class GitFileStore extends FileStore {
 
   GitFileStore(@Nonnull Repository repository, @Nonnull GitPath rootPath, @Nullable AnyObjectId baseTree) throws IOException {
     this.repository = repository;
-    this.rootPath = rootPath;
     root = RootNode.newRoot(rootPath, baseTree, this);
   }
 
@@ -163,6 +160,11 @@ public class GitFileStore extends FileStore {
   }
 
   @Nonnull
+  public RootNode root() {
+    return root;
+  }
+
+  @Nonnull
   private ObjectReader reader() {
     if(reader != null)
       return reader;
@@ -220,21 +222,6 @@ public class GitFileStore extends FileStore {
   @Nonnull
   public AnyObjectId getTree() {
     return root.getObject();
-  }
-
-  @Nullable
-  public Node findNode(@Nonnull GitPath path) throws IOException {
-    if(!path.isAbsolute())
-      throw new IllegalArgumentException(path.toString());
-    Node current = root;
-    path = rootPath.relativize(path);
-    for(int i = 0; i < path.getNameCount(); i++) {
-      GitPath name = path.getName(i);
-      current = current.asDirectory().getChild(name.toString());
-      if(current == null)
-        break;
-    }
-    return current;
   }
 
   @Nonnull
