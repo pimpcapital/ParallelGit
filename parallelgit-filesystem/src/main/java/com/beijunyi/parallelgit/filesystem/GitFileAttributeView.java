@@ -12,9 +12,20 @@ import com.beijunyi.parallelgit.filesystem.hierarchy.Node;
 public abstract class GitFileAttributeView implements FileAttributeView {
 
   protected final Node node;
+  protected final GitFileSystem gfs;
 
-  public GitFileAttributeView(@Nonnull Node node) {
+  protected GitFileAttributeView(@Nonnull Node node, @Nonnull GitFileSystem gfs) {
     this.node = node;
+    this.gfs = gfs;
+  }
+
+  @Nonnull
+  public static <V extends FileAttributeView> V forNode(@Nonnull Node node, @Nonnull Class<V> type) throws UnsupportedOperationException {
+    if(type.isAssignableFrom(GitFileAttributeView.Basic.class))
+      return type.cast(new GitFileAttributeView.Basic(node));
+    if(type.isAssignableFrom(GitFileAttributeView.Posix.class))
+      return type.cast(new GitFileAttributeView.Posix(node));
+    throw new UnsupportedOperationException(type.getName());
   }
 
   @Nonnull
@@ -48,8 +59,8 @@ public abstract class GitFileAttributeView implements FileAttributeView {
                                                         IS_OTHER_NAME
       ));
 
-    public Basic(@Nonnull Node node) {
-      super(node);
+    protected Basic(@Nonnull Node node, @Nonnull GitFileSystem gfs) {
+      super(node, gfs);
     }
 
     @Nonnull
@@ -144,8 +155,8 @@ public abstract class GitFileAttributeView implements FileAttributeView {
     private Path repoDir;
     private PosixFileAttributes repoAttributes;
 
-    public Posix(@Nonnull Node node) {
-      super(node);
+    protected Posix(@Nonnull Node node, @Nonnull GitFileSystem gfs) {
+      super(node, gfs);
     }
 
     @Nonnull

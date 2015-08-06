@@ -1,8 +1,6 @@
 package com.beijunyi.parallelgit.filesystem;
 
 import java.io.IOException;
-import java.nio.file.ClosedFileSystemException;
-import java.nio.file.DirectoryStream;
 import java.nio.file.FileStore;
 import java.nio.file.attribute.FileAttributeView;
 import java.nio.file.attribute.FileStoreAttributeView;
@@ -10,20 +8,17 @@ import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 
 import com.beijunyi.parallelgit.filesystem.hierarchy.RootNode;
-import org.eclipse.jgit.lib.*;
-import org.eclipse.jgit.treewalk.TreeWalk;
+import org.eclipse.jgit.lib.AnyObjectId;
 
 public class GitFileStore extends FileStore {
 
-  private final Repository repository;
-  private ObjectReader reader;
-  private ObjectInserter inserter;
+  private final GitFileSystem gfs;
   private RootNode root;
 
 
-  GitFileStore(@Nonnull Repository repository, @Nonnull GitPath rootPath, @Nullable AnyObjectId baseTree) throws IOException {
-    this.repository = repository;
-    root = RootNode.newRoot(rootPath, baseTree, this);
+  GitFileStore(@Nonnull GitFileSystem gfs, @Nullable AnyObjectId rootTree) throws IOException {
+    this.gfs = gfs;
+    root = RootNode.newRoot(rootTree);
   }
 
   /**
@@ -37,7 +32,7 @@ public class GitFileStore extends FileStore {
   @Nonnull
   @Override
   public String name() {
-    return repository.getDirectory().getAbsolutePath();
+    return gfs.getSessionId();
   }
 
   /**
@@ -141,94 +136,14 @@ public class GitFileStore extends FileStore {
     throw new UnsupportedOperationException("'" + attribute + "' not recognized");
   }
 
-  /**
-   * Closes this file store.
-   *
-   * After a file store is closed then all subsequent access to the file store, either by methods defined by this class
-   * or on objects associated with this file store, throw {@link ClosedFileSystemException}. If the file store is
-   * already closed then invoking this method has no effect.
-   *
-   * Closing a file store will close all open {@link java.nio.channels.Channel}, {@link DirectoryStream}, and other
-   * closeable objects associated with this file store.
-   */
-  public synchronized void release() throws IOException {
-    root.lock();
-    if(reader != null)
-      reader.release();
-    if(inserter != null)
-      inserter.release();
-  }
-
   @Nonnull
-  public RootNode root() {
+  public RootNode getRoot() {
     return root;
-  }
-
-  @Nonnull
-  private ObjectReader reader() {
-    if(reader != null)
-      return reader;
-    synchronized(this) {
-      if(reader == null)
-        reader = repository.newObjectReader();
-      return reader;
-    }
-  }
-
-  @Nonnull
-  private ObjectInserter inserter() {
-    if(inserter != null)
-      return inserter;
-    synchronized(this) {
-      if(inserter == null)
-        inserter = repository.newObjectInserter();
-      return inserter;
-    }
-  }
-
-  public long getBlobSize(@Nonnull AnyObjectId blobId) throws IOException {
-    return reader().getObjectSize(blobId, Constants.OBJ_BLOB);
-  }
-
-  @Nonnull
-  public byte[] getBlobBytes(@Nonnull AnyObjectId blobId) throws IOException {
-    return reader().open(blobId).getBytes();
-  }
-
-  @Nonnull
-  public TreeWalk newTreeWalk() {
-    return new TreeWalk(reader());
-  }
-
-  @Nonnull
-  public AnyObjectId insertBlob(@Nonnull byte[] bytes) throws IOException {
-    return inserter().insert(Constants.OBJ_BLOB, bytes);
-  }
-
-  @Nonnull
-  public AnyObjectId insertTree(@Nonnull TreeFormatter tf) throws IOException {
-    return inserter().insert(tf);
-  }
-
-  public boolean baseSameRepository(@Nonnull GitFileStore store) {
-    return repository.getDirectory().equals(store.repository.getDirectory());
-  }
-
-  @Nonnull
-  public Repository getRepository() {
-    return repository;
   }
 
   @Nonnull
   public AnyObjectId getTree() {
     return root.getObject();
-  }
-
-  @Nonnull
-  public AnyObjectId persistChanges() throws IOException {
-    AnyObjectId tree = root.save();
-    inserter().flush();
-    return tree;
   }
 
 }

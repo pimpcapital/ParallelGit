@@ -17,8 +17,8 @@ public class GitSeekableByteChannel implements SeekableByteChannel {
   private ByteBuffer buffer;
   private volatile boolean closed = false;
 
-  public GitSeekableByteChannel(@Nonnull byte[] bytes, @Nonnull Set<? extends OpenOption> options, @Nonnull FileNode parent) {
-    this.parent = parent;
+  public GitSeekableByteChannel(@Nonnull byte[] bytes, @Nonnull Set<? extends OpenOption> options, @Nonnull FileNode node) {
+    this.parent = node;
     readable = options.contains(StandardOpenOption.READ);
     writable = options.contains(StandardOpenOption.WRITE);
     buffer = ByteBuffer.wrap(bytes);
@@ -203,7 +203,10 @@ public class GitSeekableByteChannel implements SeekableByteChannel {
     synchronized(this) {
       if(!closed) {
         closed = true;
-        parent.removeChannel(this);
+        byte[] bytes = new byte[buffer.limit()];
+        buffer.position(0);
+        buffer.get(bytes);
+        parent.setBytes(bytes);
       }
     }
   }
@@ -241,11 +244,4 @@ public class GitSeekableByteChannel implements SeekableByteChannel {
       throw new NonWritableChannelException();
   }
 
-  @Nonnull
-  public byte[] bytes() {
-    byte[] bytes = new byte[buffer.limit()];
-    buffer.position(0);
-    buffer.get(bytes);
-    return bytes;
-  }
 }

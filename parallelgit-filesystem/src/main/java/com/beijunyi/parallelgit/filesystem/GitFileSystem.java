@@ -10,6 +10,7 @@ import javax.annotation.Nullable;
 
 import com.beijunyi.parallelgit.filesystem.utils.GitGlobs;
 import org.eclipse.jgit.lib.AnyObjectId;
+import org.eclipse.jgit.lib.ObjectReader;
 import org.eclipse.jgit.lib.Repository;
 import org.eclipse.jgit.revwalk.RevCommit;
 
@@ -31,6 +32,7 @@ public class GitFileSystem extends FileSystem {
   private String branch;
   private RevCommit commit;
 
+  private ObjectReader reader;
   private boolean closed = false;
 
   public GitFileSystem(@Nonnull GitFileSystemProvider provider, @Nonnull Repository repository, @Nullable String branch, @Nullable RevCommit commit, @Nullable AnyObjectId tree) throws IOException {
@@ -266,6 +268,14 @@ public class GitFileSystem extends FileSystem {
   public int hashCode() {
     return session.hashCode();
   }
+
+  @Nonnull
+  public byte[] loadObject(@Nonnull AnyObjectId objectId) throws IOException {
+    if(reader == null)
+      reader = repository.newObjectReader();
+    return reader.open(objectId).getBytes();
+  }
+
 
   @Nonnull
   public Repository getRepository() {

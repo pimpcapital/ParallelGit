@@ -4,26 +4,23 @@ import java.io.IOException;
 import java.nio.file.ClosedDirectoryStreamException;
 import java.nio.file.DirectoryStream;
 import java.nio.file.Path;
-import java.util.Iterator;
-import java.util.NoSuchElementException;
+import java.util.*;
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 
 import com.beijunyi.parallelgit.filesystem.GitPath;
-import com.beijunyi.parallelgit.filesystem.hierarchy.DirectoryNode;
-import com.beijunyi.parallelgit.filesystem.hierarchy.Node;
 
 public class GitDirectoryStream implements DirectoryStream<Path> {
 
-  private final Iterator<Node> nodeIterator;
+  private final GitPath parent;
+  private final Collection<String> children;
   private final Filter<? super Path> filter;
-  private final DirectoryNode parent;
   private volatile boolean closed = false;
 
-  public GitDirectoryStream(@Nonnull Iterator<Node> nodeIterator, @Nullable Filter<? super Path> filter, @Nonnull DirectoryNode parent) {
-    this.nodeIterator = nodeIterator;
-    this.filter = filter;
+  public GitDirectoryStream(@Nonnull GitPath parent, @Nonnull Collection<String> children, @Nullable Filter<? super Path> filter) {
     this.parent = parent;
+    this.children = children;
+    this.filter = filter;
   }
 
   private void checkNotClosed() throws ClosedDirectoryStreamException {
@@ -34,17 +31,18 @@ public class GitDirectoryStream implements DirectoryStream<Path> {
   @Nonnull
   @Override
   public Iterator<Path> iterator() {
+    final Iterator<String> childrenIt = new TreeSet<>(children).iterator();
     return new Iterator<Path>() {
 
-      private Node next;
+      private Path next;
 
       private boolean findNext() {
-        while(nodeIterator.hasNext()) {
-          Node node = nodeIterator.next();
-          GitPath path = node.path();
+        while(childrenIt.hasNext()) {
+          String child = childrenIt.next();
+          GitPath childPath = parent.resolve(child);
           try {
-            if(filter == null || filter.accept(path)) {
-              next = node;
+            if(filter == null || filter.accept(childPath)) {
+              next = childPath;
               return true;
             }
           } catch(IOException ignore) {
@@ -64,9 +62,9 @@ public class GitDirectoryStream implements DirectoryStream<Path> {
       public Path next() throws ClosedDirectoryStreamException, NoSuchElementException {
         checkNotClosed();
         if(next != null || hasNext()) {
-          GitPath path = next.path();
+          Path ret = next;
           next = null;
-          return path;
+          return ret;
         }
         throw new NoSuchElementException();
       }
@@ -79,11 +77,8 @@ public class GitDirectoryStream implements DirectoryStream<Path> {
   }
 
   @Override
-  public synchronized void close() throws IOException {
-    if(!closed) {
-      closed = true;
-      parent.removeStream(this);
-    }
+  public void close() throws IOException {
+    closed = true;
   }
 
 }
