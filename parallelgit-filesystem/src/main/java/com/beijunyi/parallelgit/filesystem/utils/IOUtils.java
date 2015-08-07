@@ -31,7 +31,7 @@ public final class IOUtils {
     return parent;
   }
 
-  @Nullable
+  @Nonnull
   private static Node[] findNodes(@Nonnull GitPath path) throws IOException {
     if(!path.isAbsolute())
       throw new IllegalArgumentException(path.toString());
@@ -44,28 +44,29 @@ public final class IOUtils {
       GitPath name = path.getName(i);
       Node parent = nodes[index + 1];
       if(parent instanceof DirectoryNode)
-        nodes[index] = ((DirectoryNode) parent).getChild(name.toString());
+        nodes[index] = prepareDirectory((DirectoryNode) parent, path.getFileSystem()).getChild(name.toString());
       else
-        return null;
+        break;
     }
     return nodes;
   }
 
   @Nonnull
-  private static Node firstNode(@Nullable Node[] nodes, @Nonnull GitPath path) throws NoSuchFileException {
-    if(nodes != null)
+  private static Node firstNode(@Nonnull Node[] nodes, @Nonnull GitPath path) throws NoSuchFileException {
+    if(nodes[0] != null)
       return nodes[0];
     throw new NoSuchFileException(path.toString());
   }
 
   @Nonnull
-  private static DirectoryNode firstAsDirectory(@Nullable Node[] nodes, @Nonnull GitPath path) throws NotDirectoryException {
-    if(nodes != null && nodes[0] instanceof DirectoryNode)
+  private static DirectoryNode firstAsDirectory(@Nonnull Node[] nodes, @Nonnull GitPath path) throws NotDirectoryException {
+    if(nodes[0] instanceof DirectoryNode)
       return (DirectoryNode) nodes[0];
     throw new NotDirectoryException(path.toString());
   }
 
-  @Nonnull static Node findNode(@Nonnull GitPath path) throws IOException {
+  @Nonnull
+  private static Node findNode(@Nonnull GitPath path) throws IOException {
     return firstNode(findNodes(path), path);
   }
 
@@ -74,10 +75,10 @@ public final class IOUtils {
     return firstAsDirectory(findNodes(dir), dir);
   }
 
-  private static void setParentsDirty(@Nullable Node[] nodes) {
-    if(nodes == null)
-      throw new IllegalStateException();
+  private static void setParentsDirty(@Nonnull Node[] nodes) {
     for(Node node : nodes) {
+      if(node == null)
+        throw new IllegalStateException();
       node.setDirty(true);
       node.setSize(-1L);
     }
@@ -154,11 +155,18 @@ public final class IOUtils {
   }
 
   @Nonnull
+  private static DirectoryNode prepareDirectory(@Nonnull DirectoryNode dir, @Nonnull GitFileSystem gfs) throws IOException {
+    if(dir.getChildren() == null)
+      loadChildren(dir, gfs);
+    return dir;
+  }
+
+  @Nonnull
   private static Map<String, Node> getChildren(@Nonnull DirectoryNode dir, @Nonnull GitFileSystem gfs) throws IOException {
-    Map<String, Node> children = dir.getChildren();
+    Map<String, Node> children = prepareDirectory(dir, gfs).getChildren();
     if(children == null)
-      children = loadChildren(dir, gfs);
-    return Collections.unmodifiableMap(children);
+      throw new IllegalStateException();
+    return children;
   }
 
   private static long loadDirectorySize(@Nonnull DirectoryNode dir, @Nonnull GitFileSystem gfs) throws IOException {
@@ -189,9 +197,9 @@ public final class IOUtils {
     if(options.contains(StandardOpenOption.CREATE) || options.contains(StandardOpenOption.CREATE_NEW)) {
       GitPath parent = getParent(file);
       Node[] parentNodes = findNodes(parent);
-      DirectoryNode parentNode = firstAsDirectory(parentNodes, parent);
+      DirectoryNode parentNode = prepareDirectory(firstAsDirectory(parentNodes, parent), file.getFileSystem());
       String name = getFileName(file);
-      if(options.contains(StandardOpenOption.CREATE_NEW) || parentNode.getChild(getFileName(file)) == null) {
+      if(options.contains(StandardOpenOption.CREATE_NEW) || !parentNode.hasChild(name)) {
         node = FileNode.newFile(FileAttributeReader.read(attrs).isExecutable());
         if(!parentNode.addChild(name, node, false))
           throw new FileAlreadyExistsException(file.toString());
@@ -209,7 +217,7 @@ public final class IOUtils {
 
   @Nonnull
   public static GitDirectoryStream newDirectoryStream(@Nonnull GitPath dir, @Nullable DirectoryStream.Filter<? super Path> filter) throws IOException {
-    DirectoryNode node = findDirectory(dir);
+    DirectoryNode node = prepareDirectory(findDirectory(dir), dir.getFileSystem());
     Collection<String> children = node.getChildrenNames();
     return new GitDirectoryStream(dir, children, filter);
   }
@@ -219,8 +227,8 @@ public final class IOUtils {
       throw new FileAlreadyExistsException(dir.toString());
     GitPath parent = getParent(dir);
     Node[] parentNodes = findNodes(parent);
-    DirectoryNode parentNode = firstAsDirectory(parentNodes, parent);
-    if(parentNode.addChild(getFileName(dir), DirectoryNode.newDirectory(), false))
+    DirectoryNode parentNode = prepareDirectory(firstAsDirectory(parentNodes, parent), dir.getFileSystem());
+    if(!parentNode.addChild(getFileName(dir), DirectoryNode.newDirectory(), false))
       throw new FileAlreadyExistsException(dir.toString());
     setParentsDirty(parentNodes);
   }
@@ -266,9 +274,9 @@ public final class IOUtils {
       throw new FileAlreadyExistsException(target.toString());
     GitPath targetParent = getParent(target);
     Node[] targetParentNodes = findNodes(targetParent);
-    DirectoryNode targetDirectory = firstAsDirectory(targetParentNodes, targetParent);
+    DirectoryNode targetDirectory = prepareDirectory(firstAsDirectory(targetParentNodes, targetParent), target.getFileSystem());
     Node targetNode = Node.ofSameType(sourceNode);
-    if(targetDirectory.addChild(getFileName(target), targetNode, options.contains(StandardCopyOption.REPLACE_EXISTING)))
+    if(!targetDirectory.addChild(getFileName(target), targetNode, options.contains(StandardCopyOption.REPLACE_EXISTING)))
       throw new FileAlreadyExistsException(target.toString());
     copyNode(sourceNode, source.getFileSystem(), targetNode, target.getFileSystem());
     setParentsDirty(targetParentNodes);
@@ -284,8 +292,8 @@ public final class IOUtils {
       throw new AccessDeniedException(file.toString());
     GitPath parent = getParent(file);
     Node[] parentNodes = findNodes(parent);
-    DirectoryNode parentNode = firstAsDirectory(parentNodes, parent);
-    if(parentNode.removeChild(getFileName(file)))
+    DirectoryNode parentNode = prepareDirectory(firstAsDirectory(parentNodes, parent), file.getFileSystem());
+    if(!parentNode.removeChild(getFileName(file)))
       throw new NoSuchFileException(file.toString());
   }
 

@@ -13,13 +13,13 @@ public class GitFileSystemProviderMoveTest extends AbstractGitFileSystemTest {
   public void moveFileTest() throws IOException {
     initRepository();
     byte[] data = "some plain text data".getBytes();
-    writeFile("a.txt", data);
+    writeFile("/a.txt", data);
     commitToMaster();
     initGitFileSystem();
 
     GitPath source = gfs.getPath("/a.txt");
     GitPath target = gfs.getPath("/b.txt");
-    Files.move(source, target);
+    provider.move(source, target);
     Assert.assertFalse(Files.exists(source));
     Assert.assertTrue(Files.exists(target));
     Assert.assertArrayEquals(data, Files.readAllBytes(target));
@@ -28,14 +28,14 @@ public class GitFileSystemProviderMoveTest extends AbstractGitFileSystemTest {
   @Test(expected = FileAlreadyExistsException.class)
   public void moveFileToExistingFileTest() throws IOException {
     initRepository();
-    writeFile("a.txt");
-    writeFile("b.txt");
+    writeFile("/a.txt");
+    writeFile("/b.txt");
     commitToMaster();
     initGitFileSystem();
 
     GitPath source = gfs.getPath("/a.txt");
     GitPath target = gfs.getPath("/b.txt");
-    Files.move(source, target);
+    provider.move(source, target);
   }
 
   @Test

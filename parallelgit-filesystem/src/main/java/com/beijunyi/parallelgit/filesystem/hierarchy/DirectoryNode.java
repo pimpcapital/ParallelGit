@@ -45,23 +45,23 @@ public class DirectoryNode extends Node {
     this.children = children;
   }
 
+  public void loadChildren(@Nonnull Map<String, Node> children) {
+    setChildren(children);
+    unsetSize();
+  }
+
+  public boolean hasChild(@Nonnull String name) {
+    if(children == null)
+      throw new IllegalStateException();
+    return children.containsKey(name);
+  }
+
   @Nullable
   public Node getChild(@Nonnull String name) {
     if(children == null)
       throw new IllegalStateException();
     return children.get(name);
   }
-
-  public void loadChildren(@Nonnull Map<String, Node> children) {
-    setChildren(children);
-    unsetSize();
-  }
-
-  public void updateChildren(@Nonnull Map<String, Node> children) {
-    loadChildren(children);
-    markDirty();
-  }
-
 
   public synchronized boolean addChild(@Nonnull String name, @Nonnull Node child, boolean replace) {
     if(!replace && children.containsKey(name))

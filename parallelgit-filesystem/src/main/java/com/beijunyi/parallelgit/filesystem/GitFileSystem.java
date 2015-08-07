@@ -277,7 +277,7 @@ public class GitFileSystem extends FileSystem {
   }
 
   public boolean hasObject(@Nonnull AnyObjectId objectId) throws IOException {
-    return reader.has(objectId);
+    return reader().has(objectId);
   }
 
   @Nonnull
