@@ -23,9 +23,9 @@ public class GitFileSystemProviderNewFileSystemTest extends AbstractGitFileSyste
                 .repository(repoDir)
                 .build();
     try(GitFileSystem gfs = provider.newFileSystem(uri, Collections.<String, Object>emptyMap())) {
-      Repository repo = gfs.getFileStore().getRepository();
+      Repository repo = gfs.getRepository();
       Assert.assertFalse(repo.isBare());
-      Assert.assertEquals(repoDir, gfs.getFileStore().getRepository().getWorkTree());
+      Assert.assertEquals(repoDir, gfs.getRepository().getWorkTree());
     }
   }
 
@@ -36,7 +36,7 @@ public class GitFileSystemProviderNewFileSystemTest extends AbstractGitFileSyste
                 .repository(repoDir)
                 .build();
     try(GitFileSystem gfs = provider.newFileSystem(uri, Collections.<String, Object>emptyMap())) {
-      Repository repo = gfs.getFileStore().getRepository();
+      Repository repo = gfs.getRepository();
       Assert.assertTrue(repo.isBare());
       Assert.assertEquals(repoDir, repo.getDirectory());
     }

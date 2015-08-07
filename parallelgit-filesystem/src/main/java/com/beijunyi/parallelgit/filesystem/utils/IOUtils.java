@@ -1,6 +1,5 @@
 package com.beijunyi.parallelgit.filesystem.utils;
 
-import java.io.File;
 import java.io.IOException;
 import java.nio.file.*;
 import java.nio.file.attribute.FileAttribute;
@@ -16,6 +15,8 @@ import com.beijunyi.parallelgit.filesystem.hierarchy.Node;
 import com.beijunyi.parallelgit.filesystem.io.GitDirectoryStream;
 import com.beijunyi.parallelgit.filesystem.io.GitSeekableByteChannel;
 import org.eclipse.jgit.lib.AnyObjectId;
+import org.eclipse.jgit.lib.ObjectId;
+import org.eclipse.jgit.lib.TreeFormatter;
 import org.eclipse.jgit.treewalk.CanonicalTreeParser;
 
 public final class IOUtils {
@@ -76,8 +77,10 @@ public final class IOUtils {
   private static void setParentsDirty(@Nullable Node[] nodes) {
     if(nodes == null)
       throw new IllegalStateException();
-    for(Node node : nodes)
+    for(Node node : nodes) {
       node.setDirty(true);
+      node.setSize(-1L);
+    }
   }
 
   private static void checkNotRootPath(@Nonnull GitPath path) {
@@ -95,18 +98,89 @@ public final class IOUtils {
   }
 
   @Nonnull
-  private static byte[] loadData(@Nonnull FileNode file, @Nonnull GitFileSystem gfs) throws IOException {
-    byte[] bytes = gfs.loadObject(file.getObject());
-    file.setBytes(bytes);
+  private static byte[] readBlobObject(@Nonnull AnyObjectId blobObjectId, @Nonnull GitFileSystem gfs) throws IOException {
+    if(blobObjectId.equals(ObjectId.zeroId()))
+      return new byte[0];
+    return gfs.loadObject(blobObjectId);
+  }
+
+  @Nonnull
+  private static byte[] loadFileData(@Nonnull FileNode file, @Nonnull GitFileSystem gfs) throws IOException {
+    byte[] bytes = readBlobObject(file.getObject(), gfs);
+    file.loadContent(bytes);
     return bytes;
   }
 
   @Nonnull
-  private static byte[] getData(@Nonnull FileNode file, @Nonnull GitPath path) throws IOException {
+  private static byte[] getFileData(@Nonnull FileNode file, @Nonnull GitFileSystem gfs) throws IOException {
     byte[] bytes = file.getBytes();
-    if(bytes != null)
-      return bytes;
-    return loadData(file, path.getFileSystem());
+    if(bytes == null)
+      bytes = loadFileData(file, gfs);
+    return bytes;
+  }
+
+  private static long readBlobSize(@Nonnull AnyObjectId blobObjectId, @Nonnull GitFileSystem gfs) throws IOException {
+    if(blobObjectId.equals(ObjectId.zeroId()))
+      return 0;
+    return gfs.getBlobSize(blobObjectId);
+  }
+
+  private static long loadFileSize(@Nonnull FileNode file, @Nonnull GitFileSystem gfs) throws IOException {
+    long size = readBlobSize(file.getObject(), gfs);
+    file.setSize(size);
+    return size;
+  }
+
+  @Nonnull
+  private static Map<String, Node> readTreeObject(@Nonnull AnyObjectId treeObjectId, @Nonnull GitFileSystem gfs) throws IOException {
+    Map<String, Node> children = new HashMap<>();
+    if(!treeObjectId.equals(ObjectId.zeroId())) {
+      byte[] treeData = gfs.loadObject(treeObjectId);
+      CanonicalTreeParser treeParser = new CanonicalTreeParser();
+      treeParser.reset(treeData);
+      while(!treeParser.eof()) {
+        children.put(treeParser.getEntryPathString(), Node.forObject(treeParser.getEntryObjectId(), treeParser.getEntryFileMode()));
+        treeParser.next();
+      }
+    }
+    return children;
+  }
+
+  @Nonnull
+  private static Map<String, Node> loadChildren(@Nonnull DirectoryNode dir, @Nonnull GitFileSystem gfs) throws IOException {
+    Map<String, Node> children = readTreeObject(dir.getObject(), gfs);
+    dir.loadChildren(children);
+    return children;
+  }
+
+  @Nonnull
+  private static Map<String, Node> getChildren(@Nonnull DirectoryNode dir, @Nonnull GitFileSystem gfs) throws IOException {
+    Map<String, Node> children = dir.getChildren();
+    if(children == null)
+      children = loadChildren(dir, gfs);
+    return Collections.unmodifiableMap(children);
+  }
+
+  private static long loadDirectorySize(@Nonnull DirectoryNode dir, @Nonnull GitFileSystem gfs) throws IOException {
+    long size = 0;
+    Map<String, Node> children = getChildren(dir, gfs);
+    for(Node child : children.values())
+      size += getSize(child, gfs);
+    dir.setSize(size);
+    return size;
+  }
+
+  public static long getSize(@Nonnull Node node, @Nonnull GitFileSystem gfs) throws IOException {
+    long size = node.getSize();
+    if(size == -1) {
+      if(node instanceof FileNode)
+        size = loadFileSize((FileNode) node, gfs);
+      else if(node instanceof DirectoryNode)
+        size = loadDirectorySize((DirectoryNode) node, gfs);
+      else
+        throw new IllegalStateException();
+    }
+    return size;
   }
 
   @Nonnull
@@ -128,7 +202,7 @@ public final class IOUtils {
       node = findNode(file);
     if(node instanceof FileNode) {
       FileNode fileNode = (FileNode) node;
-      return new GitSeekableByteChannel(getData(fileNode, file), options, fileNode);
+      return new GitSeekableByteChannel(getFileData(fileNode, file.getFileSystem()), options, fileNode);
     }
     throw new AccessDeniedException(file.toString());
   }
@@ -151,43 +225,14 @@ public final class IOUtils {
     setParentsDirty(parentNodes);
   }
 
-  private static boolean baseSameRepository(@Nonnull GitFileSystem sourceFs, @Nonnull GitFileSystem targetFs) {
-    File sourceRepoDir = sourceFs.getRepository().getDirectory();
-    File targetRepoDir = targetFs.getRepository().getDirectory();
-    return sourceRepoDir.equals(targetRepoDir);
-  }
-
-  private static void copyFile(@Nonnull FileNode source, @Nonnull GitFileSystem sourceFs, @Nonnull FileNode target, @Nonnull GitFileSystem targetFs) throws IOException {
-    if(baseSameRepository(sourceFs, targetFs)) {
-      target.setObject(source.getObject());
-      if(!source.isDirty())
-        return;
-    }
+  private static void copyFile(@Nonnull FileNode source, @Nonnull GitFileSystem sourceFs, @Nonnull FileNode target) throws IOException {
     byte[] bytes = source.getBytes();
     if(bytes == null)
       bytes = sourceFs.loadObject(source.getObject());
-    target.setBytes(bytes.clone());
-  }
-
-  @Nonnull
-  private static LinkedHashMap<String, Node> readTreeObject(@Nonnull AnyObjectId treeObjectId, @Nonnull GitFileSystem fs) throws IOException {
-    byte[] treeData = fs.loadObject(treeObjectId);
-    CanonicalTreeParser treeParser = new CanonicalTreeParser();
-    treeParser.reset(treeData);
-    LinkedHashMap<String, Node> children = new LinkedHashMap<>();
-    while(!treeParser.eof()) {
-      children.put(treeParser.getEntryPathString(), Node.forObject(treeParser.getEntryObjectId(), treeParser.getEntryFileMode()));
-      treeParser.next();
-    }
-    return children;
+    target.updateContent(bytes.clone());
   }
 
   private static void copyDirectory(@Nonnull DirectoryNode source, @Nonnull GitFileSystem sourceFs, @Nonnull DirectoryNode target, @Nonnull GitFileSystem targetFs) throws IOException {
-    if(baseSameRepository(sourceFs, targetFs)) {
-      target.setObject(source.getObject());
-      if(!source.isDirty())
-        return;
-    }
     Map<String, Node> children = source.getChildren();
     if(children == null)
       children = readTreeObject(source.getObject(), sourceFs);
@@ -201,8 +246,12 @@ public final class IOUtils {
   }
 
   private static void copyNode(@Nonnull Node source, @Nonnull GitFileSystem sourceFs, @Nonnull Node target, @Nonnull GitFileSystem targetFs) throws IOException {
+    if(!source.isDirty() && targetFs.hasObject(source.getObject())) {
+      target.setObject(source.getObject());
+      return;
+    }
     if(source instanceof FileNode && target instanceof FileNode)
-      copyFile((FileNode) source, sourceFs, (FileNode) target, targetFs);
+      copyFile((FileNode) source, sourceFs, (FileNode) target);
     else if(source instanceof DirectoryNode && target instanceof DirectoryNode)
       copyDirectory((DirectoryNode) source, sourceFs, (DirectoryNode) target, targetFs);
     else
@@ -248,7 +297,49 @@ public final class IOUtils {
 
   @Nonnull
   public static <V extends FileAttributeView> V getFileAttributeView(@Nonnull GitPath path, @Nonnull Class<V> type) throws IOException, UnsupportedOperationException {
-    return GitFileAttributeView.forNode(findNode(path), type);
+    return GitFileAttributeView.forNode(findNode(path), path.getFileSystem(), type);
+  }
+
+  @Nonnull
+  private static AnyObjectId persistFile(@Nonnull FileNode file, @Nonnull GitFileSystem gfs) throws IOException {
+    byte[] bytes = file.getBytes();
+    if(bytes == null)
+      throw new IllegalStateException();
+    return gfs.saveBlob(bytes);
+  }
+
+  @Nonnull
+  private static AnyObjectId persistDirectory(@Nonnull DirectoryNode dir, @Nonnull GitFileSystem gfs) throws IOException {
+    Map<String, Node> children = dir.getChildren();
+    if(children == null)
+      throw new IllegalStateException();
+    TreeFormatter formatter = new TreeFormatter();
+    for(Map.Entry<String, Node> child : new TreeMap<>(children).entrySet()) {
+      String name = child.getKey();
+      Node node = child.getValue();
+      formatter.append(name, node.getType().toFileMode(), persistNode(node, gfs));
+    }
+    return gfs.saveTree(formatter);
+  }
+
+  @Nonnull
+  private static AnyObjectId persistNode(@Nonnull Node node, @Nonnull GitFileSystem gfs) throws IOException {
+    if(!node.isDirty())
+      return node.getObject();
+    AnyObjectId objectId;
+    if(node instanceof FileNode)
+      objectId = persistFile((FileNode) node, gfs);
+    else if(node instanceof DirectoryNode)
+      objectId = persistDirectory((DirectoryNode) node, gfs);
+    else
+      throw new IllegalStateException();
+    node.markClean(objectId);
+    return objectId;
+  }
+
+  @Nonnull
+  public static AnyObjectId persist(@Nonnull GitPath path) throws IOException {
+    return persistNode(findNode(path), path.getFileSystem());
   }
 
 }

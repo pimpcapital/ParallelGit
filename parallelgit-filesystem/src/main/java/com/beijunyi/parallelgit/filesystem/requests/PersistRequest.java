@@ -20,6 +20,6 @@ public final class PersistRequest extends GitFileSystemRequest<AnyObjectId> {
   @Nonnull
   @Override
   protected AnyObjectId doExecute() throws IOException {
-    return gfs.getFileStore().persistChanges();
+    return gfs.persist();
   }
 }

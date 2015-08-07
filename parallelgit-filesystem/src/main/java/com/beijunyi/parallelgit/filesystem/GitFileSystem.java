@@ -9,9 +9,8 @@ import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 
 import com.beijunyi.parallelgit.filesystem.utils.GitGlobs;
-import org.eclipse.jgit.lib.AnyObjectId;
-import org.eclipse.jgit.lib.ObjectReader;
-import org.eclipse.jgit.lib.Repository;
+import com.beijunyi.parallelgit.filesystem.utils.IOUtils;
+import org.eclipse.jgit.lib.*;
 import org.eclipse.jgit.revwalk.RevCommit;
 
 public class GitFileSystem extends FileSystem {
@@ -33,6 +32,7 @@ public class GitFileSystem extends FileSystem {
   private RevCommit commit;
 
   private ObjectReader reader;
+  private ObjectInserter inserter;
   private boolean closed = false;
 
   public GitFileSystem(@Nonnull GitFileSystemProvider provider, @Nonnull Repository repository, @Nullable String branch, @Nullable RevCommit commit, @Nullable AnyObjectId tree) throws IOException {
@@ -42,7 +42,7 @@ public class GitFileSystem extends FileSystem {
     this.rootPath = new GitPath(this, "/");
     this.branch = branch;
     this.commit = commit;
-    store = new GitFileStore(repository, rootPath, tree);
+    store = new GitFileStore(this, tree);
   }
 
   /**
@@ -270,10 +270,45 @@ public class GitFileSystem extends FileSystem {
   }
 
   @Nonnull
-  public byte[] loadObject(@Nonnull AnyObjectId objectId) throws IOException {
+  private ObjectReader reader() {
     if(reader == null)
       reader = repository.newObjectReader();
-    return reader.open(objectId).getBytes();
+    return reader;
+  }
+
+  public boolean hasObject(@Nonnull AnyObjectId objectId) throws IOException {
+    return reader.has(objectId);
+  }
+
+  @Nonnull
+  public byte[] loadObject(@Nonnull AnyObjectId objectId) throws IOException {
+    return reader().open(objectId).getBytes();
+  }
+
+  public long getBlobSize(@Nonnull AnyObjectId objectId) throws IOException {
+    return reader().getObjectSize(objectId, Constants.OBJ_BLOB);
+  }
+
+  @Nonnull
+  private ObjectInserter inserter() {
+    if(inserter == null)
+      inserter = repository.newObjectInserter();
+    return inserter;
+  }
+
+  @Nonnull
+  public AnyObjectId saveBlob(@Nonnull byte[] bytes) throws IOException {
+    return inserter().insert(Constants.OBJ_BLOB, bytes);
+  }
+
+  @Nonnull
+  public AnyObjectId saveTree(@Nonnull TreeFormatter tf) throws IOException {
+    return inserter().insert(tf);
+  }
+
+  @Nonnull
+  public AnyObjectId persist() throws IOException {
+    return IOUtils.persist(rootPath);
   }
 
 

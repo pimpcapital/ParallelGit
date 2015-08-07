@@ -16,7 +16,6 @@ public class FileNode extends Node {
 
   private FileNode(@Nonnull NodeType type) {
     this(type, ObjectId.zeroId());
-    bytes = new byte[0];
     dirty = true;
   }
 
@@ -37,6 +36,16 @@ public class FileNode extends Node {
 
   public void setBytes(@Nullable byte[] bytes) {
     this.bytes = bytes;
+  }
+
+  public void loadContent(@Nonnull byte[] bytes) {
+    setBytes(bytes);
+    setSize(bytes.length);
+  }
+
+  public void updateContent(@Nonnull byte[] bytes) {
+    loadContent(bytes);
+    markDirty();
   }
 
 }

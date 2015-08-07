@@ -7,18 +7,18 @@ import java.nio.file.attribute.FileStoreAttributeView;
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 
-import com.beijunyi.parallelgit.filesystem.hierarchy.RootNode;
+import com.beijunyi.parallelgit.filesystem.hierarchy.DirectoryNode;
 import org.eclipse.jgit.lib.AnyObjectId;
 
 public class GitFileStore extends FileStore {
 
   private final GitFileSystem gfs;
-  private RootNode root;
+  private DirectoryNode root;
 
 
   GitFileStore(@Nonnull GitFileSystem gfs, @Nullable AnyObjectId rootTree) throws IOException {
     this.gfs = gfs;
-    root = RootNode.newRoot(rootTree);
+    root = rootTree != null ? DirectoryNode.forTreeObject(rootTree) : DirectoryNode.newDirectory();
   }
 
   /**
@@ -137,7 +137,7 @@ public class GitFileStore extends FileStore {
   }
 
   @Nonnull
-  public RootNode getRoot() {
+  public DirectoryNode getRoot() {
     return root;
   }
 

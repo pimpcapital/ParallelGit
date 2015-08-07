@@ -1,6 +1,5 @@
 package com.beijunyi.parallelgit.filesystem.hierarchy;
 
-import java.util.HashMap;
 import java.util.Map;
 import java.util.Set;
 import javax.annotation.Nonnull;
@@ -19,7 +18,6 @@ public class DirectoryNode extends Node {
 
   protected DirectoryNode() {
     this(ObjectId.zeroId());
-    children = new HashMap<>();
     dirty = true;
   }
 
@@ -54,15 +52,33 @@ public class DirectoryNode extends Node {
     return children.get(name);
   }
 
+  public void loadChildren(@Nonnull Map<String, Node> children) {
+    setChildren(children);
+    unsetSize();
+  }
+
+  public void updateChildren(@Nonnull Map<String, Node> children) {
+    loadChildren(children);
+    markDirty();
+  }
+
+
   public synchronized boolean addChild(@Nonnull String name, @Nonnull Node child, boolean replace) {
     if(!replace && children.containsKey(name))
       return false;
     children.put(name, child);
+    unsetSize();
+    markDirty();
     return true;
   }
 
   public synchronized boolean removeChild(@Nonnull String name) {
-    return children.remove(name) != null;
+    if(children.remove(name) != null) {
+      unsetSize();
+      markDirty();
+      return true;
+    }
+    return false;
   }
 
 }

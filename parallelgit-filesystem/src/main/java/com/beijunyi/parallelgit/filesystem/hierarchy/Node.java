@@ -69,4 +69,25 @@ public abstract class Node {
     this.dirty = dirty;
   }
 
+  public void markDirty() {
+    setDirty(true);
+  }
+
+  public void markClean(@Nonnull AnyObjectId object) {
+    setObject(object);
+    setDirty(false);
+  }
+
+  public long getSize() {
+    return size;
+  }
+
+  public void setSize(long size) {
+    this.size = size;
+  }
+
+  public void unsetSize() {
+    setSize(-1L);
+  }
+
 }

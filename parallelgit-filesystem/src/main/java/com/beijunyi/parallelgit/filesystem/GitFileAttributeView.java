@@ -20,11 +20,11 @@ public abstract class GitFileAttributeView implements FileAttributeView {
   }
 
   @Nonnull
-  public static <V extends FileAttributeView> V forNode(@Nonnull Node node, @Nonnull Class<V> type) throws UnsupportedOperationException {
+  public static <V extends FileAttributeView> V forNode(@Nonnull Node node, @Nonnull GitFileSystem gfs, @Nonnull Class<V> type) throws UnsupportedOperationException {
     if(type.isAssignableFrom(GitFileAttributeView.Basic.class))
-      return type.cast(new GitFileAttributeView.Basic(node));
+      return type.cast(new GitFileAttributeView.Basic(node, gfs));
     if(type.isAssignableFrom(GitFileAttributeView.Posix.class))
-      return type.cast(new GitFileAttributeView.Posix(node));
+      return type.cast(new GitFileAttributeView.Posix(node, gfs));
     throw new UnsupportedOperationException(type.getName());
   }
 
@@ -162,7 +162,7 @@ public abstract class GitFileAttributeView implements FileAttributeView {
     @Nonnull
     public Path getRepoDir() {
       if(repoDir == null)
-        repoDir = node.store().getRepository().getDirectory().toPath();
+        repoDir = gfs.getRepository().getDirectory().toPath();
       return repoDir;
     }
 

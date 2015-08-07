@@ -206,7 +206,7 @@ public class GitSeekableByteChannel implements SeekableByteChannel {
         byte[] bytes = new byte[buffer.limit()];
         buffer.position(0);
         buffer.get(bytes);
-        parent.setBytes(bytes);
+        parent.updateContent(bytes);
       }
     }
   }
