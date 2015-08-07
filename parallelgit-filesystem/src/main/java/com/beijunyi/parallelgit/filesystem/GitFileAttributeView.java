@@ -8,6 +8,7 @@ import java.util.*;
 import javax.annotation.Nonnull;
 
 import com.beijunyi.parallelgit.filesystem.hierarchy.Node;
+import com.beijunyi.parallelgit.filesystem.utils.IOUtils;
 
 public abstract class GitFileAttributeView implements FileAttributeView {
 
@@ -87,7 +88,7 @@ public abstract class GitFileAttributeView implements FileAttributeView {
       for(String key : keys) {
         switch(key) {
           case SIZE_NAME:
-            result.put(key, node.getSize());
+            result.put(key, IOUtils.getSize(node, gfs));
             break;
           case CREATION_TIME_NAME:
             result.put(key, EPOCH);
