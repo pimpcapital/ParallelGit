@@ -1,4 +1,4 @@
-package com.beijunyi.parallelgit.filesystem.io;
+package integration;
 
 import java.io.IOException;
 import java.nio.ByteBuffer;
@@ -12,7 +12,7 @@ import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
 
-public class GitSeekableByteChannelReadWriteTest extends AbstractGitFileSystemTest {
+public class FilesNewByteChannelTest extends AbstractGitFileSystemTest {
 
   private static final byte[] ORIGINAL_TEXT_BYTES = "some plain text data".getBytes();
   private GitPath file;
@@ -20,11 +20,10 @@ public class GitSeekableByteChannelReadWriteTest extends AbstractGitFileSystemTe
   @Before
   public void setupFileSystem() throws IOException {
     initRepository();
-    String filePath = "file.txt";
-    writeFile(filePath, ORIGINAL_TEXT_BYTES);
+    writeFile("/file.txt", ORIGINAL_TEXT_BYTES);
     commitToMaster();
     initGitFileSystem();
-    file = gfs.getRootPath().resolve(filePath);
+    file = gfs.getPath("/file.txt");
   }
 
   @Test

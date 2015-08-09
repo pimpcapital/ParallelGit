@@ -185,6 +185,16 @@ public class GitSeekableByteChannel implements SeekableByteChannel {
     return writable;
   }
 
+  @Nonnull
+  public byte[] getBytes() {
+    synchronized(this) {
+      byte[] bytes = new byte[buffer.limit()];
+      System.arraycopy(buffer.array(), 0, bytes, 0, bytes.length);
+      return bytes;
+    }
+
+  }
+
   /**
    * Closes this channel.
    *
@@ -203,10 +213,7 @@ public class GitSeekableByteChannel implements SeekableByteChannel {
     synchronized(this) {
       if(!closed) {
         closed = true;
-        byte[] bytes = new byte[buffer.limit()];
-        buffer.position(0);
-        buffer.get(bytes);
-        parent.updateContent(bytes);
+        parent.updateContent(getBytes());
       }
     }
   }
