@@ -8,9 +8,9 @@ import org.junit.Test;
 public class GitFileStoreNameTest extends AbstractGitFileSystemTest {
 
   @Test
-  public void getName_shouldReturnTheRepositoryDirectoryPath() throws IOException {
+  public void getName_shouldReturnTheFileSystemSessionId() throws IOException {
     initGitFileSystem();
-    Assert.assertEquals(repoDir.getAbsolutePath(), gfs.getFileStore().name());
+    Assert.assertEquals(gfs.getSessionId(), gfs.getFileStore().name());
   }
 
 }

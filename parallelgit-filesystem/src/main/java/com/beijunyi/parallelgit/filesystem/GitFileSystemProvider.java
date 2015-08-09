@@ -22,7 +22,7 @@ public class GitFileSystemProvider extends FileSystemProvider {
 
   public final static String GIT_FS_SCHEME = "gfs";
 
-  public final static EnumSet<StandardOpenOption> SUPPORTED_OPEN_OPTIONS = EnumSet.of(READ, SPARSE, CREATE, CREATE_NEW, WRITE, APPEND, TRUNCATE_EXISTING);
+  public final static Set<OpenOption> SUPPORTED_OPEN_OPTIONS = new HashSet<>(Arrays.<OpenOption>asList(READ, SPARSE, CREATE, CREATE_NEW, WRITE, APPEND, TRUNCATE_EXISTING));
 
   private final Map<String, GitFileSystem> fsMap = new ConcurrentHashMap<>();
 
@@ -143,8 +143,18 @@ public class GitFileSystemProvider extends FileSystemProvider {
    */
   @Nonnull
   @Override
-  public SeekableByteChannel newByteChannel(@Nonnull Path path, @Nonnull Set<? extends OpenOption> options, @Nonnull FileAttribute<?>... attrs) throws IOException {
-    return IOUtils.newByteChannel(((GitPath) path).toRealPath(), new HashSet<>(options), Arrays.<FileAttribute>asList(attrs));
+  public SeekableByteChannel newByteChannel(@Nonnull Path path, @Nonnull Set<? extends OpenOption> options, @Nonnull FileAttribute<?>... attrs) throws IOException, UnsupportedOperationException {
+    Set<OpenOption> amended = new HashSet<>();
+    for(OpenOption option : options) {
+      if(!SUPPORTED_OPEN_OPTIONS.contains(option))
+        throw new UnsupportedOperationException(option.toString());
+      if(option == APPEND)
+        amended.add(WRITE);
+      amended.add(option);
+    }
+    if(!options.contains(WRITE))
+      amended.add(READ);
+    return IOUtils.newByteChannel(((GitPath) path).toRealPath(), amended, Arrays.<FileAttribute>asList(attrs));
   }
 
   /**

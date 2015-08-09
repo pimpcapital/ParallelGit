@@ -8,6 +8,7 @@ import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 
 import com.beijunyi.parallelgit.filesystem.hierarchy.DirectoryNode;
+import com.beijunyi.parallelgit.filesystem.utils.IOUtils;
 import org.eclipse.jgit.lib.AnyObjectId;
 
 public class GitFileStore extends FileStore {
@@ -69,7 +70,7 @@ public class GitFileStore extends FileStore {
    */
   @Override
   public long getTotalSpace() throws IOException {
-    return root.getSize();
+    return IOUtils.getSize(root, gfs);
   }
 
   /**
@@ -98,7 +99,8 @@ public class GitFileStore extends FileStore {
 
   @Override
   public boolean supportsFileAttributeView(@Nonnull Class<? extends FileAttributeView> type) {
-    return type.isAssignableFrom(GitFileAttributeView.Basic.class);
+    return type.isAssignableFrom(GitFileAttributeView.Basic.class)
+             || type.isAssignableFrom(GitFileAttributeView.Posix.class) ;
   }
 
   @Override
