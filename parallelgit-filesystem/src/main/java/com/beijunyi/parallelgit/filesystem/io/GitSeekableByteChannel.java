@@ -1,5 +1,6 @@
 package com.beijunyi.parallelgit.filesystem.io;
 
+import java.io.IOException;
 import java.nio.ByteBuffer;
 import java.nio.channels.*;
 import java.nio.file.OpenOption;
@@ -7,24 +8,24 @@ import java.nio.file.StandardOpenOption;
 import java.util.Set;
 import javax.annotation.Nonnull;
 
+import com.beijunyi.parallelgit.filesystem.GitFileSystem;
 import com.beijunyi.parallelgit.filesystem.hierarchy.FileNode;
+import com.beijunyi.parallelgit.filesystem.utils.IOUtils;
 
 public class GitSeekableByteChannel implements SeekableByteChannel {
 
-  private final FileNode parent;
+  private final FileNode file;
   private final boolean readable;
   private final boolean writable;
   private ByteBuffer buffer;
   private volatile boolean closed = false;
 
-  public GitSeekableByteChannel(@Nonnull byte[] bytes, @Nonnull Set<? extends OpenOption> options, @Nonnull FileNode node) {
-    this.parent = node;
+  public GitSeekableByteChannel(@Nonnull FileNode file, @Nonnull GitFileSystem gfs, @Nonnull Set<OpenOption> options) throws IOException {
+    this.file = file;
+    buffer = ByteBuffer.wrap(options.contains(StandardOpenOption.TRUNCATE_EXISTING) ? new byte[0] : IOUtils.getFileData(file, gfs));
     readable = options.contains(StandardOpenOption.READ);
     writable = options.contains(StandardOpenOption.WRITE);
-    buffer = ByteBuffer.wrap(bytes);
-    if(writable && options.contains(StandardOpenOption.TRUNCATE_EXISTING))
-      buffer.limit(0);
-    if(writable & options.contains(StandardOpenOption.APPEND))
+    if(options.contains(StandardOpenOption.APPEND))
       buffer.position(buffer.limit());
   }
 
@@ -59,7 +60,7 @@ public class GitSeekableByteChannel implements SeekableByteChannel {
    *
    * Bytes are written starting at this channel's current position, unless the channel is opened with the {@link
    * StandardOpenOption#APPEND} option, in which case the position is first advanced to the end. The buffer of the
-   * parent {@code GitFileStoreMemoryChannel} is grown, if necessary, to accommodate the written bytes, and then the
+   * file {@code GitFileStoreMemoryChannel} is grown, if necessary, to accommodate the written bytes, and then the
    * position is updated with the number of bytes actually written.
    *
    * @return  the number of bytes written to this channel
@@ -128,7 +129,7 @@ public class GitSeekableByteChannel implements SeekableByteChannel {
   }
 
   /**
-   * Returns the current size of the buffer of the parent {@code GitFileStoreMemoryChannel}.
+   * Returns the current size of the buffer of the file {@code GitFileStoreMemoryChannel}.
    *
    * @return  the current size, measured in bytes
    * @throws  ClosedChannelException
@@ -141,7 +142,7 @@ public class GitSeekableByteChannel implements SeekableByteChannel {
   }
 
   /**
-   * Truncates the buffer of the parent {@code GitFileStoreMemoryChannel}.
+   * Truncates the buffer of the file {@code GitFileStoreMemoryChannel}.
    *
    * If the given size is less than the current size then the buffer is truncated, discarding any bytes beyond the new
    * end. If the given size is greater than or equal to the current size then the buffer is not modified. In either
@@ -213,7 +214,7 @@ public class GitSeekableByteChannel implements SeekableByteChannel {
     synchronized(this) {
       if(!closed) {
         closed = true;
-        parent.updateContent(getBytes());
+        file.updateContent(getBytes());
       }
     }
   }

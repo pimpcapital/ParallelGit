@@ -113,7 +113,7 @@ public final class IOUtils {
   }
 
   @Nonnull
-  private static byte[] getFileData(@Nonnull FileNode file, @Nonnull GitFileSystem gfs) throws IOException {
+  public static byte[] getFileData(@Nonnull FileNode file, @Nonnull GitFileSystem gfs) throws IOException {
     byte[] bytes = file.getBytes();
     if(bytes == null)
       bytes = loadFileData(file, gfs);
@@ -210,7 +210,7 @@ public final class IOUtils {
       node = findNode(file);
     if(node instanceof FileNode) {
       FileNode fileNode = (FileNode) node;
-      return new GitSeekableByteChannel(getFileData(fileNode, file.getFileSystem()), options, fileNode);
+      return new GitSeekableByteChannel(fileNode, file.getFileSystem(), options);
     }
     throw new AccessDeniedException(file.toString());
   }
