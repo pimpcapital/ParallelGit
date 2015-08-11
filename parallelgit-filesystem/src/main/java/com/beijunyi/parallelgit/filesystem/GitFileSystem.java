@@ -8,8 +8,8 @@ import java.util.regex.Pattern;
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 
+import com.beijunyi.parallelgit.filesystem.io.GfsIO;
 import com.beijunyi.parallelgit.filesystem.utils.GitGlobs;
-import com.beijunyi.parallelgit.filesystem.utils.IOUtils;
 import org.eclipse.jgit.lib.*;
 import org.eclipse.jgit.revwalk.RevCommit;
 
@@ -308,7 +308,7 @@ public class GitFileSystem extends FileSystem {
 
   @Nonnull
   public AnyObjectId persist() throws IOException {
-    return IOUtils.persist(rootPath);
+    return GfsIO.persist(rootPath);
   }
 
 

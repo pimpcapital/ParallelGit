@@ -3,7 +3,7 @@ package com.beijunyi.parallelgit.filesystem;
 import java.io.IOException;
 import java.nio.file.*;
 
-import com.beijunyi.parallelgit.filesystem.io.GitSeekableByteChannel;
+import com.beijunyi.parallelgit.filesystem.io.GfsSeekableByteChannel;
 import org.junit.Assert;
 import org.junit.Test;
 
@@ -17,7 +17,7 @@ public class GitFileSystemProviderNewByteChannelTest extends AbstractGitFileSyst
     writeFile("dir/file.txt", ORIGINAL_TEXT_BYTES);
     commitToMaster();
     initGitFileSystem();
-    try(GitSeekableByteChannel channel = (GitSeekableByteChannel) Files.newByteChannel(gfs.getPath("/dir/file.txt"), StandardOpenOption.READ)) {
+    try(GfsSeekableByteChannel channel = (GfsSeekableByteChannel) Files.newByteChannel(gfs.getPath("/dir/file.txt"), StandardOpenOption.READ)) {
       Assert.assertTrue(channel.isReadable());
       Assert.assertFalse(channel.isWritable());
       Assert.assertEquals(0, channel.position());
@@ -46,7 +46,7 @@ public class GitFileSystemProviderNewByteChannelTest extends AbstractGitFileSyst
     writeFile("dir/file.txt", ORIGINAL_TEXT_BYTES);
     commitToMaster();
     initGitFileSystem();
-    try(GitSeekableByteChannel channel = (GitSeekableByteChannel) Files.newByteChannel(gfs.getPath("/dir/file.txt"), StandardOpenOption.WRITE)) {
+    try(GfsSeekableByteChannel channel = (GfsSeekableByteChannel) Files.newByteChannel(gfs.getPath("/dir/file.txt"), StandardOpenOption.WRITE)) {
       Assert.assertFalse(channel.isReadable());
       Assert.assertTrue(channel.isWritable());
       Assert.assertEquals(0, channel.position());
@@ -75,7 +75,7 @@ public class GitFileSystemProviderNewByteChannelTest extends AbstractGitFileSyst
     writeFile("dir/file.txt", ORIGINAL_TEXT_BYTES);
     commitToMaster();
     initGitFileSystem();
-    try(GitSeekableByteChannel channel = (GitSeekableByteChannel) Files.newByteChannel(gfs.getPath("/dir/file.txt"), StandardOpenOption.READ, StandardOpenOption.WRITE)) {
+    try(GfsSeekableByteChannel channel = (GfsSeekableByteChannel) Files.newByteChannel(gfs.getPath("/dir/file.txt"), StandardOpenOption.READ, StandardOpenOption.WRITE)) {
       Assert.assertTrue(channel.isReadable());
       Assert.assertTrue(channel.isWritable());
       Assert.assertEquals(0, channel.position());
@@ -89,7 +89,7 @@ public class GitFileSystemProviderNewByteChannelTest extends AbstractGitFileSyst
     writeFile("dir/file.txt", ORIGINAL_TEXT_BYTES);
     commitToMaster();
     initGitFileSystem();
-    try(GitSeekableByteChannel channel = (GitSeekableByteChannel) Files.newByteChannel(gfs.getPath("/dir/file.txt"))) {
+    try(GfsSeekableByteChannel channel = (GfsSeekableByteChannel) Files.newByteChannel(gfs.getPath("/dir/file.txt"))) {
       Assert.assertTrue(channel.isReadable());
       Assert.assertFalse(channel.isWritable());
       Assert.assertEquals(0, channel.position());
@@ -103,7 +103,7 @@ public class GitFileSystemProviderNewByteChannelTest extends AbstractGitFileSyst
     writeFile("dir/file.txt", ORIGINAL_TEXT_BYTES);
     commitToMaster();
     initGitFileSystem();
-    try(GitSeekableByteChannel channel = (GitSeekableByteChannel) Files.newByteChannel(gfs.getPath("/dir/file.txt"), StandardOpenOption.APPEND)) {
+    try(GfsSeekableByteChannel channel = (GfsSeekableByteChannel) Files.newByteChannel(gfs.getPath("/dir/file.txt"), StandardOpenOption.APPEND)) {
       Assert.assertFalse(channel.isReadable());
       Assert.assertTrue(channel.isWritable());
       Assert.assertEquals(ORIGINAL_TEXT_BYTES.length, channel.position());
@@ -117,7 +117,7 @@ public class GitFileSystemProviderNewByteChannelTest extends AbstractGitFileSyst
     writeFile("dir/file.txt", ORIGINAL_TEXT_BYTES);
     commitToMaster();
     initGitFileSystem();
-    try(GitSeekableByteChannel channel = (GitSeekableByteChannel) Files.newByteChannel(gfs.getPath("/dir/file.txt"), StandardOpenOption.CREATE)) {
+    try(GfsSeekableByteChannel channel = (GfsSeekableByteChannel) Files.newByteChannel(gfs.getPath("/dir/file.txt"), StandardOpenOption.CREATE)) {
       Assert.assertTrue(channel.isReadable());
       Assert.assertFalse(channel.isWritable());
       Assert.assertEquals(0, channel.position());
@@ -128,7 +128,7 @@ public class GitFileSystemProviderNewByteChannelTest extends AbstractGitFileSyst
   @Test
   public void newByteChannelOfNonExistingFileWithCreateOpenOptionTest() throws IOException {
     initGitFileSystem();
-    try(GitSeekableByteChannel channel = (GitSeekableByteChannel) Files.newByteChannel(gfs.getPath("/file.txt"), StandardOpenOption.CREATE)) {
+    try(GfsSeekableByteChannel channel = (GfsSeekableByteChannel) Files.newByteChannel(gfs.getPath("/file.txt"), StandardOpenOption.CREATE)) {
       Assert.assertTrue(channel.isReadable());
       Assert.assertFalse(channel.isWritable());
       Assert.assertEquals(0, channel.position());
@@ -156,7 +156,7 @@ public class GitFileSystemProviderNewByteChannelTest extends AbstractGitFileSyst
   @Test
   public void newByteChannelOfNonExistingFileWithCreateNewOpenOptionTest() throws IOException {
     initGitFileSystem();
-    try(GitSeekableByteChannel channel = (GitSeekableByteChannel) Files.newByteChannel(gfs.getPath("/file.txt"), StandardOpenOption.CREATE_NEW)) {
+    try(GfsSeekableByteChannel channel = (GfsSeekableByteChannel) Files.newByteChannel(gfs.getPath("/file.txt"), StandardOpenOption.CREATE_NEW)) {
       Assert.assertTrue(channel.isReadable());
       Assert.assertFalse(channel.isWritable());
       Assert.assertEquals(0, channel.position());
@@ -170,7 +170,7 @@ public class GitFileSystemProviderNewByteChannelTest extends AbstractGitFileSyst
     writeFile("dir/file.txt", ORIGINAL_TEXT_BYTES);
     commitToMaster();
     initGitFileSystem();
-    try(GitSeekableByteChannel channel = (GitSeekableByteChannel) Files.newByteChannel(gfs.getPath("/dir/file.txt"), StandardOpenOption.WRITE, StandardOpenOption.TRUNCATE_EXISTING)) {
+    try(GfsSeekableByteChannel channel = (GfsSeekableByteChannel) Files.newByteChannel(gfs.getPath("/dir/file.txt"), StandardOpenOption.WRITE, StandardOpenOption.TRUNCATE_EXISTING)) {
       Assert.assertTrue(channel.isWritable());
       Assert.assertFalse(channel.isReadable());
       Assert.assertEquals(0, channel.position());

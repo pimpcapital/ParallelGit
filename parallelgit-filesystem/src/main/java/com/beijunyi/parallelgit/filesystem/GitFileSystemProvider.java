@@ -11,10 +11,10 @@ import java.util.concurrent.ConcurrentHashMap;
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 
-import com.beijunyi.parallelgit.filesystem.io.GitDirectoryStream;
+import com.beijunyi.parallelgit.filesystem.io.GfsDirectoryStream;
+import com.beijunyi.parallelgit.filesystem.io.GfsIO;
 import com.beijunyi.parallelgit.filesystem.utils.GitFileSystemBuilder;
 import com.beijunyi.parallelgit.filesystem.utils.GitUriUtils;
-import com.beijunyi.parallelgit.filesystem.utils.IOUtils;
 
 import static java.nio.file.StandardOpenOption.*;
 
@@ -154,7 +154,7 @@ public class GitFileSystemProvider extends FileSystemProvider {
     }
     if(!options.contains(WRITE))
       amended.add(READ);
-    return IOUtils.newByteChannel(((GitPath) path).toRealPath(), amended, Arrays.<FileAttribute>asList(attrs));
+    return GfsIO.newByteChannel(((GitPath)path).toRealPath(), amended, Arrays.<FileAttribute>asList(attrs));
   }
 
   /**
@@ -173,8 +173,8 @@ public class GitFileSystemProvider extends FileSystemProvider {
    */
   @Nonnull
   @Override
-  public GitDirectoryStream newDirectoryStream(@Nonnull Path path, @Nullable DirectoryStream.Filter<? super Path> filter) throws IOException {
-    return IOUtils.newDirectoryStream(((GitPath) path).toRealPath(), filter);
+  public GfsDirectoryStream newDirectoryStream(@Nonnull Path path, @Nullable DirectoryStream.Filter<? super Path> filter) throws IOException {
+    return GfsIO.newDirectoryStream(((GitPath)path).toRealPath(), filter);
   }
 
   /**
@@ -194,7 +194,7 @@ public class GitFileSystemProvider extends FileSystemProvider {
    */
   @Override
   public void createDirectory(@Nonnull Path dir, @Nonnull FileAttribute<?>... attrs) throws IOException {
-    IOUtils.createDirectory((GitPath) dir);
+    GfsIO.createDirectory((GitPath)dir);
   }
 
   /**
@@ -212,7 +212,7 @@ public class GitFileSystemProvider extends FileSystemProvider {
    */
   @Override
   public void delete(@Nonnull Path path) throws IOException {
-    IOUtils.delete(((GitPath) path).toRealPath());
+    GfsIO.delete(((GitPath)path).toRealPath());
   }
 
   /**
@@ -242,7 +242,7 @@ public class GitFileSystemProvider extends FileSystemProvider {
    */
   @Override
   public void copy(@Nonnull Path source, @Nonnull Path target, @Nonnull CopyOption... options) throws IOException {
-    IOUtils.copy((GitPath) source, (GitPath) target, new HashSet<>(Arrays.asList(options)));
+    GfsIO.copy((GitPath)source, (GitPath)target, new HashSet<>(Arrays.asList(options)));
   }
 
   /**
@@ -271,7 +271,7 @@ public class GitFileSystemProvider extends FileSystemProvider {
    */
   @Override
   public void move(@Nonnull Path source, @Nonnull Path target, @Nonnull CopyOption... options) throws IOException {
-    IOUtils.move((GitPath) source, (GitPath) target, new HashSet<>(Arrays.asList(options)));
+    GfsIO.move((GitPath)source, (GitPath)target, new HashSet<>(Arrays.asList(options)));
   }
 
   /**
@@ -337,7 +337,7 @@ public class GitFileSystemProvider extends FileSystemProvider {
    */
   @Override
   public void checkAccess(@Nonnull Path path, @Nonnull AccessMode... modes) throws IOException {
-    IOUtils.checkAccess(((GitPath) path).toRealPath(), new HashSet<>(Arrays.asList(modes)));
+    GfsIO.checkAccess(((GitPath)path).toRealPath(), new HashSet<>(Arrays.asList(modes)));
   }
 
   /**
@@ -360,7 +360,7 @@ public class GitFileSystemProvider extends FileSystemProvider {
   @Override
   public <V extends FileAttributeView> V getFileAttributeView(@Nonnull Path path, @Nonnull Class<V> type, @Nonnull LinkOption... options) throws UnsupportedOperationException {
     try {
-      return IOUtils.getFileAttributeView(((GitPath) path).toRealPath(), type);
+      return GfsIO.getFileAttributeView(((GitPath)path).toRealPath(), type);
     } catch(IOException e) {
       return null;
     }

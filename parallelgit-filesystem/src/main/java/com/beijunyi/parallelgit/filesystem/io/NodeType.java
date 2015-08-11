@@ -1,4 +1,4 @@
-package com.beijunyi.parallelgit.filesystem.hierarchy;
+package com.beijunyi.parallelgit.filesystem.io;
 
 import java.util.HashMap;
 import java.util.Map;

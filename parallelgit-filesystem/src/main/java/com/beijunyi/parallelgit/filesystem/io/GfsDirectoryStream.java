@@ -10,17 +10,17 @@ import javax.annotation.Nullable;
 
 import com.beijunyi.parallelgit.filesystem.GitPath;
 
-public class GitDirectoryStream implements DirectoryStream<Path> {
+public class GfsDirectoryStream implements DirectoryStream<Path> {
 
   private final GitPath parent;
-  private final Collection<String> children;
+  private final SortedSet<String> children;
   private final Filter<? super Path> filter;
   private volatile boolean closed = false;
 
-  public GitDirectoryStream(@Nonnull GitPath parent, @Nonnull Collection<String> children, @Nullable Filter<? super Path> filter) {
+  public GfsDirectoryStream(@Nonnull DirectoryNode dir, @Nonnull GitPath parent, @Nullable Filter<? super Path> filter) throws IOException {
     this.parent = parent;
-    this.children = children;
     this.filter = filter;
+    children = new TreeSet<>(GfsIO.getChildren(dir, parent.getFileSystem()).keySet());
   }
 
   private void checkNotClosed() throws ClosedDirectoryStreamException {
@@ -31,7 +31,7 @@ public class GitDirectoryStream implements DirectoryStream<Path> {
   @Nonnull
   @Override
   public Iterator<Path> iterator() {
-    final Iterator<String> childrenIt = new TreeSet<>(children).iterator();
+    final Iterator<String> childrenIt = children.iterator();
     return new Iterator<Path>() {
 
       private Path next;

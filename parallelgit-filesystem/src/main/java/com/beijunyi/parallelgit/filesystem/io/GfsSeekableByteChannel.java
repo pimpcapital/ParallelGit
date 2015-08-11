@@ -9,10 +9,8 @@ import java.util.Set;
 import javax.annotation.Nonnull;
 
 import com.beijunyi.parallelgit.filesystem.GitFileSystem;
-import com.beijunyi.parallelgit.filesystem.hierarchy.FileNode;
-import com.beijunyi.parallelgit.filesystem.utils.IOUtils;
 
-public class GitSeekableByteChannel implements SeekableByteChannel {
+public class GfsSeekableByteChannel implements SeekableByteChannel {
 
   private final FileNode file;
   private final boolean readable;
@@ -20,9 +18,9 @@ public class GitSeekableByteChannel implements SeekableByteChannel {
   private ByteBuffer buffer;
   private volatile boolean closed = false;
 
-  public GitSeekableByteChannel(@Nonnull FileNode file, @Nonnull GitFileSystem gfs, @Nonnull Set<OpenOption> options) throws IOException {
+  GfsSeekableByteChannel(@Nonnull FileNode file, @Nonnull GitFileSystem gfs, @Nonnull Set<OpenOption> options) throws IOException {
     this.file = file;
-    buffer = ByteBuffer.wrap(options.contains(StandardOpenOption.TRUNCATE_EXISTING) ? new byte[0] : IOUtils.getFileData(file, gfs));
+    buffer = ByteBuffer.wrap(options.contains(StandardOpenOption.TRUNCATE_EXISTING) ? new byte[0] : GfsIO.getFileData(file, gfs));
     readable = options.contains(StandardOpenOption.READ);
     writable = options.contains(StandardOpenOption.WRITE);
     if(options.contains(StandardOpenOption.APPEND))
@@ -120,7 +118,7 @@ public class GitSeekableByteChannel implements SeekableByteChannel {
    *          if this channel is closed
    */
   @Override
-  public GitSeekableByteChannel position(long newPosition) throws ClosedChannelException {
+  public GfsSeekableByteChannel position(long newPosition) throws ClosedChannelException {
     checkClosed();
     synchronized(this) {
       buffer.position(long2Int(newPosition));
@@ -159,7 +157,7 @@ public class GitSeekableByteChannel implements SeekableByteChannel {
    *          If the new size is negative or greater than {@link Integer#MAX_VALUE}
    */
   @Override
-  public GitSeekableByteChannel truncate(long size) throws NonWritableChannelException, ClosedChannelException, IllegalArgumentException {
+  public GfsSeekableByteChannel truncate(long size) throws NonWritableChannelException, ClosedChannelException, IllegalArgumentException {
     checkClosed();
     checkWriteAccess();
     synchronized(this) {

@@ -2,7 +2,6 @@ package com.beijunyi.parallelgit.filesystem;
 
 import java.io.File;
 import java.io.IOException;
-import java.nio.channels.SeekableByteChannel;
 import java.nio.file.*;
 
 import com.beijunyi.parallelgit.filesystem.utils.GitFileSystemBuilder;
@@ -88,22 +87,6 @@ public class GitFileSystemProviderCopyTest extends AbstractGitFileSystemTest {
     Files.copy(source, target, StandardCopyOption.REPLACE_EXISTING);
     Assert.assertTrue(Files.exists(target));
     Assert.assertArrayEquals(data, Files.readAllBytes(target));
-  }
-
-  @Test(expected = AccessDeniedException.class)
-  public void copyFileToOpenedFileWithReplaceExistingTest() throws IOException {
-    initRepository();
-    writeFile("a.txt");
-    writeFile("b.txt");
-    commitToMaster();
-    initGitFileSystem();
-
-    GitPath source = gfs.getPath("/a.txt");
-    GitPath target = gfs.getPath("/b.txt");
-    try (SeekableByteChannel channel = Files.newByteChannel(target)) {
-      Assert.assertNotNull(channel);
-      Files.copy(source, target, StandardCopyOption.REPLACE_EXISTING);
-    }
   }
 
   @Test(expected = FileAlreadyExistsException.class)

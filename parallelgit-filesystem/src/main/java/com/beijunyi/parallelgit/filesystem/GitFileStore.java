@@ -7,8 +7,8 @@ import java.nio.file.attribute.FileStoreAttributeView;
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 
-import com.beijunyi.parallelgit.filesystem.hierarchy.DirectoryNode;
-import com.beijunyi.parallelgit.filesystem.utils.IOUtils;
+import com.beijunyi.parallelgit.filesystem.io.DirectoryNode;
+import com.beijunyi.parallelgit.filesystem.io.GfsIO;
 import org.eclipse.jgit.lib.AnyObjectId;
 
 public class GitFileStore extends FileStore {
@@ -70,7 +70,7 @@ public class GitFileStore extends FileStore {
    */
   @Override
   public long getTotalSpace() throws IOException {
-    return IOUtils.getSize(root, gfs);
+    return GfsIO.getSize(root, gfs);
   }
 
   /**

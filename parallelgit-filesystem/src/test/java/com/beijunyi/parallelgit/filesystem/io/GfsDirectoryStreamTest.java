@@ -11,7 +11,7 @@ import com.beijunyi.parallelgit.filesystem.AbstractGitFileSystemTest;
 import org.junit.Assert;
 import org.junit.Test;
 
-public class GitDirectoryStreamTest extends AbstractGitFileSystemTest {
+public class GfsDirectoryStreamTest extends AbstractGitFileSystemTest {
 
   @Test
   public void directoryStreamOfDirectoryTest() throws IOException {

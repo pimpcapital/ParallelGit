@@ -1,7 +1,6 @@
-package com.beijunyi.parallelgit.filesystem.hierarchy;
+package com.beijunyi.parallelgit.filesystem.io;
 
 import java.util.Map;
-import java.util.Set;
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 
@@ -29,11 +28,6 @@ public class DirectoryNode extends Node {
   @Nonnull
   public static DirectoryNode newDirectory() {
     return new DirectoryNode();
-  }
-
-  @Nonnull
-  public Set<String> getChildrenNames() {
-    return children.keySet();
   }
 
   @Nullable

@@ -1,4 +1,4 @@
-package com.beijunyi.parallelgit.filesystem.utils;
+package com.beijunyi.parallelgit.filesystem.io;
 
 import java.io.IOException;
 import java.nio.file.*;
@@ -9,17 +9,13 @@ import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 
 import com.beijunyi.parallelgit.filesystem.*;
-import com.beijunyi.parallelgit.filesystem.hierarchy.DirectoryNode;
-import com.beijunyi.parallelgit.filesystem.hierarchy.FileNode;
-import com.beijunyi.parallelgit.filesystem.hierarchy.Node;
-import com.beijunyi.parallelgit.filesystem.io.GitDirectoryStream;
-import com.beijunyi.parallelgit.filesystem.io.GitSeekableByteChannel;
+import com.beijunyi.parallelgit.filesystem.utils.FileAttributeReader;
 import org.eclipse.jgit.lib.AnyObjectId;
 import org.eclipse.jgit.lib.ObjectId;
 import org.eclipse.jgit.lib.TreeFormatter;
 import org.eclipse.jgit.treewalk.CanonicalTreeParser;
 
-public final class IOUtils {
+public final class GfsIO {
 
   @Nonnull
   private static GitPath getParent(@Nonnull GitPath child) {
@@ -52,10 +48,17 @@ public final class IOUtils {
   }
 
   @Nonnull
-  private static Node firstNode(@Nonnull Node[] nodes, @Nonnull GitPath path) throws NoSuchFileException {
-    if(nodes[0] != null)
-      return nodes[0];
-    throw new NoSuchFileException(path.toString());
+  private static FileNode asFile(@Nullable Node node, @Nonnull GitPath path) throws NoSuchFileException, AccessDeniedException {
+    if(node == null)
+      throw new NoSuchFileException(path.toString());
+    if(node instanceof FileNode)
+      return (FileNode) node;
+    throw new AccessDeniedException(path.toString());
+  }
+
+  @Nonnull
+  private static FileNode firstAsFile(@Nonnull Node[] nodes, @Nonnull GitPath path) throws NoSuchFileException, AccessDeniedException {
+    return asFile(nodes[0], path);
   }
 
   @Nonnull
@@ -67,11 +70,19 @@ public final class IOUtils {
 
   @Nonnull
   private static Node findNode(@Nonnull GitPath path) throws IOException {
-    return firstNode(findNodes(path), path);
+    Node node = findNodes(path)[0];
+    if(node == null)
+      throw new NoSuchFileException(path.toString());
+    return node;
   }
 
   @Nonnull
-  private static DirectoryNode findDirectory(@Nonnull GitPath dir) throws IOException {
+  static FileNode findFile(@Nonnull GitPath dir) throws IOException {
+    return firstAsFile(findNodes(dir), dir);
+  }
+
+  @Nonnull
+  static DirectoryNode findDirectory(@Nonnull GitPath dir) throws IOException {
     return firstAsDirectory(findNodes(dir), dir);
   }
 
@@ -162,7 +173,7 @@ public final class IOUtils {
   }
 
   @Nonnull
-  private static Map<String, Node> getChildren(@Nonnull DirectoryNode dir, @Nonnull GitFileSystem gfs) throws IOException {
+  public static Map<String, Node> getChildren(@Nonnull DirectoryNode dir, @Nonnull GitFileSystem gfs) throws IOException {
     Map<String, Node> children = prepareDirectory(dir, gfs).getChildren();
     if(children == null)
       throw new IllegalStateException();
@@ -192,8 +203,8 @@ public final class IOUtils {
   }
 
   @Nonnull
-  public static GitSeekableByteChannel newByteChannel(@Nonnull GitPath file, @Nonnull Set<OpenOption> options, @Nonnull Collection<FileAttribute> attrs) throws IOException {
-    Node node;
+  public static GfsSeekableByteChannel newByteChannel(@Nonnull GitPath file, @Nonnull Set<OpenOption> options, @Nonnull Collection<FileAttribute> attrs) throws IOException {
+    FileNode node;
     if(options.contains(StandardOpenOption.CREATE) || options.contains(StandardOpenOption.CREATE_NEW)) {
       GitPath parent = getParent(file);
       Node[] parentNodes = findNodes(parent);
@@ -204,22 +215,17 @@ public final class IOUtils {
         if(!parentNode.addChild(name, node, false))
           throw new FileAlreadyExistsException(file.toString());
       } else {
-        node = parentNode.getChild(name);
+        node = asFile(parentNode.getChild(name), file);
       }
     } else
-      node = findNode(file);
-    if(node instanceof FileNode) {
-      FileNode fileNode = (FileNode) node;
-      return new GitSeekableByteChannel(fileNode, file.getFileSystem(), options);
-    }
-    throw new AccessDeniedException(file.toString());
+      node = findFile(file);
+    return new GfsSeekableByteChannel(node, file.getFileSystem(), options);
   }
 
   @Nonnull
-  public static GitDirectoryStream newDirectoryStream(@Nonnull GitPath dir, @Nullable DirectoryStream.Filter<? super Path> filter) throws IOException {
+  public static GfsDirectoryStream newDirectoryStream(@Nonnull GitPath dir, @Nullable DirectoryStream.Filter<? super Path> filter) throws IOException {
     DirectoryNode node = prepareDirectory(findDirectory(dir), dir.getFileSystem());
-    Collection<String> children = node.getChildrenNames();
-    return new GitDirectoryStream(dir, children, filter);
+    return new GfsDirectoryStream(node, dir, filter);
   }
 
   public static void createDirectory(@Nonnull GitPath dir) throws IOException {
