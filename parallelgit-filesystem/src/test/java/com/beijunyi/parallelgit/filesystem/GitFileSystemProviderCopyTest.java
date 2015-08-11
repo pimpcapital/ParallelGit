@@ -12,81 +12,67 @@ import org.junit.Test;
 public class GitFileSystemProviderCopyTest extends AbstractGitFileSystemTest {
 
   @Test
-  public void copyFileCreatingNewFileTest() throws IOException {
+  public void copyFile_theTargetFileShouldExist() throws IOException {
     initRepository();
-    byte[] data = "some plain text data".getBytes();
-    writeFile("a.txt", data);
+    writeFile("/source.txt");
     commitToMaster();
     initGitFileSystem();
 
-    GitPath source = gfs.getPath("/a.txt");
-    GitPath target = gfs.getPath("/b.txt");
-    Files.copy(source, target);
+    GitPath source = gfs.getPath("/source.txt");
+    GitPath target = gfs.getPath("/target.txt");
+    provider.copy(source, target);
     Assert.assertTrue(Files.exists(target));
-    Assert.assertArrayEquals(data, Files.readAllBytes(target));
   }
 
   @Test
-  public void copyModifiedFileTest() throws IOException {
+  public void copyFile_theTargetFileShouldHaveTheSameData() throws IOException {
     initRepository();
-    writeFile("a.txt");
+    byte[] expectedData = "expected data".getBytes();
+    writeFile("/source.txt", expectedData);
     commitToMaster();
     initGitFileSystem();
 
-    GitPath source = gfs.getPath("/a.txt");
-    byte[] data = "some plain text data".getBytes();
-    Files.write(source, data);
-    GitPath target = gfs.getPath("/b.txt");
-    Files.copy(source, target);
-    Assert.assertTrue(Files.exists(target));
-    Assert.assertArrayEquals(data, Files.readAllBytes(target));
+    GitPath source = gfs.getPath("/source.txt");
+    GitPath target = gfs.getPath("/target.txt");
+    provider.copy(source, target);
+    Assert.assertArrayEquals(expectedData, Files.readAllBytes(target));
   }
 
   @Test(expected = FileAlreadyExistsException.class)
-  public void copyFileToExistingFileTest() throws IOException {
+  public void copyFileWhenTargetExists_shouldThrowFileAlreadyExistsException() throws IOException {
     initRepository();
-    byte[] data = "some plain text data".getBytes();
-    writeFile("a.txt", data);
-    writeFile("b.txt");
+    writeFile("/source.txt");
+    writeFile("/target.txt");
     commitToMaster();
     initGitFileSystem();
 
-    GitPath source = gfs.getPath("/a.txt");
-    GitPath target = gfs.getPath("/b.txt");
+    GitPath source = gfs.getPath("/source.txt");
+    GitPath target = gfs.getPath("/target.txt");
     Files.copy(source, target);
   }
 
   @Test
-  public void copyFileToExistingFileWithReplaceExistingTest() throws IOException {
+  public void copyFileWithReplaceExistingOption_shouldOverwriteTheTargetFileData() throws IOException {
     initRepository();
-    byte[] data = "some plain text data".getBytes();
-    writeFile("a.txt", data);
-    writeFile("b.txt");
+    byte[] expectedData = "expected data".getBytes();
+    writeFile("/source.txt", expectedData);
+    writeFile("/target.txt");
     commitToMaster();
     initGitFileSystem();
 
-    GitPath source = gfs.getPath("/a.txt");
-    GitPath target = gfs.getPath("/b.txt");
+    GitPath source = gfs.getPath("/source.txt");
+    GitPath target = gfs.getPath("/target.txt");
     Files.copy(source, target, StandardCopyOption.REPLACE_EXISTING);
-    Assert.assertTrue(Files.exists(target));
-    Assert.assertArrayEquals(data, Files.readAllBytes(target));
+    Assert.assertArrayEquals(expectedData, Files.readAllBytes(target));
   }
 
-  @Test
-  public void copyFileToModifiedFileWithReplaceExistingTest() throws IOException {
-    initRepository();
-    byte[] data = "some plain text data".getBytes();
-    writeFile("a.txt", data);
-    writeFile("b.txt");
-    commitToMaster();
-    initGitFileSystem();
 
-    GitPath source = gfs.getPath("/a.txt");
-    GitPath target = gfs.getPath("/b.txt");
-    Files.write(target, "some content".getBytes());
-    Files.copy(source, target, StandardCopyOption.REPLACE_EXISTING);
-    Assert.assertTrue(Files.exists(target));
-    Assert.assertArrayEquals(data, Files.readAllBytes(target));
+  @Test(expected = NoSuchFileException.class)
+  public void copyNonExistentFile_shouldThrowNoSuchFileException() throws IOException {
+    initGitFileSystem();
+    GitPath source = gfs.getPath("/non_existent_file.txt");
+    GitPath target = gfs.getPath("/target.txt");
+    Files.copy(source, target);
   }
 
   @Test(expected = FileAlreadyExistsException.class)
@@ -115,14 +101,6 @@ public class GitFileSystemProviderCopyTest extends AbstractGitFileSystemTest {
     GitPath source = gfs.getPath("/a.txt");
     GitPath target = gfs.getPath("/b");
     Files.copy(source, target, StandardCopyOption.REPLACE_EXISTING);
-  }
-
-  @Test(expected = NoSuchFileException.class)
-  public void copyNonExistentFileTest() throws IOException {
-    initGitFileSystem();
-    GitPath source = gfs.getPath("/a.txt");
-    GitPath target = gfs.getPath("/b.txt");
-    Files.copy(source, target);
   }
 
   @Test
