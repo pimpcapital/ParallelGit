@@ -1,11 +1,8 @@
 package com.beijunyi.parallelgit.filesystem;
 
-import java.io.File;
 import java.io.IOException;
 import java.nio.file.*;
 
-import com.beijunyi.parallelgit.filesystem.utils.GitFileSystemBuilder;
-import org.eclipse.jgit.lib.Repository;
 import org.junit.Assert;
 import org.junit.Test;
 
@@ -25,6 +22,19 @@ public class GitFileSystemProviderCopyTest extends AbstractGitFileSystemTest {
   }
 
   @Test
+  public void copyFile_theTargetFileShouldBeFile() throws IOException {
+    initRepository();
+    writeFile("/source.txt");
+    commitToMaster();
+    initGitFileSystem();
+
+    GitPath source = gfs.getPath("/source.txt");
+    GitPath target = gfs.getPath("/target.txt");
+    provider.copy(source, target);
+    Assert.assertTrue(Files.isRegularFile(target));
+  }
+
+  @Test
   public void copyFile_theTargetFileShouldHaveTheSameData() throws IOException {
     initRepository();
     byte[] expectedData = "expected data".getBytes();
@@ -38,6 +48,21 @@ public class GitFileSystemProviderCopyTest extends AbstractGitFileSystemTest {
     Assert.assertArrayEquals(expectedData, Files.readAllBytes(target));
   }
 
+  @Test
+  public void copyFile_theSourceFileShouldHaveTheSameData() throws IOException {
+    initRepository();
+    byte[] expectedData = "expected data".getBytes();
+    writeFile("/source.txt", expectedData);
+    commitToMaster();
+    initGitFileSystem();
+
+    GitPath source = gfs.getPath("/source.txt");
+    GitPath target = gfs.getPath("/target.txt");
+    provider.copy(source, target);
+    Assert.assertArrayEquals(expectedData, Files.readAllBytes(source));
+  }
+
+
   @Test(expected = FileAlreadyExistsException.class)
   public void copyFileWhenTargetExists_shouldThrowFileAlreadyExistsException() throws IOException {
     initRepository();
@@ -48,7 +73,7 @@ public class GitFileSystemProviderCopyTest extends AbstractGitFileSystemTest {
 
     GitPath source = gfs.getPath("/source.txt");
     GitPath target = gfs.getPath("/target.txt");
-    Files.copy(source, target);
+    provider.copy(source, target);
   }
 
   @Test
@@ -62,229 +87,144 @@ public class GitFileSystemProviderCopyTest extends AbstractGitFileSystemTest {
 
     GitPath source = gfs.getPath("/source.txt");
     GitPath target = gfs.getPath("/target.txt");
-    Files.copy(source, target, StandardCopyOption.REPLACE_EXISTING);
+    provider.copy(source, target, StandardCopyOption.REPLACE_EXISTING);
     Assert.assertArrayEquals(expectedData, Files.readAllBytes(target));
   }
 
+  @Test
+  public void copyFileWhenTargetEqualsSource_shouldHaveNoEffect() throws IOException {
+    initRepository();
+    byte[] expectedData = "expected data".getBytes();
+    writeFile("/source.txt", expectedData);
+    commitToMaster();
+    initGitFileSystem();
+
+    GitPath source = gfs.getPath("/source.txt");
+    provider.copy(source, source);
+    Assert.assertArrayEquals(expectedData, Files.readAllBytes(source));
+  }
 
   @Test(expected = NoSuchFileException.class)
   public void copyNonExistentFile_shouldThrowNoSuchFileException() throws IOException {
     initGitFileSystem();
     GitPath source = gfs.getPath("/non_existent_file.txt");
     GitPath target = gfs.getPath("/target.txt");
-    Files.copy(source, target);
+    provider.copy(source, target);
   }
 
   @Test(expected = FileAlreadyExistsException.class)
-  public void copyFileToExistingDirectoryTest() throws IOException {
+  public void copyFileWhenTargetIsDirectory_shouldThrowFileAlreadyExistsException() throws IOException {
     initRepository();
-    byte[] data = "some plain text data".getBytes();
-    writeFile("a.txt", data);
-    writeFile("b/c.txt");
+    writeFile("/source.txt");
+    writeFile("/target/file.txt");
     commitToMaster();
     initGitFileSystem();
 
-    GitPath source = gfs.getPath("/a.txt");
-    GitPath target = gfs.getPath("/b");
-    Files.copy(source, target);
-  }
-
-  @Test(expected = DirectoryNotEmptyException.class)
-  public void copyFileToExistingDirectoryWithReplaceExistingTest() throws IOException {
-    initRepository();
-    byte[] data = "some plain text data".getBytes();
-    writeFile("a.txt", data);
-    writeFile("b/c.txt");
-    commitToMaster();
-    initGitFileSystem();
-
-    GitPath source = gfs.getPath("/a.txt");
-    GitPath target = gfs.getPath("/b");
-    Files.copy(source, target, StandardCopyOption.REPLACE_EXISTING);
+    GitPath source = gfs.getPath("/source.txt");
+    GitPath target = gfs.getPath("/target");
+    provider.copy(source, target);
   }
 
   @Test
-  public void copyDirectoryTest() throws IOException {
+  public void copyFileReplacingTargetDirectory_theTargetShouldBecomeFile() throws IOException {
     initRepository();
-    writeFile("a/b.txt");
+    writeFile("/source.txt");
+    writeFile("/target/file.txt");
     commitToMaster();
     initGitFileSystem();
 
-    GitPath source = gfs.getPath("/a");
-    GitPath target = gfs.getPath("/c.txt");
-    Files.copy(source, target);
+    GitPath source = gfs.getPath("/source.txt");
+    GitPath target = gfs.getPath("/target");
+    provider.copy(source, target, StandardCopyOption.REPLACE_EXISTING);
+    Assert.assertTrue(Files.isRegularFile(target));
   }
 
   @Test
-  public void copySameFileTest() throws IOException {
+  public void copyFileReplacingTargetDirectory_theTargetFileShouldHaveTheSameData() throws IOException {
     initRepository();
-    writeFile("a.txt");
+    byte[] expectedData = "expected data".getBytes();
+    writeFile("/source.txt", expectedData);
+    writeFile("/target/file.txt");
     commitToMaster();
     initGitFileSystem();
 
-    GitPath source = gfs.getPath("/a.txt");
-    GitPath target = gfs.getPath("/a.txt");
-    Files.copy(source, target);
+    GitPath source = gfs.getPath("/source.txt");
+    GitPath target = gfs.getPath("/target");
+    provider.copy(source, target, StandardCopyOption.REPLACE_EXISTING);
+    Assert.assertArrayEquals(expectedData, Files.readAllBytes(target));
   }
 
   @Test
-  public void copyFileToForeignGitFileSystemBasedOnSameRepositoryTest() throws IOException {
+  public void copyDirectory_theTargetDirectoryShouldExist() throws IOException {
     initRepository();
-    byte[] data = "some plain text data".getBytes();
-    writeFile("a.txt", data);
+    writeFile("/source/file.txt");
     commitToMaster();
     initGitFileSystem();
 
-    GitFileSystem targetFs = GitFileSystemBuilder.prepare()
-                               .repository(repo)
-                               .build();
-
-    GitPath source = gfs.getPath("/a.txt");
-    GitPath target = targetFs.getPath("/a.txt");
-    Files.copy(source, target);
+    GitPath source = gfs.getPath("/source");
+    GitPath target = gfs.getPath("/target");
+    provider.copy(source, target);
     Assert.assertTrue(Files.exists(target));
-    Assert.assertArrayEquals(data, Files.readAllBytes(target));
   }
 
   @Test
-  public void copyModifiedFileToForeignGitFileSystemBasedOnSameRepositoryTest() throws IOException {
+  public void copyDirectory_theTargetDirectoryShouldBeDirectory() throws IOException {
     initRepository();
-    writeFile("a.txt");
+    writeFile("/source/file.txt");
     commitToMaster();
     initGitFileSystem();
 
-    GitFileSystem targetFs = GitFileSystemBuilder.prepare()
-                               .repository(repo)
-                               .build();
-
-    byte[] data = "some plain text data".getBytes();
-    GitPath source = gfs.getPath("/a.txt");
-    Files.write(source, data);
-    GitPath target = targetFs.getPath("/a.txt");
-    Files.copy(source, target);
-    Assert.assertTrue(Files.exists(target));
-    Assert.assertArrayEquals(data, Files.readAllBytes(target));
-  }
-
-  @Test(expected = FileAlreadyExistsException.class)
-  public void copyFileToExistingFileInForeignGitFileSystemBasedOnSameRepositoryTest() throws IOException {
-    initRepository();
-    writeFile("a.txt");
-    commitToMaster();
-    initGitFileSystem();
-
-    GitFileSystem targetFs = GitFileSystemBuilder.prepare()
-                               .repository(repo)
-                               .build();
-    GitPath target = targetFs.getPath("/a.txt");
-    Files.write(target, "some data to be replaced".getBytes());
-
-    GitPath source = gfs.getPath("/a.txt");
-    Files.copy(source, target);
+    GitPath source = gfs.getPath("/source");
+    GitPath target = gfs.getPath("/target");
+    provider.copy(source, target);
+    Assert.assertTrue(Files.isDirectory(target));
   }
 
   @Test
-  public void copyFileToExistingFileInForeignGitFileSystemBasedOnSameRepositoryWithReplaceExistingTest() throws IOException {
+  public void copyDirectory_theTargetDirectoryShouldHaveTheSameChildren() throws IOException {
     initRepository();
-    byte[] data = "some plain text data".getBytes();
-    writeFile("a.txt", data);
+    writeFile("/source/file1.txt");
+    writeFile("/source/file2.txt");
     commitToMaster();
     initGitFileSystem();
 
-    GitFileSystem targetFs = GitFileSystemBuilder.prepare()
-                               .repository(repo)
-                               .build();
-    GitPath target = targetFs.getPath("/a.txt");
-    Files.write(target, "some data to be replaced".getBytes());
-
-    GitPath source = gfs.getPath("/a.txt");
-    Files.copy(source, target, StandardCopyOption.REPLACE_EXISTING);
-    Assert.assertTrue(Files.exists(target));
-    Assert.assertArrayEquals(data, Files.readAllBytes(target));
-  }
-
-  @Test(expected = FileAlreadyExistsException.class)
-  public void copyFileToExistingDirectoryInForeignGitFileSystemBasedOnSameRepositoryTest() throws IOException {
-    initRepository();
-    writeFile("a.txt");
-    commitToMaster();
-    initGitFileSystem();
-
-    GitFileSystem targetFs = GitFileSystemBuilder.prepare()
-                               .repository(repo)
-                               .build();
-    Files.write(targetFs.getPath("/a/b.txt"), "some data to be replaced".getBytes());
-
-    GitPath source = gfs.getPath("/a.txt");
-    GitPath target = targetFs.getPath("/a");
-    Files.copy(source, target);
-  }
-
-  @Test(expected = DirectoryNotEmptyException.class)
-  public void copyFileToExistingDirectoryInForeignGitFileSystemBasedOnSameRepositoryWithReplaceExistingTest() throws IOException {
-    initRepository();
-    writeFile("a.txt");
-    commitToMaster();
-    initGitFileSystem();
-
-    GitFileSystem targetFs = GitFileSystemBuilder.prepare()
-                               .repository(repo)
-                               .build();
-    Files.write(targetFs.getPath("/a/b.txt"), "some data to be replaced".getBytes());
-
-    GitPath source = gfs.getPath("/a.txt");
-    GitPath target = targetFs.getPath("/a");
-    Files.copy(source, target, StandardCopyOption.REPLACE_EXISTING);
+    GitPath source = gfs.getPath("/source");
+    GitPath target = gfs.getPath("/target");
+    provider.copy(source, target);
+    Assert.assertTrue(Files.exists(target.resolve("file1.txt")));
+    Assert.assertTrue(Files.exists(target.resolve("file2.txt")));
   }
 
   @Test
-  public void copyDirectoryToForeignGitFileSystemBasedOnSameRepositoryTest() throws IOException {
+  public void copyDirectory_theSourceDirectoryShouldHaveTheSameChildren() throws IOException {
     initRepository();
-    writeFile("a/b.txt");
+    writeFile("/source/file1.txt");
+    writeFile("/source/file2.txt");
     commitToMaster();
     initGitFileSystem();
 
-    GitFileSystem targetFs = GitFileSystemBuilder.prepare()
-                               .repository(repo)
-                               .build();
-    GitPath source = gfs.getPath("/a");
-    GitPath target = targetFs.getPath("/a");
-    Files.copy(source, target);
-  }
-
-  @Test(expected = NoSuchFileException.class)
-  public void copyNonExistentFileToForeignGitFileSystemBasedOnSameRepositoryTest() throws IOException {
-    initGitFileSystem();
-
-    GitFileSystem targetFs = GitFileSystemBuilder.prepare()
-                               .repository(repo)
-                               .build();
-    GitPath source = gfs.getPath("/a");
-    GitPath target = targetFs.getPath("/a");
-    Files.copy(source, target);
+    GitPath source = gfs.getPath("/source");
+    GitPath target = gfs.getPath("/target");
+    provider.copy(source, target);
+    Assert.assertTrue(Files.exists(source.resolve("file1.txt")));
+    Assert.assertTrue(Files.exists(source.resolve("file2.txt")));
   }
 
   @Test
-  public void copyFileToForeignGitFileSystemBasedOnDifferentRepositoryTest() throws IOException {
-    Repository repo1 = new TestRepository(getClass().getName(), new File("/repo1"), true);
-    Repository repo2 = new TestRepository(getClass().getName(), new File("/repo2"), true);
-    GitFileSystem sourceFs = GitFileSystemBuilder.prepare()
-                               .repository(repo1)
-                               .build();
-    GitFileSystem targetFs = GitFileSystemBuilder.prepare()
-                               .repository(repo2)
-                               .build();
-    GitPath source = sourceFs.getPath("/a.txt");
-    GitPath target = targetFs.getPath("/a.txt");
-    byte[] data = "some plain text data".getBytes();
-    Files.write(source, data);
-    Files.copy(source, target, StandardCopyOption.REPLACE_EXISTING);
-    Assert.assertTrue(Files.exists(target));
-    Assert.assertArrayEquals(data, Files.readAllBytes(target));
+  public void copyDirectory_theChildrenInTheTargetDirectoryShouldHaveTheSameData() throws IOException {
+    initRepository();
+    byte[] expectedData1 = "expected data 1".getBytes();
+    writeFile("/source/file1.txt", expectedData1);
+    byte[] expectedData2 = "expected data 2".getBytes();
+    writeFile("/source/file2.txt", expectedData2);
+    commitToMaster();
+    initGitFileSystem();
+
+    GitPath source = gfs.getPath("/source");
+    GitPath target = gfs.getPath("/target");
+    provider.copy(source, target);
+    Assert.assertArrayEquals(expectedData1, Files.readAllBytes(target.resolve("file1.txt")));
+    Assert.assertArrayEquals(expectedData2, Files.readAllBytes(target.resolve("file2.txt")));
   }
-
-
-
-
 
 }

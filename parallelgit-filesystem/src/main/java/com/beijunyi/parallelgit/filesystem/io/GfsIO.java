@@ -272,10 +272,10 @@ public final class GfsIO {
       throw new IllegalStateException();
   }
 
-  public static void copy(@Nonnull GitPath source, @Nonnull GitPath target, @Nonnull Set<CopyOption> options) throws IOException {
+  public static boolean copy(@Nonnull GitPath source, @Nonnull GitPath target, @Nonnull Set<CopyOption> options) throws IOException {
     Node sourceNode = findNode(source);
     if(source.equals(target))
-      return;
+      return false;
     if(target.isRoot())
       throw new FileAlreadyExistsException(target.toString());
     GitPath targetParent = getParent(target);
@@ -286,11 +286,15 @@ public final class GfsIO {
       throw new FileAlreadyExistsException(target.toString());
     copyNode(sourceNode, source.getFileSystem(), targetNode, target.getFileSystem());
     setParentsDirty(targetParentNodes);
+    return true;
   }
 
-  public static void move(@Nonnull GitPath source, @Nonnull GitPath target, @Nonnull Set<CopyOption> options) throws IOException {
-    copy(source, target, options);
-    delete(source);
+  public static boolean move(@Nonnull GitPath source, @Nonnull GitPath target, @Nonnull Set<CopyOption> options) throws IOException {
+    if(copy(source, target, options)) {
+      delete(source);
+      return true;
+    }
+    return false;
   }
 
   public static void delete(@Nonnull GitPath file) throws IOException {

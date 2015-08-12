@@ -37,7 +37,7 @@ public class GitFileSystemProviderGetAttributeViewTest extends AbstractGitFileSy
   @Test
   public void getFileAttributeViewForNonExistingFileTest() throws IOException {
     initGitFileSystem();
-    Assert.assertNotNull(Files.getFileAttributeView(gfs.getPath("/a"), GitFileAttributeView.class));
+    Assert.assertNotNull(provider.getFileAttributeView(gfs.getPath("/a"), GitFileAttributeView.class));
   }
 
   @Test(expected = UnsupportedOperationException.class)

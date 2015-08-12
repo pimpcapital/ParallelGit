@@ -17,7 +17,7 @@ public class FileSystemsCreateTest extends AbstractParallelGitTest {
 
   @Before
   public void setupRepositoryDirectory() throws IOException {
-    initRepositoryDir(false);
+    initRepositoryDir();
   }
 
   @Test

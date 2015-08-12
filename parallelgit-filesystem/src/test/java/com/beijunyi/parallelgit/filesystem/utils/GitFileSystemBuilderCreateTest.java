@@ -12,7 +12,7 @@ public class GitFileSystemBuilderCreateTest extends AbstractParallelGitTest {
 
   @Before
   public void setupRepository() throws IOException {
-    initRepositoryDir(false);
+    initRepositoryDir();
   }
 
   @Test

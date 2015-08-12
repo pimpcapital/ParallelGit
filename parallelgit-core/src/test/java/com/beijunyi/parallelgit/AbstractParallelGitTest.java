@@ -110,19 +110,20 @@ public abstract class AbstractParallelGitTest {
     cache = DirCache.newInCore();
   }
 
-  protected void initRepositoryDir(boolean memory) throws IOException {
+  protected void initRepositoryDir() throws IOException {
     if(repoDir == null)
-      repoDir = memory ? new File("/memory").getAbsoluteFile() : FileUtils.createTempDir(getClass().getSimpleName(), null, null);
+      repoDir = FileUtils.createTempDir(getClass().getSimpleName(), null, null);
   }
 
   @Nonnull
   protected RevCommit initRepository(boolean memory, boolean bare) throws IOException {
-    initRepositoryDir(memory);
-    repo = memory ? new TestRepository(getClass().getName(), repoDir, bare) : RepositoryHelper.createRepository(repoDir, bare);
+    if(!memory)
+      initRepositoryDir();
+    repo = memory ? new TestRepository(bare) : RepositoryHelper.createRepository(repoDir, bare);
     cache = DirCache.newInCore();
-    writeFile("existing_file1.txt");
+    writeFile("existing_file.txt");
     commitToMaster();
-    writeFile("existing_file2.txt");
+    writeFile("some_other_file.txt");
     return commitToMaster();
   }
 
@@ -141,8 +142,9 @@ public abstract class AbstractParallelGitTest {
     private final File directory;
     private final File workTree;
 
-    public TestRepository(@Nonnull String name, @Nonnull File mockLocation, boolean bare) {
-      super(new DfsRepositoryDescription(name));
+    public TestRepository(boolean bare) {
+      super(new DfsRepositoryDescription(null));
+      File mockLocation = new File(System.getProperty("java.io.tmpdir"));
       directory = bare ? mockLocation : new File(mockLocation, Constants.DOT_GIT);
       workTree = bare ? null : mockLocation;
     }
