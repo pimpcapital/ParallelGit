@@ -11,24 +11,35 @@ public class DirectoryNode extends Node {
 
   protected Map<String, Node> children;
 
-  protected DirectoryNode(@Nonnull AnyObjectId object) {
-    super(NodeType.DIRECTORY, object);
+  protected DirectoryNode(@Nonnull AnyObjectId object, @Nullable DirectoryNode parent) {
+    super(NodeType.DIRECTORY, object, parent);
   }
 
-  protected DirectoryNode() {
-    this(ObjectId.zeroId());
+  protected DirectoryNode(@Nullable DirectoryNode parent) {
+    this(ObjectId.zeroId(), parent);
     dirty = true;
   }
 
   @Nonnull
-  public static DirectoryNode forTreeObject(@Nonnull AnyObjectId object) {
-    return new DirectoryNode(object);
+  public static DirectoryNode forTreeObject(@Nonnull AnyObjectId object, @Nonnull DirectoryNode parent) {
+    return new DirectoryNode(object, parent);
   }
 
   @Nonnull
-  public static DirectoryNode newDirectory() {
-    return new DirectoryNode();
+  public static DirectoryNode newDirectory(@Nonnull DirectoryNode parent) {
+    return new DirectoryNode(parent);
   }
+
+  @Nonnull
+  public static DirectoryNode treeRoot(@Nonnull AnyObjectId object) {
+    return new DirectoryNode(object, null);
+  }
+
+  @Nonnull
+  public static DirectoryNode emptyRoot() {
+    return new DirectoryNode(null);
+  }
+
 
   @Nullable
   public Map<String, Node> getChildren() {
@@ -41,7 +52,6 @@ public class DirectoryNode extends Node {
 
   public void loadChildren(@Nonnull Map<String, Node> children) {
     setChildren(children);
-    unsetSize();
   }
 
   public boolean hasChild(@Nonnull String name) {
@@ -61,14 +71,12 @@ public class DirectoryNode extends Node {
     if(!replace && children.containsKey(name))
       return false;
     children.put(name, child);
-    unsetSize();
     markDirty();
     return true;
   }
 
   public synchronized boolean removeChild(@Nonnull String name) {
     if(children.remove(name) != null) {
-      unsetSize();
       markDirty();
       return true;
     }

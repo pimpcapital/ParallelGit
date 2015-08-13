@@ -91,7 +91,6 @@ public final class GfsIO {
       if(node == null)
         throw new IllegalStateException();
       node.setDirty(true);
-      node.setSize(-1L);
     }
   }
 
@@ -144,14 +143,14 @@ public final class GfsIO {
   }
 
   @Nonnull
-  private static Map<String, Node> readTreeObject(@Nonnull AnyObjectId treeObjectId, @Nonnull GitFileSystem gfs) throws IOException {
+  private static Map<String, Node> readTreeObject(@Nonnull AnyObjectId treeObjectId, @Nonnull GitFileSystem gfs, @Nonnull DirectoryNode parent) throws IOException {
     Map<String, Node> children = new HashMap<>();
     if(!treeObjectId.equals(ObjectId.zeroId())) {
       byte[] treeData = gfs.loadObject(treeObjectId);
       CanonicalTreeParser treeParser = new CanonicalTreeParser();
       treeParser.reset(treeData);
       while(!treeParser.eof()) {
-        children.put(treeParser.getEntryPathString(), Node.forObject(treeParser.getEntryObjectId(), treeParser.getEntryFileMode()));
+        children.put(treeParser.getEntryPathString(), Node.forObject(treeParser.getEntryObjectId(), treeParser.getEntryFileMode(), parent));
         treeParser.next();
       }
     }
@@ -160,7 +159,7 @@ public final class GfsIO {
 
   @Nonnull
   private static Map<String, Node> loadChildren(@Nonnull DirectoryNode dir, @Nonnull GitFileSystem gfs) throws IOException {
-    Map<String, Node> children = readTreeObject(dir.getObject(), gfs);
+    Map<String, Node> children = readTreeObject(dir.getObject(), gfs, dir);
     dir.loadChildren(children);
     return children;
   }
@@ -180,25 +179,15 @@ public final class GfsIO {
     return children;
   }
 
-  private static long loadDirectorySize(@Nonnull DirectoryNode dir, @Nonnull GitFileSystem gfs) throws IOException {
-    long size = 0;
-    Map<String, Node> children = getChildren(dir, gfs);
-    for(Node child : children.values())
-      size += getSize(child, gfs);
-    dir.setSize(size);
-    return size;
-  }
-
   public static long getSize(@Nonnull Node node, @Nonnull GitFileSystem gfs) throws IOException {
-    long size = node.getSize();
-    if(size == -1) {
-      if(node instanceof FileNode)
-        size = loadFileSize((FileNode) node, gfs);
-      else if(node instanceof DirectoryNode)
-        size = loadDirectorySize((DirectoryNode) node, gfs);
-      else
-        throw new IllegalStateException();
-    }
+    long size;
+    if(node instanceof FileNode) {
+      FileNode file = (FileNode) node;
+      size = file.getSize();
+      if(size == -1L)
+        size = loadFileSize(file, gfs);
+    } else
+      size = 0;
     return size;
   }
 
@@ -211,7 +200,7 @@ public final class GfsIO {
       DirectoryNode parentNode = prepareDirectory(firstAsDirectory(parentNodes, parent), file.getFileSystem());
       String name = getFileName(file);
       if(options.contains(StandardOpenOption.CREATE_NEW) || !parentNode.hasChild(name)) {
-        node = FileNode.newFile(FileAttributeReader.read(attrs).isExecutable());
+        node = FileNode.newFile(FileAttributeReader.read(attrs).isExecutable(), parentNode);
         if(!parentNode.addChild(name, node, false))
           throw new FileAlreadyExistsException(file.toString());
       } else {
@@ -234,7 +223,7 @@ public final class GfsIO {
     GitPath parent = getParent(dir);
     Node[] parentNodes = findNodes(parent);
     DirectoryNode parentNode = prepareDirectory(firstAsDirectory(parentNodes, parent), dir.getFileSystem());
-    if(!parentNode.addChild(getFileName(dir), DirectoryNode.newDirectory(), false))
+    if(!parentNode.addChild(getFileName(dir), DirectoryNode.newDirectory(parentNode), false))
       throw new FileAlreadyExistsException(dir.toString());
     setParentsDirty(parentNodes);
   }
@@ -243,16 +232,16 @@ public final class GfsIO {
     byte[] bytes = source.getBytes();
     if(bytes == null)
       bytes = sourceFs.loadObject(source.getObject());
-    target.updateContent(bytes.clone());
+    target.updateContent(bytes);
   }
 
   private static void copyDirectory(@Nonnull DirectoryNode source, @Nonnull GitFileSystem sourceFs, @Nonnull DirectoryNode target, @Nonnull GitFileSystem targetFs) throws IOException {
     Map<String, Node> children = source.getChildren();
     if(children == null)
-      children = readTreeObject(source.getObject(), sourceFs);
+      children = readTreeObject(source.getObject(), sourceFs, source);
     Map<String, Node> clonedChildren = new HashMap<>();
     for(Map.Entry<String, Node> child : children.entrySet()) {
-      Node clonedChild = Node.ofSameType(child.getValue());
+      Node clonedChild = Node.ofSameType(child.getValue(), target);
       clonedChildren.put(child.getKey(), clonedChild);
       copyNode(child.getValue(), sourceFs, clonedChild, targetFs);
     }
@@ -281,7 +270,7 @@ public final class GfsIO {
     GitPath targetParent = getParent(target);
     Node[] targetParentNodes = findNodes(targetParent);
     DirectoryNode targetDirectory = prepareDirectory(firstAsDirectory(targetParentNodes, targetParent), target.getFileSystem());
-    Node targetNode = Node.ofSameType(sourceNode);
+    Node targetNode = Node.ofSameType(sourceNode, targetDirectory);
     if(!targetDirectory.addChild(getFileName(target), targetNode, options.contains(StandardCopyOption.REPLACE_EXISTING)))
       throw new FileAlreadyExistsException(target.toString());
     copyNode(sourceNode, source.getFileSystem(), targetNode, target.getFileSystem());

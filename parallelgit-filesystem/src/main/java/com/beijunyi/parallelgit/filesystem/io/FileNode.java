@@ -9,24 +9,25 @@ import org.eclipse.jgit.lib.ObjectId;
 public class FileNode extends Node {
 
   private byte[] bytes;
+  private long size = -1;
 
-  private FileNode(@Nonnull NodeType type, @Nonnull AnyObjectId object) {
-    super(type, object);
+  private FileNode(@Nonnull NodeType type, @Nonnull AnyObjectId object, @Nonnull DirectoryNode parent) {
+    super(type, object, parent);
   }
 
-  private FileNode(@Nonnull NodeType type) {
-    this(type, ObjectId.zeroId());
+  private FileNode(@Nonnull NodeType type, @Nonnull DirectoryNode parent) {
+    this(type, ObjectId.zeroId(), parent);
     dirty = true;
   }
 
   @Nonnull
-  protected static FileNode forBlobObject(@Nonnull AnyObjectId object, @Nonnull NodeType type) {
-    return new FileNode(type, object);
+  protected static FileNode forBlobObject(@Nonnull AnyObjectId object, @Nonnull NodeType type, @Nonnull DirectoryNode parent) {
+    return new FileNode(type, object, parent);
   }
 
   @Nonnull
-  public static FileNode newFile(boolean executable) {
-    return new FileNode(executable ? NodeType.EXECUTABLE_FILE : NodeType.NON_EXECUTABLE_FILE);
+  public static FileNode newFile(boolean executable, @Nonnull DirectoryNode parent) {
+    return new FileNode(executable ? NodeType.EXECUTABLE_FILE : NodeType.NON_EXECUTABLE_FILE, parent);
   }
 
   @Nullable
@@ -36,6 +37,14 @@ public class FileNode extends Node {
 
   public void setBytes(@Nullable byte[] bytes) {
     this.bytes = bytes;
+  }
+
+  public long getSize() {
+    return size;
+  }
+
+  public void setSize(long size) {
+    this.size = size;
   }
 
   public void loadContent(@Nonnull byte[] bytes) {

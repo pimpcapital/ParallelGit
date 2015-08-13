@@ -20,14 +20,12 @@ public class FilesSizeTest extends AbstractGitFileSystemTest {
   }
 
   @Test
-  public void sizeOfDirectory_shouldReturnTheSumOfDescendantFileSizes() throws IOException {
+  public void sizeOfDirectory_shouldReturnZero() throws IOException {
     initRepository();
-    writeFile("/dir/file1.txt", bytesOfSize(1));
-    writeFile("/dir/file2.txt", bytesOfSize(3));
-    writeFile("/dir/subdir/file3.txt", bytesOfSize(5));
+    writeFile("/dir/file.txt");
     commitToMaster();
     initGitFileSystem();
-    Assert.assertEquals(1 + 3 + 5, Files.size(gfs.getPath("/dir")));
+    Assert.assertEquals(0, Files.size(gfs.getPath("/dir")));
   }
 
   @Test

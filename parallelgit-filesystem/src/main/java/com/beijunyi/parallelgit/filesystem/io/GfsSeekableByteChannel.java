@@ -20,7 +20,7 @@ public class GfsSeekableByteChannel implements SeekableByteChannel {
 
   GfsSeekableByteChannel(@Nonnull FileNode file, @Nonnull GitFileSystem gfs, @Nonnull Set<OpenOption> options) throws IOException {
     this.file = file;
-    buffer = ByteBuffer.wrap(options.contains(StandardOpenOption.TRUNCATE_EXISTING) ? new byte[0] : GfsIO.getFileData(file, gfs));
+    buffer = ByteBuffer.wrap(options.contains(StandardOpenOption.TRUNCATE_EXISTING) ? new byte[0] : GfsIO.getFileData(file, gfs).clone());
     readable = options.contains(StandardOpenOption.READ);
     writable = options.contains(StandardOpenOption.WRITE);
     if(options.contains(StandardOpenOption.APPEND))

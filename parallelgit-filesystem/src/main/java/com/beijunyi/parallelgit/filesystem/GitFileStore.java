@@ -19,7 +19,7 @@ public class GitFileStore extends FileStore {
 
   GitFileStore(@Nonnull GitFileSystem gfs, @Nullable AnyObjectId rootTree) throws IOException {
     this.gfs = gfs;
-    root = rootTree != null ? DirectoryNode.forTreeObject(rootTree) : DirectoryNode.newDirectory();
+    root = rootTree != null ? DirectoryNode.treeRoot(rootTree) : DirectoryNode.emptyRoot();
   }
 
   /**
