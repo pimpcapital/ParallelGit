@@ -98,7 +98,7 @@ public class GitParams extends HashMap<String, String> {
 
   @Nonnull
   public GitParams setRevision(@Nullable AnyObjectId revision) {
-    return setTree(revision != null ? revision.getName() : null);
+    return setRevision(revision != null ? revision.getName() : null);
   }
 
   @Nullable
