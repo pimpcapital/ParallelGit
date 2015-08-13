@@ -152,7 +152,7 @@ public class GitFileSystemProvider extends FileSystemProvider {
         amended.add(WRITE);
       amended.add(option);
     }
-    if(!options.contains(WRITE))
+    if(!amended.contains(WRITE))
       amended.add(READ);
     return GfsIO.newByteChannel(((GitPath)path).toRealPath(), amended, Arrays.<FileAttribute>asList(attrs));
   }

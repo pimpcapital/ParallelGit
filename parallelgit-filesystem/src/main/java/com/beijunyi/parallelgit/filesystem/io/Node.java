@@ -77,7 +77,12 @@ public abstract class Node {
   }
 
   public void markDirty() {
-    setDirty(true);
+    if(!isDirty()) {
+      setDirty(true);
+      DirectoryNode parent = getParent();
+      if(parent != null)
+        parent.markDirty();
+    }
   }
 
   public void markClean(@Nonnull AnyObjectId object) {

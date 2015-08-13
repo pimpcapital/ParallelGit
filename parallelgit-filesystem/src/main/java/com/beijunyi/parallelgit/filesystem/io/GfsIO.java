@@ -8,7 +8,9 @@ import java.util.*;
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 
-import com.beijunyi.parallelgit.filesystem.*;
+import com.beijunyi.parallelgit.filesystem.GitFileAttributeView;
+import com.beijunyi.parallelgit.filesystem.GitFileSystem;
+import com.beijunyi.parallelgit.filesystem.GitPath;
 import com.beijunyi.parallelgit.filesystem.utils.FileAttributeReader;
 import org.eclipse.jgit.lib.AnyObjectId;
 import org.eclipse.jgit.lib.ObjectId;
@@ -27,24 +29,27 @@ public final class GfsIO {
     return parent;
   }
 
-  @Nonnull
-  private static Node[] findNodes(@Nonnull GitPath path) throws IOException {
+  @Nullable
+  private static Node findNode(@Nonnull GitPath path) throws IOException {
     if(!path.isAbsolute())
       throw new IllegalArgumentException(path.toString());
-    GitFileStore store = path.getFileStore();
-    int total = path.getNameCount() + 1;
-    Node[] nodes = new Node[total];
-    nodes[total - 1] = store.getRoot();
+    Node current = path.getFileStore().getRoot();
     for(int i = 0; i < path.getNameCount(); i++) {
-      int index = total - i - 2;
       GitPath name = path.getName(i);
-      Node parent = nodes[index + 1];
-      if(parent instanceof DirectoryNode)
-        nodes[index] = prepareDirectory((DirectoryNode) parent, path.getFileSystem()).getChild(name.toString());
+      if(current instanceof DirectoryNode)
+        current = prepareDirectory((DirectoryNode) current, path.getFileSystem()).getChild(name.toString());
       else
-        break;
+        return null;
     }
-    return nodes;
+    return current;
+  }
+
+  @Nonnull
+  private static Node getNode(@Nonnull GitPath path) throws IOException {
+    Node node = findNode(path);
+    if(node == null)
+      throw new NoSuchFileException(path.toString());
+    return node;
   }
 
   @Nonnull
@@ -57,41 +62,20 @@ public final class GfsIO {
   }
 
   @Nonnull
-  private static FileNode firstAsFile(@Nonnull Node[] nodes, @Nonnull GitPath path) throws NoSuchFileException, AccessDeniedException {
-    return asFile(nodes[0], path);
+  static FileNode findFile(@Nonnull GitPath file) throws IOException {
+    return asFile(findNode(file), file);
   }
 
   @Nonnull
-  private static DirectoryNode firstAsDirectory(@Nonnull Node[] nodes, @Nonnull GitPath path) throws NotDirectoryException {
-    if(nodes[0] instanceof DirectoryNode)
-      return (DirectoryNode) nodes[0];
+  private static DirectoryNode asDirectory(@Nullable Node node, @Nonnull GitPath path) throws NotDirectoryException {
+    if(node instanceof DirectoryNode)
+      return (DirectoryNode) node;
     throw new NotDirectoryException(path.toString());
   }
 
   @Nonnull
-  private static Node findNode(@Nonnull GitPath path) throws IOException {
-    Node node = findNodes(path)[0];
-    if(node == null)
-      throw new NoSuchFileException(path.toString());
-    return node;
-  }
-
-  @Nonnull
-  static FileNode findFile(@Nonnull GitPath dir) throws IOException {
-    return firstAsFile(findNodes(dir), dir);
-  }
-
-  @Nonnull
   static DirectoryNode findDirectory(@Nonnull GitPath dir) throws IOException {
-    return firstAsDirectory(findNodes(dir), dir);
-  }
-
-  private static void setParentsDirty(@Nonnull Node[] nodes) {
-    for(Node node : nodes) {
-      if(node == null)
-        throw new IllegalStateException();
-      node.setDirty(true);
-    }
+    return asDirectory(findNode(dir), dir);
   }
 
   private static void checkNotRootPath(@Nonnull GitPath path) {
@@ -193,11 +177,12 @@ public final class GfsIO {
 
   @Nonnull
   public static GfsSeekableByteChannel newByteChannel(@Nonnull GitPath file, @Nonnull Set<OpenOption> options, @Nonnull Collection<FileAttribute> attrs) throws IOException {
+    if(file.isRoot())
+      throw new AccessDeniedException(file.toString());
     FileNode node;
     if(options.contains(StandardOpenOption.CREATE) || options.contains(StandardOpenOption.CREATE_NEW)) {
       GitPath parent = getParent(file);
-      Node[] parentNodes = findNodes(parent);
-      DirectoryNode parentNode = prepareDirectory(firstAsDirectory(parentNodes, parent), file.getFileSystem());
+      DirectoryNode parentNode = prepareDirectory(findDirectory(parent), file.getFileSystem());
       String name = getFileName(file);
       if(options.contains(StandardOpenOption.CREATE_NEW) || !parentNode.hasChild(name)) {
         node = FileNode.newFile(FileAttributeReader.read(attrs).isExecutable(), parentNode);
@@ -221,11 +206,9 @@ public final class GfsIO {
     if(dir.isRoot())
       throw new FileAlreadyExistsException(dir.toString());
     GitPath parent = getParent(dir);
-    Node[] parentNodes = findNodes(parent);
-    DirectoryNode parentNode = prepareDirectory(firstAsDirectory(parentNodes, parent), dir.getFileSystem());
+    DirectoryNode parentNode = prepareDirectory(findDirectory(parent), dir.getFileSystem());
     if(!parentNode.addChild(getFileName(dir), DirectoryNode.newDirectory(parentNode), false))
       throw new FileAlreadyExistsException(dir.toString());
-    setParentsDirty(parentNodes);
   }
 
   private static void copyFile(@Nonnull FileNode source, @Nonnull GitFileSystem sourceFs, @Nonnull FileNode target) throws IOException {
@@ -262,19 +245,17 @@ public final class GfsIO {
   }
 
   public static boolean copy(@Nonnull GitPath source, @Nonnull GitPath target, @Nonnull Set<CopyOption> options) throws IOException {
-    Node sourceNode = findNode(source);
+    Node sourceNode = getNode(source);
     if(source.equals(target))
       return false;
     if(target.isRoot())
       throw new FileAlreadyExistsException(target.toString());
     GitPath targetParent = getParent(target);
-    Node[] targetParentNodes = findNodes(targetParent);
-    DirectoryNode targetDirectory = prepareDirectory(firstAsDirectory(targetParentNodes, targetParent), target.getFileSystem());
+    DirectoryNode targetDirectory = prepareDirectory(findDirectory(targetParent), target.getFileSystem());
     Node targetNode = Node.ofSameType(sourceNode, targetDirectory);
     if(!targetDirectory.addChild(getFileName(target), targetNode, options.contains(StandardCopyOption.REPLACE_EXISTING)))
       throw new FileAlreadyExistsException(target.toString());
     copyNode(sourceNode, source.getFileSystem(), targetNode, target.getFileSystem());
-    setParentsDirty(targetParentNodes);
     return true;
   }
 
@@ -290,21 +271,20 @@ public final class GfsIO {
     if(file.isRoot())
       throw new AccessDeniedException(file.toString());
     GitPath parent = getParent(file);
-    Node[] parentNodes = findNodes(parent);
-    DirectoryNode parentNode = prepareDirectory(firstAsDirectory(parentNodes, parent), file.getFileSystem());
+    DirectoryNode parentNode = prepareDirectory(findDirectory(parent), file.getFileSystem());
     if(!parentNode.removeChild(getFileName(file)))
       throw new NoSuchFileException(file.toString());
   }
 
   public static void checkAccess(@Nonnull GitPath path, @Nonnull Set<AccessMode> modes) throws IOException {
-    Node node = findNode(path);
+    Node node = getNode(path);
     if(modes.contains(AccessMode.EXECUTE) && !node.isExecutableFile())
       throw new AccessDeniedException(path.toString());
   }
 
   @Nonnull
   public static <V extends FileAttributeView> V getFileAttributeView(@Nonnull GitPath path, @Nonnull Class<V> type) throws IOException, UnsupportedOperationException {
-    return GitFileAttributeView.forNode(findNode(path), path.getFileSystem(), type);
+    return GitFileAttributeView.forNode(getNode(path), path.getFileSystem(), type);
   }
 
   @Nonnull
@@ -346,7 +326,7 @@ public final class GfsIO {
 
   @Nonnull
   public static AnyObjectId persist(@Nonnull GitPath path) throws IOException {
-    return persistNode(findNode(path), path.getFileSystem());
+    return persistNode(getNode(path), path.getFileSystem());
   }
 
 }
