@@ -1,4 +1,4 @@
-package com.beijunyi.parallelgit.filesystem;
+package com.beijunyi.parallelgit.filesystem.io;
 
 import java.io.IOException;
 import java.nio.file.Files;
@@ -7,34 +7,33 @@ import java.nio.file.attribute.*;
 import java.util.*;
 import javax.annotation.Nonnull;
 
-import com.beijunyi.parallelgit.filesystem.io.GfsIO;
-import com.beijunyi.parallelgit.filesystem.io.Node;
+import com.beijunyi.parallelgit.filesystem.GitFileSystem;
 
-public abstract class GitFileAttributeView implements FileAttributeView {
+public abstract class GfsFileAttributeView implements FileAttributeView {
 
   protected final Node node;
   protected final GitFileSystem gfs;
 
-  protected GitFileAttributeView(@Nonnull Node node, @Nonnull GitFileSystem gfs) {
+  protected GfsFileAttributeView(@Nonnull Node node, @Nonnull GitFileSystem gfs) {
     this.node = node;
     this.gfs = gfs;
   }
 
   @Nonnull
-  public static <V extends FileAttributeView> V forNode(@Nonnull Node node, @Nonnull GitFileSystem gfs, @Nonnull Class<V> type) throws UnsupportedOperationException {
-    if(type.isAssignableFrom(GitFileAttributeView.Basic.class))
-      return type.cast(new GitFileAttributeView.Basic(node, gfs));
-    if(type.isAssignableFrom(GitFileAttributeView.Posix.class))
-      return type.cast(new GitFileAttributeView.Posix(node, gfs));
+  static <V extends FileAttributeView> V forNode(@Nonnull Node node, @Nonnull GitFileSystem gfs, @Nonnull Class<V> type) throws UnsupportedOperationException {
+    if(type.isAssignableFrom(GfsFileAttributeView.Basic.class))
+      return type.cast(new GfsFileAttributeView.Basic(node, gfs));
+    if(type.isAssignableFrom(GfsFileAttributeView.Posix.class))
+      return type.cast(new GfsFileAttributeView.Posix(node, gfs));
     throw new UnsupportedOperationException(type.getName());
   }
 
   @Nonnull
   public abstract Map<String, Object> readAttributes(@Nonnull Collection<String> attributes) throws IOException;
 
-  public static class Basic extends GitFileAttributeView implements BasicFileAttributeView {
+  public static class Basic extends GfsFileAttributeView implements BasicFileAttributeView {
 
-    public static final FileTime EPOCH = FileTime.fromMillis(0);
+    private static final FileTime EPOCH = FileTime.fromMillis(0);
 
     public static final String SIZE_NAME = "size";
     public static final String CREATION_TIME_NAME = "creationTime";
@@ -73,7 +72,7 @@ public abstract class GitFileAttributeView implements FileAttributeView {
     @Nonnull
     @Override
     public BasicFileAttributes readAttributes() throws IOException {
-      return new GitFileAttributes.Basic(readAttributes(BASIC_KEYS));
+      return new GfsFileAttributes.Basic(readAttributes(BASIC_KEYS));
     }
 
     @Override
@@ -115,7 +114,7 @@ public abstract class GitFileAttributeView implements FileAttributeView {
             result.put(key, false);
             break;
           default:
-            throw new IllegalArgumentException("Attribute \"" + key + "\" is not supported");
+            throw new UnsupportedOperationException("Attribute \"" + key + "\" is not supported");
         }
       }
       return Collections.unmodifiableMap(result);
@@ -127,9 +126,7 @@ public abstract class GitFileAttributeView implements FileAttributeView {
     private static final Collection<PosixFilePermission> DEFAULT_PERMISSIONS =
       Collections.unmodifiableCollection(Arrays.asList(
                                                         PosixFilePermission.OWNER_READ,
-                                                        PosixFilePermission.OWNER_WRITE,
-                                                        PosixFilePermission.GROUP_READ,
-                                                        PosixFilePermission.OTHERS_READ
+                                                        PosixFilePermission.OWNER_WRITE
       ));
 
     public static final String PERMISSIONS_NAME = "permissions";
@@ -183,7 +180,7 @@ public abstract class GitFileAttributeView implements FileAttributeView {
     @Nonnull
     @Override
     public PosixFileAttributes readAttributes() throws IOException {
-      return new GitFileAttributes.Posix(readAttributes(POSIX_KEYS));
+      return new GfsFileAttributes.Posix(readAttributes(POSIX_KEYS));
     }
 
     @Nonnull
@@ -241,7 +238,7 @@ public abstract class GitFileAttributeView implements FileAttributeView {
             result.put(key, getGroup());
             break;
           default:
-            throw new IllegalArgumentException("Attribute \"" + key + "\" is not supported");
+            throw new UnsupportedOperationException("Attribute \"" + key + "\" is not supported");
         }
       }
       return Collections.unmodifiableMap(result);

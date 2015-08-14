@@ -8,6 +8,7 @@ import java.util.regex.Pattern;
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 
+import com.beijunyi.parallelgit.filesystem.io.GfsFileAttributeView;
 import com.beijunyi.parallelgit.filesystem.io.GfsIO;
 import com.beijunyi.parallelgit.filesystem.utils.GitGlobs;
 import org.eclipse.jgit.lib.*;
@@ -19,8 +20,8 @@ public class GitFileSystem extends FileSystem {
   private static final String REGEX_SYNTAX = "regex";
   private static final Set<String> SUPPORTED_VIEWS =
     Collections.unmodifiableSet(new HashSet<>(Arrays.asList(
-                                                             GitFileAttributeView.Basic.BASIC_VIEW,
-                                                             GitFileAttributeView.Posix.POSIX_VIEW
+                                                             GfsFileAttributeView.Basic.BASIC_VIEW,
+                                                             GfsFileAttributeView.Posix.POSIX_VIEW
     )));
 
   private final GitFileSystemProvider provider;

@@ -11,8 +11,7 @@ import java.util.concurrent.ConcurrentHashMap;
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 
-import com.beijunyi.parallelgit.filesystem.io.GfsDirectoryStream;
-import com.beijunyi.parallelgit.filesystem.io.GfsIO;
+import com.beijunyi.parallelgit.filesystem.io.*;
 import com.beijunyi.parallelgit.filesystem.utils.GitFileSystemBuilder;
 import com.beijunyi.parallelgit.filesystem.utils.GitUriUtils;
 
@@ -362,7 +361,7 @@ public class GitFileSystemProvider extends FileSystemProvider {
     try {
       return GfsIO.getFileAttributeView(((GitPath)path).toRealPath(), type);
     } catch(IOException e) {
-      return null;
+      throw new IllegalStateException(e);
     }
   }
 
@@ -388,10 +387,10 @@ public class GitFileSystemProvider extends FileSystemProvider {
   @Override
   public <A extends BasicFileAttributes> A readAttributes(@Nonnull Path path, @Nonnull Class<A> type, @Nonnull LinkOption... options) throws IOException {
     Class<? extends BasicFileAttributeView> viewType;
-    if(type.isAssignableFrom(GitFileAttributes.Basic.class))
-      viewType = GitFileAttributeView.Basic.class;
-    else if(type.isAssignableFrom(GitFileAttributes.Posix.class))
-      viewType = GitFileAttributeView.Posix.class;
+    if(type.isAssignableFrom(GfsFileAttributes.Basic.class))
+      viewType = GfsFileAttributeView.Basic.class;
+    else if(type.isAssignableFrom(GfsFileAttributes.Posix.class))
+      viewType = GfsFileAttributeView.Posix.class;
     else
       throw new UnsupportedOperationException(type.getName());
     BasicFileAttributeView view = getFileAttributeView(path, viewType, options);
@@ -425,20 +424,20 @@ public class GitFileSystemProvider extends FileSystemProvider {
   @Override
   public Map<String, Object> readAttributes(@Nonnull Path path, @Nonnull String attributes, @Nonnull LinkOption... options) throws IOException {
     int viewNameEnd = attributes.indexOf(':');
-    String viewName = viewNameEnd >= 0 ? attributes.substring(0, viewNameEnd) : GitFileAttributeView.Basic.BASIC_VIEW;
+    String viewName = viewNameEnd >= 0 ? attributes.substring(0, viewNameEnd) : GfsFileAttributeView.Basic.BASIC_VIEW;
     String keys = viewNameEnd >= 0 ? attributes.substring(viewNameEnd + 1) : attributes;
-    Class<? extends GitFileAttributeView> viewType;
+    Class<? extends GfsFileAttributeView> viewType;
     switch(viewName) {
-      case GitFileAttributeView.Basic.BASIC_VIEW:
-        viewType = GitFileAttributeView.Basic.class;
+      case GfsFileAttributeView.Basic.BASIC_VIEW:
+        viewType = GfsFileAttributeView.Basic.class;
         break;
-      case GitFileAttributeView.Posix.POSIX_VIEW:
-        viewType = GitFileAttributeView.Posix.class;
+      case GfsFileAttributeView.Posix.POSIX_VIEW:
+        viewType = GfsFileAttributeView.Posix.class;
         break;
       default:
         throw new UnsupportedOperationException("View \"" + viewName + "\" is not available");
     }
-    GitFileAttributeView view = getFileAttributeView(path, viewType, options);
+    GfsFileAttributeView view = getFileAttributeView(path, viewType, options);
     if(view == null)
       throw new NoSuchFileException(path.toString());
     return view.readAttributes(Arrays.asList(keys.split(",")));

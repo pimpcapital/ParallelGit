@@ -8,6 +8,7 @@ import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 
 import com.beijunyi.parallelgit.filesystem.io.DirectoryNode;
+import com.beijunyi.parallelgit.filesystem.io.GfsFileAttributeView;
 import com.beijunyi.parallelgit.filesystem.io.GfsIO;
 import org.eclipse.jgit.lib.AnyObjectId;
 
@@ -99,15 +100,15 @@ public class GitFileStore extends FileStore {
 
   @Override
   public boolean supportsFileAttributeView(@Nonnull Class<? extends FileAttributeView> type) {
-    return type.isAssignableFrom(GitFileAttributeView.Basic.class)
-             || type.isAssignableFrom(GitFileAttributeView.Posix.class) ;
+    return type.isAssignableFrom(GfsFileAttributeView.Basic.class)
+             || type.isAssignableFrom(GfsFileAttributeView.Posix.class) ;
   }
 
   @Override
   public boolean supportsFileAttributeView(@Nonnull String name) {
     switch(name) {
-      case GitFileAttributeView.Basic.BASIC_VIEW:
-      case GitFileAttributeView.Posix.POSIX_VIEW:
+      case GfsFileAttributeView.Basic.BASIC_VIEW:
+      case GfsFileAttributeView.Posix.POSIX_VIEW:
         return true;
       default:
         return false;

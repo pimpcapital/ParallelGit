@@ -1,56 +1,60 @@
 package com.beijunyi.parallelgit.filesystem;
 
 import java.io.IOException;
-import java.nio.file.Files;
-import java.nio.file.attribute.FileTime;
+import java.nio.file.attribute.BasicFileAttributeView;
+import java.nio.file.attribute.FileAttributeView;
+import java.nio.file.attribute.PosixFileAttributeView;
 
-import com.sun.nio.zipfs.ZipFileAttributeView;
 import org.junit.Assert;
 import org.junit.Test;
 
 public class GitFileSystemProviderGetAttributeViewTest extends AbstractGitFileSystemTest {
 
   @Test
-  public void getGitFileAttributeViewNameTest() throws IOException {
-    initGitFileSystem();
-    Assert.assertEquals("basic", Files.getFileAttributeView(root, GitFileAttributeView.class).name());
-  }
-
-  @Test
-  public void getFileAttributeViewForFileTest() throws IOException {
+  public void getFileAttributeViewFromFile_shouldBeNotNull() throws IOException {
     initRepository();
-    writeFile("a/b");
+    writeFile("/file.txt");
     commitToMaster();
     initGitFileSystem();
-    Assert.assertNotNull(Files.getFileAttributeView(gfs.getPath("/a/b"), GitFileAttributeView.class));
+    Assert.assertNotNull(provider.getFileAttributeView(gfs.getPath("/file.txt"), FileAttributeView.class));
   }
 
   @Test
-  public void getFileAttributeViewForDirectoryTest() throws IOException {
+  public void getFileAttributeViewFromNonExistentFile_shouldBeNotNull() throws IOException {
+    initGitFileSystem();
+    Assert.assertNull(provider.getFileAttributeView(gfs.getPath("/non_existent_file.txt"), FileAttributeView.class));
+  }
+
+  @Test
+  public void getBasicFileAttributeViewFromFile_shouldBeNotNull() throws IOException {
     initRepository();
-    writeFile("a/b");
+    writeFile("/file.txt");
     commitToMaster();
     initGitFileSystem();
-    Assert.assertNotNull(Files.getFileAttributeView(gfs.getPath("/a"), GitFileAttributeView.class));
+    Assert.assertNotNull(provider.getFileAttributeView(gfs.getPath("/file.txt"), BasicFileAttributeView.class));
   }
 
   @Test
-  public void getFileAttributeViewForNonExistingFileTest() throws IOException {
+  public void getPosixFileAttributeViewFromFile_shouldBeNotNull() throws IOException {
+    initRepository();
+    writeFile("/file.txt");
+    commitToMaster();
     initGitFileSystem();
-    Assert.assertNull(provider.getFileAttributeView(gfs.getPath("/a"), GitFileAttributeView.class));
+    Assert.assertNotNull(provider.getFileAttributeView(gfs.getPath("/file.txt"), PosixFileAttributeView.class));
   }
 
   @Test(expected = UnsupportedOperationException.class)
-  public void getNonGitFileAttributeViewTest() throws IOException {
+  public void getUnsupportedFileAttributeViewFromFile_shouldThrowUnsupportedOperationException() throws IOException {
+    initRepository();
+    writeFile("/file.txt");
+    commitToMaster();
     initGitFileSystem();
-    Files.getFileAttributeView(root, ZipFileAttributeView.class);
-  }
-
-  @Test(expected = UnsupportedOperationException.class)
-  public void gitFileAttributeViewSetTimesTest() throws IOException {
-    initGitFileSystem();
-    FileTime now = FileTime.fromMillis(System.currentTimeMillis());
-    Files.getFileAttributeView(root, GitFileAttributeView.Basic.class).setTimes(now, now, now);
+    Assert.assertNotNull(provider.getFileAttributeView(gfs.getPath("/file.txt"), new FileAttributeView() {
+      @Override
+      public String name() {
+        return "some_unsupported_view";
+      }
+    }.getClass()));
   }
 
 }

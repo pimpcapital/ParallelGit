@@ -8,7 +8,6 @@ import java.util.*;
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 
-import com.beijunyi.parallelgit.filesystem.GitFileAttributeView;
 import com.beijunyi.parallelgit.filesystem.GitFileSystem;
 import com.beijunyi.parallelgit.filesystem.GitPath;
 import com.beijunyi.parallelgit.filesystem.utils.FileAttributeReader;
@@ -282,9 +281,12 @@ public final class GfsIO {
       throw new AccessDeniedException(path.toString());
   }
 
-  @Nonnull
+  @Nullable
   public static <V extends FileAttributeView> V getFileAttributeView(@Nonnull GitPath path, @Nonnull Class<V> type) throws IOException, UnsupportedOperationException {
-    return GitFileAttributeView.forNode(getNode(path), path.getFileSystem(), type);
+    Node node = findNode(path);
+    if(node != null)
+      return GfsFileAttributeView.forNode(node, path.getFileSystem(), type);
+    return null;
   }
 
   @Nonnull
