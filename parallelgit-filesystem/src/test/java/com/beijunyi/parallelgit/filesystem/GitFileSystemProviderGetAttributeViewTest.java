@@ -4,6 +4,7 @@ import java.io.IOException;
 import java.nio.file.attribute.BasicFileAttributeView;
 import java.nio.file.attribute.FileAttributeView;
 import java.nio.file.attribute.PosixFileAttributeView;
+import javax.annotation.Nonnull;
 
 import org.junit.Assert;
 import org.junit.Test;
@@ -50,6 +51,7 @@ public class GitFileSystemProviderGetAttributeViewTest extends AbstractGitFileSy
     commitToMaster();
     initGitFileSystem();
     Assert.assertNotNull(provider.getFileAttributeView(gfs.getPath("/file.txt"), new FileAttributeView() {
+      @Nonnull
       @Override
       public String name() {
         return "some_unsupported_view";

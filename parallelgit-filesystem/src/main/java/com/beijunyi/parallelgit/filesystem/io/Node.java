@@ -8,7 +8,7 @@ import org.eclipse.jgit.lib.FileMode;
 
 public abstract class Node {
 
-  protected final NodeType type;
+  protected NodeType type;
   protected final DirectoryNode parent;
   protected volatile AnyObjectId object;
   protected volatile boolean dirty = false;
@@ -36,6 +36,10 @@ public abstract class Node {
   @Nonnull
   public NodeType getType() {
     return type;
+  }
+
+  public void setType(@Nonnull NodeType type) {
+    this.type = type;
   }
 
   public boolean isRegularFile() {

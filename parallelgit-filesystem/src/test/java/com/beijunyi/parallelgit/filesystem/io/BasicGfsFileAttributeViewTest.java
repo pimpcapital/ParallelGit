@@ -25,13 +25,25 @@ public class BasicGfsFileAttributeViewTest extends AbstractGitFileSystemTest {
     Assert.assertEquals("basic", view.name());
   }
 
+  @Test
+  public void readAttributes_shouldReturnNotNull() throws IOException {
+    initRepository();
+    writeFile("/file.txt");
+    commitToMaster();
+    initGitFileSystem();
+
+    GfsFileAttributeView.Basic view = provider.getFileAttributeView(gfs.getPath("/file.txt"), GfsFileAttributeView.Basic.class);
+    Assert.assertNotNull(view);
+    Assert.assertNotNull(view.readAttributes());
+  }
+
   @Nullable
-  private static Object readAttribute(@Nonnull GfsFileAttributeView view, @Nonnull String attributeKey) throws IOException {
+  public static Object readAttribute(@Nonnull GfsFileAttributeView view, @Nonnull String attributeKey) throws IOException {
     return view.readAttributes(Collections.singleton(attributeKey)).get(attributeKey);
   }
 
   @Test
-  public void getSizeAttributeFromFile_shouldReturnTheFileSize() throws IOException {
+  public void getSizeAttributeOfFile_shouldReturnTheFileSize() throws IOException {
     initRepository();
     byte[] data = "13 bytes data".getBytes();
     writeFile("/file.txt", data);
@@ -44,7 +56,7 @@ public class BasicGfsFileAttributeViewTest extends AbstractGitFileSystemTest {
   }
 
   @Test
-  public void getSizeAttributeFromDirectory_shouldReturnZero() throws IOException {
+  public void getSizeAttributeOfDirectory_shouldReturnZero() throws IOException {
     initRepository();
     writeFile("/dir/file.txt");
     commitToMaster();
@@ -56,7 +68,7 @@ public class BasicGfsFileAttributeViewTest extends AbstractGitFileSystemTest {
   }
 
   @Test
-  public void getCreationTimeAttributeFromFile_shouldReturnEpoch() throws IOException {
+  public void getCreationTimeAttributeOfFile_shouldReturnEpoch() throws IOException {
     initRepository();
     writeFile("/file.txt");
     commitToMaster();
@@ -68,7 +80,7 @@ public class BasicGfsFileAttributeViewTest extends AbstractGitFileSystemTest {
   }
 
   @Test
-  public void getLastAccessTimeAttributeFromFile_shouldReturnEpoch() throws IOException {
+  public void getLastAccessTimeAttributeOfFile_shouldReturnEpoch() throws IOException {
     initRepository();
     writeFile("/file.txt");
     commitToMaster();
@@ -80,7 +92,7 @@ public class BasicGfsFileAttributeViewTest extends AbstractGitFileSystemTest {
   }
 
   @Test
-  public void getLastModifiedTimeAttributeFromFile_shouldReturnEpoch() throws IOException {
+  public void getLastModifiedTimeAttributeOfFile_shouldReturnEpoch() throws IOException {
     initRepository();
     writeFile("/file.txt");
     commitToMaster();
@@ -92,7 +104,7 @@ public class BasicGfsFileAttributeViewTest extends AbstractGitFileSystemTest {
   }
 
   @Test
-  public void getFileKeyAttributeFromFile_shouldReturnNull() throws IOException {
+  public void getFileKeyAttributeOfFile_shouldReturnNull() throws IOException {
     initRepository();
     writeFile("/file.txt");
     commitToMaster();
@@ -104,7 +116,7 @@ public class BasicGfsFileAttributeViewTest extends AbstractGitFileSystemTest {
   }
 
   @Test
-  public void getIsDirectoryAttributeFromFile_shouldReturnFalse() throws IOException {
+  public void getIsDirectoryAttributeOfFile_shouldReturnFalse() throws IOException {
     initRepository();
     writeFile("/file.txt");
     commitToMaster();
@@ -116,7 +128,7 @@ public class BasicGfsFileAttributeViewTest extends AbstractGitFileSystemTest {
   }
 
   @Test
-  public void getIsDirectoryAttributeFromDirectory_shouldReturnTrue() throws IOException {
+  public void getIsDirectoryAttributeOfDirectory_shouldReturnTrue() throws IOException {
     initRepository();
     writeFile("/dir/file.txt");
     commitToMaster();
@@ -128,7 +140,7 @@ public class BasicGfsFileAttributeViewTest extends AbstractGitFileSystemTest {
   }
 
   @Test
-  public void getIsRegularFileAttributeFromFile_shouldReturnTrue() throws IOException {
+  public void getIsRegularFileAttributeOfFile_shouldReturnTrue() throws IOException {
     initRepository();
     writeFile("/file.txt");
     commitToMaster();
@@ -140,7 +152,7 @@ public class BasicGfsFileAttributeViewTest extends AbstractGitFileSystemTest {
   }
 
   @Test
-  public void getIsRegularFileAttributeFromExecutableFile_shouldReturnTrue() throws IOException {
+  public void getIsRegularFileAttributeOfExecutableFile_shouldReturnTrue() throws IOException {
     initRepository();
     writeFile("/file.txt", "some data".getBytes(), FileMode.EXECUTABLE_FILE);
     commitToMaster();
@@ -152,7 +164,7 @@ public class BasicGfsFileAttributeViewTest extends AbstractGitFileSystemTest {
   }
 
   @Test
-  public void getIsRegularFileAttributeFromDirectory_shouldReturnFalse() throws IOException {
+  public void getIsRegularFileAttributeOfDirectory_shouldReturnFalse() throws IOException {
     initRepository();
     writeFile("/dir/file.txt");
     commitToMaster();
@@ -164,7 +176,7 @@ public class BasicGfsFileAttributeViewTest extends AbstractGitFileSystemTest {
   }
 
   @Test
-  public void getIsSymbolicLinkAttributeFromFile_shouldReturnFalse() throws IOException {
+  public void getIsSymbolicLinkAttributeOfFile_shouldReturnFalse() throws IOException {
     initRepository();
     writeFile("/file.txt");
     commitToMaster();
@@ -176,7 +188,7 @@ public class BasicGfsFileAttributeViewTest extends AbstractGitFileSystemTest {
   }
 
   @Test
-  public void getIsSymbolicLinkAttributeFromSymbolicLink_shouldReturnTrue() throws IOException {
+  public void getIsSymbolicLinkAttributeOfSymbolicLink_shouldReturnTrue() throws IOException {
     initRepository();
     writeFile("/file.txt" , "some link".getBytes(), FileMode.SYMLINK);
     commitToMaster();
@@ -188,7 +200,7 @@ public class BasicGfsFileAttributeViewTest extends AbstractGitFileSystemTest {
   }
 
   @Test
-  public void getIsOtherAttributeFromFile_shouldReturnFalse() throws IOException {
+  public void getIsOtherAttributeOfFile_shouldReturnFalse() throws IOException {
     initRepository();
     writeFile("/file.txt");
     commitToMaster();
@@ -200,7 +212,7 @@ public class BasicGfsFileAttributeViewTest extends AbstractGitFileSystemTest {
   }
 
   @Test(expected = UnsupportedOperationException.class)
-  public void getUnsupportedAttributeFromFile_shouldThrowUnsupportedOperationException() throws IOException {
+  public void getNonBasicAttributeOfFile_shouldThrowUnsupportedOperationException() throws IOException {
     initRepository();
     writeFile("/file.txt");
     commitToMaster();
@@ -208,7 +220,7 @@ public class BasicGfsFileAttributeViewTest extends AbstractGitFileSystemTest {
 
     GfsFileAttributeView.Basic view = provider.getFileAttributeView(gfs.getPath("/file.txt"), GfsFileAttributeView.Basic.class);
     Assert.assertNotNull(view);
-    readAttribute(view, "unsupportedAttribute");
+    readAttribute(view, "nonBasicAttribute");
   }
 
   @Test(expected = UnsupportedOperationException.class)

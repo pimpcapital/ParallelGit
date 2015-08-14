@@ -1,11 +1,10 @@
 package com.beijunyi.parallelgit.filesystem.io;
 
 import java.io.IOException;
-import java.nio.file.Files;
-import java.nio.file.Path;
 import java.nio.file.attribute.*;
 import java.util.*;
 import javax.annotation.Nonnull;
+import javax.annotation.Nullable;
 
 import com.beijunyi.parallelgit.filesystem.GitFileSystem;
 
@@ -150,25 +149,8 @@ public abstract class GfsFileAttributeView implements FileAttributeView {
                                                         GROUP_NAME
       ));
 
-    private Path repoDir;
-    private PosixFileAttributes repoAttributes;
-
     protected Posix(@Nonnull Node node, @Nonnull GitFileSystem gfs) {
       super(node, gfs);
-    }
-
-    @Nonnull
-    public Path getRepoDir() {
-      if(repoDir == null)
-        repoDir = gfs.getRepository().getDirectory().toPath();
-      return repoDir;
-    }
-
-    @Nonnull
-    public PosixFileAttributes getRepoAttributes() throws IOException {
-      if(repoAttributes == null)
-        repoAttributes = Files.getFileAttributeView(getRepoDir(), PosixFileAttributeView.class).readAttributes();
-      return repoAttributes;
     }
 
     @Nonnull
@@ -194,12 +176,14 @@ public abstract class GfsFileAttributeView implements FileAttributeView {
 
     @Override
     public void setPermissions(@Nonnull Set<PosixFilePermission> perms) throws IOException {
+      NodeType type = perms.contains(PosixFilePermission.OWNER_EXECUTE) ? NodeType.EXECUTABLE_FILE : NodeType.NON_EXECUTABLE_FILE;
+      if(!type.equals(node.getType())) {
+        if(node.isRegularFile())
+          node.setType(type);
+        else
+          throw new IllegalArgumentException();
+      }
 
-    }
-
-    @Nonnull
-    public GroupPrincipal getGroup() throws IOException {
-      return getRepoAttributes().group();
     }
 
     @Override
@@ -207,14 +191,14 @@ public abstract class GfsFileAttributeView implements FileAttributeView {
       throw new UnsupportedOperationException();
     }
 
-    @Nonnull
+    @Nullable
     @Override
     public UserPrincipal getOwner() throws IOException {
-      return getRepoAttributes().owner();
+      return null;
     }
 
     @Override
-    public void setOwner(UserPrincipal owner) throws IOException {
+    public void setOwner(@Nonnull UserPrincipal owner) throws IOException {
       throw new UnsupportedOperationException();
     }
 
@@ -235,7 +219,7 @@ public abstract class GfsFileAttributeView implements FileAttributeView {
             result.put(key, getOwner());
             break;
           case GROUP_NAME:
-            result.put(key, getGroup());
+            result.put(key, null);
             break;
           default:
             throw new UnsupportedOperationException("Attribute \"" + key + "\" is not supported");
