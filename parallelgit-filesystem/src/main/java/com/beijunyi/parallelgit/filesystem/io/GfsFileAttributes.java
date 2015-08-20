@@ -1,17 +1,18 @@
 package com.beijunyi.parallelgit.filesystem.io;
 
+import java.io.IOException;
 import java.nio.file.attribute.*;
 import java.util.Map;
 import java.util.Set;
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 
-/**
- * Basic attributes associated with a file in a git file system.
- */
+import static com.beijunyi.parallelgit.filesystem.io.GfsFileAttributeView.*;
+
 public abstract class GfsFileAttributes {
 
   public static class Basic implements BasicFileAttributes {
+
     private final FileTime lastModifiedTime;
     private final FileTime lastAccessTime;
     private final FileTime creationTime;
@@ -22,16 +23,20 @@ public abstract class GfsFileAttributes {
     private final long size;
     private final Object fileKey;
 
-    Basic(@Nonnull Map<String, Object> attributes) {
-      lastModifiedTime = (FileTime) attributes.get(GfsFileAttributeView.Basic.LAST_MODIFIED_TIME_NAME);
-      lastAccessTime = (FileTime) attributes.get(GfsFileAttributeView.Basic.LAST_ACCESS_TIME_NAME);
-      creationTime = (FileTime) attributes.get(GfsFileAttributeView.Basic.CREATION_TIME_NAME);
-      isRegularFile = (boolean) attributes.get(GfsFileAttributeView.Basic.IS_REGULAR_FILE_NAME);
-      isDirectory = (boolean) attributes.get(GfsFileAttributeView.Basic.IS_DIRECTORY_NAME);
-      isSymbolicLink = (boolean) attributes.get(GfsFileAttributeView.Basic.IS_SYMBOLIC_LINK_NAME);
-      isOther = (boolean) attributes.get(GfsFileAttributeView.Basic.IS_OTHER_NAME);
-      size = (long) attributes.get(GfsFileAttributeView.Basic.SIZE_NAME);
-      fileKey = attributes.get(GfsFileAttributeView.Basic.FILE_KEY_NAME);
+    private Basic(@Nonnull Map<String, Object> attributes) {
+      lastModifiedTime = (FileTime) attributes.get(LAST_MODIFIED_TIME_NAME);
+      lastAccessTime = (FileTime) attributes.get(LAST_ACCESS_TIME_NAME);
+      creationTime = (FileTime) attributes.get(CREATION_TIME_NAME);
+      isRegularFile = (boolean) attributes.get(IS_REGULAR_FILE_NAME);
+      isDirectory = (boolean) attributes.get(IS_DIRECTORY_NAME);
+      isSymbolicLink = (boolean) attributes.get(IS_SYMBOLIC_LINK_NAME);
+      isOther = (boolean) attributes.get(IS_OTHER_NAME);
+      size = (long) attributes.get(SIZE_NAME);
+      fileKey = attributes.get(FILE_KEY_NAME);
+    }
+
+    Basic(@Nonnull GfsFileAttributeView view) throws IOException {
+      this(view.readAttributes(BASIC_KEYS));
     }
 
     @Nonnull
@@ -116,11 +121,15 @@ public abstract class GfsFileAttributes {
     private final Set<PosixFilePermission> permissions;
 
     @SuppressWarnings("unchecked")
-    public Posix(@Nonnull Map<String, Object> attributes) {
+    private Posix(@Nonnull Map<String, Object> attributes) {
       super(attributes);
       owner = (UserPrincipal) attributes.get(GfsFileAttributeView.Posix.OWNER_NAME);
       group = (GroupPrincipal) attributes.get(GfsFileAttributeView.Posix.GROUP_NAME);
       permissions = (Set<PosixFilePermission>) attributes.get(GfsFileAttributeView.Posix.PERMISSIONS_NAME);
+    }
+
+    Posix(@Nonnull GfsFileAttributeView view) throws IOException {
+      this(view.readAttributes(POSIX_KEYS));
     }
 
     @Override

@@ -1,9 +1,7 @@
 package com.beijunyi.parallelgit.filesystem.io;
 
 import java.io.IOException;
-import java.nio.file.DirectoryStream;
-import java.nio.file.Files;
-import java.nio.file.Path;
+import java.nio.file.*;
 import java.util.Iterator;
 import java.util.NoSuchElementException;
 
@@ -36,10 +34,10 @@ public class GfsDirectoryStreamTest extends AbstractGitFileSystemTest {
   @Test(expected = NoSuchElementException.class)
   public void directoryStreamOfDirectoryNoSuchElementTest() throws IOException {
     initRepository();
-    writeFile("a/b");
+    writeFile("/dir/file.txt");
     commitToMaster();
     initGitFileSystem();
-    try(DirectoryStream<Path> ds = Files.newDirectoryStream(gfs.getPath("/a"))) {
+    try(DirectoryStream<Path> ds = Files.newDirectoryStream(gfs.getPath("/dir"))) {
       Iterator<Path> dsIt = ds.iterator();
       dsIt.next();
       dsIt.next();
@@ -49,13 +47,24 @@ public class GfsDirectoryStreamTest extends AbstractGitFileSystemTest {
   @Test(expected = UnsupportedOperationException.class)
   public void directoryStreamOfDirectoryRemoveTest() throws IOException {
     initRepository();
-    writeFile("a/b");
+    writeFile("/dir/file.txt");
     commitToMaster();
     initGitFileSystem();
-    try(DirectoryStream<Path> ds = Files.newDirectoryStream(gfs.getPath("/a"))) {
+    try(DirectoryStream<Path> ds = Files.newDirectoryStream(gfs.getPath("/dir"))) {
       Iterator<Path> dsIt = ds.iterator();
       dsIt.next();
       dsIt.remove();
     }
+  }
+
+  @Test(expected = ClosedDirectoryStreamException.class)
+  public void userClosedDirectoryStream_shouldThrowClosedDirectoryStreamException() throws IOException {
+    initRepository();
+    writeFile("/dir/file.txt");
+    commitToMaster();
+    initGitFileSystem();
+    DirectoryStream<Path> ds = Files.newDirectoryStream(gfs.getPath("/dir"));
+    ds.close();
+    ds.iterator().next();
   }
 }

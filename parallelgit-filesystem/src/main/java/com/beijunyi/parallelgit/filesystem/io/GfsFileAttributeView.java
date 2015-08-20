@@ -10,6 +10,48 @@ import com.beijunyi.parallelgit.filesystem.GitFileSystem;
 
 public abstract class GfsFileAttributeView implements FileAttributeView {
 
+  public static final String SIZE_NAME = "size";
+  public static final String CREATION_TIME_NAME = "creationTime";
+  public static final String LAST_ACCESS_TIME_NAME = "lastAccessTime";
+  public static final String LAST_MODIFIED_TIME_NAME = "lastModifiedTime";
+  public static final String FILE_KEY_NAME = "fileKey";
+  public static final String IS_DIRECTORY_NAME = "isDirectory";
+  public static final String IS_REGULAR_FILE_NAME = "isRegularFile";
+  public static final String IS_SYMBOLIC_LINK_NAME = "isSymbolicLink";
+  public static final String IS_OTHER_NAME = "isOther";
+  public static final String PERMISSIONS_NAME = "permissions";
+  public static final String OWNER_NAME = "owner";
+  public static final String GROUP_NAME = "group";
+
+  public static final Collection<String> BASIC_KEYS =
+    Collections.unmodifiableCollection(Arrays.asList(
+                                                      SIZE_NAME,
+                                                      CREATION_TIME_NAME,
+                                                      LAST_ACCESS_TIME_NAME,
+                                                      LAST_MODIFIED_TIME_NAME,
+                                                      FILE_KEY_NAME,
+                                                      IS_DIRECTORY_NAME,
+                                                      IS_REGULAR_FILE_NAME,
+                                                      IS_SYMBOLIC_LINK_NAME,
+                                                      IS_OTHER_NAME
+    ));
+
+  public static final Collection<String> POSIX_KEYS =
+    Collections.unmodifiableCollection(Arrays.asList(
+                                                      SIZE_NAME,
+                                                      CREATION_TIME_NAME,
+                                                      LAST_ACCESS_TIME_NAME,
+                                                      LAST_MODIFIED_TIME_NAME,
+                                                      FILE_KEY_NAME,
+                                                      IS_DIRECTORY_NAME,
+                                                      IS_REGULAR_FILE_NAME,
+                                                      IS_SYMBOLIC_LINK_NAME,
+                                                      IS_OTHER_NAME,
+                                                      PERMISSIONS_NAME,
+                                                      OWNER_NAME,
+                                                      GROUP_NAME
+    ));
+
   protected final Node node;
   protected final GitFileSystem gfs;
 
@@ -34,29 +76,7 @@ public abstract class GfsFileAttributeView implements FileAttributeView {
 
     private static final FileTime EPOCH = FileTime.fromMillis(0);
 
-    public static final String SIZE_NAME = "size";
-    public static final String CREATION_TIME_NAME = "creationTime";
-    public static final String LAST_ACCESS_TIME_NAME = "lastAccessTime";
-    public static final String LAST_MODIFIED_TIME_NAME = "lastModifiedTime";
-    public static final String FILE_KEY_NAME = "fileKey";
-    public static final String IS_DIRECTORY_NAME = "isDirectory";
-    public static final String IS_REGULAR_FILE_NAME = "isRegularFile";
-    public static final String IS_SYMBOLIC_LINK_NAME = "isSymbolicLink";
-    public static final String IS_OTHER_NAME = "isOther";
-
     public static final String BASIC_VIEW = "basic";
-    public static final Collection<String> BASIC_KEYS =
-      Collections.unmodifiableCollection(Arrays.asList(
-                                                        SIZE_NAME,
-                                                        CREATION_TIME_NAME,
-                                                        LAST_ACCESS_TIME_NAME,
-                                                        LAST_MODIFIED_TIME_NAME,
-                                                        FILE_KEY_NAME,
-                                                        IS_DIRECTORY_NAME,
-                                                        IS_REGULAR_FILE_NAME,
-                                                        IS_SYMBOLIC_LINK_NAME,
-                                                        IS_OTHER_NAME
-      ));
 
     protected Basic(@Nonnull Node node, @Nonnull GitFileSystem gfs) {
       super(node, gfs);
@@ -71,7 +91,7 @@ public abstract class GfsFileAttributeView implements FileAttributeView {
     @Nonnull
     @Override
     public BasicFileAttributes readAttributes() throws IOException {
-      return new GfsFileAttributes.Basic(readAttributes(BASIC_KEYS));
+      return new GfsFileAttributes.Basic(this);
     }
 
     @Override
@@ -128,26 +148,7 @@ public abstract class GfsFileAttributeView implements FileAttributeView {
                                                         PosixFilePermission.OWNER_WRITE
       ));
 
-    public static final String PERMISSIONS_NAME = "permissions";
-    public static final String OWNER_NAME = "owner";
-    public static final String GROUP_NAME = "group";
-
     public static final String POSIX_VIEW = "posix";
-    public static final Collection<String> POSIX_KEYS =
-      Collections.unmodifiableCollection(Arrays.asList(
-                                                        SIZE_NAME,
-                                                        CREATION_TIME_NAME,
-                                                        LAST_ACCESS_TIME_NAME,
-                                                        LAST_MODIFIED_TIME_NAME,
-                                                        FILE_KEY_NAME,
-                                                        IS_DIRECTORY_NAME,
-                                                        IS_REGULAR_FILE_NAME,
-                                                        IS_SYMBOLIC_LINK_NAME,
-                                                        IS_OTHER_NAME,
-                                                        PERMISSIONS_NAME,
-                                                        OWNER_NAME,
-                                                        GROUP_NAME
-      ));
 
     protected Posix(@Nonnull Node node, @Nonnull GitFileSystem gfs) {
       super(node, gfs);
@@ -162,7 +163,7 @@ public abstract class GfsFileAttributeView implements FileAttributeView {
     @Nonnull
     @Override
     public PosixFileAttributes readAttributes() throws IOException {
-      return new GfsFileAttributes.Posix(readAttributes(POSIX_KEYS));
+      return new GfsFileAttributes.Posix(this);
     }
 
     @Nonnull
