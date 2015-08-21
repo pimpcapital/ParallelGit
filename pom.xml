@@ -14,7 +14,7 @@
 
   <name>ParallelGit</name>
   <description>
-    ParallelGit provides an elegant solution to projects that use Git repository as data storage.
+    ParallelGit provides an elegant solution to projects that use a local Git repository as the main data storage.
   </description>
   <url>http://www.parallelgit.com</url>
 
@@ -108,13 +108,6 @@
         <groupId>org.apache.maven.plugins</groupId>
         <artifactId>maven-jar-plugin</artifactId>
         <version>${maven-jar-plugin.version}</version>
-        <executions>
-          <execution>
-            <goals>
-              <goal>test-jar</goal>
-            </goals>
-          </execution>
-        </executions>
         <configuration>
           <archive>
             <manifest>
@@ -151,33 +144,6 @@
             <id>attach-sources</id>
             <goals>
               <goal>jar-no-fork</goal>
-            </goals>
-            <configuration>
-              <archive>
-                <manifest>
-                  <addDefaultImplementationEntries>true</addDefaultImplementationEntries>
-                  <addDefaultSpecificationEntries>true</addDefaultSpecificationEntries>
-                </manifest>
-                <manifestEntries>
-                  <Implementation-Build>${implementation.build}</Implementation-Build>
-                  <X-Compile-Source-JDK>${javac.src.version}</X-Compile-Source-JDK>
-                  <X-Compile-Target-JDK>${javac.target.version}</X-Compile-Target-JDK>
-                </manifestEntries>
-              </archive>
-            </configuration>
-          </execution>
-        </executions>
-      </plugin>
-
-      <plugin>
-        <groupId>org.apache.maven.plugins</groupId>
-        <artifactId>maven-javadoc-plugin</artifactId>
-        <version>${maven-javadoc-plugin.version}</version>
-        <executions>
-          <execution>
-            <id>attach-javadocs</id>
-            <goals>
-              <goal>jar</goal>
             </goals>
             <configuration>
               <archive>
