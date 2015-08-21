@@ -89,7 +89,7 @@ public class GitFileSystemBuilderTest extends AbstractParallelGitTest {
 
   @Test
   public void buildWithRevision() throws IOException {
-    writeSomeFile();
+    writeSomeFileToCache();
     AnyObjectId commit = commitToMaster();
     GitFileSystem gfs = GitFileSystemBuilder.prepare()
                           .repository(repo)
@@ -100,7 +100,7 @@ public class GitFileSystemBuilderTest extends AbstractParallelGitTest {
 
   @Test
   public void buildWithRevisionString() throws IOException {
-    writeSomeFile();
+    writeSomeFileToCache();
     ObjectId commit = commitToMaster();
     GitFileSystem gfs = GitFileSystemBuilder.prepare()
                           .repository(repo)
@@ -111,7 +111,7 @@ public class GitFileSystemBuilderTest extends AbstractParallelGitTest {
 
   @Test
   public void buildWithTree() throws IOException {
-    writeSomeFile();
+    writeSomeFileToCache();
     AnyObjectId tree = CommitHelper.getCommit(repo, commitToMaster()).getTree();
     GitFileSystem gfs = GitFileSystemBuilder.prepare()
                           .repository(repo)
@@ -122,7 +122,7 @@ public class GitFileSystemBuilderTest extends AbstractParallelGitTest {
 
   @Test
   public void buildWithTreeString() throws IOException {
-    writeSomeFile();
+    writeSomeFileToCache();
     AnyObjectId tree = CommitHelper.getCommit(repo, commitToMaster()).getTree();
     GitFileSystem gfs = GitFileSystemBuilder.prepare()
                           .repository(repo)

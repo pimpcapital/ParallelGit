@@ -16,7 +16,7 @@ public class GfsDirectoryStreamTest extends AbstractGitFileSystemTest {
     initRepository();
     String[] files = new String[] {"/a/b.txt", "/a/c/c1.txt", "/a/d/d1.txt", "/a/d/d2.txt", "/a/e.txt", "/f.txt", "/g/h.txt"};
     for(String file : files)
-      writeFile(file);
+      writeToCache(file);
     commitToMaster();
     initGitFileSystem();
 
@@ -34,7 +34,7 @@ public class GfsDirectoryStreamTest extends AbstractGitFileSystemTest {
   @Test(expected = NoSuchElementException.class)
   public void directoryStreamOfDirectoryNoSuchElementTest() throws IOException {
     initRepository();
-    writeFile("/dir/file.txt");
+    writeToCache("/dir/file.txt");
     commitToMaster();
     initGitFileSystem();
     try(DirectoryStream<Path> ds = Files.newDirectoryStream(gfs.getPath("/dir"))) {
@@ -47,7 +47,7 @@ public class GfsDirectoryStreamTest extends AbstractGitFileSystemTest {
   @Test(expected = UnsupportedOperationException.class)
   public void directoryStreamOfDirectoryRemoveTest() throws IOException {
     initRepository();
-    writeFile("/dir/file.txt");
+    writeToCache("/dir/file.txt");
     commitToMaster();
     initGitFileSystem();
     try(DirectoryStream<Path> ds = Files.newDirectoryStream(gfs.getPath("/dir"))) {
@@ -60,7 +60,7 @@ public class GfsDirectoryStreamTest extends AbstractGitFileSystemTest {
   @Test(expected = ClosedDirectoryStreamException.class)
   public void userClosedDirectoryStream_shouldThrowClosedDirectoryStreamException() throws IOException {
     initRepository();
-    writeFile("/dir/file.txt");
+    writeToCache("/dir/file.txt");
     commitToMaster();
     initGitFileSystem();
     DirectoryStream<Path> ds = Files.newDirectoryStream(gfs.getPath("/dir"));

@@ -20,7 +20,7 @@ public class GitPathTypeTest extends AbstractGitFileSystemTest {
   public void filePathTypeTest() throws IOException {
     initRepository();
     String file = "a.txt";
-    writeFile(file);
+    writeToCache(file);
     commitToMaster();
     initGitFileSystem();
     Path path = root.resolve(file);
@@ -32,7 +32,7 @@ public class GitPathTypeTest extends AbstractGitFileSystemTest {
   public void directoryPathTypeTest() throws IOException {
     initRepository();
     String dir = "a";
-    writeFile(dir + "/b.txt");
+    writeToCache(dir + "/b.txt");
     commitToMaster();
     initGitFileSystem();
     Path path = root.resolve(dir);

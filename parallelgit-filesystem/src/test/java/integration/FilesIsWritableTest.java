@@ -13,7 +13,7 @@ public class FilesIsWritableTest extends AbstractGitFileSystemTest {
   @Before
   public void setupFileSystem() throws IOException {
     initRepository();
-    writeFile("dir/file.txt");
+    writeToCache("dir/file.txt");
     commitToMaster();
     initGitFileSystem();
   }

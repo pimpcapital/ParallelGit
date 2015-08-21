@@ -71,17 +71,19 @@ public final class GitUriUtils {
   }
 
   @Nonnull
-  public static Map<String, String> parseQuery(@Nonnull String query, @Nullable Set<String> keys) {
+  public static Map<String, String> parseQuery(@Nullable String query, @Nullable Set<String> keys) {
     Map<String, String> params = new HashMap<>();
-    String[] pairs = query.split("&");
-    int count = 0;
-    for(String pair : pairs) {
-      String[] keyValue = pair.split("=", 2);
-      String key = keyValue[0];
-      if(keys == null || keys.contains(key)) {
-        params.put(key, keyValue.length > 1 ? keyValue[1] : null);
-        if(keys != null && ++count == keys.size())
-          break;
+    if(query != null) {
+      String[] pairs = query.split("&");
+      int count = 0;
+      for(String pair : pairs) {
+        String[] keyValue = pair.split("=", 2);
+        String key = keyValue[0];
+        if(keys == null || keys.contains(key)) {
+          params.put(key, keyValue.length > 1 ? keyValue[1] : null);
+          if(keys != null && ++count == keys.size())
+            break;
+        }
       }
     }
     return params;

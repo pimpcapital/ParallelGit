@@ -14,7 +14,7 @@ public class GitFileSystemProviderNewByteChannelTest extends AbstractGitFileSyst
   @Test
   public void newReadOnlyByteChannelOfExistingFileTest() throws IOException {
     initRepository();
-    writeFile("dir/file.txt", ORIGINAL_TEXT_BYTES);
+    writeToCache("dir/file.txt", ORIGINAL_TEXT_BYTES);
     commitToMaster();
     initGitFileSystem();
     try(GfsSeekableByteChannel channel = (GfsSeekableByteChannel) Files.newByteChannel(gfs.getPath("/dir/file.txt"), StandardOpenOption.READ)) {
@@ -34,7 +34,7 @@ public class GitFileSystemProviderNewByteChannelTest extends AbstractGitFileSyst
   @Test(expected = AccessDeniedException.class)
   public void newReadOnlyByteChannelOfDirectoryTest() throws IOException {
     initRepository();
-    writeFile("dir/file.txt");
+    writeToCache("dir/file.txt");
     commitToMaster();
     initGitFileSystem();
     Files.newByteChannel(gfs.getPath("/dir"), StandardOpenOption.READ);
@@ -43,7 +43,7 @@ public class GitFileSystemProviderNewByteChannelTest extends AbstractGitFileSyst
   @Test
   public void newWriteOnlyByteChannelOfExistingFileTest() throws IOException {
     initRepository();
-    writeFile("dir/file.txt", ORIGINAL_TEXT_BYTES);
+    writeToCache("dir/file.txt", ORIGINAL_TEXT_BYTES);
     commitToMaster();
     initGitFileSystem();
     try(GfsSeekableByteChannel channel = (GfsSeekableByteChannel) Files.newByteChannel(gfs.getPath("/dir/file.txt"), StandardOpenOption.WRITE)) {
@@ -63,7 +63,7 @@ public class GitFileSystemProviderNewByteChannelTest extends AbstractGitFileSyst
   @Test(expected = AccessDeniedException.class)
   public void newWriteOnlyByteChannelOfDirectoryTest() throws IOException {
     initRepository();
-    writeFile("dir/file.txt");
+    writeToCache("dir/file.txt");
     commitToMaster();
     initGitFileSystem();
     Files.newByteChannel(gfs.getPath("/dir"), StandardOpenOption.WRITE);
@@ -72,7 +72,7 @@ public class GitFileSystemProviderNewByteChannelTest extends AbstractGitFileSyst
   @Test
   public void newReadWriteByteChannelTest() throws IOException {
     initRepository();
-    writeFile("dir/file.txt", ORIGINAL_TEXT_BYTES);
+    writeToCache("dir/file.txt", ORIGINAL_TEXT_BYTES);
     commitToMaster();
     initGitFileSystem();
     try(GfsSeekableByteChannel channel = (GfsSeekableByteChannel) Files.newByteChannel(gfs.getPath("/dir/file.txt"), StandardOpenOption.READ, StandardOpenOption.WRITE)) {
@@ -86,7 +86,7 @@ public class GitFileSystemProviderNewByteChannelTest extends AbstractGitFileSyst
   @Test
   public void newByteChannelWithoutSpecifiedOpenOptionTest() throws IOException {
     initRepository();
-    writeFile("dir/file.txt", ORIGINAL_TEXT_BYTES);
+    writeToCache("dir/file.txt", ORIGINAL_TEXT_BYTES);
     commitToMaster();
     initGitFileSystem();
     try(GfsSeekableByteChannel channel = (GfsSeekableByteChannel) Files.newByteChannel(gfs.getPath("/dir/file.txt"))) {
@@ -100,7 +100,7 @@ public class GitFileSystemProviderNewByteChannelTest extends AbstractGitFileSyst
   @Test
   public void newByteChannelWithAppendOpenOptionTest() throws IOException {
     initRepository();
-    writeFile("dir/file.txt", ORIGINAL_TEXT_BYTES);
+    writeToCache("dir/file.txt", ORIGINAL_TEXT_BYTES);
     commitToMaster();
     initGitFileSystem();
     try(GfsSeekableByteChannel channel = (GfsSeekableByteChannel) Files.newByteChannel(gfs.getPath("/dir/file.txt"), StandardOpenOption.APPEND)) {
@@ -114,7 +114,7 @@ public class GitFileSystemProviderNewByteChannelTest extends AbstractGitFileSyst
   @Test
   public void newByteChannelOfExistingFileWithCreateOpenOptionTest() throws IOException {
     initRepository();
-    writeFile("dir/file.txt", ORIGINAL_TEXT_BYTES);
+    writeToCache("dir/file.txt", ORIGINAL_TEXT_BYTES);
     commitToMaster();
     initGitFileSystem();
     try(GfsSeekableByteChannel channel = (GfsSeekableByteChannel) Files.newByteChannel(gfs.getPath("/dir/file.txt"), StandardOpenOption.CREATE)) {
@@ -139,7 +139,7 @@ public class GitFileSystemProviderNewByteChannelTest extends AbstractGitFileSyst
   @Test(expected = FileAlreadyExistsException.class)
   public void newByteChannelOfExistingFileWithCreateNewOpenOptionTest() throws IOException {
     initRepository();
-    writeFile("dir/file.txt", ORIGINAL_TEXT_BYTES);
+    writeToCache("dir/file.txt", ORIGINAL_TEXT_BYTES);
     commitToMaster();
     initGitFileSystem();
     Files.newByteChannel(gfs.getPath("/dir/file.txt"), StandardOpenOption.CREATE_NEW);
@@ -167,7 +167,7 @@ public class GitFileSystemProviderNewByteChannelTest extends AbstractGitFileSyst
   @Test
   public void newByteChannelOfExistingFileWithTruncateExistingOpenOptionTest() throws IOException {
     initRepository();
-    writeFile("dir/file.txt", ORIGINAL_TEXT_BYTES);
+    writeToCache("dir/file.txt", ORIGINAL_TEXT_BYTES);
     commitToMaster();
     initGitFileSystem();
     try(GfsSeekableByteChannel channel = (GfsSeekableByteChannel) Files.newByteChannel(gfs.getPath("/dir/file.txt"), StandardOpenOption.WRITE, StandardOpenOption.TRUNCATE_EXISTING)) {
@@ -181,7 +181,7 @@ public class GitFileSystemProviderNewByteChannelTest extends AbstractGitFileSyst
   @Test(expected = UnsupportedOperationException.class)
   public void newByteChannelWithUnsupportedOpenOption() throws IOException {
     initRepository();
-    writeFile("dir/file.txt");
+    writeToCache("dir/file.txt");
     commitToMaster();
     initGitFileSystem();
     Files.newByteChannel(gfs.getPath("/dir"), StandardOpenOption.DELETE_ON_CLOSE);

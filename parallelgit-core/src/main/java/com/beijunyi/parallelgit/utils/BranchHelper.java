@@ -79,7 +79,7 @@ public final class BranchHelper {
   }
 
   @Nonnull
-  public static RefUpdate.Result setBranchHead(@Nonnull Repository repo, @Nonnull String name, @Nonnull ObjectId commitId, @Nonnull String refLogMessage, boolean falseUpdate) throws IOException {
+  public static RefUpdate.Result setBranchHead(@Nonnull Repository repo, @Nonnull String name, @Nonnull ObjectId commitId, @Nonnull String refLogMessage, boolean forceUpdate) throws IOException {
     String refName = RefHelper.getBranchRefName(name);
     ObjectId currentHead = repo.resolve(refName);
     if(currentHead == null)
@@ -87,7 +87,7 @@ public final class BranchHelper {
 
     RefUpdate ru = repo.updateRef(refName);
     ru.setRefLogMessage(refLogMessage, false);
-    ru.setForceUpdate(falseUpdate);
+    ru.setForceUpdate(forceUpdate);
     ru.setNewObjectId(commitId);
     ru.setExpectedOldObjectId(currentHead);
     return ru.update();

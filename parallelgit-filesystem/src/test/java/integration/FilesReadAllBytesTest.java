@@ -17,7 +17,7 @@ public class FilesReadAllBytesTest extends AbstractGitFileSystemTest {
   public void readAllBytes_shouldReturnTheContentOfTheFileAsBytes() throws IOException {
     initRepository();
     byte[] data = Constants.encode("some plain text data");
-    writeFile("/file.txt", data);
+    writeToCache("/file.txt", data);
     commitToMaster();
     initGitFileSystem();
     GitPath path = gfs.getPath("/file.txt");
@@ -33,7 +33,7 @@ public class FilesReadAllBytesTest extends AbstractGitFileSystemTest {
   @Test(expected = AccessDeniedException.class)
   public void readAllBytesFromDirectory_shouldThrowAccessDeniedException() throws IOException {
     initRepository();
-    writeFile("/dir/file.txt", "some text");
+    writeToCache("/dir/file.txt", "some text");
     commitToMaster();
     initGitFileSystem();
     GitPath path = gfs.getPath("/dir");

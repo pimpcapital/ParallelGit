@@ -14,7 +14,7 @@ public class BranchHelperTest extends AbstractParallelGitTest {
   public void getBranchHeadCommitTest() throws IOException {
     ObjectId firstCommit = initRepository();
     Assert.assertEquals(firstCommit, BranchHelper.getBranchHeadCommitId(repo, Constants.MASTER));
-    writeFile("a.txt");
+    writeToCache("a.txt");
     String branchName = "second";
     ObjectId branchCommit = commitToBranch(branchName, firstCommit);
     Assert.assertEquals(branchCommit, BranchHelper.getBranchHeadCommitId(repo, branchName));
@@ -23,7 +23,7 @@ public class BranchHelperTest extends AbstractParallelGitTest {
   @Test
   public void resetBranchHeadTest() throws IOException {
     ObjectId firstCommit = initRepository();
-    writeFile("a.txt");
+    writeToCache("a.txt");
     String branchName = "second";
     ObjectId branchCommit = commitToBranch(branchName, firstCommit);
     BranchHelper.resetBranchHead(repo, Constants.MASTER, branchCommit);

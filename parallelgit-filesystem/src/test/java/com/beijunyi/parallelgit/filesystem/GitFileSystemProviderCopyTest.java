@@ -11,7 +11,7 @@ public class GitFileSystemProviderCopyTest extends AbstractGitFileSystemTest {
   @Test
   public void copyFile_theTargetFileShouldExist() throws IOException {
     initRepository();
-    writeFile("/source.txt");
+    writeToCache("/source.txt");
     commitToMaster();
     initGitFileSystem();
 
@@ -24,7 +24,7 @@ public class GitFileSystemProviderCopyTest extends AbstractGitFileSystemTest {
   @Test
   public void copyFile_theTargetFileShouldBeFile() throws IOException {
     initRepository();
-    writeFile("/source.txt");
+    writeToCache("/source.txt");
     commitToMaster();
     initGitFileSystem();
 
@@ -38,7 +38,7 @@ public class GitFileSystemProviderCopyTest extends AbstractGitFileSystemTest {
   public void copyFile_theTargetFileShouldHaveTheSameData() throws IOException {
     initRepository();
     byte[] expectedData = "expected data".getBytes();
-    writeFile("/source.txt", expectedData);
+    writeToCache("/source.txt", expectedData);
     commitToMaster();
     initGitFileSystem();
 
@@ -52,7 +52,7 @@ public class GitFileSystemProviderCopyTest extends AbstractGitFileSystemTest {
   public void copyFile_theSourceFileShouldHaveTheSameData() throws IOException {
     initRepository();
     byte[] expectedData = "expected data".getBytes();
-    writeFile("/source.txt", expectedData);
+    writeToCache("/source.txt", expectedData);
     commitToMaster();
     initGitFileSystem();
 
@@ -66,8 +66,8 @@ public class GitFileSystemProviderCopyTest extends AbstractGitFileSystemTest {
   @Test(expected = FileAlreadyExistsException.class)
   public void copyFileWhenTargetExists_shouldThrowFileAlreadyExistsException() throws IOException {
     initRepository();
-    writeFile("/source.txt");
-    writeFile("/target.txt");
+    writeToCache("/source.txt");
+    writeToCache("/target.txt");
     commitToMaster();
     initGitFileSystem();
 
@@ -80,8 +80,8 @@ public class GitFileSystemProviderCopyTest extends AbstractGitFileSystemTest {
   public void copyFileWithReplaceExistingOption_shouldOverwriteTheTargetFileData() throws IOException {
     initRepository();
     byte[] expectedData = "expected data".getBytes();
-    writeFile("/source.txt", expectedData);
-    writeFile("/target.txt");
+    writeToCache("/source.txt", expectedData);
+    writeToCache("/target.txt");
     commitToMaster();
     initGitFileSystem();
 
@@ -95,7 +95,7 @@ public class GitFileSystemProviderCopyTest extends AbstractGitFileSystemTest {
   public void copyFileWhenTargetEqualsSource_shouldHaveNoEffect() throws IOException {
     initRepository();
     byte[] expectedData = "expected data".getBytes();
-    writeFile("/source.txt", expectedData);
+    writeToCache("/source.txt", expectedData);
     commitToMaster();
     initGitFileSystem();
 
@@ -115,8 +115,8 @@ public class GitFileSystemProviderCopyTest extends AbstractGitFileSystemTest {
   @Test(expected = FileAlreadyExistsException.class)
   public void copyFileWhenTargetIsDirectory_shouldThrowFileAlreadyExistsException() throws IOException {
     initRepository();
-    writeFile("/source.txt");
-    writeFile("/target/file.txt");
+    writeToCache("/source.txt");
+    writeToCache("/target/file.txt");
     commitToMaster();
     initGitFileSystem();
 
@@ -128,8 +128,8 @@ public class GitFileSystemProviderCopyTest extends AbstractGitFileSystemTest {
   @Test
   public void copyFileReplacingTargetDirectory_theTargetShouldBecomeFile() throws IOException {
     initRepository();
-    writeFile("/source.txt");
-    writeFile("/target/file.txt");
+    writeToCache("/source.txt");
+    writeToCache("/target/file.txt");
     commitToMaster();
     initGitFileSystem();
 
@@ -143,8 +143,8 @@ public class GitFileSystemProviderCopyTest extends AbstractGitFileSystemTest {
   public void copyFileReplacingTargetDirectory_theTargetFileShouldHaveTheSameData() throws IOException {
     initRepository();
     byte[] expectedData = "expected data".getBytes();
-    writeFile("/source.txt", expectedData);
-    writeFile("/target/file.txt");
+    writeToCache("/source.txt", expectedData);
+    writeToCache("/target/file.txt");
     commitToMaster();
     initGitFileSystem();
 
@@ -157,7 +157,7 @@ public class GitFileSystemProviderCopyTest extends AbstractGitFileSystemTest {
   @Test
   public void copyDirectory_theTargetDirectoryShouldExist() throws IOException {
     initRepository();
-    writeFile("/source/file.txt");
+    writeToCache("/source/file.txt");
     commitToMaster();
     initGitFileSystem();
 
@@ -170,7 +170,7 @@ public class GitFileSystemProviderCopyTest extends AbstractGitFileSystemTest {
   @Test
   public void copyDirectory_theTargetDirectoryShouldBeDirectory() throws IOException {
     initRepository();
-    writeFile("/source/file.txt");
+    writeToCache("/source/file.txt");
     commitToMaster();
     initGitFileSystem();
 
@@ -183,8 +183,8 @@ public class GitFileSystemProviderCopyTest extends AbstractGitFileSystemTest {
   @Test
   public void copyDirectory_theTargetDirectoryShouldHaveTheSameChildren() throws IOException {
     initRepository();
-    writeFile("/source/file1.txt");
-    writeFile("/source/file2.txt");
+    writeToCache("/source/file1.txt");
+    writeToCache("/source/file2.txt");
     commitToMaster();
     initGitFileSystem();
 
@@ -198,8 +198,8 @@ public class GitFileSystemProviderCopyTest extends AbstractGitFileSystemTest {
   @Test
   public void copyDirectory_theSourceDirectoryShouldHaveTheSameChildren() throws IOException {
     initRepository();
-    writeFile("/source/file1.txt");
-    writeFile("/source/file2.txt");
+    writeToCache("/source/file1.txt");
+    writeToCache("/source/file2.txt");
     commitToMaster();
     initGitFileSystem();
 
@@ -214,9 +214,9 @@ public class GitFileSystemProviderCopyTest extends AbstractGitFileSystemTest {
   public void copyDirectory_theChildrenInTheTargetDirectoryShouldHaveTheSameData() throws IOException {
     initRepository();
     byte[] expectedData1 = "expected data 1".getBytes();
-    writeFile("/source/file1.txt", expectedData1);
+    writeToCache("/source/file1.txt", expectedData1);
     byte[] expectedData2 = "expected data 2".getBytes();
-    writeFile("/source/file2.txt", expectedData2);
+    writeToCache("/source/file2.txt", expectedData2);
     commitToMaster();
     initGitFileSystem();
 

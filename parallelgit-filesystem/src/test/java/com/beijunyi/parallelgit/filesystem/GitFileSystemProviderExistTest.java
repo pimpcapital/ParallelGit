@@ -17,9 +17,9 @@ public class GitFileSystemProviderExistTest extends AbstractGitFileSystemTest {
   public void fileExistsTest() throws Exception {
     initRepository();
     String aTxt = "a.txt";
-    writeFile(aTxt);
+    writeToCache(aTxt);
     String bTxt = "b.txt";
-    writeFile(bTxt);
+    writeToCache(bTxt);
     commitToMaster();
     initGitFileSystem();
 
@@ -34,8 +34,8 @@ public class GitFileSystemProviderExistTest extends AbstractGitFileSystemTest {
   @Test
   public void directoryExistsTest() throws Exception {
     initRepository();
-    writeFile("a/file1.txt");
-    writeFile("b/dir1/file2.txt");
+    writeToCache("a/file1.txt");
+    writeToCache("b/dir1/file2.txt");
     commitToMaster();
     initGitFileSystem();
     Assert.assertTrue(Files.exists(root.resolve("a")));

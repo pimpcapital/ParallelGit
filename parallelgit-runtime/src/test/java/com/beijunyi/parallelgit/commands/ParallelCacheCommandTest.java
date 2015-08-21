@@ -24,7 +24,7 @@ public class ParallelCacheCommandTest extends AbstractParallelGitTest {
   public void buildCacheFromCommitIdTest() throws IOException {
     initRepository();
     String expectedFilePath = "expected_file.txt";
-    ObjectId expectedFileBlob = writeFile(expectedFilePath);
+    ObjectId expectedFileBlob = writeToCache(expectedFilePath);
     ObjectId commitId = commitToMaster();
     DirCache cache = ParallelCacheCommand.prepare(repo)
                        .baseCommit(commitId)
@@ -37,7 +37,7 @@ public class ParallelCacheCommandTest extends AbstractParallelGitTest {
   public void buildCacheFromCommitIdStringTest() throws IOException {
     initRepository();
     String expectedFilePath = "expected_file.txt";
-    ObjectId expectedFileBlob = writeFile(expectedFilePath);
+    ObjectId expectedFileBlob = writeToCache(expectedFilePath);
     String commitIdStr = commitToMaster().getName();
     DirCache cache = ParallelCacheCommand.prepare(repo)
                        .baseCommit(commitIdStr)
@@ -50,7 +50,7 @@ public class ParallelCacheCommandTest extends AbstractParallelGitTest {
   public void buildCacheFromTreeIdTest() throws IOException {
     initRepository();
     String expectedFilePath = "expected_file.txt";
-    ObjectId expectedFileBlob = writeFile(expectedFilePath);
+    ObjectId expectedFileBlob = writeToCache(expectedFilePath);
     ObjectId treeId = RevTreeHelper.getRootTree(repo, commitToMaster());
     DirCache cache = ParallelCacheCommand.prepare(repo)
                        .baseTree(treeId)
@@ -63,7 +63,7 @@ public class ParallelCacheCommandTest extends AbstractParallelGitTest {
   public void buildCacheFromTreeIdStringTest() throws IOException {
     initRepository();
     String expectedFilePath = "expected_file.txt";
-    ObjectId expectedFileBlob = writeFile(expectedFilePath);
+    ObjectId expectedFileBlob = writeToCache(expectedFilePath);
     String treeIdStr = RevTreeHelper.getRootTree(repo, commitToMaster()).getName();
     DirCache cache = ParallelCacheCommand.prepare(repo)
                        .baseTree(treeIdStr)
@@ -103,8 +103,8 @@ public class ParallelCacheCommandTest extends AbstractParallelGitTest {
   @Test
   public void addTreeTest() throws IOException {
     initRepository();
-    ObjectId blob1 = writeFile("1.txt");
-    ObjectId blob2 = writeFile("2.txt");
+    ObjectId blob1 = writeToCache("1.txt");
+    ObjectId blob2 = writeToCache("2.txt");
     ObjectId treeId = RevTreeHelper.getRootTree(repo, commitToMaster());
     DirCache cache = ParallelCacheCommand.prepare(repo)
                        .addTree(treeId, "base")
@@ -117,8 +117,8 @@ public class ParallelCacheCommandTest extends AbstractParallelGitTest {
   @Test
   public void addTreeFromTreeIdStringTest() throws IOException {
     initRepository();
-    ObjectId blob1 = writeFile("1.txt");
-    ObjectId blob2 = writeFile("2.txt");
+    ObjectId blob1 = writeToCache("1.txt");
+    ObjectId blob2 = writeToCache("2.txt");
     String treeIdStr = RevTreeHelper.getRootTree(repo, commitToMaster()).getName();
     DirCache cache = ParallelCacheCommand.prepare(repo)
                        .addTree(treeIdStr, "base")
@@ -139,8 +139,8 @@ public class ParallelCacheCommandTest extends AbstractParallelGitTest {
   @Test
   public void deleteBlobTest() throws IOException {
     initRepository();
-    writeFile("1.txt");
-    writeFile("2.txt");
+    writeToCache("1.txt");
+    writeToCache("2.txt");
     ObjectId commitId = commitToMaster();
     DirCache cache = ParallelCacheCommand
                        .prepare(repo)
@@ -155,9 +155,9 @@ public class ParallelCacheCommandTest extends AbstractParallelGitTest {
   @Test
   public void deleteTreeTest() throws IOException {
     initRepository();
-    writeFile("a/b/1.txt");
-    writeFile("a/b/2.txt");
-    writeFile("a/3.txt");
+    writeToCache("a/b/1.txt");
+    writeToCache("a/b/2.txt");
+    writeToCache("a/3.txt");
     ObjectId commitId = commitToMaster();
     DirCache cache = ParallelCacheCommand
                        .prepare(repo)
@@ -173,7 +173,7 @@ public class ParallelCacheCommandTest extends AbstractParallelGitTest {
   @Test
   public void updateBlobTest() throws IOException {
     initRepository();
-    writeFile("1.txt", "some content");
+    writeToCache("1.txt", "some content");
     ObjectId commitId = commitToMaster();
     ObjectId newBlobId = BlobHelper.getBlobId("some other content");
     FileMode newFileMode = FileMode.EXECUTABLE_FILE;
@@ -190,7 +190,7 @@ public class ParallelCacheCommandTest extends AbstractParallelGitTest {
   @Test
   public void updateBlobIdTest() throws IOException {
     initRepository();
-    writeFile("1.txt", "some content");
+    writeToCache("1.txt", "some content");
     ObjectId commitId = commitToMaster();
     ObjectId newBlobId = BlobHelper.getBlobId("some other content");
     DirCache cache = ParallelCacheCommand
@@ -205,7 +205,7 @@ public class ParallelCacheCommandTest extends AbstractParallelGitTest {
   @Test
   public void updateBlobFileModeTest() throws IOException {
     initRepository();
-    writeFile("1.txt", "some content");
+    writeToCache("1.txt", "some content");
     ObjectId commitId = commitToMaster();
     FileMode newFileMode = FileMode.EXECUTABLE_FILE;
     DirCache cache = ParallelCacheCommand

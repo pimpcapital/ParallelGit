@@ -27,7 +27,7 @@ public class GitFileSystemProviderMoveAcrossSystemsTest extends AbstractGitFileS
   @Test
   public void moveFileToAnotherSystem_theTargetFileShouldExist() throws IOException {
     initRepository();
-    writeFile("/source.txt");
+    writeToCache("/source.txt");
     commitToMaster();
     initGitFileSystem();
 
@@ -40,7 +40,7 @@ public class GitFileSystemProviderMoveAcrossSystemsTest extends AbstractGitFileS
   @Test
   public void moveFile_theSourceFileShouldNotExist() throws IOException {
     initRepository();
-    writeFile("/source.txt");
+    writeToCache("/source.txt");
     commitToMaster();
     initGitFileSystem();
 
@@ -54,7 +54,7 @@ public class GitFileSystemProviderMoveAcrossSystemsTest extends AbstractGitFileS
   public void moveFileToAnotherSystem_theTargetFileShouldHaveTheSameData() throws IOException {
     initRepository();
     byte[] expectedData = "expected data".getBytes();
-    writeFile("/source.txt", expectedData);
+    writeToCache("/source.txt", expectedData);
     commitToMaster();
     initGitFileSystem();
 
@@ -67,7 +67,7 @@ public class GitFileSystemProviderMoveAcrossSystemsTest extends AbstractGitFileS
   @Test
   public void moveDirectoryToAnotherSystem_theTargetDirectoryShouldExist() throws IOException {
     initRepository();
-    writeFile("/source/file.txt");
+    writeToCache("/source/file.txt");
     commitToMaster();
     initGitFileSystem();
 
@@ -80,7 +80,7 @@ public class GitFileSystemProviderMoveAcrossSystemsTest extends AbstractGitFileS
   @Test
   public void moveDirectoryToAnotherSystem_theSourceDirectoryShouldNotExist() throws IOException {
     initRepository();
-    writeFile("/source/file.txt");
+    writeToCache("/source/file.txt");
     commitToMaster();
     initGitFileSystem();
 
@@ -93,8 +93,8 @@ public class GitFileSystemProviderMoveAcrossSystemsTest extends AbstractGitFileS
   @Test
   public void moveDirectoryToAnotherSystem_theTargetDirectoryShouldHaveTheSameChildren() throws IOException {
     initRepository();
-    writeFile("/source/file1.txt");
-    writeFile("/source/file2.txt");
+    writeToCache("/source/file1.txt");
+    writeToCache("/source/file2.txt");
     commitToMaster();
     initGitFileSystem();
 
@@ -109,9 +109,9 @@ public class GitFileSystemProviderMoveAcrossSystemsTest extends AbstractGitFileS
   public void moveDirectoryToAnotherSystem_theChildrenInTheTargetDirectoryShouldHaveTheSameData() throws IOException {
     initRepository();
     byte[] expectedData1 = "expected data 1".getBytes();
-    writeFile("/source/file1.txt", expectedData1);
+    writeToCache("/source/file1.txt", expectedData1);
     byte[] expectedData2 = "expected data 2".getBytes();
-    writeFile("/source/file2.txt", expectedData2);
+    writeToCache("/source/file2.txt", expectedData2);
     commitToMaster();
     initGitFileSystem();
 

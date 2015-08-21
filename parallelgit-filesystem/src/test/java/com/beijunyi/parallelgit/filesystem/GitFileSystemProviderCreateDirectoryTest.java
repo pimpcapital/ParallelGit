@@ -2,7 +2,6 @@ package com.beijunyi.parallelgit.filesystem;
 
 import java.io.IOException;
 import java.nio.file.FileAlreadyExistsException;
-import java.nio.file.Files;
 
 import org.junit.Test;
 
@@ -17,7 +16,7 @@ public class GitFileSystemProviderCreateDirectoryTest extends AbstractGitFileSys
   @Test(expected = FileAlreadyExistsException.class)
   public void createExistingDirectoryTest() throws IOException {
     initRepository();
-    writeFile("/a/b.txt");
+    writeToCache("/a/b.txt");
     commitToMaster();
     initGitFileSystem();
     provider.createDirectory(gfs.getPath("/a"));
@@ -26,7 +25,7 @@ public class GitFileSystemProviderCreateDirectoryTest extends AbstractGitFileSys
   @Test(expected = FileAlreadyExistsException.class)
   public void createDirectoryWithSameNameOfExistingFileTest() throws IOException {
     initRepository();
-    writeFile("/a");
+    writeToCache("/a");
     commitToMaster();
     initGitFileSystem();
     provider.createDirectory(gfs.getPath("/a"));

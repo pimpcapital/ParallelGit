@@ -13,7 +13,7 @@ public class FilesNewOutputStreamTest extends AbstractGitFileSystemTest {
   @Test
   public void newOutputStreamOnFile_shouldBeNotNull() throws IOException {
     initRepository();
-    writeFile("/file.txt");
+    writeToCache("/file.txt");
     commitToMaster();
     initGitFileSystem();
     try(OutputStream outputStream = Files.newOutputStream(gfs.getPath("/file.txt"))) {

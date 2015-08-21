@@ -2,33 +2,33 @@ package com.beijunyi.parallelgit.filesystem;
 
 import java.io.IOException;
 import java.net.URI;
-import java.nio.file.FileSystems;
 
-import com.beijunyi.parallelgit.filesystem.utils.GitUriUtils;
+import com.beijunyi.parallelgit.filesystem.utils.GitUriBuilder;
 import org.junit.Assert;
 import org.junit.Test;
 
-public class GitFileSystemProviderGetFileSystemTest extends AbstractGitFileSystemTest {
+public class GitFileSystemProviderGetFileSystemTest extends PreSetupGitFileSystemTest {
 
   @Test
-  public void getFileSystemForUriTest() throws IOException {
-    initGitFileSystem();
+  public void getFileSystemForUri_theResultShouldBeTheCorrespondingFileSystem() throws IOException {
     URI uri = root.toUri();
-    GitFileSystem result = (GitFileSystem) FileSystems.getFileSystem(uri);
+    GitFileSystem result = provider.getFileSystem(uri);
     Assert.assertEquals(gfs, result);
   }
 
   @Test
-  public void getFileSystemForUriWithNonExistentSessionIdTest() {
-//    URI uri = GitUriUtils.createUri("/repo", "", "non_existent", false, false, null, null, null);
-//    GitFileSystem result = (GitFileSystem) FileSystems.getFileSystem(uri);
-//    Assert.assertNull(result);
+  public void getFileSystemForUriWithInvalidSessionId_theResultShouldBeNull() {
+    URI uri = GitUriBuilder.forFileSystem(gfs)
+                .sid("some_invalid_sid")
+                .build();
+    Assert.assertNull(provider.getFileSystem(uri));
   }
 
   @Test
-  public void getFileSystemForUriWithNoSessionIdTest() {
-//    URI uri = GitUriUtils.createUri("/repo", "", null, false, false, null, null, null);
-//    GitFileSystem result = (GitFileSystem) FileSystems.getFileSystem(uri);
-//    Assert.assertNull(result);
+  public void getFileSystemForUriWithNoSessionId_theResultShouldBeNull() {
+    URI uri = GitUriBuilder.forFileSystem(gfs)
+                .sid(null)
+                .build();
+    Assert.assertNull(provider.getFileSystem(uri));
   }
 }

@@ -31,6 +31,7 @@ public final class CommitRequest extends GitFileSystemRequest<RevCommit> {
   private List<AnyObjectId> parents;
   private boolean amend = false;
   private boolean allowEmpty = false;
+  private String refLog;
 
   private CommitRequest(@Nonnull GitFileSystem gfs) {
     super(gfs);
@@ -76,15 +77,19 @@ public final class CommitRequest extends GitFileSystemRequest<RevCommit> {
     return this;
   }
 
-  public void parents(@Nonnull List<AnyObjectId> parents) {
+  @Nonnull
+  public CommitRequest parents(@Nonnull List<AnyObjectId> parents) {
     this.parents = parents;
+    return this;
   }
 
-  public void parent(@Nullable AnyObjectId parent) {
+  @Nonnull
+  public CommitRequest parent(@Nullable AnyObjectId parent) {
     if(parent == null)
       parents = Collections.emptyList();
     else
       parents = Collections.singletonList(parent);
+    return this;
   }
 
   @Nonnull
@@ -96,6 +101,12 @@ public final class CommitRequest extends GitFileSystemRequest<RevCommit> {
   @Nonnull
   public CommitRequest allowEmpty(boolean allowEmpty) {
     this.allowEmpty = allowEmpty;
+    return this;
+  }
+
+  @Nonnull
+  public CommitRequest refLog(@Nullable String refLog) {
+    this.refLog = refLog;
     return this;
   }
 
@@ -149,7 +160,9 @@ public final class CommitRequest extends GitFileSystemRequest<RevCommit> {
 
   private void updateRef(@Nonnull RevCommit head) throws IOException {
     RefUpdate.Result result;
-    if(amend)
+    if(refLog != null)
+      result = BranchHelper.setBranchHead(repository, branchRef, head, refLog, true);
+    else if(amend)
       result = BranchHelper.amendBranchHead(repository, branchRef, head);
     else if(commit != null)
       result = BranchHelper.commitBranchHead(repository, branchRef, head);

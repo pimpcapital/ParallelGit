@@ -26,7 +26,7 @@ public class TreeWalkHelperTest extends AbstractParallelGitTest {
   @Test
   public void newTreeWalkTest() throws IOException {
     clearCache();
-    writeFiles("a.txt", "b.txt", "c/d.txt", "c/e.txt", "f/g.txt");
+    writeFilesToCache("a.txt", "b.txt", "c/d.txt", "c/e.txt", "f/g.txt");
     ObjectId commitId = commitToMaster();
     RevTree tree = RevTreeHelper.getRootTree(repo, commitId);
     TreeWalk treeWalk = TreeWalkHelper.newTreeWalk(repo, tree);
@@ -40,7 +40,7 @@ public class TreeWalkHelperTest extends AbstractParallelGitTest {
 
   @Test
   public void existsTest() throws IOException {
-    writeFile("a/b.txt");
+    writeToCache("a/b.txt");
     ObjectId commit = commitToMaster();
 
     RevTree tree = RevTreeHelper.getRootTree(repo, commit);
@@ -51,7 +51,7 @@ public class TreeWalkHelperTest extends AbstractParallelGitTest {
 
   @Test
   public void getObjectTest() throws IOException {
-    ObjectId objectId = writeFile("a/b.txt");
+    ObjectId objectId = writeToCache("a/b.txt");
     ObjectId commit = commitToMaster();
 
     RevTree tree = RevTreeHelper.getRootTree(repo, commit);
@@ -60,7 +60,7 @@ public class TreeWalkHelperTest extends AbstractParallelGitTest {
 
   @Test
   public void isBlobTest() throws IOException {
-    writeFile("a/b.txt");
+    writeToCache("a/b.txt");
     ObjectId commit = commitToMaster();
 
     RevTree tree = RevTreeHelper.getRootTree(repo, commit);
@@ -71,7 +71,7 @@ public class TreeWalkHelperTest extends AbstractParallelGitTest {
 
   @Test
   public void isTreeTest() throws IOException {
-    writeFile("a/b.txt");
+    writeToCache("a/b.txt");
     ObjectId commit = commitToMaster();
 
     RevTree tree = RevTreeHelper.getRootTree(repo, commit);

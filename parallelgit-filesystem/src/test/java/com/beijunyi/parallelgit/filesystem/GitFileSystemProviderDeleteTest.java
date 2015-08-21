@@ -12,7 +12,7 @@ public class GitFileSystemProviderDeleteTest extends AbstractGitFileSystemTest {
   @Test
   public void deleteFile_fileShouldNotExistAfterDeletion() throws IOException {
     initRepository();
-    writeFile("/file.txt");
+    writeToCache("/file.txt");
     commitToMaster();
     initGitFileSystem();
 
@@ -24,7 +24,7 @@ public class GitFileSystemProviderDeleteTest extends AbstractGitFileSystemTest {
   @Test
   public void deleteEmptyDirectory_directoryShouldNotExistAfterDeletion() throws IOException {
     initRepository();
-    writeFile("/dir/file.txt");
+    writeToCache("/dir/file.txt");
     commitToMaster();
     initGitFileSystem();
 
@@ -38,7 +38,7 @@ public class GitFileSystemProviderDeleteTest extends AbstractGitFileSystemTest {
   @Test
   public void deleteNonEmptyDirectory_directoryShouldNotExistAfterDeletion() throws IOException {
     initRepository();
-    writeFile("/dir/file.txt");
+    writeToCache("/dir/file.txt");
     commitToMaster();
     initGitFileSystem();
 

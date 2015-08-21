@@ -2,7 +2,6 @@ package com.beijunyi.parallelgit.filesystem;
 
 import java.io.IOException;
 import java.net.URI;
-import java.nio.file.FileSystems;
 
 import org.junit.Assert;
 import org.junit.Test;
@@ -19,6 +18,6 @@ public class GitFileSystemCloseTest extends PreSetupGitFileSystemTest {
   public void closedFileSystemGetWithUriTest() throws IOException {
     URI uri = root.toUri();
     gfs.close();
-    Assert.assertNull(FileSystems.getFileSystem(uri));
+    Assert.assertNull(provider.getFileSystem(uri));
   }
 }

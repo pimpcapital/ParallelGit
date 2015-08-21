@@ -30,7 +30,7 @@ public abstract class AbstractParallelGitTest {
   }
 
   @Nonnull
-  protected ObjectId writeFile(@Nonnull String path, @Nonnull byte[] content, @Nonnull FileMode mode) throws IOException {
+  protected ObjectId writeToCache(@Nonnull String path, @Nonnull byte[] content, @Nonnull FileMode mode) throws IOException {
     ObjectId blobId = BlobHelper.insert(repo, content);
     if(path.startsWith("/"))
       path = path.substring(1);
@@ -39,28 +39,28 @@ public abstract class AbstractParallelGitTest {
   }
 
   @Nonnull
-  protected ObjectId writeFile(@Nonnull String path, @Nonnull byte[] content) throws IOException {
-    return writeFile(path, content, FileMode.REGULAR_FILE);
+  protected ObjectId writeToCache(@Nonnull String path, @Nonnull byte[] content) throws IOException {
+    return writeToCache(path, content, FileMode.REGULAR_FILE);
   }
 
   @Nonnull
-  protected ObjectId writeFile(@Nonnull String path, @Nonnull String content) throws IOException {
-    return writeFile(path, Constants.encode(content));
+  protected ObjectId writeToCache(@Nonnull String path, @Nonnull String content) throws IOException {
+    return writeToCache(path, Constants.encode(content));
   }
 
   @Nonnull
-  protected ObjectId writeFile(@Nonnull String path) throws IOException {
-    return writeFile(path, path + "'s unique content");
+  protected ObjectId writeToCache(@Nonnull String path) throws IOException {
+    return writeToCache(path, path + "'s unique content");
   }
 
   @Nonnull
-  protected ObjectId writeSomeFile() throws IOException {
-    return writeFile("some_file.txt");
+  protected ObjectId writeSomeFileToCache() throws IOException {
+    return writeToCache("some_file.txt");
   }
 
-  protected void writeFiles(@Nonnull String... paths) throws IOException {
+  protected void writeFilesToCache(@Nonnull String... paths) throws IOException {
     for(String path : paths)
-      writeFile(path);
+      writeToCache(path);
   }
 
   @Nonnull
@@ -121,9 +121,9 @@ public abstract class AbstractParallelGitTest {
       initRepositoryDir();
     repo = memory ? new TestRepository(bare) : RepositoryHelper.createRepository(repoDir, bare);
     cache = DirCache.newInCore();
-    writeFile("existing_file.txt");
+    writeToCache("existing_file.txt");
     commitToMaster();
-    writeFile("some_other_file.txt");
+    writeToCache("some_other_file.txt");
     return commitToMaster();
   }
 

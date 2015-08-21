@@ -18,7 +18,7 @@ public class GfsSeekableByteChannelTest extends AbstractGitFileSystemTest {
   @Before
   public void setupChannel() throws IOException {
     initRepository();
-    writeFile("/file.txt", FILE_DATA);
+    writeToCache("/file.txt", FILE_DATA);
     commitToMaster();
     initGitFileSystem();
     file = GfsIO.findFile(gfs.getPath("/file.txt"));

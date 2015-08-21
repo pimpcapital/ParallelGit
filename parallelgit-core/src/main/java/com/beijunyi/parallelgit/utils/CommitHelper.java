@@ -92,4 +92,9 @@ public final class CommitHelper {
     return createCommit(repo, cache, committer, message, parents);
   }
 
+  @Nonnull
+  public static RevCommit createCommit(@Nonnull Repository repo, @Nonnull DirCache cache, @Nonnull PersonIdent committer, @Nullable String message) throws IOException {
+    return createCommit(repo, cache, committer, message, (AnyObjectId) null);
+  }
+
 }

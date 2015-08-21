@@ -1,17 +1,9 @@
 package com.beijunyi.parallelgit.filesystem;
 
-import java.io.IOException;
-
 import org.junit.Assert;
-import org.junit.Before;
 import org.junit.Test;
 
-public class GitPathToAbsolutePathTest extends AbstractGitFileSystemTest {
-
-  @Before
-  public void setupFileSystem() throws IOException {
-    initGitFileSystem();
-  }
+public class GitPathToAbsolutePathTest extends PreSetupGitFileSystemTest {
 
   @Test
   public void absolutePathToAbsolutePathTest() {

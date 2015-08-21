@@ -1,6 +1,7 @@
 package com.beijunyi.parallelgit.filesystem;
 
 import java.io.IOException;
+import java.nio.file.Files;
 import javax.annotation.Nonnull;
 
 import com.beijunyi.parallelgit.AbstractParallelGitTest;
@@ -16,6 +17,23 @@ public abstract class AbstractGitFileSystemTest extends AbstractParallelGitTest 
   protected final GitFileSystemProvider provider = GitFileSystemProvider.getInstance();
   protected GitFileSystem gfs;
   protected GitPath root;
+
+  protected void writeToGfs(@Nonnull String path, @Nonnull byte[] data) throws IOException {
+    Files.write(gfs.getPath(path), data);
+  }
+
+  protected void writeToGfs(@Nonnull String path, @Nonnull String content) throws IOException {
+    writeToGfs(path, Constants.encode(content));
+  }
+
+  protected void writeToGfs(@Nonnull String path) throws IOException {
+    writeToGfs(path, path + "'s unique content");
+  }
+
+  protected void writeSomeFileToGfs() throws IOException {
+    writeToGfs("some_file.txt");
+  }
+
 
   protected void initGitFileSystemForBranch(@Nonnull String branch) throws IOException {
     assert repo != null;

@@ -14,8 +14,8 @@ public class GitFileSystemProviderCheckAccessTest extends AbstractGitFileSystemT
   @Before
   public void setupFileSystem() throws IOException {
     initRepository();
-    writeFile("dir/file.txt");
-    writeFile("dir/executable.sh", "echo test".getBytes(), FileMode.EXECUTABLE_FILE);
+    writeToCache("dir/file.txt");
+    writeToCache("dir/executable.sh", "echo test".getBytes(), FileMode.EXECUTABLE_FILE);
     commitToMaster();
     initGitFileSystem();
   }

@@ -21,7 +21,7 @@ public class PosixGfsFileAttributeViewTest extends AbstractGitFileSystemTest {
   @Test
   public void getName_shouldReturnPosix() throws IOException {
     initRepository();
-    writeFile("/file.txt");
+    writeToCache("/file.txt");
     commitToMaster();
     initGitFileSystem();
 
@@ -33,7 +33,7 @@ public class PosixGfsFileAttributeViewTest extends AbstractGitFileSystemTest {
   @Test
   public void readAttributes_shouldReturnNotNull() throws IOException {
     initRepository();
-    writeFile("/file.txt");
+    writeToCache("/file.txt");
     commitToMaster();
     initGitFileSystem();
 
@@ -45,7 +45,7 @@ public class PosixGfsFileAttributeViewTest extends AbstractGitFileSystemTest {
   @Test
   public void getOwnerOfFile_shouldReturnNull() throws IOException {
     initRepository();
-    writeFile("/file.txt");
+    writeToCache("/file.txt");
     commitToMaster();
     initGitFileSystem();
 
@@ -57,7 +57,7 @@ public class PosixGfsFileAttributeViewTest extends AbstractGitFileSystemTest {
   @Test(expected = UnsupportedOperationException.class)
   public void setOwnerOfFile_shouldThrowUnsupportedOperationException() throws IOException {
     initRepository();
-    writeFile("/file.txt");
+    writeToCache("/file.txt");
     commitToMaster();
     initGitFileSystem();
 
@@ -75,7 +75,7 @@ public class PosixGfsFileAttributeViewTest extends AbstractGitFileSystemTest {
   @Test(expected = UnsupportedOperationException.class)
   public void setGroupOfFile_shouldThrowUnsupportedOperationException() throws IOException {
     initRepository();
-    writeFile("/file.txt");
+    writeToCache("/file.txt");
     commitToMaster();
     initGitFileSystem();
 
@@ -94,7 +94,7 @@ public class PosixGfsFileAttributeViewTest extends AbstractGitFileSystemTest {
   @Test
   public void getPermissionOfFile_shouldReturnNotNull() throws IOException {
     initRepository();
-    writeFile("/file.txt");
+    writeToCache("/file.txt");
     commitToMaster();
     initGitFileSystem();
 
@@ -106,7 +106,7 @@ public class PosixGfsFileAttributeViewTest extends AbstractGitFileSystemTest {
   @Test
   public void getPermissionOfFile_shouldContainOwnerRead() throws IOException {
     initRepository();
-    writeFile("/file.txt");
+    writeToCache("/file.txt");
     commitToMaster();
     initGitFileSystem();
 
@@ -120,7 +120,7 @@ public class PosixGfsFileAttributeViewTest extends AbstractGitFileSystemTest {
   @Test
   public void getPermissionOfFile_shouldContainOwnerWrite() throws IOException {
     initRepository();
-    writeFile("/file.txt");
+    writeToCache("/file.txt");
     commitToMaster();
     initGitFileSystem();
 
@@ -134,7 +134,7 @@ public class PosixGfsFileAttributeViewTest extends AbstractGitFileSystemTest {
   @Test
   public void getPermissionOfFile_shouldNotContainOwnerExecute() throws IOException {
     initRepository();
-    writeFile("/file.txt");
+    writeToCache("/file.txt");
     commitToMaster();
     initGitFileSystem();
 
@@ -150,7 +150,7 @@ public class PosixGfsFileAttributeViewTest extends AbstractGitFileSystemTest {
   @Test
   public void getPermissionOfExecutableFile_shouldContainOwnerExecute() throws IOException {
     initRepository();
-    writeFile("/file.txt", "some data".getBytes(), FileMode.EXECUTABLE_FILE);
+    writeToCache("/file.txt", "some data".getBytes(), FileMode.EXECUTABLE_FILE);
     commitToMaster();
     initGitFileSystem();
 
@@ -164,7 +164,7 @@ public class PosixGfsFileAttributeViewTest extends AbstractGitFileSystemTest {
   @Test
   public void addExecutePermissionToFile_fileShouldBecomeExecutable() throws IOException {
     initRepository();
-    writeFile("/file.txt");
+    writeToCache("/file.txt");
     commitToMaster();
     initGitFileSystem();
 
@@ -178,7 +178,7 @@ public class PosixGfsFileAttributeViewTest extends AbstractGitFileSystemTest {
   @Test
   public void getOwnerAttributeOfFile_shouldReturnNull() throws IOException {
     initRepository();
-    writeFile("/file.txt");
+    writeToCache("/file.txt");
     commitToMaster();
     initGitFileSystem();
 
@@ -190,7 +190,7 @@ public class PosixGfsFileAttributeViewTest extends AbstractGitFileSystemTest {
   @Test
   public void getGroupAttributeOfFile_shouldReturnNull() throws IOException {
     initRepository();
-    writeFile("/file.txt");
+    writeToCache("/file.txt");
     commitToMaster();
     initGitFileSystem();
 
@@ -202,7 +202,7 @@ public class PosixGfsFileAttributeViewTest extends AbstractGitFileSystemTest {
   @Test(expected = UnsupportedOperationException.class)
   public void getNonPosixAttributeOfFile_shouldThrowUnsupportedOperationException() throws IOException {
     initRepository();
-    writeFile("/file.txt");
+    writeToCache("/file.txt");
     commitToMaster();
     initGitFileSystem();
 

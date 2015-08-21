@@ -11,7 +11,7 @@ public class GitFileSystemProviderDirectoryStreamTest extends AbstractGitFileSys
  @Test
  public void openDirectory_shouldReturnDirectoryStream() throws IOException {
    initRepository();
-   writeFile("/dir/file.txt");
+   writeToCache("/dir/file.txt");
    commitToMaster();
    initGitFileSystem();
    Assert.assertNotNull(provider.newDirectoryStream(gfs.getPath("/dir"), null));
@@ -20,7 +20,7 @@ public class GitFileSystemProviderDirectoryStreamTest extends AbstractGitFileSys
   @Test(expected = NotDirectoryException.class)
   public void openRegularFile_shouldThrowException() throws IOException {
     initRepository();
-    writeFile("/file.txt");
+    writeToCache("/file.txt");
     commitToMaster();
     initGitFileSystem();
     provider.newDirectoryStream(gfs.getPath("/file.txt"), null);

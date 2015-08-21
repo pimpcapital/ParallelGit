@@ -22,7 +22,7 @@ public class FilesSizeTest extends AbstractGitFileSystemTest {
   @Test
   public void sizeOfDirectory_shouldReturnZero() throws IOException {
     initRepository();
-    writeFile("/dir/file.txt");
+    writeToCache("/dir/file.txt");
     commitToMaster();
     initGitFileSystem();
     Assert.assertEquals(0, Files.size(gfs.getPath("/dir")));
@@ -31,7 +31,7 @@ public class FilesSizeTest extends AbstractGitFileSystemTest {
   @Test
   public void sizeOfFile_shouldReturnTheLengthOfItsByteArray() throws IOException {
     initRepository();
-    writeFile("/file.txt", bytesOfSize(15));
+    writeToCache("/file.txt", bytesOfSize(15));
     commitToMaster();
     initGitFileSystem();
     Assert.assertEquals(15, Files.size(gfs.getPath("/file.txt")));

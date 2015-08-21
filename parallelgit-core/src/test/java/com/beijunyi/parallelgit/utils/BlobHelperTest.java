@@ -13,7 +13,7 @@ public class BlobHelperTest extends AbstractParallelGitTest {
   public void findFileBlobIdTest() throws IOException {
     initRepository();
     String file = "a.txt";
-    ObjectId fileBlob = writeFile(file);
+    ObjectId fileBlob = writeToCache(file);
     ObjectId commit = commitToMaster();
     Assert.assertEquals(fileBlob, BlobHelper.findBlobId(repo, commit, file));
   }

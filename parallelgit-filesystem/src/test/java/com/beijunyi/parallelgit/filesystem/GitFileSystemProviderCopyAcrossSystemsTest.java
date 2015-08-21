@@ -27,7 +27,7 @@ public class GitFileSystemProviderCopyAcrossSystemsTest extends AbstractGitFileS
   @Test
   public void copyFileToAnotherSystem_theTargetFileShouldExist() throws IOException {
     initRepository();
-    writeFile("/source.txt");
+    writeToCache("/source.txt");
     commitToMaster();
     initGitFileSystem();
 
@@ -41,7 +41,7 @@ public class GitFileSystemProviderCopyAcrossSystemsTest extends AbstractGitFileS
   public void copyFileToAnotherSystem_theTargetFileShouldHaveTheSameData() throws IOException {
     initRepository();
     byte[] expectedData = "expected data".getBytes();
-    writeFile("/source.txt", expectedData);
+    writeToCache("/source.txt", expectedData);
     commitToMaster();
     initGitFileSystem();
 
@@ -54,7 +54,7 @@ public class GitFileSystemProviderCopyAcrossSystemsTest extends AbstractGitFileS
   @Test
   public void copyDirectoryToAnotherSystem_theTargetDirectoryShouldExist() throws IOException {
     initRepository();
-    writeFile("/source/file.txt");
+    writeToCache("/source/file.txt");
     commitToMaster();
     initGitFileSystem();
 
@@ -67,8 +67,8 @@ public class GitFileSystemProviderCopyAcrossSystemsTest extends AbstractGitFileS
   @Test
   public void copyDirectoryToAnotherSystem_theTargetDirectoryShouldHaveTheSameChildren() throws IOException {
     initRepository();
-    writeFile("/source/file1.txt");
-    writeFile("/source/file2.txt");
+    writeToCache("/source/file1.txt");
+    writeToCache("/source/file2.txt");
     commitToMaster();
     initGitFileSystem();
 
@@ -83,9 +83,9 @@ public class GitFileSystemProviderCopyAcrossSystemsTest extends AbstractGitFileS
   public void copyDirectoryToAnotherSystem_theChildrenInTheTargetDirectoryShouldHaveTheSameData() throws IOException {
     initRepository();
     byte[] expectedData1 = "expected data 1".getBytes();
-    writeFile("/source/file1.txt", expectedData1);
+    writeToCache("/source/file1.txt", expectedData1);
     byte[] expectedData2 = "expected data 2".getBytes();
-    writeFile("/source/file2.txt", expectedData2);
+    writeToCache("/source/file2.txt", expectedData2);
     commitToMaster();
     initGitFileSystem();
 

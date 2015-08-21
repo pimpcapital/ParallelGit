@@ -14,7 +14,7 @@ public class GitFileSystemProviderGetAttributeViewTest extends AbstractGitFileSy
   @Test
   public void getFileAttributeViewFromFile_shouldBeNotNull() throws IOException {
     initRepository();
-    writeFile("/file.txt");
+    writeToCache("/file.txt");
     commitToMaster();
     initGitFileSystem();
     Assert.assertNotNull(provider.getFileAttributeView(gfs.getPath("/file.txt"), FileAttributeView.class));
@@ -29,7 +29,7 @@ public class GitFileSystemProviderGetAttributeViewTest extends AbstractGitFileSy
   @Test
   public void getBasicFileAttributeViewFromFile_shouldBeNotNull() throws IOException {
     initRepository();
-    writeFile("/file.txt");
+    writeToCache("/file.txt");
     commitToMaster();
     initGitFileSystem();
     Assert.assertNotNull(provider.getFileAttributeView(gfs.getPath("/file.txt"), BasicFileAttributeView.class));
@@ -38,7 +38,7 @@ public class GitFileSystemProviderGetAttributeViewTest extends AbstractGitFileSy
   @Test
   public void getPosixFileAttributeViewFromFile_shouldBeNotNull() throws IOException {
     initRepository();
-    writeFile("/file.txt");
+    writeToCache("/file.txt");
     commitToMaster();
     initGitFileSystem();
     Assert.assertNotNull(provider.getFileAttributeView(gfs.getPath("/file.txt"), PosixFileAttributeView.class));
@@ -47,7 +47,7 @@ public class GitFileSystemProviderGetAttributeViewTest extends AbstractGitFileSy
   @Test(expected = UnsupportedOperationException.class)
   public void getUnsupportedFileAttributeViewFromFile_shouldThrowUnsupportedOperationException() throws IOException {
     initRepository();
-    writeFile("/file.txt");
+    writeToCache("/file.txt");
     commitToMaster();
     initGitFileSystem();
     Assert.assertNotNull(provider.getFileAttributeView(gfs.getPath("/file.txt"), new FileAttributeView() {

@@ -1,7 +1,9 @@
 package integration;
 
 import java.io.IOException;
-import java.nio.file.*;
+import java.nio.file.AccessDeniedException;
+import java.nio.file.Files;
+import java.nio.file.Path;
 
 import com.beijunyi.parallelgit.filesystem.AbstractGitFileSystemTest;
 import com.beijunyi.parallelgit.filesystem.GitPath;
@@ -14,7 +16,7 @@ public class FilesWriteTest extends AbstractGitFileSystemTest {
   @Test
   public void writeExistingFile_shouldOverwriteItsContent() throws IOException {
     initRepository();
-    writeFile("/file.txt", "old content");
+    writeToCache("/file.txt", "old content");
     commitToMaster();
     initGitFileSystem();
     byte[] data = Constants.encode("some plain text data");
@@ -34,7 +36,7 @@ public class FilesWriteTest extends AbstractGitFileSystemTest {
   @Test(expected = AccessDeniedException.class)
   public void writeDirectory_shouldThrowAccessDeniedException() throws IOException {
     initRepository();
-    writeFile("/dir/file.txt");
+    writeToCache("/dir/file.txt");
     commitToMaster();
     initGitFileSystem();
     GitPath dir = gfs.getPath("/dir");

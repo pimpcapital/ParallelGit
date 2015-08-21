@@ -18,7 +18,7 @@ import org.junit.Test;
 public class ParallelCommitCommandTest extends AbstractParallelGitTest {
 
   private void writeSomethingToCache() throws IOException {
-    writeFile("something.txt");
+    writeToCache("something.txt");
   }
 
   @Test
@@ -44,7 +44,7 @@ public class ParallelCommitCommandTest extends AbstractParallelGitTest {
   public void createCommitFromCacheTest() throws IOException {
     initRepository();
     String testFile = "testfile.txt";
-    AnyObjectId blobId = writeFile(testFile);
+    AnyObjectId blobId = writeToCache(testFile);
     AnyObjectId commitId = ParallelCommitCommand.prepare(repo)
                              .fromCache(cache)
                              .call();
@@ -215,7 +215,7 @@ public class ParallelCommitCommandTest extends AbstractParallelGitTest {
 
     initRepository();
     String existingFile = "existing_file.txt";
-    writeFile(existingFile);
+    writeToCache(existingFile);
     String branch = "test_branch";
     String previousMessage = CommitHelper.getCommit(repo, commitToBranch(branch)).getFullMessage();
     String newFile = "new_file.txt";
@@ -239,7 +239,7 @@ public class ParallelCommitCommandTest extends AbstractParallelGitTest {
     initRepository();
     String branch = "test_branch";
     String existingFile = "existing_file.txt";
-    AnyObjectId existingFileBlob = writeFile(existingFile);
+    AnyObjectId existingFileBlob = writeToCache(existingFile);
     commitToBranch(branch);
     String newFile = "new_file.txt";
     AnyObjectId commitId = ParallelCommitCommand.prepare(repo)
@@ -260,7 +260,7 @@ public class ParallelCommitCommandTest extends AbstractParallelGitTest {
     initRepository();
     String branch = "test_branch";
     String existingFile = "existing_file.txt";
-    AnyObjectId existingFileBlob = writeFile(existingFile);
+    AnyObjectId existingFileBlob = writeToCache(existingFile);
     commitToBranch(branch);
     String newFile = "new_file.txt";
     AnyObjectId commitId = ParallelCommitCommand.prepare(repo)
@@ -282,7 +282,7 @@ public class ParallelCommitCommandTest extends AbstractParallelGitTest {
     initRepository();
     String branch = "test_branch";
     String existingFile = "existing_file.txt";
-    AnyObjectId existingFileBlob = writeFile(existingFile);
+    AnyObjectId existingFileBlob = writeToCache(existingFile);
     commitToBranch(branch);
     String newFile = "new_file.txt";
     AnyObjectId commitId = ParallelCommitCommand.prepare(repo)
@@ -306,7 +306,7 @@ public class ParallelCommitCommandTest extends AbstractParallelGitTest {
       initRepository();
       String branch = "test_branch";
       String existingFile = "existing_file.txt";
-      AnyObjectId existingFileBlob = writeFile(existingFile);
+      AnyObjectId existingFileBlob = writeToCache(existingFile);
       commitToBranch(branch);
       String newFile = "new_file.txt";
       AnyObjectId commitId = ParallelCommitCommand.prepare(repo)
@@ -333,7 +333,7 @@ public class ParallelCommitCommandTest extends AbstractParallelGitTest {
       initRepository();
       String branch = "test_branch";
       String existingFile = "existing_file.txt";
-      AnyObjectId existingFileBlob = writeFile(existingFile);
+      AnyObjectId existingFileBlob = writeToCache(existingFile);
       commitToBranch(branch);
       String newFile = "new_file.txt";
       AnyObjectId commitId = ParallelCommitCommand.prepare(repo)
@@ -355,11 +355,11 @@ public class ParallelCommitCommandTest extends AbstractParallelGitTest {
     initRepository();
     String branch = "test_branch";
     String existingFile1 = "existing_file1.txt";
-    writeFile(existingFile1);
+    writeToCache(existingFile1);
     String existingFile2 = "existing_file2.txt";
-    writeFile(existingFile2);
+    writeToCache(existingFile2);
     String existingFile3 = "existing_file3.txt";
-    writeFile(existingFile3);
+    writeToCache(existingFile3);
     commitToBranch(branch);
     AnyObjectId commitId = ParallelCommitCommand.prepare(repo)
                              .branch(branch)
@@ -394,7 +394,7 @@ public class ParallelCommitCommandTest extends AbstractParallelGitTest {
       initRepository();
       String branch = "test_branch";
       String existingFile = "existing_file.txt";
-      AnyObjectId existingFileBlob = writeFile(existingFile);
+      AnyObjectId existingFileBlob = writeToCache(existingFile);
       commitToBranch(branch);
       String newDirectory = "new_directory";
       AnyObjectId commitId = ParallelCommitCommand.prepare(repo)
@@ -438,7 +438,7 @@ public class ParallelCommitCommandTest extends AbstractParallelGitTest {
       initRepository();
       String branch = "test_branch";
       String existingFile = "existing_file.txt";
-      AnyObjectId existingFileBlob = writeFile(existingFile);
+      AnyObjectId existingFileBlob = writeToCache(existingFile);
       commitToBranch(branch);
       String newDirectory = "new_directory";
       AnyObjectId commitId;
@@ -485,7 +485,7 @@ public class ParallelCommitCommandTest extends AbstractParallelGitTest {
       initRepository();
       String branch = "test_branch";
       String existingFile = "existing_file.txt";
-      AnyObjectId existingFileBlob = writeFile(existingFile);
+      AnyObjectId existingFileBlob = writeToCache(existingFile);
       commitToBranch(branch);
       String newDirectory = "new_directory";
       AnyObjectId commitId = ParallelCommitCommand.prepare(repo)
@@ -513,11 +513,11 @@ public class ParallelCommitCommandTest extends AbstractParallelGitTest {
     initRepository();
     String branch = "test_branch";
     String file1 = "dir/1.txt";
-    writeFile(file1);
+    writeToCache(file1);
     String file2 = "dir/subdir/2.txt";
-    writeFile(file2);
+    writeToCache(file2);
     String file3 = "dir/subdir/3.txt";
-    writeFile(file3);
+    writeToCache(file3);
     commitToBranch(branch);
     AnyObjectId commitId = ParallelCommitCommand.prepare(repo)
                              .branch(branch)
@@ -538,7 +538,7 @@ public class ParallelCommitCommandTest extends AbstractParallelGitTest {
     initRepository();
     String branch = "test_branch";
     String existingFile = "existing_file.txt";
-    writeFile(existingFile);
+    writeToCache(existingFile);
     commitToBranch(branch);
     AnyObjectId commitId = ParallelCommitCommand.prepare(repo)
                              .branch(branch)
@@ -557,7 +557,7 @@ public class ParallelCommitCommandTest extends AbstractParallelGitTest {
     initRepository();
     String branch = "test_branch";
     String existingFile = "existing_file.txt";
-    writeFile(existingFile);
+    writeToCache(existingFile);
     commitToBranch(branch);
     AnyObjectId commitId = ParallelCommitCommand.prepare(repo)
                              .branch(branch)
@@ -577,7 +577,7 @@ public class ParallelCommitCommandTest extends AbstractParallelGitTest {
     initRepository();
     String branch = "test_branch";
     String existingFile = "existing_file.txt";
-    writeFile(existingFile);
+    writeToCache(existingFile);
     commitToBranch(branch);
     AnyObjectId commitId = ParallelCommitCommand.prepare(repo)
                              .branch(branch)
@@ -599,7 +599,7 @@ public class ParallelCommitCommandTest extends AbstractParallelGitTest {
       initRepository();
       String branch = "test_branch";
       String existingFile = "existing_file.txt";
-      writeFile(existingFile);
+      writeToCache(existingFile);
       commitToBranch(branch);
       AnyObjectId commitId = ParallelCommitCommand.prepare(repo)
                                .branch(branch)
@@ -624,7 +624,7 @@ public class ParallelCommitCommandTest extends AbstractParallelGitTest {
       initRepository();
       String branch = "test_branch";
       String existingFile = "existing_file.txt";
-      writeFile(existingFile);
+      writeToCache(existingFile);
       commitToBranch(branch);
       AnyObjectId commitId = ParallelCommitCommand.prepare(repo)
                                .branch(branch)
@@ -646,7 +646,7 @@ public class ParallelCommitCommandTest extends AbstractParallelGitTest {
     initRepository();
     String branch = "test_branch";
     String existingFile = "existing_file.txt";
-    writeFile(existingFile);
+    writeToCache(existingFile);
     commitToBranch(branch);
     String newFile = "new_file.txt";
     AnyObjectId commitId = ParallelCommitCommand.prepare(repo)
@@ -666,10 +666,10 @@ public class ParallelCommitCommandTest extends AbstractParallelGitTest {
   public void createOrphanWithNoChangeTest() throws IOException {
     initRepository();
     String existingFile1 = "existing_file1.txt";
-    writeFile(existingFile1);
+    writeToCache(existingFile1);
     commitToMaster();
     String existingFile2 = "existing_file2.txt";
-    writeFile(existingFile2);
+    writeToCache(existingFile2);
     AnyObjectId headCommit = commitToMaster();
     AnyObjectId commitId = ParallelCommitCommand.prepare(repo)
                              .baseCommit(headCommit)
@@ -686,10 +686,10 @@ public class ParallelCommitCommandTest extends AbstractParallelGitTest {
     initRepository();
     String branch = "test_branch";
     String existingFile1 = "existing_file1.txt";
-    writeFile(existingFile1);
+    writeToCache(existingFile1);
     commitToBranch(branch);
     String existingFile2 = "existing_file2.txt";
-    writeFile(existingFile2);
+    writeToCache(existingFile2);
     commitToBranch(branch);
     AnyObjectId commitId = ParallelCommitCommand.prepare(repo)
                              .branch(branch)
@@ -729,7 +729,7 @@ public class ParallelCommitCommandTest extends AbstractParallelGitTest {
 
     initRepository();
     String existingFile = "existing_file.txt";
-    writeFile(existingFile);
+    writeToCache(existingFile);
     AnyObjectId parentRevision = commitToMaster();
     String newFile = "new_file.txt";
     AnyObjectId commitId = ParallelCommitCommand.prepare(repo)
@@ -749,7 +749,7 @@ public class ParallelCommitCommandTest extends AbstractParallelGitTest {
 
     initRepository();
     String existingFile = "existing_file.txt";
-    writeFile(existingFile);
+    writeToCache(existingFile);
     AnyObjectId parentRevision = commitToMaster();
     String newFile = "new_file.txt";
     AnyObjectId commitId = ParallelCommitCommand.prepare(repo)

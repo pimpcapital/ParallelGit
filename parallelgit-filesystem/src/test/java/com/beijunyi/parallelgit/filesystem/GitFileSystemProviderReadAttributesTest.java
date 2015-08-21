@@ -1,67 +1,112 @@
 package com.beijunyi.parallelgit.filesystem;
 
 import java.io.IOException;
-import java.nio.file.Files;
 import java.nio.file.NoSuchFileException;
+import java.nio.file.attribute.BasicFileAttributes;
+import java.nio.file.attribute.FileTime;
 import java.util.Map;
+import javax.annotation.Nullable;
 
-import com.beijunyi.parallelgit.filesystem.io.GfsFileAttributeView;
 import com.beijunyi.parallelgit.filesystem.io.GfsFileAttributes;
-import com.sun.nio.zipfs.ZipFileAttributes;
 import org.junit.Assert;
 import org.junit.Test;
 
-public class GitFileSystemProviderReadAttributesTest extends AbstractGitFileSystemTest {
+public class GitFileSystemProviderReadAttributesTest extends PreSetupGitFileSystemTest {
+
+  @Test
+  public void readBasicAttributes_theResultShouldContainSpecifiedAttributes() throws IOException {
+    writeToGfs("/file.txt");
+    Map<String, Object> attributeMap = provider.readAttributes(gfs.getPath("/file.txt"), "basic:size,isRegularFile");
+    Assert.assertTrue(attributeMap.containsKey("size"));
+    Assert.assertTrue(attributeMap.containsKey("isRegularFile"));
+  }
+
+  @Test
+  public void readBasicAttributesWithoutViewType_theResultShouldContainSpecifiedAttributes() throws IOException {
+    writeToGfs("/file.txt");
+    Map<String, Object> attributeMap = provider.readAttributes(gfs.getPath("/file.txt"), "size,isRegularFile");
+    Assert.assertTrue(attributeMap.containsKey("size"));
+    Assert.assertTrue(attributeMap.containsKey("isRegularFile"));
+  }
+
+  @Test
+  public void readPosixAttributes_theResultShouldContainSpecifiedAttributes() throws IOException {
+    writeToGfs("/file.txt");
+    Map<String, Object> attributeMap = provider.readAttributes(gfs.getPath("/file.txt"), "posix:permissions,owner");
+    Assert.assertTrue(attributeMap.containsKey("permissions"));
+    Assert.assertTrue(attributeMap.containsKey("owner"));
+  }
 
   @Test(expected = NoSuchFileException.class)
-  public void readNonExistentFileAttributesTest() throws IOException {
-    initGitFileSystem();
-    Files.readAttributes(gfs.getPath("/a"), GfsFileAttributes.Basic.class);
+  public void readAttributesFromNonExistentFile_shouldThrowNoSuchFileException1() throws IOException {
+    provider.readAttributes(gfs.getPath("/non_existent_file.txt"), GfsFileAttributes.Basic.class);
+  }
+
+
+  @Test(expected = NoSuchFileException.class)
+  public void readAttributesFromNonExistentFile_shouldThrowNoSuchFileException2() throws IOException {
+    provider.readAttributes(gfs.getPath("/non_existent_file.txt"), "basic:size,isRegularFile");
   }
 
   @Test(expected = UnsupportedOperationException.class)
-  public void readUnsupportedFileAttributesTest() throws IOException {
-    initGitFileSystem();
-    Files.readAttributes(gfs.getPath("/a"), ZipFileAttributes.class);
-  }
+  public void readUnsupportedFileAttributes_shouldThrowUnsupportedOperationException1() throws IOException {
+    writeToGfs("/file.txt");
+    provider.readAttributes(gfs.getPath("/file.txt"), new BasicFileAttributes() {
+      @Nullable
+      @Override
+      public FileTime lastModifiedTime() {
+        return null;
+      }
 
-  @Test
-  public void readSelectedAttributesWithViewNameSpecifiedTest() throws IOException {
-    initRepository();
-    byte[] data = "text content".getBytes();
-    writeFile("a", data);
-    commitToMaster();
-    initGitFileSystem();
-    String attributes = "basic:size,isRegularFile";
-    Map<String, Object> attributeMap = Files.readAttributes(gfs.getPath("/a"), attributes);
-    Assert.assertEquals(2, attributeMap.size());
-    Assert.assertEquals((long) data.length, attributeMap.get(GfsFileAttributeView.Basic.SIZE_NAME));
-    Assert.assertEquals(true, attributeMap.get(GfsFileAttributeView.Basic.IS_REGULAR_FILE_NAME));
-  }
+      @Nullable
+      @Override
+      public FileTime lastAccessTime() {
+        return null;
+      }
 
-  @Test
-  public void readSelectedAttributesWithoutViewNameSpecifiedTest() throws IOException {
-    initRepository();
-    byte[] data = "text content".getBytes();
-    writeFile("a", data);
-    commitToMaster();
-    initGitFileSystem();
-    String attributes = "size,isRegularFile";
-    Map<String, Object> attributeMap = Files.readAttributes(gfs.getPath("/a"), attributes);
-    Assert.assertEquals(2, attributeMap.size());
-    Assert.assertEquals((long) data.length, attributeMap.get(GfsFileAttributeView.Basic.SIZE_NAME));
-    Assert.assertEquals(true, attributeMap.get(GfsFileAttributeView.Basic.IS_REGULAR_FILE_NAME));
+      @Nullable
+      @Override
+      public FileTime creationTime() {
+        return null;
+      }
+
+      @Override
+      public boolean isRegularFile() {
+        return false;
+      }
+
+      @Override
+      public boolean isDirectory() {
+        return false;
+      }
+
+      @Override
+      public boolean isSymbolicLink() {
+        return false;
+      }
+
+      @Override
+      public boolean isOther() {
+        return false;
+      }
+
+      @Override
+      public long size() {
+        return 0;
+      }
+
+      @Nullable
+      @Override
+      public Object fileKey() {
+        return null;
+      }
+    }.getClass());
   }
 
   @Test(expected = UnsupportedOperationException.class)
-  public void readSelectedAttributesWithUnsupportedViewNameSpecifiedTest() throws IOException {
-    initRepository();
-    byte[] data = "text content".getBytes();
-    writeFile("a", data);
-    commitToMaster();
-    initGitFileSystem();
-    String attributes = "custom:size,isRegularFile";
-    Files.readAttributes(gfs.getPath("/a"), attributes);
+  public void readUnsupportedFileAttributes_shouldThrowUnsupportedOperationException2() throws IOException {
+    writeToGfs("/file.txt");
+    provider.readAttributes(gfs.getPath("/file.txt"), "some_view:some_attribute");
   }
 
 }

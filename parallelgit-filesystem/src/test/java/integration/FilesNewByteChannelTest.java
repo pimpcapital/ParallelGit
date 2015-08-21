@@ -20,7 +20,7 @@ public class FilesNewByteChannelTest extends AbstractGitFileSystemTest {
   @Before
   public void setupFileSystem() throws IOException {
     initRepository();
-    writeFile("/file.txt", ORIGINAL_TEXT_BYTES);
+    writeToCache("/file.txt", ORIGINAL_TEXT_BYTES);
     commitToMaster();
     initGitFileSystem();
     file = gfs.getPath("/file.txt");
