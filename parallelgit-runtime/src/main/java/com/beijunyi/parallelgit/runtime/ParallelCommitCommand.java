@@ -1,4 +1,4 @@
-package com.beijunyi.parallelgit.commands;
+package com.beijunyi.parallelgit.runtime;
 
 import java.io.File;
 import java.io.IOException;
@@ -11,9 +11,9 @@ import java.util.List;
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 
-import com.beijunyi.parallelgit.commands.cache.AddDirectory;
-import com.beijunyi.parallelgit.commands.cache.AddFile;
-import com.beijunyi.parallelgit.commands.cache.UpdateFile;
+import com.beijunyi.parallelgit.runtime.cache.AddDirectory;
+import com.beijunyi.parallelgit.runtime.cache.AddFile;
+import com.beijunyi.parallelgit.runtime.cache.UpdateFile;
 import com.beijunyi.parallelgit.utils.BranchHelper;
 import com.beijunyi.parallelgit.utils.CommitHelper;
 import com.beijunyi.parallelgit.utils.exception.RefUpdateValidator;

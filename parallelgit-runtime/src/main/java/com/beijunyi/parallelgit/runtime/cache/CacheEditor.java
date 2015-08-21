@@ -1,4 +1,4 @@
-package com.beijunyi.parallelgit.commands.cache;
+package com.beijunyi.parallelgit.runtime.cache;
 
 import java.io.IOException;
 import javax.annotation.Nonnull;

@@ -1,4 +1,4 @@
-package com.beijunyi.parallelgit.commands;
+package com.beijunyi.parallelgit.runtime;
 
 import java.io.IOException;
 import java.util.ArrayList;
@@ -6,7 +6,7 @@ import java.util.List;
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 
-import com.beijunyi.parallelgit.commands.cache.*;
+import com.beijunyi.parallelgit.runtime.cache.*;
 import com.beijunyi.parallelgit.utils.CacheHelper;
 import com.beijunyi.parallelgit.utils.RevTreeHelper;
 import org.eclipse.jgit.dircache.DirCache;

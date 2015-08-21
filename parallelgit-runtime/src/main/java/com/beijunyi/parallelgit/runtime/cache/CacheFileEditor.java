@@ -1,4 +1,4 @@
-package com.beijunyi.parallelgit.commands.cache;
+package com.beijunyi.parallelgit.runtime.cache;
 
 import java.io.*;
 import java.nio.file.Files;

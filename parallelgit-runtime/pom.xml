@@ -14,13 +14,13 @@
   <dependencies>
     <dependency>
       <groupId>com.beijunyi.parallelgit</groupId>
-      <artifactId>parallelgit-core</artifactId>
+      <artifactId>parallelgit-utils</artifactId>
       <version>0.9.3-SNAPSHOT</version>
     </dependency>
 
     <dependency>
       <groupId>com.beijunyi.parallelgit</groupId>
-      <artifactId>parallelgit-core</artifactId>
+      <artifactId>parallelgit-utils</artifactId>
       <version>0.9.3-SNAPSHOT</version>
       <type>test-jar</type>
       <scope>test</scope>

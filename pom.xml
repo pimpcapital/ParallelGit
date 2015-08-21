@@ -7,7 +7,7 @@
   <version>0.9.3-SNAPSHOT</version>
   <packaging>pom</packaging>
   <modules>
-    <module>parallelgit-core</module>
+    <module>parallelgit-utils</module>
     <module>parallelgit-filesystem</module>
     <module>parallelgit-runtime</module>
   </modules>

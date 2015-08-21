@@ -1,4 +1,4 @@
-package com.beijunyi.parallelgit.commands;
+package com.beijunyi.parallelgit.runtime;
 
 import java.io.ByteArrayInputStream;
 import java.io.IOException;
