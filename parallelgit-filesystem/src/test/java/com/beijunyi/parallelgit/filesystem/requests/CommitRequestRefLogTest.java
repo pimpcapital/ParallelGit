@@ -26,8 +26,10 @@ public class CommitRequestRefLogTest extends AbstractGitFileSystemTest {
     RevCommit commit = Requests.commit(gfs)
                          .message("expected message")
                          .execute();
+    String reflogComment = RefHelper.getLastReflogComment(repo, branch);
     assert commit != null;
-    Assert.assertTrue(repo.getReflogReader(RefHelper.getBranchRefName(branch)).getLastEntry().getComment().contains(commit.getShortMessage()));
+    assert reflogComment != null;
+    Assert.assertTrue(reflogComment.contains(commit.getShortMessage()));
   }
 
   @Test
@@ -37,7 +39,7 @@ public class CommitRequestRefLogTest extends AbstractGitFileSystemTest {
     Requests.commit(gfs)
       .refLog("some custom reflog message")
       .execute();
-    Assert.assertEquals(reflog, repo.getReflogReader(RefHelper.getBranchRefName(branch)).getLastEntry().getComment());
+    Assert.assertEquals(reflog, RefHelper.getLastReflogComment(repo, branch));
   }
 
 }

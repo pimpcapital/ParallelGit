@@ -131,7 +131,7 @@ public class CommitRequestTest extends PreSetupGitFileSystemTest {
     writeSomeFileToGfs();
     DirCache cache = DirCache.newInCore();
     AnyObjectId blobId = BlobHelper.insert(repo, "some other content");
-    DirCacheHelper.addFile(cache, "some_other_file.txt", blobId);
+    CacheHelper.addFile(cache, "some_other_file.txt", blobId);
     RevCommit parent = CommitHelper.createCommit(repo, cache, new PersonIdent(repo), "some orphan commit");
     RevCommit commit = Requests.commit(gfs)
                          .parent(parent)
@@ -145,7 +145,7 @@ public class CommitRequestTest extends PreSetupGitFileSystemTest {
     writeSomeFileToGfs();
     DirCache cache = DirCache.newInCore();
     AnyObjectId blobId = BlobHelper.insert(repo, "some other content");
-    DirCacheHelper.addFile(cache, "some_other_file.txt", blobId);
+    CacheHelper.addFile(cache, "some_other_file.txt", blobId);
     RevCommit secondParent = CommitHelper.createCommit(repo, cache, new PersonIdent(repo), "some orphan commit");
     AnyObjectId[] parents = new AnyObjectId[] {CommitHelper.getCommit(repo, branch), secondParent};
     RevCommit commit = Requests.commit(gfs)

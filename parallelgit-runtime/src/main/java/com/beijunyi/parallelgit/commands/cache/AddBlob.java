@@ -3,7 +3,7 @@ package com.beijunyi.parallelgit.commands.cache;
 import java.io.IOException;
 import javax.annotation.Nonnull;
 
-import com.beijunyi.parallelgit.utils.DirCacheHelper;
+import com.beijunyi.parallelgit.utils.CacheHelper;
 import org.eclipse.jgit.lib.AnyObjectId;
 import org.eclipse.jgit.lib.FileMode;
 
@@ -25,6 +25,6 @@ public class AddBlob extends CacheEditor {
 
   @Override
   public void edit(@Nonnull CacheStateProvider provider) throws IOException {
-    DirCacheHelper.addFile(provider.getCurrentBuilder(), mode, path, blobId);
+    CacheHelper.addFile(provider.getCurrentBuilder(), mode, path, blobId);
   }
 }

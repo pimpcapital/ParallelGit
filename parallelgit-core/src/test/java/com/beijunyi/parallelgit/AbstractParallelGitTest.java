@@ -34,7 +34,7 @@ public abstract class AbstractParallelGitTest {
     ObjectId blobId = BlobHelper.insert(repo, content);
     if(path.startsWith("/"))
       path = path.substring(1);
-    DirCacheHelper.addFile(cache, mode, path, blobId);
+    CacheHelper.addFile(cache, mode, path, blobId);
     return blobId;
   }
 

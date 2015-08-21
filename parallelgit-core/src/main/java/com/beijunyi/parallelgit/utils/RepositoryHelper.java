@@ -53,6 +53,7 @@ public final class RepositoryHelper {
    * @param repo a git repository
    * @param revision a revision reference
    */
+  @Nonnull
   public static RefUpdate.Result setRepositoryHead(@Nonnull Repository repo, @Nonnull String revision) throws IOException {
     if(repo.isBare())
       throw new IllegalArgumentException(repo + " is a bare repository.");

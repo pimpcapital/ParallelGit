@@ -9,7 +9,7 @@ import javax.annotation.Nullable;
 import org.eclipse.jgit.dircache.*;
 import org.eclipse.jgit.lib.*;
 
-public final class DirCacheHelper {
+public final class CacheHelper {
 
   /**
    * Loads the specified tree into the given {@code DirCache}.

@@ -78,7 +78,7 @@ public final class CommitHelper {
 
   @Nonnull
   public static RevCommit createCommit(@Nonnull Repository repo, @Nonnull DirCache cache, @Nonnull PersonIdent author, @Nonnull PersonIdent committer, @Nullable String message, @Nonnull List<AnyObjectId> parents) throws IOException {
-    return createCommit(repo, DirCacheHelper.writeTree(repo, cache), author, committer, message, parents);
+    return createCommit(repo, CacheHelper.writeTree(repo, cache), author, committer, message, parents);
   }
 
   @Nonnull

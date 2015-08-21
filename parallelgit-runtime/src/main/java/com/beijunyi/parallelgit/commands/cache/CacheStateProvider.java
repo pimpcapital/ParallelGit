@@ -5,7 +5,7 @@ import java.io.IOException;
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 
-import com.beijunyi.parallelgit.utils.DirCacheHelper;
+import com.beijunyi.parallelgit.utils.CacheHelper;
 import org.eclipse.jgit.dircache.DirCache;
 import org.eclipse.jgit.dircache.DirCacheBuilder;
 import org.eclipse.jgit.dircache.DirCacheEditor;
@@ -66,7 +66,7 @@ public class CacheStateProvider implements Closeable {
       editor = null;
     }
     if(builder == null)
-      builder = DirCacheHelper.keepEverything(cache);
+      builder = CacheHelper.keepEverything(cache);
     return builder;
   }
 

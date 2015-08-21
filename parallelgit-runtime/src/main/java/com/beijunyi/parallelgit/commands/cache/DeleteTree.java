@@ -3,7 +3,7 @@ package com.beijunyi.parallelgit.commands.cache;
 import java.io.IOException;
 import javax.annotation.Nonnull;
 
-import com.beijunyi.parallelgit.utils.DirCacheHelper;
+import com.beijunyi.parallelgit.utils.CacheHelper;
 
 public class DeleteTree extends CacheEditor {
 
@@ -13,6 +13,6 @@ public class DeleteTree extends CacheEditor {
 
   @Override
   public void edit(@Nonnull CacheStateProvider provider) throws IOException {
-    DirCacheHelper.deleteDirectory(provider.getEditor(), path);
+    CacheHelper.deleteDirectory(provider.getEditor(), path);
   }
 }

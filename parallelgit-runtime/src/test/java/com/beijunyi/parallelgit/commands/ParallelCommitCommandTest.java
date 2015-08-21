@@ -49,7 +49,7 @@ public class ParallelCommitCommandTest extends AbstractParallelGitTest {
                              .fromCache(cache)
                              .call();
     Assert.assertNotNull(commitId);
-    DirCache cache = DirCacheHelper.forRevision(repo, commitId);
+    DirCache cache = CacheHelper.forRevision(repo, commitId);
     Assert.assertEquals(1, cache.getEntryCount());
     Assert.assertEquals(blobId, cache.getEntry(testFile).getObjectId());
   }

@@ -1,7 +1,6 @@
 package com.beijunyi.parallelgit.utils;
 
 import javax.annotation.Nonnull;
-import javax.annotation.Nullable;
 
 public final class VirtualDirCacheEntry {
 
@@ -96,19 +95,4 @@ public final class VirtualDirCacheEntry {
     return path.startsWith(childrenPrefix);
   }
 
-  @Override
-  public boolean equals(@Nullable Object obj) {
-    if(this == obj)
-      return true;
-    if(obj == null || getClass() != obj.getClass())
-      return false;
-    VirtualDirCacheEntry that = (VirtualDirCacheEntry)obj;
-    return path.equals(that.path) && regularFile == that.regularFile;
-
-  }
-
-  @Override
-  public int hashCode() {
-    return 31 * path.hashCode() + (regularFile ? 1 : 0);
-  }
 }

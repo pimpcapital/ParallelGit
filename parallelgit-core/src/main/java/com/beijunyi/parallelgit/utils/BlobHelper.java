@@ -117,6 +117,12 @@ public final class BlobHelper {
     }
   }
 
+  @Nullable
+  public static byte[] getBytes(@Nonnull Repository repo, @Nonnull String commitId, @Nonnull String path) throws IOException {
+    return getBytes(repo, repo.resolve(commitId), path);
+  }
+
+
   /**
    * Inserts the given byte array into the provided repository.
    *
@@ -127,10 +133,13 @@ public final class BlobHelper {
   @Nonnull
   public static ObjectId insert(@Nonnull Repository repo, @Nonnull byte[] blob) throws IOException {
     ObjectInserter inserter = repo.newObjectInserter();
-    ObjectId blobId = inserter.insert(Constants.OBJ_BLOB, blob);
-    inserter.flush();
-    inserter.release();
-    return blobId;
+    try {
+      ObjectId blobId = inserter.insert(Constants.OBJ_BLOB, blob);
+      inserter.flush();
+      return blobId;
+    } finally {
+      inserter.release();
+    }
   }
 
   /**

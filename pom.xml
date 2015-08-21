@@ -53,7 +53,6 @@
 
     <maven-release-plugin.version>2.5.2</maven-release-plugin.version>
     <maven-source-plugin.version>2.4</maven-source-plugin.version>
-    <maven-javadoc-plugin.version>2.10.3</maven-javadoc-plugin.version>
     <maven-gpg-plugin.version>1.6</maven-gpg-plugin.version>
     <nexus-staging-maven-plugin.version>1.6.5</nexus-staging-maven-plugin.version>
     <jgit.version>3.5.2.201411120430-r</jgit.version>
