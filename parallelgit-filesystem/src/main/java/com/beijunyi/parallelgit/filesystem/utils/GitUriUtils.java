@@ -12,31 +12,11 @@ public final class GitUriUtils {
 
   public final static String SID_KEY = "sid";
 
-  /**
-   * Checks if the scheme of the given {@code URI} is equal (without regard to case) to {@link
-   * com.beijunyi.parallelgit.filesystem.GitFileSystemProvider#GIT_FS_SCHEME}.
-   *
-   * @param   uri
-   *          the {@code URI} to check
-   * @throws  ProviderMismatchException
-   *          if the given {@code URI} is not equal to {@link com.beijunyi.parallelgit.filesystem.GitFileSystemProvider#GIT_FS_SCHEME}
-   */
   static void checkScheme(@Nonnull URI uri) throws ProviderMismatchException {
     if(!GitFileSystemProvider.GIT_FS_SCHEME.equalsIgnoreCase(uri.getScheme()))
       throw new ProviderMismatchException(uri.getScheme());
   }
 
-  /**
-   * Finds and returns the path to the repository from the given {@code URI}.
-   *
-   * Within the {@code GitFileSystem} {@code URI} pattern:
-   *   git://[repo location]![path in repo (optional)]?[parameters (optional)]
-   * this method returns the [repo location] part of the {@code URI}.
-   *
-   * @param   uri
-   *          the {@code URI}
-   * @return  the string path to the repository
-   */
   @Nonnull
   public static String getRepository(@Nonnull URI uri) {
     checkScheme(uri);
@@ -46,17 +26,6 @@ public final class GitUriUtils {
     return path;
   }
 
-  /**
-   * Finds and returns the path to the file in the repository from the given {@code URI}.
-   *
-   * Within the {@code GitFileSystem} {@code URI} pattern:
-   *   git://[repo location]![file in repo (optional)]?[parameters (optional)]
-   * this method returns the [file in repo] part of the {@code URI}. If this part is absent, the default path is "/".
-   *
-   * @param   uri
-   *          the {@code URI}
-   * @return  the string path to the file in the repository
-   */
   @Nonnull
   public static String getFile(@Nonnull URI uri) throws ProviderMismatchException {
     checkScheme(uri);

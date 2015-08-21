@@ -17,27 +17,12 @@ public final class GitGlobs {
   }
   private static char EOL = 0;
 
-  /**
-   * Returns the character at the specified index. If the index is beyond the end of the given string, it returns a NUL
-   * character.
-   *
-   * @param glob a glob pattern string
-   * @param i the index of the character
-   * @return the character at the index or NUL character if the index is beyond the end of the given string
-   */
   private static char charAt(@Nonnull String glob, int i) {
     if (i < glob.length())
       return glob.charAt(i);
     return EOL;
   }
 
-  /**
-   * Converts a glob pattern into a regex pattern.
-   *
-   * @param   globPattern
-   *          the glob pattern to convert
-   * @return  a regex pattern which is functionally equivalent to the given glob patten
-   */
   @Nonnull
   public static String toRegexPattern(@Nonnull String globPattern) {
     boolean inGroup = false;

@@ -46,27 +46,12 @@ public class GitFileSystem extends FileSystem {
     store = new GitFileStore(this, tree);
   }
 
-  /**
-   * Returns the provider that created this file system.
-   *
-   * @return  the provider that created this file system.
-   */
   @Nonnull
   @Override
   public GitFileSystemProvider provider() {
     return provider;
   }
 
-  /**
-   * Closes this file system.
-   *
-   * After a file system is closed then all subsequent access to the file system, either by methods defined by this
-   * class or on objects associated with this file system, throw {@link ClosedFileSystemException}. If the file system
-   * is already closed then invoking this method has no effect.
-   *
-   * Closing a file system will close all open {@link java.nio.channels.Channel}, {@link DirectoryStream}, and other
-   * closeable objects associated with this file system.
-   */
   @Override
   public synchronized void close() {
     if(!closed) {
@@ -75,31 +60,16 @@ public class GitFileSystem extends FileSystem {
     }
   }
 
-  /**
-   * Tells whether or not this file system is open.
-   *
-   * @return {@code true} if this file system is open
-   */
   @Override
   public synchronized boolean isOpen() {
     return !closed;
   }
 
-  /**
-   * Returns {@code false} as {@code GitFileSystem} provides both read access and write access.
-   *
-   * @return {@code false}
-   */
   @Override
   public boolean isReadOnly() {
     return false;
   }
 
-  /**
-   * Returns "/" as it is the only separator {@code GitFileSystem} uses regardless the operating system the JVM runs on.
-   *
-   * @return "/"
-   */
   @Nonnull
   @Override
   public String getSeparator() {
@@ -187,64 +157,33 @@ public class GitFileSystem extends FileSystem {
     };
   }
 
-  /**
-   * {@code UserPrincipalLookupService} is not supported with the current version.
-   *
-   * @throws UnsupportedOperationException whenever this method gets called
-   */
   @Nullable
   @Override
   public UserPrincipalLookupService getUserPrincipalLookupService() throws UnsupportedOperationException {
     throw new UnsupportedOperationException();
   }
 
-  /**
-   * {@code WatchService} is not supported with the current version.
-   *
-   * @throws UnsupportedOperationException whenever this method gets called
-   */
   @Nullable
   @Override
   public WatchService newWatchService() throws UnsupportedOperationException {
     throw new UnsupportedOperationException();
   }
 
-  /**
-   * Returns the session id as the unique identifier of this {@code FileSystem}.
-   *
-   * @return the session id of this {@code FileSystem}
-   */
   @Nonnull
   public String getSessionId() {
     return session;
   }
 
-  /**
-   * Returns the root path of this file system.
-   *
-   * @return the root path of this file system
-   */
   @Nonnull
   public GitPath getRootPath() {
     return rootPath;
   }
 
-  /**
-   * Returns the file store of this file system.
-   *
-   * @return the file store of this file system
-   */
   @Nonnull
   public GitFileStore getFileStore() {
     return store;
   }
 
-  /**
-   * Tests whether the given object is equal to this instance.
-   *
-   * @param o an object
-   * @return {@code true} if the given object is equal to this instance
-   */
   @Override
   public boolean equals(@Nullable Object o) {
     if(this == o)
@@ -258,13 +197,6 @@ public class GitFileSystem extends FileSystem {
 
   }
 
-  /**
-   * Returns the hash code of this instance.
-   *
-   * The hash code of a git file system is the hash code of its session id.
-   *
-   * @return the hash code of this instance
-   */
   @Override
   public int hashCode() {
     return session.hashCode();

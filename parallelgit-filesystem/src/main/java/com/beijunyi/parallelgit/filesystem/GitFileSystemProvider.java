@@ -27,12 +27,6 @@ public class GitFileSystemProvider extends FileSystemProvider {
 
   private static GitFileSystemProvider INSTANCE;
 
-  /**
-   * Returns the {@link FileSystemProvider#installedProviders() installed} {@code GitFileSystemProvider} instance or
-   * throws a {@code ProviderNotFoundException} if none is installed.
-   *
-   * @return  the installed {@code GitFileSystemProvider} instance
-   */
   @Nonnull
   public static GitFileSystemProvider getInstance() {
     if(INSTANCE == null) {
@@ -48,11 +42,6 @@ public class GitFileSystemProvider extends FileSystemProvider {
     return INSTANCE;
   }
 
-  /**
-   * Returns {@code "gfs"} as the scheme of this provider.
-   *
-   * @return  {@code "gfs"}
-   */
   @Nonnull
   @Override
   public String getScheme() {
@@ -99,16 +88,6 @@ public class GitFileSystemProvider extends FileSystemProvider {
     return getFileSystem(session);
   }
 
-  /**
-   * Return a {@code GitPath} object by converting the given {@link URI}. The resulting {@code GitPath} is associated
-   * with a {@link GitFileSystem} that already exists or is constructed automatically.
-   *
-   * @param   uri
-   *          The URI to convert
-   *
-   * @throws  ProviderMismatchException
-   *          if the {@code URI} scheme is not specified or is not equal to {@link #GIT_FS_SCHEME "git"}.
-   */
   @Nonnull
   @Override
   public GitPath getPath(@Nonnull URI uri) throws FileSystemNotFoundException {
@@ -119,27 +98,6 @@ public class GitFileSystemProvider extends FileSystemProvider {
     return gfs.getPath(file).toRealPath();
   }
 
-  /**
-   * Opens or creates a file, returning a {@code GitSeekableByteChannel} to access the file. This method works in
-   * exactly the manner specified by the {@link Files#newByteChannel(Path,Set,FileAttribute[])} method.
-   *
-   * @param   path
-   *          the path to the file to open or create
-   * @param   options
-   *          options specifying how the file is opened
-   * @param   attrs
-   *          an optional list of file attributes to set atomically when creating the file
-   *
-   * @return  a {@code GitSeekableByteChannel} to access the target file
-   *
-   * @throws  NoSuchFileException
-   *          if the target file does not exists and neither {@link StandardOpenOption#CREATE} nor {@link
-   *          StandardOpenOption#CREATE_NEW} option is specified
-   * @throws  AccessDeniedException
-   *          if the target file is a directory
-   * @throws  FileAlreadyExistsException
-   *          if the target file already exists and {@link StandardOpenOption#CREATE_NEW} option is specified
-   */
   @Nonnull
   @Override
   public SeekableByteChannel newByteChannel(@Nonnull Path path, @Nonnull Set<? extends OpenOption> options, @Nonnull FileAttribute<?>... attrs) throws IOException, UnsupportedOperationException {
@@ -156,133 +114,32 @@ public class GitFileSystemProvider extends FileSystemProvider {
     return GfsIO.newByteChannel(((GitPath)path).toRealPath(), amended, Arrays.<FileAttribute>asList(attrs));
   }
 
-  /**
-   * Opens a directory, returning a {@code GitDirectoryStream} to iterate over the entries in the directory. This method
-   * works in exactly the manner specified by the {@link Files#newDirectoryStream(Path, DirectoryStream.Filter)} method.
-   *
-   * @param   path
-   *          the path to the directory
-   * @param   filter
-   *          the directory stream filter
-   *
-   * @return  a new and open {@code GitDirectoryStream} object
-   *
-   * @throws  NotDirectoryException
-   *          if the file could not otherwise be opened because it is not a directory
-   */
   @Nonnull
   @Override
   public GfsDirectoryStream newDirectoryStream(@Nonnull Path path, @Nullable DirectoryStream.Filter<? super Path> filter) throws IOException {
     return GfsIO.newDirectoryStream(((GitPath)path).toRealPath(), filter);
   }
 
-  /**
-   * Calling this method has no effect as an empty directory is trivial to a git repository. However, if the target
-   * already exists (regardless of whether it is a file or a non-empty directory), this method throws a {@code
-   * FileAlreadyExistsException} to indicate the error.
-   *
-   * Creating a file inside a directory does not require to explicitly create its parent directory. The necessary
-   * hierarchy is automatically created when a file is created.
-   *
-   * @param   dir
-   *          the target path
-   * @param   attrs
-   *          unused parameter
-   * @throws  FileAlreadyExistsException
-   *          if a file of the target path already exists
-   */
   @Override
   public void createDirectory(@Nonnull Path dir, @Nonnull FileAttribute<?>... attrs) throws IOException {
     GfsIO.createDirectory((GitPath)dir);
   }
 
-  /**
-   * Deletes a file. This method works in exactly the  manner specified by the {@link Files#delete} method.
-   *
-   * @param   path
-   *          the path to the file to delete
-   * @throws  AccessDeniedException
-   *          if the target file is associated with an open {@code GitSeekableByteChannel} or its parent directories are
-   *          associated with an open {@code GitDirectoryStream}
-   * @throws  NoSuchFileException
-   *          if the target file does not exist
-   * @throws  DirectoryNotEmptyException
-   *          if the target file is a directory and could not otherwise be deleted because the directory is not empty
-   */
   @Override
   public void delete(@Nonnull Path path) throws IOException {
     GfsIO.delete(((GitPath)path).toRealPath());
   }
 
-  /**
-   * Copy a file to a target file. This method works in exactly the manner specified by the {@link
-   * Files#copy(Path,Path,CopyOption[])} method except that both the source and target paths must be associated with
-   * this provider.
-   *
-   * @param   source
-   *          the path to the file to copy
-   * @param   target
-   *          the path to the target file
-   * @param   options
-   *          options specifying how the copy should be done
-   * @throws  AccessDeniedException
-   *          if the file to copy or the target file is associated with an open {@code GitSeekableByteChannel} or their
-   *          parent directories are associated with an open {@code GitDirectoryStream}
-   * @throws  NoSuchFileException
-   *          if the file to copy does not exist
-   * @throws  FileAlreadyExistsException
-   *          if the target file exists but cannot be replaced because the {@code REPLACE_EXISTING} option is not
-   *          specified
-   * @throws  DirectoryNotEmptyException
-   *          the {@code REPLACE_EXISTING} option is specified but the file cannot be replaced because it is a non-empty
-   *          directory
-   * @throws  IOException
-   *          if an I/O error occurs
-   */
   @Override
   public void copy(@Nonnull Path source, @Nonnull Path target, @Nonnull CopyOption... options) throws IOException {
     GfsIO.copy((GitPath)source, (GitPath)target, new HashSet<>(Arrays.asList(options)));
   }
 
-  /**
-   * Move or rename a file to a target file. This method works in exactly the manner specified by the {@link Files#move}
-   * method except that both the source and target paths must be associated with this provider.
-   *
-   * @param   source
-   *          the path to the file to move
-   * @param   target
-   *          the path to the target file
-   * @param   options
-   *          options specifying how the move should be done
-   * @throws  NoSuchFileException
-   *          if the file to move does not exist
-   * @throws  AccessDeniedException
-   *          if the file to move or the target file is associated with an open {@code GitSeekableByteChannel} or their
-   *          parent directories are associated with an open {@code GitDirectoryStream}
-   * @throws  FileAlreadyExistsException
-   *          if the target file exists but cannot be replaced because the {@code REPLACE_EXISTING} option is not
-   *          specified
-   * @throws  DirectoryNotEmptyException
-   *          the {@code REPLACE_EXISTING} option is specified but the file cannot be replaced because it is a non-empty
-   *          directory
-   * @throws  IOException
-   *          if an I/O error occurs
-   */
   @Override
   public void move(@Nonnull Path source, @Nonnull Path target, @Nonnull CopyOption... options) throws IOException {
     GfsIO.move((GitPath)source, (GitPath)target, new HashSet<>(Arrays.asList(options)));
   }
 
-  /**
-   * Tests if two paths locate the same file. This method works in exactly the manner specified by the {@link
-   * Files#isSameFile} method.
-   *
-   * @param   path
-   *          one path to the file
-   * @param   path2
-   *          the other path
-   * @return  {@code true} if the two paths locate the same file
-   */
   @Override
   public boolean isSameFile(@Nonnull Path path, @Nonnull Path path2) {
     GitPath p1 = ((GitPath) path).toRealPath();
@@ -290,71 +147,23 @@ public class GitFileSystemProvider extends FileSystemProvider {
     return Objects.equals(p1, p2);
   }
 
-  /**
-   * Tests whether or not a file is considered {@code hidden}. This method works in exactly the manner specified by the
-   * {@link Files#isHidden} method.
-   *
-   * @param   path
-   *          the path to the file to test
-   * @return  {@code true} if the specified file is considered hidden
-   */
   @Override
   public boolean isHidden(@Nonnull Path path) {
     GitPath filename = ((GitPath) path).toRealPath().getFileName();
     return filename != null && filename.toString().charAt(0) == '.';
   }
 
-  /**
-   * Returns the {@code GitFileStore} representing the file store where a file is located. This method works in exactly
-   * the manner specified by the {@link Files#getFileStore} method.
-   *
-   * @param   path
-   *          the path to the file
-   * @return  the file store where the file is stored
-   */
   @Nonnull
   @Override
   public GitFileStore getFileStore(@Nonnull Path path) {
     return ((GitPath) path).getFileStore();
   }
 
-  /**
-   * Checks the existence and the accessibility of a file.
-   *
-   * This method is used by the {@link Files#isReadable(Path)}, {@link Files#isWritable(Path)} and {@link
-   * Files#isExecutable(Path)} methods to check the accessibility of a file.
-   *
-   * @param   path
-   *          the path to the file to check
-   * @param   modes
-   *          The access modes to check
-   *
-   * @throws  NoSuchFileException
-   *          if the target file does not exist
-   * @throws  AccessDeniedException
-   *          if any of the requested access modes to the target file is denied
-   */
   @Override
   public void checkAccess(@Nonnull Path path, @Nonnull AccessMode... modes) throws IOException {
     GfsIO.checkAccess(((GitPath)path).toRealPath(), new HashSet<>(Arrays.asList(modes)));
   }
 
-  /**
-   * Returns a file attribute view of a given type. This method works in exactly the manner specified by the {@link
-   * Files#getFileAttributeView} method.
-   *
-   * @param   path
-   *          the path to the file
-   * @param   type
-   *          the {@code Class} object corresponding to the file attribute view
-   * @param   options
-   *          unused argument
-   *
-   * @return  a file attribute view of the specified type
-   *
-   * @throws  UnsupportedOperationException
-   *          if file attribute view of the specified type is not supported
-   */
   @Nullable
   @Override
   public <V extends FileAttributeView> V getFileAttributeView(@Nonnull Path path, @Nonnull Class<V> type, @Nonnull LinkOption... options) throws UnsupportedOperationException {
@@ -365,24 +174,6 @@ public class GitFileSystemProvider extends FileSystemProvider {
     }
   }
 
-  /**
-   * Reads a file's attributes as a bulk operation. This method works in exactly the manner specified by the {@link
-   * Files#readAttributes(Path,Class,LinkOption[])} method.
-   *
-   * @param   path
-   *          the path to the file
-   * @param   type
-   *          the {@code Class} of the file attributes required to read
-   * @param   options
-   *          unused argument
-   *
-   * @return  the file attributes
-   *
-   * @throws  NoSuchFileException
-   *          if the target file does not exist
-   * @throws  UnsupportedOperationException
-   *          if an attributes of the given type are not supported
-   */
   @Nonnull
   @Override
   public <A extends BasicFileAttributes> A readAttributes(@Nonnull Path path, @Nonnull Class<A> type, @Nonnull LinkOption... options) throws IOException {
@@ -399,27 +190,6 @@ public class GitFileSystemProvider extends FileSystemProvider {
     return type.cast(view.readAttributes());
   }
 
-  /**
-   * Reads a set of file attributes as a bulk operation. This method works in exactly the manner specified by the {@link
-   * Files#readAttributes(Path,String,LinkOption[])} method.
-   *
-   * @param   path
-   *          the path to the file
-   * @param   attributes
-   *          the attributes to read
-   * @param   options
-   *          unused argument
-   *
-   * @return  a map of the attributes returned; may be empty. The map's keys are the attribute names, its values are the
-   *          attribute values
-   *
-   * @throws  NoSuchFileException
-   *          if the target file does not exist
-   * @throws  UnsupportedOperationException
-   *          if the attribute view is not available
-   * @throws  IllegalArgumentException
-   *          if no attributes are specified or an unrecognized attributes is specified
-   */
   @Nonnull
   @Override
   public Map<String, Object> readAttributes(@Nonnull Path path, @Nonnull String attributes, @Nonnull LinkOption... options) throws IOException {
@@ -443,11 +213,6 @@ public class GitFileSystemProvider extends FileSystemProvider {
     return view.readAttributes(Arrays.asList(keys.split(",")));
   }
 
-  /**
-   * Setting attribute is not supported with the current version.
-   *
-   * @throws UnsupportedOperationException whenever this method gets called
-   */
   @Override
   public void setAttribute(@Nullable Path path, @Nullable String attribute, @Nullable Object value, @Nullable LinkOption... options) throws UnsupportedOperationException {
     throw new UnsupportedOperationException();

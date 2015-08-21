@@ -62,51 +62,26 @@ public abstract class GfsFileAttributes {
       return isRegularFile;
     }
 
-    /**
-     * Tells if the file is a directory.
-     *
-     * @return  {@code true} if the file is a directory
-     */
     @Override
     public boolean isDirectory() {
       return isDirectory;
     }
 
-    /**
-     * Returns {@code false} as symbolic link is not supported.
-     *
-     * @return  {@code false}
-     */
     @Override
     public boolean isSymbolicLink() {
       return isSymbolicLink;
     }
 
-    /**
-     * Returns {@code false} as other types of files are not supported.
-     *
-     * @return  {@code false}
-     */
     @Override
     public boolean isOther() {
       return isOther;
     }
 
-    /**
-     * Returns the size of the file in bytes.
-     *
-     * @return  the file size in bytes
-     */
     @Override
     public long size() {
       return size;
     }
 
-    /**
-     * Returns {@code null} as file key is not supported.
-     *
-     * @return  {@code null}
-     */
     @Nullable
     @Override
     public Object fileKey() {

@@ -23,76 +23,33 @@ public class GitFileStore extends FileStore {
     root = rootTree != null ? DirectoryNode.treeRoot(rootTree) : DirectoryNode.emptyRoot();
   }
 
-  /**
-   * Returns the name of this file store.
-   *
-   * A {@code GitFileStore}'s name consists of the absolute path to the repository directory, the branch ref, the base
-   * commit id and the base tree id.
-   *
-   * @return the name of this file store
-   */
   @Nonnull
   @Override
   public String name() {
     return gfs.getSessionId();
   }
 
-  /**
-   * Returns the type of this file store.
-   *
-   * A {@code GitFileStore} is "attached" if it is created with a branch ref specified. Committing changes on an
-   * attached {@code GitFileStore} updates the {@code HEAD} of the specified branch. Otherwise, if no branch ref is
-   * specified, the type of such file store is "detached".
-   *
-   * @return  the type of this file store
-   */
   @Nonnull
   @Override
   public String type() {
     return "gitfs";
   }
 
-  /**
-   * Returns {@code false} as {@code GitFileStore} supports write access.
-   *
-   * @return   {@code false}
-   */
   @Override
   public boolean isReadOnly() {
     return false;
   }
 
-  /**
-   * Returns the size, in bytes, of the file store.
-   *
-   * This method simply forwards the result of {@link java.io.File#getTotalSpace()} from the repository directory.
-   *
-   * @return the size of the file store, in bytes
-   */
   @Override
   public long getTotalSpace() throws IOException {
     return GfsIO.getSize(root, gfs);
   }
 
-  /**
-   * Returns the number of bytes available to this file store.
-   *
-   * This method simply forwards the result of {@link java.io.File#getUsableSpace()} from the repository directory.
-   *
-   * @return the number of bytes available
-   */
   @Override
   public long getUsableSpace() {
     return Runtime.getRuntime().freeMemory();
   }
 
-  /**
-   * Returns the number of unallocated bytes in the file store.
-   *
-   * This method simply forwards the result of {@link java.io.File#getFreeSpace()} from the repository directory.
-   *
-   * @return the number of unallocated bytes
-   */
   @Override
   public long getUnallocatedSpace() {
     return 0;
@@ -121,13 +78,6 @@ public class GitFileStore extends FileStore {
     return null;
   }
 
-  /**
-   * Reads the value of a file store attribute.
-   *
-   * @param   attribute
-   *          the attribute to read
-   * @return  the attribute value
-   */
   @Override
   public Object getAttribute(@Nonnull String attribute) throws IOException {
     if(attribute.equals("totalSpace"))

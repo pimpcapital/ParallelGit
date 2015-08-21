@@ -119,11 +119,6 @@ public class GitPath implements Path {
     return ba;
   }
 
-  /**
-   * Returns the {@link GitFileSystem} this path bases on.
-   *
-   * @return the git file system this path bases on
-   */
   @Nonnull
   @Override
   public GitFileSystem getFileSystem() {
@@ -135,30 +130,17 @@ public class GitPath implements Path {
     return gfs.getFileStore();
   }
 
-  /**
-   * Tests if this path is absolute.
-   *
-   * @return {@code true} if path starts with "/".
-   */
   @Override
   public boolean isAbsolute() {
     return path.length > 0 && path[0] == '/';
   }
 
-  /**
-   * @return a {@code GitPath} representing the root.
-   */
   @Nonnull
   @Override
   public GitPath getRoot() {
     return getFileSystem().getRootPath();
   }
 
-  /**
-   * Returns the name of the file or directory denoted by this path or {@code null} if this path is empty.
-   *
-   * @return the name of the file or directory denoted by this path or {@code null} if this path is empty
-   */
   @Nullable
   @Override
   public GitPath getFileName() {
@@ -514,12 +496,6 @@ public class GitPath implements Path {
     return result;
   }
 
-  /**
-   * Resolve the given path against this path.
-   *
-   * @param path the path to resolve against this path
-   * @return the resulting path
-   */
   @Nonnull
   @Override
   public GitPath resolve(@Nonnull Path path) {
@@ -531,24 +507,11 @@ public class GitPath implements Path {
     return new GitPath(getFileSystem(), result);
   }
 
-  /**
-   * Converts a given path string to a git path and resolves it against this path in exactly the manner specified by the
-   * {@link #resolve(Path)} method.
-   *
-   * @param pathStr the path string to resolve against this path
-   * @return the resulting path
-   */
   @Override
   public GitPath resolve(@Nonnull String pathStr) {
     return resolve(getFileSystem().getPath(pathStr));
   }
 
-  /**
-   * Resolves the given path against this path's parent path.
-   *
-   * @param path the path to resolve against this path's parent
-   * @return the resulting path
-   */
   @Override
   public GitPath resolveSibling(@Nonnull Path path) {
     GitPath other = (GitPath) path;
@@ -556,25 +519,11 @@ public class GitPath implements Path {
     return (parent == null) ? other : parent.resolve(other);
   }
 
-  /**
-   * Converts a given path string to a git path and resolves it against this path's parent path in exactly the manner
-   * specified by the {@link #resolveSibling(Path)} method.
-   *
-   * @param path the path string to resolve against this path's parent
-   * @return the resulting path
-   */
   @Override
   public GitPath resolveSibling(@Nonnull String path) {
     return resolveSibling(getFileSystem().getPath(path));
   }
 
-  /**
-   * Constructs a relative path between this path and a given path.
-   *
-   * @param path the path to relativize against this path
-   * @return the resulting relative path, or an empty path if both paths are equal
-   * @throws IllegalArgumentException if the path to be relativize is different type of path
-   */
   @Nonnull
   @Override
   public GitPath relativize(@Nonnull Path path) throws IllegalArgumentException {
@@ -643,14 +592,6 @@ public class GitPath implements Path {
     return GitUriBuilder.forFileSystem(gfs).file(this).build();
   }
 
-  /**
-   * Returns a {@code GitPath} object representing the absolute path of this path.
-   *
-   * If this path is already {@link Path#isAbsolute()} then this method simply returns this path. Otherwise, this method
-   * resolves the path against the root path of the file system.
-   *
-   * @return a {@code GitPath} object representing the absolute path
-   */
   @Nonnull
   @Override
   public GitPath toAbsolutePath() {
@@ -665,48 +606,24 @@ public class GitPath implements Path {
     return toAbsolutePath().normalize();
   }
 
-  /**
-   * This method is not supported with the current version.
-   *
-   * @throws UnsupportedOperationException
-   */
   @Nullable
   @Override
   public File toFile() throws UnsupportedOperationException {
     throw new UnsupportedOperationException();
   }
 
-  /**
-   * This method is not supported with the current version.
-   *
-   * @throws UnsupportedOperationException
-   */
   @Nullable
   @Override
   public WatchKey register(@Nullable WatchService watcher, @Nullable WatchEvent.Kind<?>[] events, @Nonnull WatchEvent.Modifier... modifiers) throws UnsupportedOperationException {
     throw new UnsupportedOperationException();
   }
 
-  /**
-   * Watch service is not supported with the current version.
-   *
-   * @throws UnsupportedOperationException
-   */
   @Nullable
   @Override
   public WatchKey register(@Nullable WatchService watcher, @Nonnull WatchEvent.Kind<?>... events) throws UnsupportedOperationException {
     throw new UnsupportedOperationException();
   }
 
-  /**
-   * Returns an iterator over the name elements of this path.
-   *
-   * The first element returned by the iterator represents the name element that is closest to the root in the directory
-   * hierarchy, the second element is the next closest, and so on. The last element returned is the name of the file or
-   * directory denoted by this path.
-   *
-   * @return an iterator over the name elements of this path.
-   */
   @Nonnull
   @Override
   public Iterator<Path> iterator() {
@@ -754,14 +671,6 @@ public class GitPath implements Path {
     return len1 - len2;
   }
 
-  /**
-   * Returns the string value of this path.
-   *
-   * The string value is created from the path's byte array and stored in {@link #stringValue}. This method reuses the
-   * cached value after it is initialized.
-   *
-   * @return the string value of this path
-   */
   @Nonnull
   @Override
   public String toString() {
@@ -771,12 +680,6 @@ public class GitPath implements Path {
     return stringValue;
   }
 
-  /**
-   * Searches the names in this path and stores their offsets in {@link #offsets}.
-   *
-   * For every instance, the searching only runs at the first time this method gets called. This method does nothing if
-   * the value of {@link #offsets} is already available.
-   */
   private void initOffsets() {
     if(offsets == null) {
       int count, index;
@@ -816,16 +719,6 @@ public class GitPath implements Path {
     }
   }
 
-  /**
-   * Tests this path for equality with the given object.
-   *
-   * If the given object is not a {@code GitPath}, or is a {@code GitPath} associated with a different {@code
-   * GitFileSystem}, then this method returns {@code false}. Additionally, the underlying byte arrays {}of the two paths
-   * are compared.
-   *
-   * @param obj the object to which this object is to be compared
-   * @return {@code true} if the given object is a {@code GitPath} that is identical to this {@code GitPath}
-   */
   @Override
   public boolean equals(@Nullable Object obj) {
     if(this == obj)
@@ -839,24 +732,11 @@ public class GitPath implements Path {
     return gfs.equals(gitPath.gfs) && Arrays.equals(path, gitPath.path);
   }
 
-  /**
-   * Computes a hash code for this path.
-   *
-   * Two {@code GitPath} guarantee to have the same hash code only when they are based on the same {@code GitFileSystem}
-   * and have the same underlying byte array
-   *
-   * @return the hash-code value for this path
-   */
   @Override
   public int hashCode() {
     return 31 * gfs.hashCode() + Arrays.hashCode(path);
   }
 
-  /**
-   * Tells if this path's length is 0.
-   *
-   * @return  {@code true} if this path's length is 0
-   */
   public boolean isEmpty() {
     return path.length == 0;
   }
@@ -865,11 +745,6 @@ public class GitPath implements Path {
     return path.length == 1 && path[0] == '/';
   }
 
-  /**
-   * Creates a new empty path from the same {@code GitFileSystem}.
-   *
-   * @return  a new empty path
-   */
   @Nonnull
   private GitPath emptyPath() {
     return new GitPath(gfs, new byte[0]);
