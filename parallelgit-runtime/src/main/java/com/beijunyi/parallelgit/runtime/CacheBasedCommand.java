@@ -55,7 +55,7 @@ public abstract class CacheBasedCommand<B extends CacheBasedCommand, T> extends 
   }
 
   @Nonnull
-  public B addTree(@Nonnull AnyObjectId treeId, @Nonnull String path) {
+  public B addDirectory(@Nonnull AnyObjectId treeId, @Nonnull String path) {
     AddTree editor = new AddTree(path);
     editor.setTreeId(treeId);
     editors.add(editor);
@@ -63,7 +63,7 @@ public abstract class CacheBasedCommand<B extends CacheBasedCommand, T> extends 
   }
 
   @Nonnull
-  public B addTree(@Nonnull String treeIdStr, @Nonnull String path) {
+  public B addDirectory(@Nonnull String treeIdStr, @Nonnull String path) {
     AddTree editor = new AddTree(path);
     editor.setTreeIdStr(treeIdStr);
     editors.add(editor);
@@ -71,7 +71,7 @@ public abstract class CacheBasedCommand<B extends CacheBasedCommand, T> extends 
   }
 
   @Nonnull
-  public B addBlob(@Nonnull AnyObjectId blobId, @Nonnull FileMode mode, @Nonnull String path) {
+  public B addFile(@Nonnull AnyObjectId blobId, @Nonnull FileMode mode, @Nonnull String path) {
     AddBlob editor = new AddBlob(path);
     editor.setBlobId(blobId);
     editor.setMode(mode);
@@ -80,26 +80,26 @@ public abstract class CacheBasedCommand<B extends CacheBasedCommand, T> extends 
   }
 
   @Nonnull
-  public B addBlob(@Nonnull AnyObjectId blobId, @Nonnull String path) {
-    return addBlob(blobId, FileMode.REGULAR_FILE, path);
+  public B addFile(@Nonnull AnyObjectId blobId, @Nonnull String path) {
+    return addFile(blobId, FileMode.REGULAR_FILE, path);
   }
 
   @Nonnull
-  public B deleteTree(@Nonnull String path) {
+  public B deleteDirectory(@Nonnull String path) {
     DeleteTree editor = new DeleteTree(path);
     editors.add(editor);
     return self();
   }
 
   @Nonnull
-  public B deleteBlob(@Nonnull String path) {
+  public B deleteFile(@Nonnull String path) {
     DeleteBlob editor = new DeleteBlob(path);
     editors.add(editor);
     return self();
   }
 
   @Nonnull
-  public B updateBlob(@Nonnull AnyObjectId blobId, @Nonnull FileMode mode, @Nonnull String path) {
+  public B updateFile(@Nonnull AnyObjectId blobId, @Nonnull FileMode mode, @Nonnull String path) {
     UpdateBlob editor = new UpdateBlob(path);
     editor.setBlobId(blobId);
     editor.setMode(mode);
@@ -108,7 +108,7 @@ public abstract class CacheBasedCommand<B extends CacheBasedCommand, T> extends 
   }
 
   @Nonnull
-  public B updateBlob(@Nonnull AnyObjectId blobId, @Nonnull String path) {
+  public B updateFile(@Nonnull AnyObjectId blobId, @Nonnull String path) {
     UpdateBlob editor = new UpdateBlob(path);
     editor.setBlobId(blobId);
     editors.add(editor);
@@ -116,7 +116,7 @@ public abstract class CacheBasedCommand<B extends CacheBasedCommand, T> extends 
   }
 
   @Nonnull
-  public B updateBlob(@Nonnull FileMode mode, @Nonnull String path) {
+  public B updateFile(@Nonnull FileMode mode, @Nonnull String path) {
     UpdateBlob editor = new UpdateBlob(path);
     editor.setMode(mode);
     editors.add(editor);

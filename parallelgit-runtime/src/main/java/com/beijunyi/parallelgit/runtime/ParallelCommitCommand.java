@@ -69,11 +69,6 @@ public final class ParallelCommitCommand extends CacheBasedCommand<ParallelCommi
   }
 
   @Nonnull
-  public ParallelCommitCommand master() {
-    return branch(Constants.MASTER);
-  }
-
-  @Nonnull
   public ParallelCommitCommand amend(boolean amend) {
     this.amend = amend;
     return this;
@@ -217,11 +212,6 @@ public final class ParallelCommitCommand extends CacheBasedCommand<ParallelCommi
   }
 
   @Nonnull
-  public ParallelCommitCommand deleteFile(@Nonnull String path) {
-    return deleteBlob(path);
-  }
-
-  @Nonnull
   public ParallelCommitCommand addDirectory(@Nonnull DirectoryStream<Path> directoryStream, @Nonnull String path) {
     AddDirectory editor = new AddDirectory(path);
     editor.setDirectoryStream(directoryStream);
@@ -243,11 +233,6 @@ public final class ParallelCommitCommand extends CacheBasedCommand<ParallelCommi
     editor.setSourceFile(sourceFile);
     editors.add(editor);
     return this;
-  }
-
-  @Nonnull
-  public ParallelCommitCommand deleteDirectory(@Nonnull String path) {
-    return deleteTree(path);
   }
 
   @Nonnull

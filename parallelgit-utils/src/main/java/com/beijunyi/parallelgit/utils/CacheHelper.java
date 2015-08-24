@@ -11,48 +11,53 @@ import org.eclipse.jgit.lib.*;
 
 public final class CacheHelper {
 
-  /**
-   * Loads the specified tree into the given {@code DirCache}.
-   *
-   * @param cache a dir cache
-   * @param reader an object reader
-   * @param treeId a tree id
-   */
+  @Nonnull
+  public static String normalizeCachePath(@Nonnull String path) {
+    if(path.startsWith("/"))
+      return path.substring(1);
+    if(path.endsWith("/"))
+      return path.substring(0, path.length() - 1);
+    return path;
+  }
+
+  @Nullable
+  public static DirCacheEntry getEntry(@Nonnull DirCache cache, @Nonnull String path) {
+    return cache.getEntry(normalizeCachePath(path));
+  }
+
+  public static int findEntry(@Nonnull DirCache cache, @Nonnull String path) {
+    return cache.findEntry(normalizeCachePath(path));
+  }
+
+  @Nonnull
+  public static DirCacheEntry newDirCacheEntry(@Nonnull String path) {
+    return new DirCacheEntry(normalizeCachePath(path));
+  }
+
+  @Nonnull
+  public static DirCacheEditor.DeletePath deleteEntry(@Nonnull String path) {
+    return new DirCacheEditor.DeletePath(normalizeCachePath(path));
+  }
+
+  @Nonnull
+  public static DirCacheEditor.DeleteTree deleteChildren(@Nonnull String path) {
+    return new DirCacheEditor.DeleteTree(normalizeCachePath(path));
+  }
+
   public static void loadTree(@Nonnull DirCache cache, @Nonnull ObjectReader reader, @Nonnull AnyObjectId treeId) throws IOException {
     addTree(cache, reader, "", treeId);
   }
 
-  /**
-   * Loads the root tree of the specified commit into the given {@code DirCache}.
-   *
-   * @param cache a dir cache
-   * @param reader an object reader
-   * @param commitId an object id that points to a commit
-   */
   public static void loadRevision(@Nonnull DirCache cache, @Nonnull ObjectReader reader, @Nonnull AnyObjectId commitId) throws IOException {
     loadTree(cache, reader, RevTreeHelper.getRootTree(reader, commitId));
   }
 
-  /**
-   * Creates a new {@code DirCache} with content loaded from the given tree.
-   *
-   * @param reader an object reader
-   * @param treeId a tree id
-   * @return a new dir cache with content loaded from the given tree
-   */
   public static DirCache forTree(@Nonnull ObjectReader reader, @Nonnull AnyObjectId treeId) throws IOException {
     DirCache cache = DirCache.newInCore();
     loadTree(cache, reader, treeId);
     return cache;
   }
 
-  /**
-   * Creates a new {@code DirCache} with content loaded from the given commit's root tree.
-   *
-   * @param reader an object reader
-   * @param commitId an object id that points to a commit
-   * @return a new dir cache
-   */
   @Nonnull
   public static DirCache forRevision(@Nonnull ObjectReader reader, @Nonnull AnyObjectId commitId) throws IOException {
     DirCache cache = DirCache.newInCore();
@@ -60,16 +65,6 @@ public final class CacheHelper {
     return cache;
   }
 
-  /**
-   * Creates a new {@code DirCache} with content loaded from the given commit's root tree.
-   *
-   * This method creates a temporary {@code ObjectReader} and then invokes {@link #forRevision(ObjectReader, AnyObjectId)}.
-   * The temporary reader will be released at the end of this method.
-   *
-   * @param repo a git repository
-   * @param commitId an object id that points to a commit
-   * @return a new dir cache
-   */
   @Nonnull
   public static DirCache forRevision(@Nonnull Repository repo, @Nonnull AnyObjectId commitId) throws IOException {
     ObjectReader reader = repo.newObjectReader();
@@ -80,16 +75,6 @@ public final class CacheHelper {
     }
   }
 
-  /**
-   * Creates a new {@code DirCache} with content from the specified commit's root tree.
-   *
-   * This method finds the {@code ObjectId} of the commit represented by the specified revision string and then invokes
-   * {@link #forRevision(Repository, AnyObjectId)}.
-   *
-   * @param repo a git repository
-   * @param revision a revision string
-   * @return a new dir cache
-   */
   @Nonnull
   public static DirCache forRevision(@Nonnull Repository repo, @Nonnull String revision) throws IOException {
     ObjectId revisionId = repo.resolve(revision);
@@ -109,123 +94,51 @@ public final class CacheHelper {
 
   @Nullable
   public static ObjectId getBlobId(@Nonnull DirCache cache, @Nonnull String path) {
-    DirCacheEntry entry = cache.getEntry(path);
+    DirCacheEntry entry = getEntry(cache, path);
     if(entry == null)
       return null;
     return entry.getObjectId();
   }
 
-  /**
-   * Adds the specified tree into the given {@code DirCacheBuilder}.
-   *
-   * @param builder a dir cache builder
-   * @param reader an object reader
-   * @param path a directory path
-   * @param treeId an object id that points to a tree
-   */
   public static void addTree(@Nonnull DirCacheBuilder builder, @Nonnull ObjectReader reader, @Nonnull String path, @Nonnull AnyObjectId treeId) throws IOException {
-    builder.addTree(path.getBytes(), DirCacheEntry.STAGE_0, reader, treeId);
+    builder.addTree(normalizeCachePath(path).getBytes(), DirCacheEntry.STAGE_0, reader, treeId);
   }
 
-  /**
-   * Adds the specified tree into the given {@code DirCache}.
-   *
-   * This method creates a temporary {@code DirCacheBuilder} and then invokes {@link #addTree(DirCacheBuilder,
-   * ObjectReader, String, AnyObjectId)}. The temporary builder will be finished/flushed at the end of this method..
-   *
-   * @param cache a dir cache
-   * @param reader an object reader
-   * @param path a directory path
-   * @param treeId an object id that points to a tree
-   */
   public static void addTree(@Nonnull DirCache cache, @Nonnull ObjectReader reader, @Nonnull String path, @Nonnull AnyObjectId treeId) throws IOException {
     DirCacheBuilder builder = keepEverything(cache);
     addTree(builder, reader, path, treeId);
     builder.finish();
   }
 
-  /**
-   * Adds a new {@code DirCacheEntry} with the provided blob id into the given {@code DirCacheBuilder} at the specified
-   * path.
-   *
-   * This method always adds the new entry to {@code DirCacheEntry#STAGE_0}.
-   *
-   * @param builder a dir cache builder
-   * @param mode a file mode
-   * @param path a file path
-   * @param blobId an object id that points to a blob
-   */
   public static void addFile(@Nonnull DirCacheBuilder builder, @Nonnull FileMode mode, @Nonnull String path, @Nonnull AnyObjectId blobId) {
-    DirCacheEntry entry = new DirCacheEntry(path, DirCacheEntry.STAGE_0);
+    DirCacheEntry entry = newDirCacheEntry(path);
     entry.setFileMode(mode);
     entry.setObjectId(blobId);
     builder.add(entry);
   }
 
-  /**
-   * Adds a new {@code DirCacheEntry} with the provided blob id into the given {@code DirCache} at the specified path.
-   *
-   * This method creates a temporary {@code DirCacheBuilder} and then invokes {@link #addFile(DirCacheBuilder, FileMode,
-   * String, AnyObjectId)}. The temporary builder will be finished/flushed at the end of this method..
-   *
-   * @param cache a dir cache
-   * @param mode a file mode
-   * @param path a file path
-   * @param blobId an object id that points to a blob
-   */
   public static void addFile(@Nonnull DirCache cache, @Nonnull FileMode mode, @Nonnull String path, @Nonnull AnyObjectId blobId) {
     DirCacheBuilder builder = keepEverything(cache);
     addFile(builder, mode, path, blobId);
     builder.finish();
   }
 
-  /**
-   * Adds a new {@code DirCacheEntry} with the provided blob id into the given {@code DirCache} at the specified path.
-   *
-   * This method behaves similarly to {@link #addFile(DirCache, FileMode, String, AnyObjectId)} except the new entry's file
-   * mode is always {@code FileMode.REGULAR_FILE}.
-   *
-   * @param cache a dir cache
-   * @param path a file path
-   * @param blobId an object id that points to a blob
-   */
   public static void addFile(@Nonnull DirCache cache, @Nonnull String path, @Nonnull AnyObjectId blobId) {
     addFile(cache, FileMode.REGULAR_FILE, path, blobId);
   }
 
-  /**
-   * Adds a {@code DirCacheEditor.DeletePath} edit targeting the specified path to the given {@code DirCacheEditor}.
-   *
-   * @param editor a dir cache editor
-   * @param path a directory path
-   */
   public static void deleteFile(@Nonnull DirCacheEditor editor, @Nonnull String path) {
-    editor.add(new DirCacheEditor.DeletePath(path));
+    editor.add(deleteEntry(path));
   }
 
-  /**
-   * Deletes the specified file from the given {@code DirCache}.
-   *
-   * This method creates a temporary {@code DirCacheEditor} and then invokes {@link #deleteFile(DirCacheEditor,
-   * String)}. The temporary editor will be finished/flushed at the end of this method..
-   *
-   * @param cache a dir cache
-   * @param path a directory path
-   */
   public static void deleteFile(@Nonnull DirCache cache, @Nonnull String path) {
     DirCacheEditor editor = cache.editor();
     deleteFile(editor, path);
     editor.finish();
   }
 
-  /**
-   * Adds a {@code DirCacheEditor.DeleteTree} edit targeting the specified path to the given {@code DirCacheEditor}.
-   *
-   * @param editor a dir cache editor
-   * @param path a directory path
-   */
   public static void deleteDirectory(@Nonnull DirCacheEditor editor, @Nonnull String path) {
-    editor.add(new DirCacheEditor.DeleteTree(path));
+    editor.add(deleteChildren(path));
   }
 
   /**
@@ -253,7 +166,7 @@ public final class CacheHelper {
    * @return {@code true} if the specified path exists in the dir cache
    */
   public static boolean isFile(@Nonnull DirCache cache, @Nonnull String path) {
-    return cache.findEntry(path) >= 0;
+    return findEntry(cache, path) >= 0;
   }
 
   /**
@@ -266,7 +179,7 @@ public final class CacheHelper {
    * @return  {@code true} if the specified file is a symbolic link
    */
   public static boolean isSymbolicLink(@Nonnull DirCache cache, @Nonnull String path) {
-    DirCacheEntry entry = cache.getEntry(path);
+    DirCacheEntry entry = getEntry(cache, path);
     return entry != null && entry.getFileMode() == FileMode.SYMLINK;
   }
 
@@ -280,7 +193,7 @@ public final class CacheHelper {
    * @return  {@code true} if the specified file is a regular file
    */
   public static boolean isRegularFile(@Nonnull DirCache cache, @Nonnull String path) {
-    DirCacheEntry entry = cache.getEntry(path);
+    DirCacheEntry entry = getEntry(cache, path);
     return entry != null && entry.getFileMode() == FileMode.REGULAR_FILE;
   }
 
@@ -294,7 +207,7 @@ public final class CacheHelper {
    * @return  {@code true} if the specified file is executable
    */
   public static boolean isExecutableFile(@Nonnull DirCache cache, @Nonnull String path) {
-    DirCacheEntry entry = cache.getEntry(path);
+    DirCacheEntry entry = getEntry(cache, path);
     return entry != null && entry.getFileMode() == FileMode.EXECUTABLE_FILE;
   }
 
@@ -308,7 +221,7 @@ public final class CacheHelper {
    * @return  {@code true} if the specified file is either regular or executable
    */
   public static boolean isRegularOrExecutableFile(@Nonnull DirCache cache, @Nonnull String path) {
-    DirCacheEntry entry = cache.getEntry(path);
+    DirCacheEntry entry = getEntry(cache, path);
     return entry != null
              && (entry.getFileMode() == FileMode.REGULAR_FILE || entry.getFileMode() == FileMode.EXECUTABLE_FILE);
   }
@@ -326,11 +239,9 @@ public final class CacheHelper {
    * @return {@code true} if the specified path points to a non-empty directory
    */
   public static boolean isNonTrivialDirectory(@Nonnull DirCache cache, @Nonnull String path) {
-    if(path.length() == 0) // if it is root
+    path = normalizeCachePath(path) + "/";
+    if(path.equals("/")) // if it is root
       return true;
-
-    if(!path.endsWith("/"))
-      path += "/";
 
     int startIndex = cache.findEntry(path); // find the index of this path
     if(startIndex < 0) // when the path is a directory, its index is negative

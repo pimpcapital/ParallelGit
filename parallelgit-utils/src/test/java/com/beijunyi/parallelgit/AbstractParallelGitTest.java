@@ -32,8 +32,6 @@ public abstract class AbstractParallelGitTest {
   @Nonnull
   protected ObjectId writeToCache(@Nonnull String path, @Nonnull byte[] content, @Nonnull FileMode mode) throws IOException {
     ObjectId blobId = BlobHelper.insert(repo, content);
-    if(path.startsWith("/"))
-      path = path.substring(1);
     CacheHelper.addFile(cache, mode, path, blobId);
     return blobId;
   }
@@ -116,15 +114,22 @@ public abstract class AbstractParallelGitTest {
   }
 
   @Nonnull
+  protected RevCommit initContent() throws IOException {
+    writeToCache("existing_file.txt");
+    commitToMaster();
+    writeToCache("some_other_file.txt");
+    RevCommit head = commitToMaster();
+    clearCache();
+    return head;
+  }
+
+  @Nonnull
   protected RevCommit initRepository(boolean memory, boolean bare) throws IOException {
     if(!memory)
       initRepositoryDir();
     repo = memory ? new TestRepository(bare) : RepositoryHelper.createRepository(repoDir, bare);
     cache = DirCache.newInCore();
-    writeToCache("existing_file.txt");
-    commitToMaster();
-    writeToCache("some_other_file.txt");
-    return commitToMaster();
+    return initContent();
   }
 
   @Nonnull
