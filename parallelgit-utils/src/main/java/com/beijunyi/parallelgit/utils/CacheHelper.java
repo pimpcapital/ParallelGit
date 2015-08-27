@@ -77,7 +77,7 @@ public final class CacheHelper {
 
   @Nonnull
   public static DirCache forRevision(@Nonnull Repository repo, @Nonnull String revision) throws IOException {
-    ObjectId revisionId = repo.resolve(revision);
+    AnyObjectId revisionId = repo.resolve(revision);
     if(revisionId == null)
       throw new IllegalArgumentException("Could not find matched commit id for " + revision);
     return forRevision(repo, revisionId);
@@ -93,11 +93,19 @@ public final class CacheHelper {
   }
 
   @Nullable
-  public static ObjectId getBlobId(@Nonnull DirCache cache, @Nonnull String path) {
+  public static AnyObjectId getBlobId(@Nonnull DirCache cache, @Nonnull String path) {
     DirCacheEntry entry = getEntry(cache, path);
     if(entry == null)
       return null;
     return entry.getObjectId();
+  }
+
+  @Nullable
+  public static FileMode getFileMode(@Nonnull DirCache cache, @Nonnull String path) {
+    DirCacheEntry entry = getEntry(cache, path);
+    if(entry == null)
+      return null;
+    return entry.getFileMode();
   }
 
   public static void addTree(@Nonnull DirCacheBuilder builder, @Nonnull ObjectReader reader, @Nonnull String path, @Nonnull AnyObjectId treeId) throws IOException {

@@ -40,7 +40,7 @@ public final class BranchHelper {
    * @return the HEAD commit id of the given branch
    */
   @Nullable
-  public static ObjectId getBranchHeadCommitId(@Nonnull Repository repo, @Nonnull String name) throws IOException {
+  public static AnyObjectId getBranchHeadCommitId(@Nonnull Repository repo, @Nonnull String name) throws IOException {
     return repo.resolve(RefHelper.getBranchRefName(name));
   }
 
@@ -51,7 +51,7 @@ public final class BranchHelper {
     if(exists && !force)
       throw new IllegalArgumentException("Branch " + name + " already exists");
 
-    ObjectId revisionId = repo.resolve(revision);
+    AnyObjectId revisionId = repo.resolve(revision);
     if(revisionId == null)
       throw new IllegalArgumentException("Could not find revision " + revision);
 
@@ -79,9 +79,9 @@ public final class BranchHelper {
   }
 
   @Nonnull
-  public static RefUpdate.Result setBranchHead(@Nonnull Repository repo, @Nonnull String name, @Nonnull ObjectId commitId, @Nonnull String refLogMessage, boolean forceUpdate) throws IOException {
+  public static RefUpdate.Result setBranchHead(@Nonnull Repository repo, @Nonnull String name, @Nonnull AnyObjectId commitId, @Nonnull String refLogMessage, boolean forceUpdate) throws IOException {
     String refName = RefHelper.getBranchRefName(name);
-    ObjectId currentHead = repo.resolve(refName);
+    AnyObjectId currentHead = repo.resolve(refName);
     if(currentHead == null)
       currentHead = ObjectId.zeroId();
 
@@ -102,7 +102,7 @@ public final class BranchHelper {
    * @return a ref update result
    */
   @Nonnull
-  public static RefUpdate.Result resetBranchHead(@Nonnull Repository repo, @Nonnull String name, @Nonnull ObjectId commitId) throws IOException {
+  public static RefUpdate.Result resetBranchHead(@Nonnull Repository repo, @Nonnull String name, @Nonnull AnyObjectId commitId) throws IOException {
     return setBranchHead(repo, name, commitId, RefHelper.getBranchRefName(name) + ": updating " + Constants.HEAD, true);
   }
 
@@ -117,7 +117,7 @@ public final class BranchHelper {
    * @return a ref update result
    */
   @Nonnull
-  public static RefUpdate.Result commitBranchHead(@Nonnull Repository repo, @Nonnull String name, @Nonnull ObjectId commitId, @Nonnull String shortMessage) throws IOException {
+  public static RefUpdate.Result commitBranchHead(@Nonnull Repository repo, @Nonnull String name, @Nonnull AnyObjectId commitId, @Nonnull String shortMessage) throws IOException {
     return setBranchHead(repo, name, commitId, "commit: " + shortMessage, true);
   }
 
@@ -131,7 +131,7 @@ public final class BranchHelper {
    * @return a ref update result
    */
   @Nonnull
-  public static RefUpdate.Result commitBranchHead(@Nonnull Repository repo, @Nonnull String name, @Nonnull ObjectId commitId) throws IOException {
+  public static RefUpdate.Result commitBranchHead(@Nonnull Repository repo, @Nonnull String name, @Nonnull AnyObjectId commitId) throws IOException {
     return commitBranchHead(repo, name, commitId, CommitHelper.getCommit(repo, commitId).getShortMessage());
   }
 
@@ -146,7 +146,7 @@ public final class BranchHelper {
    * @return a ref update result
    */
   @Nonnull
-  public static RefUpdate.Result amendBranchHead(@Nonnull Repository repo, @Nonnull String name, @Nonnull ObjectId commitId, @Nonnull String shortMessage) throws IOException {
+  public static RefUpdate.Result amendBranchHead(@Nonnull Repository repo, @Nonnull String name, @Nonnull AnyObjectId commitId, @Nonnull String shortMessage) throws IOException {
     return setBranchHead(repo, name, commitId, "commit (amend): " + shortMessage, true);
   }
 
@@ -160,7 +160,7 @@ public final class BranchHelper {
    * @return a ref update result
    */
   @Nonnull
-  public static RefUpdate.Result amendBranchHead(@Nonnull Repository repo, @Nonnull String name, @Nonnull ObjectId commitId) throws IOException {
+  public static RefUpdate.Result amendBranchHead(@Nonnull Repository repo, @Nonnull String name, @Nonnull AnyObjectId commitId) throws IOException {
     return amendBranchHead(repo, name, commitId, CommitHelper.getCommit(repo, commitId).getShortMessage());
   }
 
@@ -175,7 +175,7 @@ public final class BranchHelper {
    * @return a ref update result
    */
   @Nonnull
-  public static RefUpdate.Result cherryPickBranchHead(@Nonnull Repository repo, @Nonnull String name, @Nonnull ObjectId commitId, @Nonnull String shortMessage) throws IOException {
+  public static RefUpdate.Result cherryPickBranchHead(@Nonnull Repository repo, @Nonnull String name, @Nonnull AnyObjectId commitId, @Nonnull String shortMessage) throws IOException {
     return setBranchHead(repo, name, commitId, "cherry-pick: " + shortMessage, true);
   }
 
@@ -189,7 +189,7 @@ public final class BranchHelper {
    * @return a ref update result
    */
   @Nonnull
-  public static RefUpdate.Result cherryPickBranchHead(@Nonnull Repository repo, @Nonnull String name, @Nonnull ObjectId commitId) throws IOException {
+  public static RefUpdate.Result cherryPickBranchHead(@Nonnull Repository repo, @Nonnull String name, @Nonnull AnyObjectId commitId) throws IOException {
     return cherryPickBranchHead(repo, name, commitId, CommitHelper.getCommit(repo, commitId).getShortMessage());
   }
 
@@ -205,7 +205,7 @@ public final class BranchHelper {
    * @return a ref update result
    */
   @Nonnull
-  public static RefUpdate.Result initBranchHead(@Nonnull Repository repo, @Nonnull String name, @Nonnull ObjectId commitId, @Nonnull String shortMessage, boolean falseUpdate) throws IOException {
+  public static RefUpdate.Result initBranchHead(@Nonnull Repository repo, @Nonnull String name, @Nonnull AnyObjectId commitId, @Nonnull String shortMessage, boolean falseUpdate) throws IOException {
     return setBranchHead(repo, name, commitId, "commit (initial): " + shortMessage, falseUpdate);
   }
 
@@ -220,7 +220,7 @@ public final class BranchHelper {
    * @return a ref update result
    */
   @Nonnull
-  public static RefUpdate.Result initBranchHead(@Nonnull Repository repo, @Nonnull String name, @Nonnull ObjectId commitId, @Nonnull String shortMessage) throws IOException {
+  public static RefUpdate.Result initBranchHead(@Nonnull Repository repo, @Nonnull String name, @Nonnull AnyObjectId commitId, @Nonnull String shortMessage) throws IOException {
     return initBranchHead(repo, name, commitId, shortMessage, false);
   }
 
@@ -234,7 +234,7 @@ public final class BranchHelper {
    * @return a ref update result
    */
   @Nonnull
-  public static RefUpdate.Result initBranchHead(@Nonnull Repository repo, @Nonnull String name, @Nonnull ObjectId commitId) throws IOException {
+  public static RefUpdate.Result initBranchHead(@Nonnull Repository repo, @Nonnull String name, @Nonnull AnyObjectId commitId) throws IOException {
     return initBranchHead(repo, name, commitId, CommitHelper.getCommit(repo, commitId).getShortMessage());
   }
 

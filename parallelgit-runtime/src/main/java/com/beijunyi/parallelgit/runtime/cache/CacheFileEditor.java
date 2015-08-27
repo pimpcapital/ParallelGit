@@ -6,9 +6,7 @@ import java.nio.file.Path;
 import javax.annotation.Nonnull;
 
 import com.beijunyi.parallelgit.utils.CacheHelper;
-import org.eclipse.jgit.lib.Constants;
-import org.eclipse.jgit.lib.FileMode;
-import org.eclipse.jgit.lib.ObjectId;
+import org.eclipse.jgit.lib.*;
 
 public abstract class CacheFileEditor extends CacheEditor {
 
@@ -112,7 +110,7 @@ public abstract class CacheFileEditor extends CacheEditor {
   }
 
   protected void createEntry(@Nonnull CacheStateProvider provider) throws IOException {
-    ObjectId blobId = provider.getInserter().insert(Constants.OBJ_BLOB, bytes);
+    AnyObjectId blobId = provider.getInserter().insert(Constants.OBJ_BLOB, bytes);
     CacheHelper.addFile(provider.getCurrentBuilder(), mode != null ? mode : FileMode.REGULAR_FILE, path, blobId);
   }
 

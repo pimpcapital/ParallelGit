@@ -8,6 +8,7 @@ import com.beijunyi.parallelgit.utils.CacheHelper;
 import com.beijunyi.parallelgit.utils.RevTreeHelper;
 import org.eclipse.jgit.dircache.DirCache;
 import org.eclipse.jgit.dircache.DirCacheEntry;
+import org.eclipse.jgit.lib.AnyObjectId;
 import org.eclipse.jgit.lib.FileMode;
 import org.eclipse.jgit.lib.ObjectId;
 import org.junit.Assert;
@@ -29,8 +30,8 @@ public class ParallelCacheCommandTest extends AbstractParallelGitTest {
 
   @Test
   public void buildCacheWithBaseCommit_theResultCacheShouldHaveTheSameContentAsTheCommit1() throws IOException {
-    ObjectId expectedFileBlob = writeToCache("/expected_file.txt");
-    ObjectId commitId = commitToMaster();
+    AnyObjectId expectedFileBlob = writeToCache("/expected_file.txt");
+    AnyObjectId commitId = commitToMaster();
     DirCache cache = ParallelCacheCommand.prepare(repo)
                        .baseCommit(commitId)
                        .call();
@@ -39,75 +40,88 @@ public class ParallelCacheCommandTest extends AbstractParallelGitTest {
 
   @Test
   public void buildCacheWithBaseCommit_theResultCacheShouldHaveTheSameContentAsTheCommit2() throws IOException {
-    ObjectId expectedFileBlob = writeToCache("expected_file.txt");
+    AnyObjectId expectedFileBlob = writeToCache("/expected_file.txt");
     String commitIdStr = commitToMaster().getName();
     DirCache cache = ParallelCacheCommand.prepare(repo)
                        .baseCommit(commitIdStr)
                        .call();
-    Assert.assertEquals(expectedFileBlob, CacheHelper.getBlobId(cache, "expected_file.txt"));
+    Assert.assertEquals(expectedFileBlob, CacheHelper.getBlobId(cache, "/expected_file.txt"));
   }
 
   @Test
   public void buildCacheWithBaseTree_theResultCacheShouldHaveTheSameContentAsTheTree1() throws IOException {
-    ObjectId expectedFileBlob = writeToCache("expected_file.txt");
-    ObjectId treeId = RevTreeHelper.getRootTree(repo, commitToMaster());
+    AnyObjectId expectedFileBlob = writeToCache("/expected_file.txt");
+    AnyObjectId treeId = RevTreeHelper.getRootTree(repo, commitToMaster());
     DirCache cache = ParallelCacheCommand.prepare(repo)
                        .baseTree(treeId)
                        .call();
-    Assert.assertEquals(expectedFileBlob, CacheHelper.getBlobId(cache, "expected_file.txt"));
+    Assert.assertEquals(expectedFileBlob, CacheHelper.getBlobId(cache, "/expected_file.txt"));
   }
 
   @Test
   public void buildCacheWithBaseTree_theResultCacheShouldHaveTheSameContentAsTheTree2() throws IOException {
-    ObjectId expectedFileBlob = writeToCache("expected_file.txt");
+    AnyObjectId expectedFileBlob = writeToCache("/expected_file.txt");
     String treeIdStr = RevTreeHelper.getRootTree(repo, commitToMaster()).getName();
     DirCache cache = ParallelCacheCommand.prepare(repo)
                        .baseTree(treeIdStr)
                        .call();
-    Assert.assertEquals(expectedFileBlob, CacheHelper.getBlobId(cache, "expected_file.txt"));
+    Assert.assertEquals(expectedFileBlob, CacheHelper.getBlobId(cache, "/expected_file.txt"));
   }
 
   @Test
   public void addFile_theResultCacheShouldHaveTheAddedFile() throws IOException {
-    ObjectId blobId = BlobHelper.getBlobId(getClass().getName());
+    AnyObjectId blobId = BlobHelper.getBlobId(getClass().getName());
     DirCache cache = ParallelCacheCommand.prepare()
-                       .addFile(blobId, "test.txt")
+                       .addFile(blobId, "/expected_file.txt")
                        .call();
-    DirCacheEntry entry = cache.getEntry("test.txt");
-    Assert.assertEquals(blobId, entry.getObjectId());
-    Assert.assertEquals(FileMode.REGULAR_FILE, entry.getFileMode());
+    Assert.assertNotNull(CacheHelper.getEntry(cache, "/expected_file.txt"));
   }
 
   @Test
-  public void addBlobWithSpecifiedFileModeTest() throws IOException {
-    ObjectId blobId = BlobHelper.getBlobId(getClass().getName());
-    String path = "test.txt";
+  public void addFile_theResultFileShouldHaveTheSpecifiedBlobId() throws IOException {
+    AnyObjectId blobId = BlobHelper.getBlobId(getClass().getName());
+    DirCache cache = ParallelCacheCommand.prepare()
+                       .addFile(blobId, "/expected_file.txt")
+                       .call();
+    Assert.assertEquals(blobId, CacheHelper.getBlobId(cache, "/expected_file.txt"));
+  }
+
+  @Test
+  public void addFile_theResultFileShouldBeRegularFileByDefault() throws IOException {
+    AnyObjectId blobId = BlobHelper.getBlobId(getClass().getName());
+    DirCache cache = ParallelCacheCommand.prepare()
+                       .addFile(blobId, "/expected_file.txt")
+                       .call();
+    Assert.assertEquals(FileMode.REGULAR_FILE, CacheHelper.getFileMode(cache, "/expected_file.txt"));
+  }
+
+  @Test
+  public void addFileWithFileMode_theResultFileShouldHaveTheSpecifiedFileMode() throws IOException {
+    AnyObjectId blobId = BlobHelper.getBlobId(getClass().getName());
     FileMode mode = FileMode.EXECUTABLE_FILE;
     DirCache cache = ParallelCacheCommand.prepare()
-                       .addFile(blobId, mode, path)
+                       .addFile(blobId, mode, "/expected_file.txt")
                        .call();
-    DirCacheEntry entry = cache.getEntry(path);
-    Assert.assertEquals(blobId, entry.getObjectId());
-    Assert.assertEquals(mode, entry.getFileMode());
+    Assert.assertEquals(mode, CacheHelper.getFileMode(cache, "/expected_file.txt"));
   }
 
 
   @Test
   public void addTreeTest() throws IOException {
-    ObjectId blob1 = writeToCache("1.txt");
-    ObjectId blob2 = writeToCache("2.txt");
-    ObjectId treeId = RevTreeHelper.getRootTree(repo, commitToMaster());
+    AnyObjectId blob1 = writeToCache("/expected_file1.txt");
+    AnyObjectId blob2 = writeToCache("/expected_file2.txt");
+    AnyObjectId treeId = RevTreeHelper.getRootTree(repo, commitToMaster());
     DirCache cache = ParallelCacheCommand.prepare(repo)
                        .addDirectory(treeId, "base")
                        .call();
-    Assert.assertEquals(blob1, cache.getEntry("base/1.txt").getObjectId());
-    Assert.assertEquals(blob2, cache.getEntry("base/2.txt").getObjectId());
+    Assert.assertEquals(blob1, cache.getEntry("base/expected_file1.txt").getObjectId());
+    Assert.assertEquals(blob2, cache.getEntry("base/expected_file2.txt").getObjectId());
   }
 
   @Test
   public void addTreeFromTreeIdStringTest() throws IOException {
-    ObjectId blob1 = writeToCache("1.txt");
-    ObjectId blob2 = writeToCache("2.txt");
+    AnyObjectId blob1 = writeToCache("1.txt");
+    AnyObjectId blob2 = writeToCache("2.txt");
     String treeIdStr = RevTreeHelper.getRootTree(repo, commitToMaster()).getName();
     DirCache cache = ParallelCacheCommand.prepare(repo)
                        .addDirectory(treeIdStr, "base")
@@ -128,7 +142,7 @@ public class ParallelCacheCommandTest extends AbstractParallelGitTest {
   public void deleteBlobTest() throws IOException {
     writeToCache("1.txt");
     writeToCache("2.txt");
-    ObjectId commitId = commitToMaster();
+    AnyObjectId commitId = commitToMaster();
     DirCache cache = ParallelCacheCommand
                        .prepare(repo)
                        .baseCommit(commitId)
@@ -143,7 +157,7 @@ public class ParallelCacheCommandTest extends AbstractParallelGitTest {
     writeToCache("a/b/1.txt");
     writeToCache("a/b/2.txt");
     writeToCache("a/3.txt");
-    ObjectId commitId = commitToMaster();
+    AnyObjectId commitId = commitToMaster();
     DirCache cache = ParallelCacheCommand
                        .prepare(repo)
                        .baseCommit(commitId)
@@ -157,8 +171,8 @@ public class ParallelCacheCommandTest extends AbstractParallelGitTest {
   @Test
   public void updateBlobTest() throws IOException {
     writeToCache("1.txt", "some content");
-    ObjectId commitId = commitToMaster();
-    ObjectId newBlobId = BlobHelper.getBlobId("some other content");
+    AnyObjectId commitId = commitToMaster();
+    AnyObjectId newBlobId = BlobHelper.getBlobId("some other content");
     FileMode newFileMode = FileMode.EXECUTABLE_FILE;
     DirCache cache = ParallelCacheCommand
                        .prepare(repo)
@@ -173,8 +187,8 @@ public class ParallelCacheCommandTest extends AbstractParallelGitTest {
   @Test
   public void updateBlobIdTest() throws IOException {
     writeToCache("1.txt", "some content");
-    ObjectId commitId = commitToMaster();
-    ObjectId newBlobId = BlobHelper.getBlobId("some other content");
+    AnyObjectId commitId = commitToMaster();
+    AnyObjectId newBlobId = BlobHelper.getBlobId("some other content");
     DirCache cache = ParallelCacheCommand
                        .prepare(repo)
                        .baseCommit(commitId)
@@ -187,7 +201,7 @@ public class ParallelCacheCommandTest extends AbstractParallelGitTest {
   @Test
   public void updateBlobFileModeTest() throws IOException {
     writeToCache("1.txt", "some content");
-    ObjectId commitId = commitToMaster();
+    AnyObjectId commitId = commitToMaster();
     FileMode newFileMode = FileMode.EXECUTABLE_FILE;
     DirCache cache = ParallelCacheCommand
                        .prepare(repo)

@@ -30,29 +30,29 @@ public abstract class AbstractParallelGitTest {
   }
 
   @Nonnull
-  protected ObjectId writeToCache(@Nonnull String path, @Nonnull byte[] content, @Nonnull FileMode mode) throws IOException {
-    ObjectId blobId = BlobHelper.insert(repo, content);
+  protected AnyObjectId writeToCache(@Nonnull String path, @Nonnull byte[] content, @Nonnull FileMode mode) throws IOException {
+    AnyObjectId blobId = BlobHelper.insert(repo, content);
     CacheHelper.addFile(cache, mode, path, blobId);
     return blobId;
   }
 
   @Nonnull
-  protected ObjectId writeToCache(@Nonnull String path, @Nonnull byte[] content) throws IOException {
+  protected AnyObjectId writeToCache(@Nonnull String path, @Nonnull byte[] content) throws IOException {
     return writeToCache(path, content, FileMode.REGULAR_FILE);
   }
 
   @Nonnull
-  protected ObjectId writeToCache(@Nonnull String path, @Nonnull String content) throws IOException {
+  protected AnyObjectId writeToCache(@Nonnull String path, @Nonnull String content) throws IOException {
     return writeToCache(path, Constants.encode(content));
   }
 
   @Nonnull
-  protected ObjectId writeToCache(@Nonnull String path) throws IOException {
+  protected AnyObjectId writeToCache(@Nonnull String path) throws IOException {
     return writeToCache(path, path + "'s unique content");
   }
 
   @Nonnull
-  protected ObjectId writeSomeFileToCache() throws IOException {
+  protected AnyObjectId writeSomeFileToCache() throws IOException {
     return writeToCache("some_file.txt");
   }
 
@@ -62,7 +62,7 @@ public abstract class AbstractParallelGitTest {
   }
 
   @Nonnull
-  protected RevCommit commit(@Nonnull String message, @Nullable ObjectId parent) throws IOException {
+  protected RevCommit commit(@Nonnull String message, @Nullable AnyObjectId parent) throws IOException {
     return CommitHelper.createCommit(repo, cache, new PersonIdent(getClass().getSimpleName(), ""), message, parent);
   }
 
@@ -71,7 +71,7 @@ public abstract class AbstractParallelGitTest {
   }
 
   @Nonnull
-  protected RevCommit commitToBranch(@Nonnull String branch, @Nonnull String message, @Nullable ObjectId parent) throws IOException {
+  protected RevCommit commitToBranch(@Nonnull String branch, @Nonnull String message, @Nullable AnyObjectId parent) throws IOException {
     if(parent == null)
       parent = BranchHelper.getBranchHeadCommitId(repo, branch);
     RevCommit commitId = commit(message, parent);
@@ -80,7 +80,7 @@ public abstract class AbstractParallelGitTest {
   }
 
   @Nonnull
-  protected RevCommit commitToBranch(@Nonnull String branch, @Nullable ObjectId parent) throws IOException {
+  protected RevCommit commitToBranch(@Nonnull String branch, @Nullable AnyObjectId parent) throws IOException {
     return commitToBranch(branch, getClass().getSimpleName() + " test commit: " + System.currentTimeMillis(), parent);
   }
 
@@ -90,7 +90,7 @@ public abstract class AbstractParallelGitTest {
   }
 
   @Nonnull
-  protected RevCommit commitToMaster(@Nonnull String message, @Nullable ObjectId parent) throws IOException {
+  protected RevCommit commitToMaster(@Nonnull String message, @Nullable AnyObjectId parent) throws IOException {
     return commitToBranch(Constants.MASTER, message, parent);
   }
 

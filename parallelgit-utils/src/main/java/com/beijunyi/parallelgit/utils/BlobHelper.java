@@ -15,7 +15,7 @@ public final class BlobHelper {
    * @return a blob id
    */
   @Nonnull
-  public static ObjectId getBlobId(@Nonnull byte[] blob) {
+  public static AnyObjectId getBlobId(@Nonnull byte[] blob) {
     return new ObjectInserter.Formatter().idFor(Constants.OBJ_BLOB, blob);
   }
 
@@ -29,7 +29,7 @@ public final class BlobHelper {
    * @return a blob id
    */
   @Nonnull
-  public static ObjectId getBlobId(@Nonnull String content) {
+  public static AnyObjectId getBlobId(@Nonnull String content) {
     return getBlobId(Constants.encode(content));
   }
 
@@ -42,7 +42,7 @@ public final class BlobHelper {
    * @return a blob id
    */
   @Nullable
-  public static ObjectId findBlobId(@Nonnull ObjectReader reader, @Nonnull AnyObjectId commitId, @Nonnull String path) throws IOException {
+  public static AnyObjectId findBlobId(@Nonnull ObjectReader reader, @Nonnull AnyObjectId commitId, @Nonnull String path) throws IOException {
     return TreeWalkHelper.getObject(reader, path, RevTreeHelper.getRootTree(reader, commitId));
   }
 
@@ -58,7 +58,7 @@ public final class BlobHelper {
    * @return a blob id
    */
   @Nullable
-  public static ObjectId findBlobId(@Nonnull Repository repo, @Nonnull AnyObjectId commitId, @Nonnull String path) throws IOException {
+  public static AnyObjectId findBlobId(@Nonnull Repository repo, @Nonnull AnyObjectId commitId, @Nonnull String path) throws IOException {
     ObjectReader reader = repo.newObjectReader();
     try {
       return findBlobId(reader, commitId, path);
@@ -101,7 +101,7 @@ public final class BlobHelper {
 
   @Nullable
   public static byte[] getBytes(@Nonnull ObjectReader reader, @Nonnull AnyObjectId commitId, @Nonnull String path) throws IOException {
-    ObjectId blobId = findBlobId(reader, commitId, path);
+    AnyObjectId blobId = findBlobId(reader, commitId, path);
     if(blobId == null)
       return null;
     return getBytes(reader, blobId);
@@ -131,10 +131,10 @@ public final class BlobHelper {
    * @return a blob id which maps to the inserted blob object
    */
   @Nonnull
-  public static ObjectId insert(@Nonnull Repository repo, @Nonnull byte[] blob) throws IOException {
+  public static AnyObjectId insert(@Nonnull Repository repo, @Nonnull byte[] blob) throws IOException {
     ObjectInserter inserter = repo.newObjectInserter();
     try {
-      ObjectId blobId = inserter.insert(Constants.OBJ_BLOB, blob);
+      AnyObjectId blobId = inserter.insert(Constants.OBJ_BLOB, blob);
       inserter.flush();
       return blobId;
     } finally {
@@ -153,7 +153,7 @@ public final class BlobHelper {
    * @return a blob id which maps to the inserted blob object
    */
   @Nonnull
-  public static ObjectId insert(@Nonnull Repository repo, @Nonnull String content) throws IOException {
+  public static AnyObjectId insert(@Nonnull Repository repo, @Nonnull String content) throws IOException {
     return insert(repo, Constants.encode(content));
   }
 

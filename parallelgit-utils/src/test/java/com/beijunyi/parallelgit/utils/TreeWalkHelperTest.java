@@ -4,6 +4,7 @@ import java.io.IOException;
 import javax.annotation.Nonnull;
 
 import com.beijunyi.parallelgit.AbstractParallelGitTest;
+import org.eclipse.jgit.lib.AnyObjectId;
 import org.eclipse.jgit.lib.ObjectId;
 import org.eclipse.jgit.revwalk.RevTree;
 import org.eclipse.jgit.treewalk.TreeWalk;
@@ -27,7 +28,7 @@ public class TreeWalkHelperTest extends AbstractParallelGitTest {
   public void newTreeWalkTest() throws IOException {
     clearCache();
     writeFilesToCache("a.txt", "b.txt", "c/d.txt", "c/e.txt", "f/g.txt");
-    ObjectId commitId = commitToMaster();
+    AnyObjectId commitId = commitToMaster();
     RevTree tree = RevTreeHelper.getRootTree(repo, commitId);
     TreeWalk treeWalk = TreeWalkHelper.newTreeWalk(repo, tree);
 
@@ -41,7 +42,7 @@ public class TreeWalkHelperTest extends AbstractParallelGitTest {
   @Test
   public void existsTest() throws IOException {
     writeToCache("a/b.txt");
-    ObjectId commit = commitToMaster();
+    AnyObjectId commit = commitToMaster();
 
     RevTree tree = RevTreeHelper.getRootTree(repo, commit);
     Assert.assertTrue(TreeWalkHelper.exists(repo, "a", tree));
@@ -51,8 +52,8 @@ public class TreeWalkHelperTest extends AbstractParallelGitTest {
 
   @Test
   public void getObjectTest() throws IOException {
-    ObjectId objectId = writeToCache("a/b.txt");
-    ObjectId commit = commitToMaster();
+    AnyObjectId objectId = writeToCache("a/b.txt");
+    AnyObjectId commit = commitToMaster();
 
     RevTree tree = RevTreeHelper.getRootTree(repo, commit);
     Assert.assertEquals(objectId, TreeWalkHelper.getObject(repo, "a/b.txt", tree));
@@ -61,7 +62,7 @@ public class TreeWalkHelperTest extends AbstractParallelGitTest {
   @Test
   public void isBlobTest() throws IOException {
     writeToCache("a/b.txt");
-    ObjectId commit = commitToMaster();
+    AnyObjectId commit = commitToMaster();
 
     RevTree tree = RevTreeHelper.getRootTree(repo, commit);
     Assert.assertFalse(TreeWalkHelper.isFileOrSymbolicLink(repo, "a", tree));
@@ -72,7 +73,7 @@ public class TreeWalkHelperTest extends AbstractParallelGitTest {
   @Test
   public void isTreeTest() throws IOException {
     writeToCache("a/b.txt");
-    ObjectId commit = commitToMaster();
+    AnyObjectId commit = commitToMaster();
 
     RevTree tree = RevTreeHelper.getRootTree(repo, commit);
     Assert.assertTrue(TreeWalkHelper.isDirectory(repo, "a", tree));

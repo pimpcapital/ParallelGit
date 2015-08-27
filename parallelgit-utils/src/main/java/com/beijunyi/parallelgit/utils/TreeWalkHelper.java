@@ -77,7 +77,7 @@ public final class TreeWalkHelper {
    * @return  the first attached object of the current node.
    */
   @Nullable
-  public static ObjectId getObject(@Nonnull TreeWalk treeWalk) {
+  public static AnyObjectId getObject(@Nonnull TreeWalk treeWalk) {
     return treeWalk.getObjectId(0);
   }
 
@@ -93,7 +93,7 @@ public final class TreeWalkHelper {
    * @return  the first attached object of the entry at the given path within the given tree.
    */
   @Nullable
-  public static ObjectId getObject(@Nonnull ObjectReader reader, @Nonnull String path, @Nonnull AnyObjectId treeId) throws IOException {
+  public static AnyObjectId getObject(@Nonnull ObjectReader reader, @Nonnull String path, @Nonnull AnyObjectId treeId) throws IOException {
     TreeWalk treeWalk = TreeWalk.forPath(reader, path, treeId);
     if(treeWalk == null)
       return null;
@@ -116,7 +116,7 @@ public final class TreeWalkHelper {
    * @return  the first attached object of the entry at the given path within the given tree.
    */
   @Nullable
-  public static ObjectId getObject(@Nonnull Repository repo, @Nonnull String path, @Nonnull AnyObjectId treeId) throws IOException {
+  public static AnyObjectId getObject(@Nonnull Repository repo, @Nonnull String path, @Nonnull AnyObjectId treeId) throws IOException {
     TreeWalk treeWalk = TreeWalk.forPath(repo, path, treeId);
     if(treeWalk == null)
       return null;

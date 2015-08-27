@@ -4,6 +4,7 @@ import java.util.Iterator;
 import javax.annotation.Nonnull;
 
 import org.eclipse.jgit.dircache.*;
+import org.eclipse.jgit.lib.AnyObjectId;
 import org.eclipse.jgit.lib.FileMode;
 import org.eclipse.jgit.lib.ObjectId;
 import org.junit.Assert;
@@ -42,7 +43,7 @@ public class CacheHelperTest {
     DirCache cache = DirCache.newInCore();
 
     String file = "a/b/c.txt";
-    ObjectId contentId1 = BlobHelper.getBlobId("a.b.c");
+    AnyObjectId contentId1 = BlobHelper.getBlobId("a.b.c");
     CacheHelper.addFile(cache, file, contentId1);
 
     int entryCount = cache.getEntryCount();

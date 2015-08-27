@@ -101,7 +101,7 @@ public class GitFileSystemBuilderTest extends AbstractParallelGitTest {
   @Test
   public void buildWithRevisionString() throws IOException {
     writeSomeFileToCache();
-    ObjectId commit = commitToMaster();
+    AnyObjectId commit = commitToMaster();
     GitFileSystem gfs = GitFileSystemBuilder.prepare()
                           .repository(repo)
                           .commit(commit.getName())

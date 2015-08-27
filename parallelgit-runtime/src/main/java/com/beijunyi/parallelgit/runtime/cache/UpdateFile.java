@@ -5,6 +5,7 @@ import javax.annotation.Nonnull;
 
 import org.eclipse.jgit.dircache.DirCache;
 import org.eclipse.jgit.dircache.DirCacheEntry;
+import org.eclipse.jgit.lib.AnyObjectId;
 import org.eclipse.jgit.lib.Constants;
 import org.eclipse.jgit.lib.ObjectId;
 
@@ -21,7 +22,7 @@ public class UpdateFile extends CacheFileEditor {
   }
 
   private void updateEntry(@Nonnull DirCacheEntry entry, @Nonnull CacheStateProvider provider) throws IOException {
-    ObjectId blobId = provider.getInserter().insert(Constants.OBJ_BLOB, bytes);
+    AnyObjectId blobId = provider.getInserter().insert(Constants.OBJ_BLOB, bytes);
     if(mode != null)
       entry.setFileMode(mode);
     entry.setObjectId(blobId);

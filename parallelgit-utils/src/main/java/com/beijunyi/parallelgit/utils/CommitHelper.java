@@ -32,7 +32,7 @@ public final class CommitHelper {
 
   @Nullable
   public static RevCommit getCommit(@Nonnull Repository repo, @Nonnull String revision) throws IOException {
-    ObjectId commitId = repo.resolve(revision);
+    AnyObjectId commitId = repo.resolve(revision);
     if(commitId == null)
       return null;
     return getCommit(repo, commitId);
