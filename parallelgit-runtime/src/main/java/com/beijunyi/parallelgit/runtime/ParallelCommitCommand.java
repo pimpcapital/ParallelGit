@@ -250,7 +250,7 @@ public final class ParallelCommitCommand extends CacheBasedCommand<ParallelCommi
   }
 
   @Nonnull
-  public ParallelCommitCommand updateFile(@Nonnull String content, @Nonnull String path, boolean create) {
+  public ParallelCommitCommand updateFile(@Nonnull String path, @Nonnull String content, boolean create) {
     UpdateFile editor = new UpdateFile(path);
     editor.setContent(content);
     editor.setCreate(create);
@@ -259,12 +259,12 @@ public final class ParallelCommitCommand extends CacheBasedCommand<ParallelCommi
   }
 
   @Nonnull
-  public ParallelCommitCommand updateFile(@Nonnull String content, @Nonnull String path) {
+  public ParallelCommitCommand updateFile(@Nonnull String path, @Nonnull String content) {
     return updateFile(content, path, true);
   }
 
   @Nonnull
-  public ParallelCommitCommand updateFile(@Nonnull InputStream inputStream, @Nonnull String path, boolean create) {
+  public ParallelCommitCommand updateFile(@Nonnull String path, @Nonnull InputStream inputStream, boolean create) {
     UpdateFile editor = new UpdateFile(path);
     editor.setInputStream(inputStream);
     editor.setCreate(create);
@@ -273,12 +273,12 @@ public final class ParallelCommitCommand extends CacheBasedCommand<ParallelCommi
   }
 
   @Nonnull
-  public ParallelCommitCommand updateFile(@Nonnull InputStream inputStream, @Nonnull String path) {
-    return updateFile(inputStream, path, true);
+  public ParallelCommitCommand updateFile(@Nonnull String path, @Nonnull InputStream inputStream) {
+    return updateFile(path, inputStream, true);
   }
 
   @Nonnull
-  public ParallelCommitCommand updateFile(@Nonnull Path sourcePath, @Nonnull String path, boolean create) {
+  public ParallelCommitCommand updateFile(@Nonnull String path, @Nonnull Path sourcePath, boolean create) {
     UpdateFile editor = new UpdateFile(path);
     editor.setSourcePath(sourcePath);
     editor.setCreate(create);
@@ -287,12 +287,12 @@ public final class ParallelCommitCommand extends CacheBasedCommand<ParallelCommi
   }
 
   @Nonnull
-  public ParallelCommitCommand updateFile(@Nonnull Path sourcePath, @Nonnull String path) {
-    return updateFile(sourcePath, path, true);
+  public ParallelCommitCommand updateFile(@Nonnull String path, @Nonnull Path sourcePath) {
+    return updateFile(path, sourcePath, true);
   }
 
   @Nonnull
-  public ParallelCommitCommand updateFile(@Nonnull File sourceFile, @Nonnull String path, boolean create) {
+  public ParallelCommitCommand updateFile(@Nonnull String path, @Nonnull File sourceFile, boolean create) {
     UpdateFile editor = new UpdateFile(path);
     editor.setSourceFile(sourceFile);
     editor.setCreate(create);
@@ -301,8 +301,8 @@ public final class ParallelCommitCommand extends CacheBasedCommand<ParallelCommi
   }
 
   @Nonnull
-  public ParallelCommitCommand updateFile(@Nonnull File sourceFile, @Nonnull String path) {
-    return updateFile(sourceFile, path, true);
+  public ParallelCommitCommand updateFile(@Nonnull String path, @Nonnull File sourceFile) {
+    return updateFile(path, sourceFile, true);
   }
 
   private void prepareHead() throws IOException {

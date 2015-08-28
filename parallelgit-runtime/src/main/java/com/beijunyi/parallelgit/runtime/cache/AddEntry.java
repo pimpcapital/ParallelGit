@@ -3,16 +3,15 @@ package com.beijunyi.parallelgit.runtime.cache;
 import java.io.IOException;
 import javax.annotation.Nonnull;
 
-import org.eclipse.jgit.dircache.DirCache;
-import org.eclipse.jgit.dircache.DirCacheEntry;
+import com.beijunyi.parallelgit.utils.CacheHelper;
 import org.eclipse.jgit.lib.AnyObjectId;
 import org.eclipse.jgit.lib.FileMode;
 
-public class UpdateBlob extends CacheEditor {
+public class AddEntry extends CacheEditor {
   private AnyObjectId blobId;
   private FileMode mode;
 
-  public UpdateBlob(@Nonnull String path) {
+  public AddEntry(@Nonnull String path) {
     super(path);
   }
 
@@ -26,13 +25,6 @@ public class UpdateBlob extends CacheEditor {
 
   @Override
   public void edit(@Nonnull CacheStateProvider provider) throws IOException {
-    DirCache cache = provider.getCurrentCache();
-    DirCacheEntry entry = cache.getEntry(path);
-    if(entry == null)
-      throw new IllegalArgumentException("blob not found: " + path);
-    if(blobId != null)
-      entry.setObjectId(blobId);
-    if(mode != null)
-      entry.setFileMode(mode);
+    CacheHelper.addFile(provider.getCurrentBuilder(), mode, path, blobId);
   }
 }

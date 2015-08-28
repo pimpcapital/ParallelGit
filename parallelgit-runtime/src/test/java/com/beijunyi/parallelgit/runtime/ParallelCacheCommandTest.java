@@ -7,10 +7,8 @@ import com.beijunyi.parallelgit.utils.BlobHelper;
 import com.beijunyi.parallelgit.utils.CacheHelper;
 import com.beijunyi.parallelgit.utils.RevTreeHelper;
 import org.eclipse.jgit.dircache.DirCache;
-import org.eclipse.jgit.dircache.DirCacheEntry;
 import org.eclipse.jgit.lib.AnyObjectId;
 import org.eclipse.jgit.lib.FileMode;
-import org.eclipse.jgit.lib.ObjectId;
 import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
@@ -70,146 +68,231 @@ public class ParallelCacheCommandTest extends AbstractParallelGitTest {
 
   @Test
   public void addFile_theResultCacheShouldHaveTheAddedFile() throws IOException {
-    AnyObjectId blobId = BlobHelper.getBlobId(getClass().getName());
+    AnyObjectId blobId = BlobHelper.getBlobId("some content");
     DirCache cache = ParallelCacheCommand.prepare()
-                       .addFile(blobId, "/expected_file.txt")
+                       .addFile("/expected_file.txt", blobId)
                        .call();
     Assert.assertNotNull(CacheHelper.getEntry(cache, "/expected_file.txt"));
   }
 
   @Test
   public void addFile_theResultFileShouldHaveTheSpecifiedBlobId() throws IOException {
-    AnyObjectId blobId = BlobHelper.getBlobId(getClass().getName());
+    AnyObjectId blobId = BlobHelper.getBlobId("some content");
     DirCache cache = ParallelCacheCommand.prepare()
-                       .addFile(blobId, "/expected_file.txt")
+                       .addFile("/expected_file.txt", blobId)
                        .call();
     Assert.assertEquals(blobId, CacheHelper.getBlobId(cache, "/expected_file.txt"));
   }
 
   @Test
   public void addFile_theResultFileShouldBeRegularFileByDefault() throws IOException {
-    AnyObjectId blobId = BlobHelper.getBlobId(getClass().getName());
+    AnyObjectId blobId = BlobHelper.getBlobId("some content");
     DirCache cache = ParallelCacheCommand.prepare()
-                       .addFile(blobId, "/expected_file.txt")
+                       .addFile("/expected_file.txt", blobId)
                        .call();
     Assert.assertEquals(FileMode.REGULAR_FILE, CacheHelper.getFileMode(cache, "/expected_file.txt"));
   }
 
   @Test
   public void addFileWithFileMode_theResultFileShouldHaveTheSpecifiedFileMode() throws IOException {
-    AnyObjectId blobId = BlobHelper.getBlobId(getClass().getName());
+    AnyObjectId blobId = BlobHelper.getBlobId("some content");
     FileMode mode = FileMode.EXECUTABLE_FILE;
     DirCache cache = ParallelCacheCommand.prepare()
-                       .addFile(blobId, mode, "/expected_file.txt")
+                       .addFile("/expected_file.txt", blobId, mode)
                        .call();
     Assert.assertEquals(mode, CacheHelper.getFileMode(cache, "/expected_file.txt"));
   }
 
-
   @Test
-  public void addTreeTest() throws IOException {
-    AnyObjectId blob1 = writeToCache("/expected_file1.txt");
-    AnyObjectId blob2 = writeToCache("/expected_file2.txt");
-    AnyObjectId treeId = RevTreeHelper.getRootTree(repo, commitToMaster());
+  public void addDirectoryFromTree_theChildrenShouldExist() throws IOException {
+    writeToCache("/child1.txt");
+    writeToCache("/child2.txt");
+    AnyObjectId treeWithTwoChildren = RevTreeHelper.getRootTree(repo, commitToMaster());
     DirCache cache = ParallelCacheCommand.prepare(repo)
-                       .addDirectory(treeId, "base")
+                       .addDirectory("/dir", treeWithTwoChildren)
                        .call();
-    Assert.assertEquals(blob1, cache.getEntry("base/expected_file1.txt").getObjectId());
-    Assert.assertEquals(blob2, cache.getEntry("base/expected_file2.txt").getObjectId());
+    Assert.assertNotNull(CacheHelper.getEntry(cache, "/dir/child1.txt"));
+    Assert.assertNotNull(CacheHelper.getEntry(cache, "/dir/child2.txt"));
   }
 
   @Test
-  public void addTreeFromTreeIdStringTest() throws IOException {
-    AnyObjectId blob1 = writeToCache("1.txt");
-    AnyObjectId blob2 = writeToCache("2.txt");
-    String treeIdStr = RevTreeHelper.getRootTree(repo, commitToMaster()).getName();
+  public void addDirectoryFromTree_theChildrenShouldHaveTheInputBlobIds() throws IOException {
+    AnyObjectId blob1 = writeToCache("/child1.txt");
+    AnyObjectId blob2 = writeToCache("/child2.txt");
+    AnyObjectId treeWithTwoChildren = RevTreeHelper.getRootTree(repo, commitToMaster());
     DirCache cache = ParallelCacheCommand.prepare(repo)
-                       .addDirectory(treeIdStr, "base")
+                       .addDirectory("/dir", treeWithTwoChildren)
                        .call();
-    Assert.assertEquals(blob1, cache.getEntry("base/1.txt").getObjectId());
-    Assert.assertEquals(blob2, cache.getEntry("base/2.txt").getObjectId());
+    Assert.assertEquals(blob1, CacheHelper.getBlobId(cache, "/dir/child1.txt"));
+    Assert.assertEquals(blob2, CacheHelper.getBlobId(cache, "/dir/child2.txt"));
+  }
+
+  @Test
+  public void addDirectoryFromTreeIdString_theChildrenShouldExist() throws IOException {
+    writeToCache("/child1.txt");
+    writeToCache("/child2.txt");
+    AnyObjectId treeWithTwoChildren = RevTreeHelper.getRootTree(repo, commitToMaster());
+    DirCache cache = ParallelCacheCommand.prepare(repo)
+                       .addDirectory("/dir", treeWithTwoChildren.getName())
+                       .call();
+    Assert.assertNotNull(CacheHelper.getEntry(cache, "/dir/child1.txt"));
+    Assert.assertNotNull(CacheHelper.getEntry(cache, "/dir/child2.txt"));
   }
 
   @Test(expected = IllegalArgumentException.class)
-  public void addTreeWithoutRepositoryTest() throws IOException {
-    ParallelCacheCommand
-      .prepare()
-      .addDirectory(ObjectId.zeroId(), "somepath")
+  public void addDirectoryWithoutRepository_shouldThrowIllegalArgumentException() throws IOException {
+    writeToCache("/child1.txt");
+    writeToCache("/child2.txt");
+    AnyObjectId treeWithTwoChildren = RevTreeHelper.getRootTree(repo, commitToMaster());
+    ParallelCacheCommand.prepare()
+      .addDirectory(treeWithTwoChildren.getName(), "/dir")
       .call();
   }
 
   @Test
-  public void deleteBlobTest() throws IOException {
-    writeToCache("1.txt");
-    writeToCache("2.txt");
+  public void deleteFile_theTargetFileShouldNotExistAfterDeletion() throws IOException {
+    writeToCache("/file.txt");
     AnyObjectId commitId = commitToMaster();
     DirCache cache = ParallelCacheCommand
                        .prepare(repo)
                        .baseCommit(commitId)
-                       .deleteFile("1.txt")
+                       .deleteFile("/file.txt")
                        .call();
-    Assert.assertNull(cache.getEntry("1.txt"));
-    Assert.assertNotNull(cache.getEntry("2.txt"));
+    Assert.assertNull(cache.getEntry("/file.txt"));
   }
 
   @Test
-  public void deleteTreeTest() throws IOException {
-    writeToCache("a/b/1.txt");
-    writeToCache("a/b/2.txt");
-    writeToCache("a/3.txt");
+  public void deleteFile_shouldHaveNoEffectOnOtherFile() throws IOException {
+    writeToCache("/file.txt");
+    writeToCache("/some_other_file.txt");
     AnyObjectId commitId = commitToMaster();
     DirCache cache = ParallelCacheCommand
                        .prepare(repo)
                        .baseCommit(commitId)
-                       .deleteDirectory("a/b")
+                       .deleteFile("/file.txt")
                        .call();
-    Assert.assertNull(cache.getEntry("a/b/1.txt"));
-    Assert.assertNull(cache.getEntry("a/b/2.txt"));
-    Assert.assertNotNull(cache.getEntry("a/3.txt"));
+    Assert.assertNotNull(CacheHelper.getEntry(cache, "/some_other_file.txt"));
   }
 
   @Test
-  public void updateBlobTest() throws IOException {
-    writeToCache("1.txt", "some content");
+  public void deleteNonExistentFile_shouldHaveNoEffectOnTheCache() throws IOException {
+    writeToCache("/some_file.txt");
     AnyObjectId commitId = commitToMaster();
-    AnyObjectId newBlobId = BlobHelper.getBlobId("some other content");
+    DirCache cache = ParallelCacheCommand
+                       .prepare(repo)
+                       .baseCommit(commitId)
+                       .deleteFile("/non_existent_file.txt")
+                       .call();
+    Assert.assertEquals(1, cache.getEntryCount());
+  }
+
+
+  @Test
+  public void deleteDirectory_childrenInTheTargetDirectoryShouldNotExistAfterDeletion() throws IOException {
+    writeToCache("/dir/file1.txt");
+    writeToCache("/dir/file2.txt");
+    AnyObjectId commitId = commitToMaster();
+    DirCache cache = ParallelCacheCommand
+                       .prepare(repo)
+                       .baseCommit(commitId)
+                       .deleteDirectory("/dir")
+                       .call();
+    Assert.assertNull(CacheHelper.getEntry(cache, "/dir/file1.txt"));
+    Assert.assertNull(CacheHelper.getEntry(cache, "/dir/file2.txt"));
+  }
+
+  @Test
+  public void deleteDirectory_shouldHaveNoEffectOnFilesOutsideTheTargetDirectory() throws IOException {
+    writeToCache("/a/b/1.txt");
+    writeToCache("/a/b/2.txt");
+    writeToCache("/a/3.txt");
+    writeToCache("/4.txt");
+    AnyObjectId commitId = commitToMaster();
+    DirCache cache = ParallelCacheCommand
+                       .prepare(repo)
+                       .baseCommit(commitId)
+                       .deleteDirectory("/a/b")
+                       .call();
+    Assert.assertNotNull(CacheHelper.getEntry(cache, "/a/3.txt"));
+    Assert.assertNotNull(CacheHelper.getEntry(cache, "/4.txt"));
+  }
+
+
+  @Test
+  public void updateFile_theTargetFileShouldHaveTheNewBlobIdAndFileMode() throws IOException {
+    writeToCache("/file.txt", "old content");
+    AnyObjectId commitId = commitToMaster();
+    AnyObjectId newBlobId = BlobHelper.getBlobId("new content");
     FileMode newFileMode = FileMode.EXECUTABLE_FILE;
     DirCache cache = ParallelCacheCommand
                        .prepare(repo)
                        .baseCommit(commitId)
-                       .updateFile(newBlobId, newFileMode, "1.txt")
+                       .updateFile("/file.txt", newBlobId, newFileMode)
                        .call();
-    DirCacheEntry entry = cache.getEntry("1.txt");
-    Assert.assertEquals(newBlobId, entry.getObjectId());
-    Assert.assertEquals(newFileMode, entry.getFileMode());
+    Assert.assertEquals(newBlobId, CacheHelper.getBlobId(cache, "/file.txt"));
+    Assert.assertEquals(newFileMode, CacheHelper.getFileMode(cache, "/file.txt"));
   }
 
   @Test
-  public void updateBlobIdTest() throws IOException {
-    writeToCache("1.txt", "some content");
+  public void updateBlobIdOnly_theTargetFileShouldHaveTheNewBlobId() throws IOException {
+    writeToCache("/file.txt", "old content");
     AnyObjectId commitId = commitToMaster();
-    AnyObjectId newBlobId = BlobHelper.getBlobId("some other content");
+    AnyObjectId newBlobId = BlobHelper.getBlobId("new content");
     DirCache cache = ParallelCacheCommand
                        .prepare(repo)
                        .baseCommit(commitId)
-                       .updateFile(newBlobId, "1.txt")
+                       .updateFile("/file.txt", newBlobId)
                        .call();
-    DirCacheEntry entry = cache.getEntry("1.txt");
-    Assert.assertEquals(newBlobId, entry.getObjectId());
+    Assert.assertEquals(newBlobId, CacheHelper.getBlobId(cache, "/file.txt"));
   }
 
   @Test
-  public void updateBlobFileModeTest() throws IOException {
-    writeToCache("1.txt", "some content");
+  public void updateBlobIdOnly_theTargetFileShouldHaveTheOldFileMode() throws IOException {
+    writeToCache("/file.txt", "some content".getBytes(), FileMode.SYMLINK);
     AnyObjectId commitId = commitToMaster();
-    FileMode newFileMode = FileMode.EXECUTABLE_FILE;
+    AnyObjectId newBlobId = BlobHelper.getBlobId("new content");
     DirCache cache = ParallelCacheCommand
                        .prepare(repo)
                        .baseCommit(commitId)
-                       .updateFile(newFileMode, "1.txt")
+                       .updateFile("/file.txt", newBlobId)
                        .call();
-    DirCacheEntry entry = cache.getEntry("1.txt");
-    Assert.assertEquals(newFileMode, entry.getFileMode());
+    Assert.assertEquals(FileMode.SYMLINK, CacheHelper.getFileMode(cache, "/file.txt"));
+  }
+
+  @Test
+  public void updateFileModeOnly_theTargetFileShouldHaveTheNewFileMode() throws IOException {
+    writeToCache("/file.txt", "some content".getBytes());
+    AnyObjectId commitId = commitToMaster();
+    DirCache cache = ParallelCacheCommand
+                       .prepare(repo)
+                       .baseCommit(commitId)
+                       .updateFile("/file.txt", FileMode.EXECUTABLE_FILE)
+                       .call();
+    Assert.assertEquals(FileMode.EXECUTABLE_FILE, CacheHelper.getFileMode(cache, "/file.txt"));
+  }
+
+  @Test
+  public void updateFileModeOnly_theTargetFileShouldHaveTheOldBlobId() throws IOException {
+    AnyObjectId blobId = writeToCache("/file.txt", "some content".getBytes());
+    AnyObjectId commitId = commitToMaster();
+    DirCache cache = ParallelCacheCommand
+                       .prepare(repo)
+                       .baseCommit(commitId)
+                       .updateFile("/file.txt", FileMode.EXECUTABLE_FILE)
+                       .call();
+    Assert.assertEquals(blobId, CacheHelper.getBlobId(cache, "/file.txt"));
+  }
+
+  @Test(expected = IllegalArgumentException.class)
+  public void updateNonExistentFile_shouldThrowIllegalArgumentException() throws IOException {
+    AnyObjectId commitId = commitToMaster();
+    AnyObjectId blobId = BlobHelper.getBlobId("new content");
+    DirCache cache = ParallelCacheCommand
+                       .prepare(repo)
+                       .baseCommit(commitId)
+                       .updateFile("/non_existent_file.txt", blobId)
+                       .call();
+    Assert.assertNotNull(CacheHelper.getEntry(cache, "/non_existent_file.txt"));
   }
 
 }

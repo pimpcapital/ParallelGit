@@ -7,7 +7,9 @@ import java.nio.file.Path;
 import javax.annotation.Nonnull;
 
 import com.beijunyi.parallelgit.utils.CacheHelper;
-import org.eclipse.jgit.lib.*;
+import org.eclipse.jgit.lib.AnyObjectId;
+import org.eclipse.jgit.lib.Constants;
+import org.eclipse.jgit.lib.FileMode;
 
 public class AddDirectory extends CacheEditor {
 
@@ -73,8 +75,7 @@ public class AddDirectory extends CacheEditor {
     return filename.substring(0, length);
   }
 
-  private void processDirectoryStream(@Nonnull DirectoryStream<Path> directoryStream, @Nonnull String base, @Nonnull
-  CacheStateProvider provider) throws IOException {
+  private void processDirectoryStream(@Nonnull DirectoryStream<Path> directoryStream, @Nonnull String base, @Nonnull CacheStateProvider provider) throws IOException {
     for(Path child : directoryStream) {
       String filename = normalizeFilename(child.getFileName().toString());
       String fullPath = base + filename;
@@ -87,8 +88,7 @@ public class AddDirectory extends CacheEditor {
     }
   }
 
-  private void processPath(@Nonnull Path sourcePath, @Nonnull String base, @Nonnull
-  CacheStateProvider provider) throws IOException {
+  private void processPath(@Nonnull Path sourcePath, @Nonnull String base, @Nonnull CacheStateProvider provider) throws IOException {
     try(DirectoryStream<Path> directoryStream = Files.newDirectoryStream(sourcePath)) {
       processDirectoryStream(directoryStream, base, provider);
     }

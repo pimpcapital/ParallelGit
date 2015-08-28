@@ -581,7 +581,7 @@ public class ParallelCommitCommandTest extends AbstractParallelGitTest {
     commitToBranch(branch);
     AnyObjectId commitId = ParallelCommitCommand.prepare(repo)
                              .branch(branch)
-                             .updateFile(inputStream, existingFile)
+                             .updateFile(existingFile, inputStream)
                              .call();
     Assert.assertNotNull(commitId);
     RevCommit branchHead = CommitHelper.getCommit(repo, branch);
@@ -603,7 +603,7 @@ public class ParallelCommitCommandTest extends AbstractParallelGitTest {
       commitToBranch(branch);
       AnyObjectId commitId = ParallelCommitCommand.prepare(repo)
                                .branch(branch)
-                               .updateFile(tempFilePath, existingFile)
+                               .updateFile(existingFile, tempFilePath)
                                .call();
       Assert.assertNotNull(commitId);
       RevCommit branchHead = CommitHelper.getCommit(repo, branch);
@@ -628,7 +628,7 @@ public class ParallelCommitCommandTest extends AbstractParallelGitTest {
       commitToBranch(branch);
       AnyObjectId commitId = ParallelCommitCommand.prepare(repo)
                                .branch(branch)
-                               .updateFile(tempFilePath.toFile(), existingFile)
+                               .updateFile(existingFile, tempFilePath.toFile())
                                .call();
       Assert.assertNotNull(commitId);
       RevCommit branchHead = CommitHelper.getCommit(repo, branch);

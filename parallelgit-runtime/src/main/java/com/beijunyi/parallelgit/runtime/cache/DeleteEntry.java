@@ -5,8 +5,8 @@ import javax.annotation.Nonnull;
 
 import com.beijunyi.parallelgit.utils.CacheHelper;
 
-public class DeleteBlob extends CacheEditor {
-  public DeleteBlob(@Nonnull String path) {
+public class DeleteEntry extends CacheEditor {
+  public DeleteEntry(@Nonnull String path) {
     super(path);
   }
 
