@@ -39,9 +39,7 @@ public final class CommitHelper {
   @Nullable
   public static RevCommit getCommit(@Nonnull Repository repo, @Nonnull String revision) throws IOException {
     AnyObjectId commitId = repo.resolve(revision);
-    if(commitId == null)
-      return null;
-    return getCommit(repo, commitId);
+    return commitId != null ? getCommit(repo, commitId) : null;
   }
 
   @Nonnull
@@ -74,32 +72,41 @@ public final class CommitHelper {
   }
 
   @Nonnull
-  public static RevCommit createCommit(@Nonnull Repository repo, @Nonnull AnyObjectId treeId, @Nonnull PersonIdent author, @Nonnull PersonIdent committer, @Nullable String message, @Nonnull List<AnyObjectId> parents) throws IOException {
+  public static AnyObjectId createCommit(@Nonnull Repository repo, @Nonnull AnyObjectId treeId, @Nonnull PersonIdent author, @Nonnull PersonIdent committer, @Nullable String message, @Nonnull List<AnyObjectId> parents) throws IOException {
     try(ObjectInserter inserter = repo.newObjectInserter()) {
       AnyObjectId commitId = createCommit(inserter, treeId, author, committer, message, parents);
       inserter.flush();
-      return getCommit(repo, commitId);
+      return commitId;
     }
   }
 
   @Nonnull
-  public static RevCommit createCommit(@Nonnull Repository repo, @Nonnull DirCache cache, @Nonnull PersonIdent author, @Nonnull PersonIdent committer, @Nullable String message, @Nonnull List<AnyObjectId> parents) throws IOException {
-    return createCommit(repo, CacheHelper.writeTree(repo, cache), author, committer, message, parents);
+  public static AnyObjectId createCommit(@Nonnull ObjectInserter inserter, @Nonnull DirCache cache, @Nonnull PersonIdent author, @Nonnull PersonIdent committer, @Nullable String message, @Nonnull List<AnyObjectId> parents) throws IOException {
+    return createCommit(inserter, cache.writeTree(inserter), author, committer, message, parents);
   }
 
   @Nonnull
-  public static RevCommit createCommit(@Nonnull Repository repo, @Nonnull DirCache cache, @Nonnull PersonIdent committer, @Nullable String message, @Nonnull List<AnyObjectId> parents) throws IOException {
+  public static AnyObjectId createCommit(@Nonnull Repository repo, @Nonnull DirCache cache, @Nonnull PersonIdent author, @Nonnull PersonIdent committer, @Nullable String message, @Nonnull List<AnyObjectId> parents) throws IOException {
+    try(ObjectInserter inserter = repo.newObjectInserter()) {
+      AnyObjectId commitId = createCommit(inserter, cache, author, committer, message, parents);
+      inserter.flush();
+      return commitId;
+    }
+  }
+
+  @Nonnull
+  public static AnyObjectId createCommit(@Nonnull Repository repo, @Nonnull DirCache cache, @Nonnull PersonIdent committer, @Nullable String message, @Nonnull List<AnyObjectId> parents) throws IOException {
     return createCommit(repo, cache, committer, committer, message, parents);
   }
 
   @Nonnull
-  public static RevCommit createCommit(@Nonnull Repository repo, @Nonnull DirCache cache, @Nonnull PersonIdent committer, @Nullable String message, @Nullable AnyObjectId parent) throws IOException {
+  public static AnyObjectId createCommit(@Nonnull Repository repo, @Nonnull DirCache cache, @Nonnull PersonIdent committer, @Nullable String message, @Nullable AnyObjectId parent) throws IOException {
     List<AnyObjectId> parents = parent != null ? Collections.singletonList(parent) : Collections.<AnyObjectId>emptyList();
     return createCommit(repo, cache, committer, message, parents);
   }
 
   @Nonnull
-  public static RevCommit createCommit(@Nonnull Repository repo, @Nonnull DirCache cache, @Nonnull PersonIdent committer, @Nullable String message) throws IOException {
+  public static AnyObjectId createCommit(@Nonnull Repository repo, @Nonnull DirCache cache, @Nonnull PersonIdent committer, @Nullable String message) throws IOException {
     return createCommit(repo, cache, committer, message, (AnyObjectId) null);
   }
 

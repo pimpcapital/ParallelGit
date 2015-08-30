@@ -11,7 +11,6 @@ import org.eclipse.jgit.errors.NoWorkTreeException;
 import org.eclipse.jgit.internal.storage.dfs.DfsRepositoryDescription;
 import org.eclipse.jgit.internal.storage.dfs.InMemoryRepository;
 import org.eclipse.jgit.lib.*;
-import org.eclipse.jgit.revwalk.RevCommit;
 import org.eclipse.jgit.util.FileUtils;
 import org.junit.After;
 
@@ -62,45 +61,45 @@ public abstract class AbstractParallelGitTest {
   }
 
   @Nonnull
-  protected RevCommit commit(@Nonnull String message, @Nullable AnyObjectId parent) throws IOException {
+  protected AnyObjectId commit(@Nonnull String message, @Nullable AnyObjectId parent) throws IOException {
     return CommitHelper.createCommit(repo, cache, new PersonIdent(getClass().getSimpleName(), ""), message, parent);
   }
 
-  protected void updateBranchHead(@Nonnull String branch, @Nonnull RevCommit commit) throws IOException {
-    BranchHelper.commitBranchHead(repo, branch, commit, commit.getShortMessage());
+  protected void updateBranchHead(@Nonnull String branch, @Nonnull AnyObjectId commit) throws IOException {
+    BranchHelper.commitBranchHead(repo, branch, commit);
   }
 
   @Nonnull
-  protected RevCommit commitToBranch(@Nonnull String branch, @Nonnull String message, @Nullable AnyObjectId parent) throws IOException {
+  protected AnyObjectId commitToBranch(@Nonnull String branch, @Nonnull String message, @Nullable AnyObjectId parent) throws IOException {
     if(parent == null)
       parent = BranchHelper.getBranchHeadCommitId(repo, branch);
-    RevCommit commitId = commit(message, parent);
+    AnyObjectId commitId = commit(message, parent);
     updateBranchHead(branch, commitId);
     return commitId;
   }
 
   @Nonnull
-  protected RevCommit commitToBranch(@Nonnull String branch, @Nullable AnyObjectId parent) throws IOException {
+  protected AnyObjectId commitToBranch(@Nonnull String branch, @Nullable AnyObjectId parent) throws IOException {
     return commitToBranch(branch, getClass().getSimpleName() + " test commit: " + System.currentTimeMillis(), parent);
   }
 
   @Nonnull
-  protected RevCommit commitToBranch(@Nonnull String branch) throws IOException {
+  protected AnyObjectId commitToBranch(@Nonnull String branch) throws IOException {
     return commitToBranch(branch, getClass().getSimpleName() + " test commit: " + System.currentTimeMillis(), null);
   }
 
   @Nonnull
-  protected RevCommit commitToMaster(@Nonnull String message, @Nullable AnyObjectId parent) throws IOException {
+  protected AnyObjectId commitToMaster(@Nonnull String message, @Nullable AnyObjectId parent) throws IOException {
     return commitToBranch(Constants.MASTER, message, parent);
   }
 
   @Nonnull
-  protected RevCommit commitToMaster(@Nonnull String message) throws IOException {
+  protected AnyObjectId commitToMaster(@Nonnull String message) throws IOException {
     return commitToBranch(Constants.MASTER, message, null);
   }
 
   @Nonnull
-  protected RevCommit commitToMaster() throws IOException {
+  protected AnyObjectId commitToMaster() throws IOException {
     return commitToBranch(Constants.MASTER);
   }
 
@@ -114,17 +113,17 @@ public abstract class AbstractParallelGitTest {
   }
 
   @Nonnull
-  protected RevCommit initContent() throws IOException {
+  protected AnyObjectId initContent() throws IOException {
     writeToCache("existing_file.txt");
     commitToMaster();
     writeToCache("some_other_file.txt");
-    RevCommit head = commitToMaster();
+    AnyObjectId head = commitToMaster();
     clearCache();
     return head;
   }
 
   @Nonnull
-  protected RevCommit initRepository(boolean memory, boolean bare) throws IOException {
+  protected AnyObjectId initRepository(boolean memory, boolean bare) throws IOException {
     if(!memory)
       initRepositoryDir();
     repo = memory ? new TestRepository(bare) : RepositoryHelper.createRepository(repoDir, bare);
@@ -133,12 +132,12 @@ public abstract class AbstractParallelGitTest {
   }
 
   @Nonnull
-  protected RevCommit initFileRepository(boolean bare) throws IOException {
+  protected AnyObjectId initFileRepository(boolean bare) throws IOException {
     return initRepository(false, bare);
   }
 
   @Nonnull
-  protected RevCommit initRepository() throws IOException {
+  protected AnyObjectId initRepository() throws IOException {
     return initRepository(true, true);
   }
 
