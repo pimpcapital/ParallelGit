@@ -11,23 +11,29 @@ import org.eclipse.jgit.dircache.DirCache;
 import org.eclipse.jgit.lib.*;
 import org.eclipse.jgit.revwalk.RevCommit;
 import org.eclipse.jgit.revwalk.RevWalk;
+import org.eclipse.jgit.util.StringUtils;
 
 public final class CommitHelper {
 
   @Nonnull
+  public static String convertToShortMessage(@Nonnull String fullMessage) {
+    if(fullMessage.contains("\n"))
+      return StringUtils.replaceLineBreaksWithSpace(fullMessage);
+    return fullMessage;
+  }
+
+  @Nonnull
   public static RevCommit getCommit(@Nonnull ObjectReader reader, @Nonnull AnyObjectId commitId) throws IOException {
-      RevWalk revWalk = new RevWalk(reader);
-      RevCommit commit = revWalk.parseCommit(commitId);
-      revWalk.release();
-      return commit;
+    try(RevWalk revWalk = new RevWalk(reader)) {
+      return revWalk.parseCommit(commitId);
     }
+  }
 
   @Nonnull
   public static RevCommit getCommit(@Nonnull Repository repo, @Nonnull AnyObjectId commitId) throws IOException {
-    ObjectReader reader = repo.newObjectReader();
-    RevCommit commit = getCommit(reader, commitId);
-    reader.release();
-    return commit;
+    try(ObjectReader reader = repo.newObjectReader()) {
+      return getCommit(reader, commitId);
+    }
   }
 
   @Nullable
@@ -40,39 +46,39 @@ public final class CommitHelper {
 
   @Nonnull
   public static List<RevCommit> getCommitHistory(@Nonnull ObjectReader reader, @Nonnull RevCommit start) throws IOException {
-    RevWalk rw = new RevWalk(reader);
-    try {
+    try(RevWalk rw = new RevWalk(reader)) {
       rw.markStart(start);
       List<RevCommit> commits = new ArrayList<>();
       for(RevCommit commit : rw)
         commits.add(commit);
       return commits;
-    } finally {
-      rw.release();
     }
   }
 
   @Nonnull
   public static List<RevCommit> getCommitHistory(@Nonnull Repository repo, @Nonnull RevCommit start) throws IOException {
-    return getCommitHistory(repo.newObjectReader(), start);
+    try(ObjectReader reader = repo.newObjectReader()) {
+      return getCommitHistory(reader, start);
+    }
+  }
+
+  @Nonnull
+  public static AnyObjectId createCommit(@Nonnull ObjectInserter inserter, @Nonnull AnyObjectId treeId, @Nonnull PersonIdent author, @Nonnull PersonIdent committer, @Nullable String message, @Nonnull List<AnyObjectId> parents) throws IOException {
+    CommitBuilder builder = new CommitBuilder();
+    builder.setCommitter(committer);
+    builder.setAuthor(author);
+    builder.setMessage(message);
+    builder.setTreeId(treeId);
+    builder.setParentIds(parents);
+    return inserter.insert(builder);
   }
 
   @Nonnull
   public static RevCommit createCommit(@Nonnull Repository repo, @Nonnull AnyObjectId treeId, @Nonnull PersonIdent author, @Nonnull PersonIdent committer, @Nullable String message, @Nonnull List<AnyObjectId> parents) throws IOException {
-    CommitBuilder commit = new CommitBuilder();
-    commit.setCommitter(committer);
-    commit.setAuthor(author);
-    commit.setMessage(message);
-    commit.setTreeId(treeId);
-    commit.setParentIds(parents);
-
-    ObjectInserter inserter = repo.newObjectInserter();
-    try {
-      AnyObjectId commitId = inserter.insert(commit);
+    try(ObjectInserter inserter = repo.newObjectInserter()) {
+      AnyObjectId commitId = createCommit(inserter, treeId, author, committer, message, parents);
       inserter.flush();
       return getCommit(repo, commitId);
-    } finally {
-      inserter.release();
     }
   }
 

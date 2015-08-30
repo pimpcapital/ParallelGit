@@ -67,11 +67,8 @@ public final class CacheHelper {
 
   @Nonnull
   public static DirCache forRevision(@Nonnull Repository repo, @Nonnull AnyObjectId commitId) throws IOException {
-    ObjectReader reader = repo.newObjectReader();
-    try {
+    try(ObjectReader reader = repo.newObjectReader()) {
       return forRevision(reader, commitId);
-    } finally {
-      reader.release();
     }
   }
 
@@ -149,103 +146,37 @@ public final class CacheHelper {
     editor.add(deleteChildren(path));
   }
 
-  /**
-   * Deletes the specified directory from the given {@code DirCache}.
-   *
-   * This method creates a temporary {@code DirCacheEditor} and then invokes {@link #deleteDirectory(DirCacheEditor,
-   * String)}. The temporary editor will be finished/flushed at the end of this method..
-   *
-   * @param cache a dir cache
-   * @param path a directory path
-   */
   public static void deleteDirectory(@Nonnull DirCache cache, @Nonnull String path) {
     DirCacheEditor editor = cache.editor();
     deleteDirectory(editor, path);
     editor.finish();
   }
 
-  /**
-   * Tests if the specified path exists in the given {@code DirCache}.
-   *
-   * Note that this method returns {@code false} when the specified path points to a directory.
-   *
-   * @param cache a dir cache
-   * @param path a file path
-   * @return {@code true} if the specified path exists in the dir cache
-   */
   public static boolean isFile(@Nonnull DirCache cache, @Nonnull String path) {
     return findEntry(cache, path) >= 0;
   }
 
-  /**
-   * Tests if a file is a symbolic link.
-   *
-   * @param   cache
-   *          a dir cache
-   * @param   path
-   *          the path to the file to test
-   * @return  {@code true} if the specified file is a symbolic link
-   */
   public static boolean isSymbolicLink(@Nonnull DirCache cache, @Nonnull String path) {
     DirCacheEntry entry = getEntry(cache, path);
     return entry != null && entry.getFileMode() == FileMode.SYMLINK;
   }
 
-  /**
-   * Tests if a file is a regular file.
-   *
-   * @param   cache
-   *          a dir cache
-   * @param   path
-   *          the path to the file to test
-   * @return  {@code true} if the specified file is a regular file
-   */
   public static boolean isRegularFile(@Nonnull DirCache cache, @Nonnull String path) {
     DirCacheEntry entry = getEntry(cache, path);
     return entry != null && entry.getFileMode() == FileMode.REGULAR_FILE;
   }
 
-  /**
-   * Tests if a file is executable.
-   *
-   * @param   cache
-   *          a dir cache
-   * @param   path
-   *          the path to the file to test
-   * @return  {@code true} if the specified file is executable
-   */
   public static boolean isExecutableFile(@Nonnull DirCache cache, @Nonnull String path) {
     DirCacheEntry entry = getEntry(cache, path);
     return entry != null && entry.getFileMode() == FileMode.EXECUTABLE_FILE;
   }
 
-  /**
-   * Tests if a file is either regular or executable.
-   *
-   * @param   cache
-   *          a dir cache
-   * @param   path
-   *          the path to the file to test
-   * @return  {@code true} if the specified file is either regular or executable
-   */
   public static boolean isRegularOrExecutableFile(@Nonnull DirCache cache, @Nonnull String path) {
     DirCacheEntry entry = getEntry(cache, path);
     return entry != null
              && (entry.getFileMode() == FileMode.REGULAR_FILE || entry.getFileMode() == FileMode.EXECUTABLE_FILE);
   }
 
-  /**
-   * Tests if the specified path points to non-trivial(non-empty) directory.
-   *
-   * {@code DirCache} does not allow empty directory. When all the files in a directory are deleted, this directory
-   * becomes trivial as all entries whose paths start from this directory are removed. On the other hand, there is
-   * little point to create an empty parent directory before creating a file inside it. When a file is created, its
-   * parent directories are automatically created.
-   *
-   * @param cache a dir cache
-   * @param path a file path
-   * @return {@code true} if the specified path points to a non-empty directory
-   */
   public static boolean isNonTrivialDirectory(@Nonnull DirCache cache, @Nonnull String path) {
     path = normalizeCachePath(path) + "/";
     if(path.equals("/")) // if it is root
@@ -311,13 +242,10 @@ public final class CacheHelper {
 
   @Nonnull
   public static AnyObjectId writeTree(@Nonnull Repository repo, @Nonnull DirCache cache) throws IOException {
-    ObjectInserter inserter = repo.newObjectInserter();
-    try {
+    try(ObjectInserter inserter = repo.newObjectInserter()) {
       AnyObjectId tree = cache.writeTree(inserter);
       inserter.flush();
       return tree;
-    } finally {
-      inserter.release();
     }
   }
 

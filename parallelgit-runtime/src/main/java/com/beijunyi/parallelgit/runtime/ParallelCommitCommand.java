@@ -425,8 +425,7 @@ public final class ParallelCommitCommand extends CacheBasedCommand<ParallelCommi
   @Override
   protected AnyObjectId doCall() throws IOException {
     assert repository != null;
-    ObjectInserter inserter = repository.newObjectInserter();
-    try {
+    try(ObjectInserter inserter = repository.newObjectInserter()) {
       prepareHead();
       prepareBase();
       prepareParents();
@@ -440,8 +439,6 @@ public final class ParallelCommitCommand extends CacheBasedCommand<ParallelCommi
       inserter.flush();
       updateBranchRef(commit);
       return commit;
-    } finally {
-      inserter.release();
     }
   }
 

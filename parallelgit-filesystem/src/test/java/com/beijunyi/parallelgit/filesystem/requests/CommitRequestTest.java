@@ -20,7 +20,7 @@ public class CommitRequestTest extends PreSetupGitFileSystemTest {
     writeSomeFileToGfs();
     RevCommit commit = Requests.commit(gfs)
                          .execute();
-    assert commit != null;
+    assert gfs.getBranch() != null;
     Assert.assertEquals(repo.resolve(gfs.getBranch()), commit);
   }
 
@@ -183,7 +183,7 @@ public class CommitRequestTest extends PreSetupGitFileSystemTest {
     RevCommit commit = Requests.commit(gfs)
                          .amend(true)
                          .execute();
-    assert commit != null;
+    assert gfs.getBranch() != null;
     Assert.assertEquals(repo.resolve(gfs.getBranch()), commit);
   }
 

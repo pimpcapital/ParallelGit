@@ -55,7 +55,7 @@
     <maven-source-plugin.version>2.4</maven-source-plugin.version>
     <maven-gpg-plugin.version>1.6</maven-gpg-plugin.version>
     <nexus-staging-maven-plugin.version>1.6.5</nexus-staging-maven-plugin.version>
-    <jgit.version>3.5.2.201411120430-r</jgit.version>
+    <jgit.version>4.0.1.201506240215-r</jgit.version>
     <junit.version>4.11</junit.version>
   </properties>
 
@@ -80,6 +80,12 @@
       <groupId>junit</groupId>
       <artifactId>junit</artifactId>
       <version>4.11</version>
+      <scope>test</scope>
+    </dependency>
+    <dependency>
+      <groupId>org.slf4j</groupId>
+      <artifactId>slf4j-simple</artifactId>
+      <version>1.7.12</version>
       <scope>test</scope>
     </dependency>
   </dependencies>

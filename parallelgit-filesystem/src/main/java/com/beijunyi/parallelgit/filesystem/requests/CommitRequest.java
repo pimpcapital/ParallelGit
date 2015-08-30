@@ -158,7 +158,7 @@ public final class CommitRequest extends GitFileSystemRequest<RevCommit> {
     }
   }
 
-  private void updateRef(@Nonnull RevCommit head) throws IOException {
+  private void updateRef(@Nonnull AnyObjectId head) throws IOException {
     RefUpdate.Result result;
     if(refLog != null)
       result = BranchHelper.setBranchHead(repository, branchRef, head, refLog, true);
@@ -184,9 +184,10 @@ public final class CommitRequest extends GitFileSystemRequest<RevCommit> {
     AnyObjectId tree = gfs.persist();
     if(!allowEmpty && !amend && tree.equals(commit.getTree()))
       return null;
-    RevCommit result = CommitHelper.createCommit(repository, tree, author, committer, message, parents);
-    updateRef(result);
-    updateFileSystem(result);
-    return result;
+    AnyObjectId resultCommitId = CommitHelper.createCommit(repository, tree, author, committer, message, parents);
+    updateRef(resultCommitId);
+    RevCommit resultCommit = CommitHelper.getCommit(repository, resultCommitId);
+    updateFileSystem(resultCommit);
+    return resultCommit;
   }
 }

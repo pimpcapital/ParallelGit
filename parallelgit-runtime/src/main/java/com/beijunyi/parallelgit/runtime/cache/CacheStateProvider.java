@@ -84,10 +84,10 @@ public class CacheStateProvider implements Closeable {
   @Override
   public void close() throws IOException {
     if(reader != null)
-      reader.release();
+      reader.close();
     if(inserter != null) {
       inserter.flush();
-      inserter.release();
+      inserter.close();
     }
   }
 }

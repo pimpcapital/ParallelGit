@@ -17,21 +17,11 @@ import org.junit.Test;
 
 public class ParallelCommitCommandTest extends AbstractParallelGitTest {
 
-  private void writeSomethingToCache() throws IOException {
-    writeToCache("something.txt");
-  }
-
   @Test
   public void createCommitWithTreeTest() throws IOException {
     initRepository();
-    writeSomethingToCache();
-    ObjectInserter inserter = repo.newObjectInserter();
-    AnyObjectId treeId;
-    try {
-      treeId = cache.writeTree(inserter);
-    } finally {
-      inserter.release();
-    }
+    writeSomeFileToCache();
+    AnyObjectId treeId = CacheHelper.writeTree(repo, cache);
     AnyObjectId commitId = ParallelCommitCommand.prepare(repo)
                              .withTree(treeId)
                              .call();
@@ -83,7 +73,7 @@ public class ParallelCommitCommandTest extends AbstractParallelGitTest {
   @Test
   public void createCommitWithAuthorTest() throws IOException {
     initRepository();
-    writeSomethingToCache();
+    writeSomeFileToCache();
     PersonIdent author = new PersonIdent("testuser", "testuser@email.com");
     AnyObjectId commitId = ParallelCommitCommand.prepare(repo)
                              .fromCache(cache)
@@ -97,7 +87,7 @@ public class ParallelCommitCommandTest extends AbstractParallelGitTest {
   @Test
   public void createCommitWithAuthorNameAndEmailTest() throws IOException {
     initRepository();
-    writeSomethingToCache();
+    writeSomeFileToCache();
     String authorName = "testuser";
     String authorEmail = "testuser@email.com";
     AnyObjectId commitId = ParallelCommitCommand.prepare(repo)
@@ -114,7 +104,7 @@ public class ParallelCommitCommandTest extends AbstractParallelGitTest {
   @Test
   public void createCommitWithCommitterTest() throws IOException {
     initRepository();
-    writeSomethingToCache();
+    writeSomeFileToCache();
     PersonIdent committer = new PersonIdent("testuser", "testuser@email.com");
     AnyObjectId commitId = ParallelCommitCommand.prepare(repo)
                              .fromCache(cache)
@@ -129,7 +119,7 @@ public class ParallelCommitCommandTest extends AbstractParallelGitTest {
   @Test
   public void createCommitWithCommitterNameAndEmailTest() throws IOException {
     initRepository();
-    writeSomethingToCache();
+    writeSomeFileToCache();
     String committerName = "testuser";
     String committerEmail = "testuser@email.com";
     AnyObjectId commitId = ParallelCommitCommand.prepare(repo)
@@ -147,7 +137,7 @@ public class ParallelCommitCommandTest extends AbstractParallelGitTest {
   @Test
   public void createCommitWithAuthorAndCommitterTest() throws IOException {
     initRepository();
-    writeSomethingToCache();
+    writeSomeFileToCache();
     PersonIdent author = new PersonIdent("author", "author@email.com");
     PersonIdent committer = new PersonIdent("committer", "committer@email.com");
     AnyObjectId commitId = ParallelCommitCommand.prepare(repo)
@@ -164,7 +154,7 @@ public class ParallelCommitCommandTest extends AbstractParallelGitTest {
   @Test
   public void createCommitWithDefaultAuthorTest() throws IOException {
     initRepository();
-    writeSomethingToCache();
+    writeSomeFileToCache();
     AnyObjectId commitId = ParallelCommitCommand.prepare(repo)
                              .fromCache(cache)
                              .call();
@@ -179,7 +169,7 @@ public class ParallelCommitCommandTest extends AbstractParallelGitTest {
   @Test
   public void createCommitWithMessageTest() throws IOException {
     initRepository();
-    writeSomethingToCache();
+    writeSomeFileToCache();
     String commitMessage = "test message";
     AnyObjectId commitId = ParallelCommitCommand.prepare(repo)
                              .fromCache(cache)
@@ -193,7 +183,7 @@ public class ParallelCommitCommandTest extends AbstractParallelGitTest {
   @Test
   public void createCommitAmendBranchHeadMessageTest() throws IOException {
     initRepository();
-    writeSomethingToCache();
+    writeSomeFileToCache();
     String branch = "test_branch";
     AnyObjectId treeId = RevTreeHelper.getRootTree(repo, commitToBranch(branch));
     String amendedMessage = "amended message";

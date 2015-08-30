@@ -20,25 +20,11 @@ public final class BranchHelper {
     return CommitHelper.getCommitHistory(repo, head);
   }
 
-  /**
-   * Checks if a branch with the given name exists.
-   *
-   * @param repo a git repository
-   * @param name a branch name
-   * @return true if branch with the given name exists
-   */
   public static boolean existsBranch(@Nonnull Repository repo, @Nonnull String name) throws IOException {
     Ref ref = repo.getRef(name);
     return ref != null && RefHelper.isBranchRef(ref);
   }
 
-  /**
-   * Gets the HEAD commit id of the given branch.
-   *
-   * @param repo a git repository
-   * @param name a branch name
-   * @return the HEAD commit id of the given branch
-   */
   @Nullable
   public static AnyObjectId getBranchHeadCommitId(@Nonnull Repository repo, @Nonnull String name) throws IOException {
     return repo.resolve(RefHelper.getBranchRefName(name));
@@ -93,159 +79,56 @@ public final class BranchHelper {
     return ru.update();
   }
 
-  /**
-   * Resets the {@code HEAD} of the specified branch to the given commit.
-   *
-   * @param repo a git repository
-   * @param name a branch name
-   * @param commitId a commit id
-   * @return a ref update result
-   */
   @Nonnull
   public static RefUpdate.Result resetBranchHead(@Nonnull Repository repo, @Nonnull String name, @Nonnull AnyObjectId commitId) throws IOException {
     return setBranchHead(repo, name, commitId, RefHelper.getBranchRefName(name) + ": updating " + Constants.HEAD, true);
   }
 
-  /**
-   * Sets the {@code HEAD} of the specified branch to the given commit with {@code reflog} message starting with
-   * "commit: ".
-   *
-   * @param repo a git repository
-   * @param name a branch name
-   * @param commitId a commit id
-   * @param shortMessage the first line of the commit message
-   * @return a ref update result
-   */
   @Nonnull
   public static RefUpdate.Result commitBranchHead(@Nonnull Repository repo, @Nonnull String name, @Nonnull AnyObjectId commitId, @Nonnull String shortMessage) throws IOException {
     return setBranchHead(repo, name, commitId, "commit: " + shortMessage, true);
   }
 
-  /**
-   * Sets the {@code HEAD} of the specified branch to the given commit with {@code reflog} message starting with
-   * "commit: ".
-   *
-   * @param repo a git repository
-   * @param name a branch name
-   * @param commitId a commit id
-   * @return a ref update result
-   */
   @Nonnull
   public static RefUpdate.Result commitBranchHead(@Nonnull Repository repo, @Nonnull String name, @Nonnull AnyObjectId commitId) throws IOException {
     return commitBranchHead(repo, name, commitId, CommitHelper.getCommit(repo, commitId).getShortMessage());
   }
 
-  /**
-   * Sets the {@code HEAD} of the specified branch to the given commit with {@code reflog} message starting with
-   * "commit (amend): ".
-   *
-   * @param repo a git repository
-   * @param name a branch name
-   * @param commitId a commit id
-   * @param shortMessage the first line of the commit message
-   * @return a ref update result
-   */
   @Nonnull
   public static RefUpdate.Result amendBranchHead(@Nonnull Repository repo, @Nonnull String name, @Nonnull AnyObjectId commitId, @Nonnull String shortMessage) throws IOException {
     return setBranchHead(repo, name, commitId, "commit (amend): " + shortMessage, true);
   }
 
-  /**
-   * Sets the {@code HEAD} of the specified branch to the given commit with {@code reflog} message starting with
-   * "commit (amend): ".
-   *
-   * @param repo a git repository
-   * @param name a branch name
-   * @param commitId a commit id
-   * @return a ref update result
-   */
   @Nonnull
   public static RefUpdate.Result amendBranchHead(@Nonnull Repository repo, @Nonnull String name, @Nonnull AnyObjectId commitId) throws IOException {
     return amendBranchHead(repo, name, commitId, CommitHelper.getCommit(repo, commitId).getShortMessage());
   }
 
-  /**
-   * Sets the {@code HEAD} of the specified branch to the given commit with {@code reflog} message starting with
-   * "cherry-pick: ".
-   *
-   * @param repo a git repository
-   * @param name a branch name
-   * @param commitId a commit id
-   * @param shortMessage the first line of the commit message
-   * @return a ref update result
-   */
   @Nonnull
   public static RefUpdate.Result cherryPickBranchHead(@Nonnull Repository repo, @Nonnull String name, @Nonnull AnyObjectId commitId, @Nonnull String shortMessage) throws IOException {
     return setBranchHead(repo, name, commitId, "cherry-pick: " + shortMessage, true);
   }
 
-  /**
-   * Sets the {@code HEAD} of the specified branch to the given commit with {@code reflog} message starting with
-   * "cherry-pick: ".
-   *
-   * @param repo a git repository
-   * @param name a branch name
-   * @param commitId a commit id
-   * @return a ref update result
-   */
   @Nonnull
   public static RefUpdate.Result cherryPickBranchHead(@Nonnull Repository repo, @Nonnull String name, @Nonnull AnyObjectId commitId) throws IOException {
     return cherryPickBranchHead(repo, name, commitId, CommitHelper.getCommit(repo, commitId).getShortMessage());
   }
 
-  /**
-   * Sets the {@code HEAD} of the specified branch to the given commit with {@code reflog} message starting with
-   * "commit (initial): ".
-   *
-   * @param repo a git repository
-   * @param name a branch name
-   * @param commitId a commit id
-   * @param shortMessage the first line of the commit message
-   * @param falseUpdate whether to false update the branch ref
-   * @return a ref update result
-   */
   @Nonnull
   public static RefUpdate.Result initBranchHead(@Nonnull Repository repo, @Nonnull String name, @Nonnull AnyObjectId commitId, @Nonnull String shortMessage, boolean falseUpdate) throws IOException {
     return setBranchHead(repo, name, commitId, "commit (initial): " + shortMessage, falseUpdate);
   }
 
-  /**
-   * Sets the {@code HEAD} of the specified branch to the given commit with {@code reflog} message starting with
-   * "commit (initial): ".
-   *
-   * @param repo a git repository
-   * @param name a branch name
-   * @param commitId a commit id
-   * @param shortMessage the first line of the commit message
-   * @return a ref update result
-   */
   @Nonnull
   public static RefUpdate.Result initBranchHead(@Nonnull Repository repo, @Nonnull String name, @Nonnull AnyObjectId commitId, @Nonnull String shortMessage) throws IOException {
     return initBranchHead(repo, name, commitId, shortMessage, false);
   }
 
-  /**
-   * Sets the {@code HEAD} of the specified branch to the given commit with {@code reflog} message starting with
-   * "commit (initial): ".
-   *
-   * @param repo a git repository
-   * @param name a branch name
-   * @param commitId a commit id
-   * @return a ref update result
-   */
   @Nonnull
   public static RefUpdate.Result initBranchHead(@Nonnull Repository repo, @Nonnull String name, @Nonnull AnyObjectId commitId) throws IOException {
     return initBranchHead(repo, name, commitId, CommitHelper.getCommit(repo, commitId).getShortMessage());
   }
 
-  /**
-   * Deletes the specified branch.
-   *
-   * {@code DeleteBranchCommand}
-   *
-   * @param repo a git repository
-   * @param name the name of the branch to be deleted
-   */
   @Nonnull
   public static RefUpdate.Result deleteBranch(@Nonnull Repository repo, @Nonnull String name) throws IOException {
     String refName = RefHelper.getBranchRefName(name);
@@ -253,6 +136,14 @@ public final class BranchHelper {
     update.setRefLogMessage("branch deleted", false);
     update.setForceUpdate(true);
     return update.delete();
+  }
+
+  public static enum UpdateType {
+    COMMIT,
+    AMEND,
+    INIT,
+    CHERRYPICK,
+    MERGE
   }
 
 }
