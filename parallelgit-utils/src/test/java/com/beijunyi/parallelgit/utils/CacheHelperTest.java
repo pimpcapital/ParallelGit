@@ -43,7 +43,7 @@ public class CacheHelperTest {
     DirCache cache = DirCache.newInCore();
 
     String file = "a/b/c.txt";
-    AnyObjectId contentId1 = BlobHelper.getBlobId("a.b.c");
+    AnyObjectId contentId1 = BlobHelper.calculateBlobId("a.b.c");
     CacheHelper.addFile(cache, file, contentId1);
 
     int entryCount = cache.getEntryCount();

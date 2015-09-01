@@ -99,4 +99,8 @@ public class GitFileStore extends FileStore {
     return root.getObject();
   }
 
+  public boolean isDirty() {
+    return root.isDirty();
+  }
+
 }

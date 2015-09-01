@@ -30,21 +30,21 @@ public final class TreeWalkHelper {
   }
 
   @Nullable
-  public static AnyObjectId getObject(@Nonnull TreeWalk treeWalk) {
+  public static AnyObjectId getObjectId(@Nonnull TreeWalk treeWalk) {
     return treeWalk.getObjectId(0);
   }
 
   @Nullable
-  public static AnyObjectId getObject(@Nonnull ObjectReader reader, @Nonnull String path, @Nonnull AnyObjectId treeId) throws IOException {
+  public static AnyObjectId getObjectId(@Nonnull ObjectReader reader, @Nonnull String path, @Nonnull AnyObjectId treeId) throws IOException {
     try(TreeWalk treeWalk = TreeWalk.forPath(reader, path, treeId)) {
-      return treeWalk != null ? getObject(treeWalk) : null;
+      return treeWalk != null ? getObjectId(treeWalk) : null;
     }
   }
 
   @Nullable
-  public static AnyObjectId getObject(@Nonnull Repository repo, @Nonnull String path, @Nonnull AnyObjectId treeId) throws IOException {
+  public static AnyObjectId getObjectId(@Nonnull Repository repo, @Nonnull String path, @Nonnull AnyObjectId treeId) throws IOException {
     try(TreeWalk treeWalk = TreeWalk.forPath(repo, path, treeId)) {
-      return treeWalk != null ? getObject(treeWalk) : null;
+      return treeWalk != null ? getObjectId(treeWalk) : null;
     }
   }
 

@@ -45,7 +45,7 @@ public class ParallelCacheCommandUseCaseTest extends AbstractParallelGitTest {
   @Test
   public void deleteFileFollowedByAddingAnotherFile() throws IOException {
     writeToCache("/file.txt");
-    AnyObjectId blobId = BlobHelper.getBlobId("some content");
+    AnyObjectId blobId = BlobHelper.calculateBlobId("some content");
     AnyObjectId commitId = commitToMaster();
     DirCache cache = ParallelCacheCommand
                        .prepare(repo)
@@ -60,7 +60,7 @@ public class ParallelCacheCommandUseCaseTest extends AbstractParallelGitTest {
   @Test
   public void addFileFollowedByDeletingAnotherFile() throws IOException {
     writeToCache("/another_file.txt");
-    AnyObjectId blobId = BlobHelper.getBlobId("some content");
+    AnyObjectId blobId = BlobHelper.calculateBlobId("some content");
     AnyObjectId commitId = commitToMaster();
     DirCache cache = ParallelCacheCommand
                        .prepare(repo)

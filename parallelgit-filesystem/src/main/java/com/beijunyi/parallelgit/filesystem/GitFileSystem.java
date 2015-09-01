@@ -55,6 +55,10 @@ public class GitFileSystem extends FileSystem {
   @Override
   public synchronized void close() {
     if(!closed) {
+      if(inserter != null)
+        inserter.close();
+      if(reader != null)
+        reader.close();
       closed = true;
       provider.unregister(this);
     }
@@ -241,7 +245,9 @@ public class GitFileSystem extends FileSystem {
 
   @Nonnull
   public AnyObjectId persist() throws IOException {
-    return GfsIO.persist(rootPath);
+    AnyObjectId result = GfsIO.persist(rootPath);
+    inserter().flush();
+    return result;
   }
 
 
@@ -271,6 +277,10 @@ public class GitFileSystem extends FileSystem {
   @Nullable
   public AnyObjectId getTree() {
     return store.getTree();
+  }
+
+  public boolean isDirty() {
+    return store.isDirty();
   }
 
 }

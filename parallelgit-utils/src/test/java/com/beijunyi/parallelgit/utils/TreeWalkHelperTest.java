@@ -55,7 +55,7 @@ public class TreeWalkHelperTest extends AbstractParallelGitTest {
     AnyObjectId commit = commitToMaster();
 
     RevTree tree = RevTreeHelper.getRootTree(repo, commit);
-    Assert.assertEquals(objectId, TreeWalkHelper.getObject(repo, "a/b.txt", tree));
+    Assert.assertEquals(objectId, TreeWalkHelper.getObjectId(repo, "a/b.txt", tree));
   }
 
   @Test

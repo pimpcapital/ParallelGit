@@ -30,7 +30,7 @@ public abstract class AbstractParallelGitTest {
 
   @Nonnull
   protected AnyObjectId writeToCache(@Nonnull String path, @Nonnull byte[] content, @Nonnull FileMode mode) throws IOException {
-    AnyObjectId blobId = BlobHelper.insert(repo, content);
+    AnyObjectId blobId = BlobHelper.insert(content, repo);
     CacheHelper.addFile(cache, mode, path, blobId);
     return blobId;
   }
