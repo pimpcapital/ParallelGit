@@ -126,7 +126,7 @@ public abstract class AbstractParallelGitTest {
   protected AnyObjectId initRepository(boolean memory, boolean bare) throws IOException {
     if(!memory)
       initRepositoryDir();
-    repo = memory ? new TestRepository(bare) : RepositoryHelper.createRepository(repoDir, bare);
+    repo = memory ? new TestRepository(bare) : RepositoryUtils.createRepository(repoDir, bare);
     cache = DirCache.newInCore();
     return initContent();
   }
