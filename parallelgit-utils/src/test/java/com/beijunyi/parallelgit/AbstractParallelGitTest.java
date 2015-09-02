@@ -30,7 +30,7 @@ public abstract class AbstractParallelGitTest {
 
   @Nonnull
   protected AnyObjectId writeToCache(@Nonnull String path, @Nonnull byte[] content, @Nonnull FileMode mode) throws IOException {
-    AnyObjectId blobId = BlobHelper.insert(content, repo);
+    AnyObjectId blobId = ObjectUtils.insertBlob(content, repo);
     CacheHelper.addFile(cache, mode, path, blobId);
     return blobId;
   }
@@ -66,13 +66,13 @@ public abstract class AbstractParallelGitTest {
   }
 
   protected void updateBranchHead(@Nonnull String branch, @Nonnull AnyObjectId commit) throws IOException {
-    BranchHelper.commitBranchHead(repo, branch, commit);
+    BranchHelper.commitBranchHead(branch, commit, repo);
   }
 
   @Nonnull
   protected AnyObjectId commitToBranch(@Nonnull String branch, @Nonnull String message, @Nullable AnyObjectId parent) throws IOException {
     if(parent == null)
-      parent = BranchHelper.getBranchHeadCommitId(repo, branch);
+      parent = BranchHelper.getBranchHeadCommitId(branch, repo);
     AnyObjectId commitId = commit(message, parent);
     updateBranchHead(branch, commitId);
     return commitId;

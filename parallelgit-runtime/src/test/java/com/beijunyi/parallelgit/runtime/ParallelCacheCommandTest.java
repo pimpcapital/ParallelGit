@@ -3,8 +3,8 @@ package com.beijunyi.parallelgit.runtime;
 import java.io.IOException;
 
 import com.beijunyi.parallelgit.AbstractParallelGitTest;
-import com.beijunyi.parallelgit.utils.BlobHelper;
 import com.beijunyi.parallelgit.utils.CacheHelper;
+import com.beijunyi.parallelgit.utils.ObjectUtils;
 import com.beijunyi.parallelgit.utils.RevTreeHelper;
 import org.eclipse.jgit.dircache.DirCache;
 import org.eclipse.jgit.lib.AnyObjectId;
@@ -68,7 +68,7 @@ public class ParallelCacheCommandTest extends AbstractParallelGitTest {
 
   @Test
   public void addFile_theResultCacheShouldHaveTheAddedFile() throws IOException {
-    AnyObjectId blobId = BlobHelper.calculateBlobId("some content");
+    AnyObjectId blobId = ObjectUtils.calculateBlobId("some content");
     DirCache cache = ParallelCacheCommand.prepare()
                        .addFile("/expected_file.txt", blobId)
                        .call();
@@ -77,7 +77,7 @@ public class ParallelCacheCommandTest extends AbstractParallelGitTest {
 
   @Test
   public void addFile_theResultFileShouldHaveTheSpecifiedBlobId() throws IOException {
-    AnyObjectId blobId = BlobHelper.calculateBlobId("some content");
+    AnyObjectId blobId = ObjectUtils.calculateBlobId("some content");
     DirCache cache = ParallelCacheCommand.prepare()
                        .addFile("/expected_file.txt", blobId)
                        .call();
@@ -86,7 +86,7 @@ public class ParallelCacheCommandTest extends AbstractParallelGitTest {
 
   @Test
   public void addFile_theResultFileShouldBeRegularFileByDefault() throws IOException {
-    AnyObjectId blobId = BlobHelper.calculateBlobId("some content");
+    AnyObjectId blobId = ObjectUtils.calculateBlobId("some content");
     DirCache cache = ParallelCacheCommand.prepare()
                        .addFile("/expected_file.txt", blobId)
                        .call();
@@ -95,7 +95,7 @@ public class ParallelCacheCommandTest extends AbstractParallelGitTest {
 
   @Test
   public void addFileWithFileMode_theResultFileShouldHaveTheSpecifiedFileMode() throws IOException {
-    AnyObjectId blobId = BlobHelper.calculateBlobId("some content");
+    AnyObjectId blobId = ObjectUtils.calculateBlobId("some content");
     FileMode mode = FileMode.EXECUTABLE_FILE;
     DirCache cache = ParallelCacheCommand.prepare()
                        .addFile("/expected_file.txt", blobId, mode)
@@ -222,7 +222,7 @@ public class ParallelCacheCommandTest extends AbstractParallelGitTest {
   public void updateFile_theTargetFileShouldHaveTheNewBlobIdAndFileMode() throws IOException {
     writeToCache("/file.txt", "old content");
     AnyObjectId commitId = commitToMaster();
-    AnyObjectId newBlobId = BlobHelper.calculateBlobId("new content");
+    AnyObjectId newBlobId = ObjectUtils.calculateBlobId("new content");
     FileMode newFileMode = FileMode.EXECUTABLE_FILE;
     DirCache cache = ParallelCacheCommand
                        .prepare(repo)
@@ -237,7 +237,7 @@ public class ParallelCacheCommandTest extends AbstractParallelGitTest {
   public void updateBlobIdOnly_theTargetFileShouldHaveTheNewBlobId() throws IOException {
     writeToCache("/file.txt", "old content");
     AnyObjectId commitId = commitToMaster();
-    AnyObjectId newBlobId = BlobHelper.calculateBlobId("new content");
+    AnyObjectId newBlobId = ObjectUtils.calculateBlobId("new content");
     DirCache cache = ParallelCacheCommand
                        .prepare(repo)
                        .baseCommit(commitId)
@@ -250,7 +250,7 @@ public class ParallelCacheCommandTest extends AbstractParallelGitTest {
   public void updateBlobIdOnly_theTargetFileShouldHaveTheOldFileMode() throws IOException {
     writeToCache("/file.txt", "some content".getBytes(), FileMode.SYMLINK);
     AnyObjectId commitId = commitToMaster();
-    AnyObjectId newBlobId = BlobHelper.calculateBlobId("new content");
+    AnyObjectId newBlobId = ObjectUtils.calculateBlobId("new content");
     DirCache cache = ParallelCacheCommand
                        .prepare(repo)
                        .baseCommit(commitId)
@@ -286,7 +286,7 @@ public class ParallelCacheCommandTest extends AbstractParallelGitTest {
   @Test(expected = IllegalArgumentException.class)
   public void updateNonExistentFile_shouldThrowIllegalArgumentException() throws IOException {
     AnyObjectId commitId = commitToMaster();
-    AnyObjectId blobId = BlobHelper.calculateBlobId("new content");
+    AnyObjectId blobId = ObjectUtils.calculateBlobId("new content");
     DirCache cache = ParallelCacheCommand
                        .prepare(repo)
                        .baseCommit(commitId)

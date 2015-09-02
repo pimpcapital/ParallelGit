@@ -218,8 +218,8 @@ public class ParallelCommitCommandTest extends AbstractParallelGitTest {
     RevCommit branchHead = CommitHelper.getCommit(repo, branch);
     Assert.assertNotNull(branchHead);
     Assert.assertEquals(previousMessage, branchHead.getFullMessage());
-    Assert.assertNotNull(BlobHelper.findBlobId(existingFile, branchHead, repo));
-    Assert.assertArrayEquals(bytes, BlobHelper.getFileFromCommit(newFile, branchHead, repo));
+    Assert.assertNotNull(ObjectUtils.findObject(existingFile, branchHead, repo));
+    Assert.assertArrayEquals(bytes, GitFileUtils.readFileFromCommit(newFile, branchHead, repo));
   }
 
   @Test
@@ -239,8 +239,8 @@ public class ParallelCommitCommandTest extends AbstractParallelGitTest {
     Assert.assertNotNull(commitId);
     RevCommit branchHead = CommitHelper.getCommit(repo, branch);
     Assert.assertNotNull(branchHead);
-    Assert.assertEquals(existingFileBlob, BlobHelper.findBlobId(existingFile, branchHead, repo));
-    Assert.assertArrayEquals(bytes, BlobHelper.getFileFromCommit(newFile, branchHead, repo));
+    Assert.assertEquals(existingFileBlob, ObjectUtils.findObject(existingFile, branchHead, repo));
+    Assert.assertArrayEquals(bytes, GitFileUtils.readFileFromCommit(newFile, branchHead, repo));
   }
 
   @Test
@@ -260,8 +260,8 @@ public class ParallelCommitCommandTest extends AbstractParallelGitTest {
     Assert.assertNotNull(commitId);
     RevCommit branchHead = CommitHelper.getCommit(repo, branch);
     Assert.assertNotNull(branchHead);
-    Assert.assertEquals(existingFileBlob, BlobHelper.findBlobId(existingFile, branchHead, repo));
-    Assert.assertArrayEquals(Constants.encode(content), BlobHelper.getFileFromCommit(newFile, branchHead, repo));
+    Assert.assertEquals(existingFileBlob, ObjectUtils.findObject(existingFile, branchHead, repo));
+    Assert.assertArrayEquals(Constants.encode(content), GitFileUtils.readFileFromCommit(newFile, branchHead, repo));
   }
 
   @Test
@@ -282,8 +282,8 @@ public class ParallelCommitCommandTest extends AbstractParallelGitTest {
     Assert.assertNotNull(commitId);
     RevCommit branchHead = CommitHelper.getCommit(repo, branch);
     Assert.assertNotNull(branchHead);
-    Assert.assertEquals(existingFileBlob, BlobHelper.findBlobId(existingFile, branchHead, repo));
-    Assert.assertArrayEquals(bytes, BlobHelper.getFileFromCommit(newFile, branchHead, repo));
+    Assert.assertEquals(existingFileBlob, ObjectUtils.findObject(existingFile, branchHead, repo));
+    Assert.assertArrayEquals(bytes, GitFileUtils.readFileFromCommit(newFile, branchHead, repo));
   }
 
   @Test
@@ -306,8 +306,8 @@ public class ParallelCommitCommandTest extends AbstractParallelGitTest {
       Assert.assertNotNull(commitId);
       RevCommit branchHead = CommitHelper.getCommit(repo, branch);
       Assert.assertNotNull(branchHead);
-      Assert.assertEquals(existingFileBlob, BlobHelper.findBlobId(existingFile, branchHead, repo));
-      Assert.assertArrayEquals(bytes, BlobHelper.getFileFromCommit(newFile, branchHead, repo));
+      Assert.assertEquals(existingFileBlob, ObjectUtils.findObject(existingFile, branchHead, repo));
+      Assert.assertArrayEquals(bytes, GitFileUtils.readFileFromCommit(newFile, branchHead, repo));
     } finally {
       Assert.assertTrue(Files.deleteIfExists(tempFilePath));
     }
@@ -333,8 +333,8 @@ public class ParallelCommitCommandTest extends AbstractParallelGitTest {
       Assert.assertNotNull(commitId);
       RevCommit branchHead = CommitHelper.getCommit(repo, branch);
       Assert.assertNotNull(branchHead);
-      Assert.assertEquals(existingFileBlob, BlobHelper.findBlobId(existingFile, branchHead, repo));
-      Assert.assertArrayEquals(bytes, BlobHelper.getFileFromCommit(newFile, branchHead, repo));
+      Assert.assertEquals(existingFileBlob, ObjectUtils.findObject(existingFile, branchHead, repo));
+      Assert.assertArrayEquals(bytes, GitFileUtils.readFileFromCommit(newFile, branchHead, repo));
     } finally {
       Assert.assertTrue(Files.deleteIfExists(tempFilePath));
     }
@@ -358,9 +358,9 @@ public class ParallelCommitCommandTest extends AbstractParallelGitTest {
     Assert.assertNotNull(commitId);
     RevCommit branchHead = CommitHelper.getCommit(repo, branch);
     Assert.assertNotNull(branchHead);
-    Assert.assertNotNull(BlobHelper.findBlobId(existingFile1, branchHead, repo));
-    Assert.assertNull(BlobHelper.findBlobId(existingFile2, branchHead, repo));
-    Assert.assertNotNull(BlobHelper.findBlobId(existingFile3, branchHead, repo));
+    Assert.assertNotNull(ObjectUtils.findObject(existingFile1, branchHead, repo));
+    Assert.assertNull(ObjectUtils.findObject(existingFile2, branchHead, repo));
+    Assert.assertNotNull(ObjectUtils.findObject(existingFile3, branchHead, repo));
   }
 
   @Test
@@ -394,10 +394,10 @@ public class ParallelCommitCommandTest extends AbstractParallelGitTest {
       Assert.assertNotNull(commitId);
       RevCommit branchHead = CommitHelper.getCommit(repo, branch);
       Assert.assertNotNull(branchHead);
-      Assert.assertEquals(existingFileBlob, BlobHelper.findBlobId(existingFile, branchHead, repo));
-      Assert.assertArrayEquals(tempBytes1, BlobHelper.getFileFromCommit(newDirectory + "/" + tempFile1, branchHead, repo));
-      Assert.assertArrayEquals(tempBytes2, BlobHelper.getFileFromCommit(newDirectory + "/" + tempFile2, branchHead, repo));
-      Assert.assertArrayEquals(tempBytes3, BlobHelper.getFileFromCommit(newDirectory + "/" + tempFile3, branchHead, repo));
+      Assert.assertEquals(existingFileBlob, ObjectUtils.findObject(existingFile, branchHead, repo));
+      Assert.assertArrayEquals(tempBytes1, GitFileUtils.readFileFromCommit(newDirectory + "/" + tempFile1, branchHead, repo));
+      Assert.assertArrayEquals(tempBytes2, GitFileUtils.readFileFromCommit(newDirectory + "/" + tempFile2, branchHead, repo));
+      Assert.assertArrayEquals(tempBytes3, GitFileUtils.readFileFromCommit(newDirectory + "/" + tempFile3, branchHead, repo));
     } finally {
       Files.deleteIfExists(tempFilePath1);
       Files.deleteIfExists(tempFilePath2);
@@ -441,10 +441,10 @@ public class ParallelCommitCommandTest extends AbstractParallelGitTest {
       Assert.assertNotNull(commitId);
       RevCommit branchHead = CommitHelper.getCommit(repo, branch);
       Assert.assertNotNull(branchHead);
-      Assert.assertEquals(existingFileBlob, BlobHelper.findBlobId(existingFile, branchHead, repo));
-      Assert.assertArrayEquals(tempBytes1, BlobHelper.getFileFromCommit(newDirectory + "/" + tempFile1, branchHead, repo));
-      Assert.assertArrayEquals(tempBytes2, BlobHelper.getFileFromCommit(newDirectory + "/" + tempFile2, branchHead, repo));
-      Assert.assertArrayEquals(tempBytes3, BlobHelper.getFileFromCommit(newDirectory + "/" + tempFile3, branchHead, repo));
+      Assert.assertEquals(existingFileBlob, ObjectUtils.findObject(existingFile, branchHead, repo));
+      Assert.assertArrayEquals(tempBytes1, GitFileUtils.readFileFromCommit(newDirectory + "/" + tempFile1, branchHead, repo));
+      Assert.assertArrayEquals(tempBytes2, GitFileUtils.readFileFromCommit(newDirectory + "/" + tempFile2, branchHead, repo));
+      Assert.assertArrayEquals(tempBytes3, GitFileUtils.readFileFromCommit(newDirectory + "/" + tempFile3, branchHead, repo));
     } finally {
       Files.deleteIfExists(tempFilePath1);
       Files.deleteIfExists(tempFilePath2);
@@ -485,10 +485,10 @@ public class ParallelCommitCommandTest extends AbstractParallelGitTest {
       Assert.assertNotNull(commitId);
       RevCommit branchHead = CommitHelper.getCommit(repo, branch);
       Assert.assertNotNull(branchHead);
-      Assert.assertEquals(existingFileBlob, BlobHelper.findBlobId(existingFile, branchHead, repo));
-      Assert.assertArrayEquals(tempBytes1, BlobHelper.getFileFromCommit(newDirectory + "/" + tempFile1, branchHead, repo));
-      Assert.assertArrayEquals(tempBytes2, BlobHelper.getFileFromCommit(newDirectory + "/" + tempFile2, branchHead, repo));
-      Assert.assertArrayEquals(tempBytes3, BlobHelper.getFileFromCommit(newDirectory + "/" + tempFile3, branchHead, repo));
+      Assert.assertEquals(existingFileBlob, ObjectUtils.findObject(existingFile, branchHead, repo));
+      Assert.assertArrayEquals(tempBytes1, GitFileUtils.readFileFromCommit(newDirectory + "/" + tempFile1, branchHead, repo));
+      Assert.assertArrayEquals(tempBytes2, GitFileUtils.readFileFromCommit(newDirectory + "/" + tempFile2, branchHead, repo));
+      Assert.assertArrayEquals(tempBytes3, GitFileUtils.readFileFromCommit(newDirectory + "/" + tempFile3, branchHead, repo));
     } finally {
       Files.deleteIfExists(tempFilePath1);
       Files.deleteIfExists(tempFilePath2);
@@ -516,9 +516,9 @@ public class ParallelCommitCommandTest extends AbstractParallelGitTest {
     Assert.assertNotNull(commitId);
     RevCommit branchHead = CommitHelper.getCommit(repo, branch);
     Assert.assertNotNull(branchHead);
-    Assert.assertNotNull(BlobHelper.findBlobId(file1, branchHead, repo));
-    Assert.assertNull(BlobHelper.findBlobId(file2, branchHead, repo));
-    Assert.assertNull(BlobHelper.findBlobId(file3, branchHead, repo));
+    Assert.assertNotNull(ObjectUtils.findObject(file1, branchHead, repo));
+    Assert.assertNull(ObjectUtils.findObject(file2, branchHead, repo));
+    Assert.assertNull(ObjectUtils.findObject(file3, branchHead, repo));
   }
 
   @Test
@@ -537,7 +537,7 @@ public class ParallelCommitCommandTest extends AbstractParallelGitTest {
     Assert.assertNotNull(commitId);
     RevCommit branchHead = CommitHelper.getCommit(repo, branch);
     Assert.assertNotNull(branchHead);
-    Assert.assertArrayEquals(bytes, BlobHelper.getFileFromCommit(existingFile, branchHead, repo));
+    Assert.assertArrayEquals(bytes, GitFileUtils.readFileFromCommit(existingFile, branchHead, repo));
   }
 
   @Test
@@ -556,7 +556,7 @@ public class ParallelCommitCommandTest extends AbstractParallelGitTest {
     Assert.assertNotNull(commitId);
     RevCommit branchHead = CommitHelper.getCommit(repo, branch);
     Assert.assertNotNull(branchHead);
-    Assert.assertArrayEquals(Constants.encode(content), BlobHelper.getFileFromCommit(existingFile, branchHead, repo));
+    Assert.assertArrayEquals(Constants.encode(content), GitFileUtils.readFileFromCommit(existingFile, branchHead, repo));
   }
 
   @Test
@@ -576,7 +576,7 @@ public class ParallelCommitCommandTest extends AbstractParallelGitTest {
     Assert.assertNotNull(commitId);
     RevCommit branchHead = CommitHelper.getCommit(repo, branch);
     Assert.assertNotNull(branchHead);
-    Assert.assertArrayEquals(bytes, BlobHelper.getFileFromCommit(existingFile, branchHead, repo));
+    Assert.assertArrayEquals(bytes, GitFileUtils.readFileFromCommit(existingFile, branchHead, repo));
   }
 
   @Test
@@ -598,7 +598,7 @@ public class ParallelCommitCommandTest extends AbstractParallelGitTest {
       Assert.assertNotNull(commitId);
       RevCommit branchHead = CommitHelper.getCommit(repo, branch);
       Assert.assertNotNull(branchHead);
-      Assert.assertArrayEquals(bytes, BlobHelper.getFileFromCommit(existingFile, branchHead, repo));
+      Assert.assertArrayEquals(bytes, GitFileUtils.readFileFromCommit(existingFile, branchHead, repo));
     } finally {
       Assert.assertTrue(Files.deleteIfExists(tempFilePath));
     }
@@ -623,7 +623,7 @@ public class ParallelCommitCommandTest extends AbstractParallelGitTest {
       Assert.assertNotNull(commitId);
       RevCommit branchHead = CommitHelper.getCommit(repo, branch);
       Assert.assertNotNull(branchHead);
-      Assert.assertArrayEquals(bytes, BlobHelper.getFileFromCommit(existingFile, branchHead, repo));
+      Assert.assertArrayEquals(bytes, GitFileUtils.readFileFromCommit(existingFile, branchHead, repo));
     } finally {
       Assert.assertTrue(Files.deleteIfExists(tempFilePath));
     }
@@ -647,9 +647,9 @@ public class ParallelCommitCommandTest extends AbstractParallelGitTest {
     Assert.assertNotNull(commitId);
     RevCommit branchHead = CommitHelper.getCommit(repo, branch);
     Assert.assertNotNull(branchHead);
-    Assert.assertNotNull(BlobHelper.findBlobId(existingFile, branchHead, repo));
+    Assert.assertNotNull(ObjectUtils.findObject(existingFile, branchHead, repo));
     Assert.assertEquals(0, branchHead.getParentCount());
-    Assert.assertArrayEquals(bytes, BlobHelper.getFileFromCommit(newFile, branchHead, repo));
+    Assert.assertArrayEquals(bytes, GitFileUtils.readFileFromCommit(newFile, branchHead, repo));
   }
 
   @Test
@@ -666,8 +666,8 @@ public class ParallelCommitCommandTest extends AbstractParallelGitTest {
                              .orphan(true)
                              .call();
     Assert.assertNotNull(commitId);
-    Assert.assertNotNull(BlobHelper.findBlobId(existingFile1, commitId, repo));
-    Assert.assertNotNull(BlobHelper.findBlobId(existingFile2, commitId, repo));
+    Assert.assertNotNull(ObjectUtils.findObject(existingFile1, commitId, repo));
+    Assert.assertNotNull(ObjectUtils.findObject(existingFile2, commitId, repo));
     Assert.assertEquals(0, CommitHelper.getCommit(repo, commitId).getParentCount());
   }
 
@@ -688,8 +688,8 @@ public class ParallelCommitCommandTest extends AbstractParallelGitTest {
     Assert.assertNotNull(commitId);
     RevCommit branchHead = CommitHelper.getCommit(repo, branch);
     Assert.assertNotNull(branchHead);
-    Assert.assertNotNull(BlobHelper.findBlobId(existingFile1, branchHead, repo));
-    Assert.assertNotNull(BlobHelper.findBlobId(existingFile2, branchHead, repo));
+    Assert.assertNotNull(ObjectUtils.findObject(existingFile1, branchHead, repo));
+    Assert.assertNotNull(ObjectUtils.findObject(existingFile2, branchHead, repo));
     Assert.assertEquals(0, branchHead.getParentCount());
   }
 
@@ -710,7 +710,7 @@ public class ParallelCommitCommandTest extends AbstractParallelGitTest {
     RevCommit branchHead = CommitHelper.getCommit(repo, branch);
     Assert.assertNotNull(branchHead);
     Assert.assertEquals(message, branchHead.getFullMessage());
-    Assert.assertArrayEquals(bytes, BlobHelper.getFileFromCommit(newFile, branchHead, repo));
+    Assert.assertArrayEquals(bytes, GitFileUtils.readFileFromCommit(newFile, branchHead, repo));
   }
 
   @Test
@@ -728,9 +728,9 @@ public class ParallelCommitCommandTest extends AbstractParallelGitTest {
                              .call();
     Assert.assertNotNull(commitId);
     RevCommit newCommit = CommitHelper.getCommit(repo, commitId);
-    Assert.assertNotNull(BlobHelper.findBlobId(existingFile, newCommit, repo));
+    Assert.assertNotNull(ObjectUtils.findObject(existingFile, newCommit, repo));
     Assert.assertEquals(parentRevision, newCommit.getParent(0));
-    Assert.assertArrayEquals(bytes, BlobHelper.getFileFromCommit(newFile, newCommit, repo));
+    Assert.assertArrayEquals(bytes, GitFileUtils.readFileFromCommit(newFile, newCommit, repo));
   }
 
   @Test
@@ -748,9 +748,9 @@ public class ParallelCommitCommandTest extends AbstractParallelGitTest {
                              .call();
     Assert.assertNotNull(commitId);
     RevCommit newCommit = CommitHelper.getCommit(repo, commitId);
-    Assert.assertNotNull(BlobHelper.findBlobId(existingFile, newCommit, repo));
+    Assert.assertNotNull(ObjectUtils.findObject(existingFile, newCommit, repo));
     Assert.assertEquals(parentRevision, newCommit.getParent(0));
-    Assert.assertArrayEquals(bytes, BlobHelper.getFileFromCommit(newFile, newCommit, repo));
+    Assert.assertArrayEquals(bytes, GitFileUtils.readFileFromCommit(newFile, newCommit, repo));
   }
 
 }

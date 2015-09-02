@@ -16,7 +16,7 @@ import org.eclipse.jgit.util.StringUtils;
 public final class CommitHelper {
 
   @Nonnull
-  public static String convertToShortMessage(@Nonnull String fullMessage) {
+  public static String toShortMessage(@Nonnull String fullMessage) {
     if(fullMessage.contains("\n"))
       return StringUtils.replaceLineBreaksWithSpace(fullMessage);
     return fullMessage;

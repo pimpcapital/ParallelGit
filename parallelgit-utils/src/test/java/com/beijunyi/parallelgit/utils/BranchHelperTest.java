@@ -5,7 +5,6 @@ import java.io.IOException;
 import com.beijunyi.parallelgit.AbstractParallelGitTest;
 import org.eclipse.jgit.lib.AnyObjectId;
 import org.eclipse.jgit.lib.Constants;
-import org.eclipse.jgit.lib.ObjectId;
 import org.junit.Assert;
 import org.junit.Test;
 
@@ -14,11 +13,11 @@ public class BranchHelperTest extends AbstractParallelGitTest {
   @Test
   public void getBranchHeadCommitTest() throws IOException {
     AnyObjectId firstCommit = initRepository();
-    Assert.assertEquals(firstCommit, BranchHelper.getBranchHeadCommitId(repo, Constants.MASTER));
+    Assert.assertEquals(firstCommit, BranchHelper.getBranchHeadCommitId(Constants.MASTER, repo));
     writeToCache("a.txt");
     String branchName = "second";
     AnyObjectId branchCommit = commitToBranch(branchName, firstCommit);
-    Assert.assertEquals(branchCommit, BranchHelper.getBranchHeadCommitId(repo, branchName));
+    Assert.assertEquals(branchCommit, BranchHelper.getBranchHeadCommitId(branchName, repo));
   }
 
   @Test
@@ -27,8 +26,8 @@ public class BranchHelperTest extends AbstractParallelGitTest {
     writeToCache("a.txt");
     String branchName = "second";
     AnyObjectId branchCommit = commitToBranch(branchName, firstCommit);
-    BranchHelper.resetBranchHead(repo, Constants.MASTER, branchCommit);
-    Assert.assertEquals(branchCommit, BranchHelper.getBranchHeadCommitId(repo, Constants.MASTER));
+    BranchHelper.resetBranchHead(Constants.MASTER, branchCommit, repo);
+    Assert.assertEquals(branchCommit, BranchHelper.getBranchHeadCommitId(Constants.MASTER, repo));
   }
 
 }

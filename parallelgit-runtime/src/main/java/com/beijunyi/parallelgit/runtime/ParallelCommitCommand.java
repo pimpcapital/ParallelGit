@@ -401,11 +401,11 @@ public final class ParallelCommitCommand extends CacheBasedCommand<ParallelCommi
       RevCommit newCommit = CommitHelper.getCommit(repository, newCommitId);
       RefUpdate.Result result;
       if(head == null)
-        result = BranchHelper.initBranchHead(repository, branch, newCommit);
+        result = BranchHelper.initBranchHead(branch, newCommit, repository);
       else if(amend)
-        result = BranchHelper.amendBranchHead(repository, branch, newCommit);
+        result = BranchHelper.amendBranchHead(branch, newCommit, repository);
       else
-        result = BranchHelper.commitBranchHead(repository, branch, newCommit);
+        result = BranchHelper.commitBranchHead(branch, newCommit, repository);
       RefUpdateValidator.validate(branch, result);
     }
   }

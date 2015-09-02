@@ -4,8 +4,8 @@ import java.io.IOException;
 
 import com.beijunyi.parallelgit.AbstractParallelGitTest;
 import com.beijunyi.parallelgit.runtime.ParallelCacheCommand;
-import com.beijunyi.parallelgit.utils.BlobHelper;
 import com.beijunyi.parallelgit.utils.CacheHelper;
+import com.beijunyi.parallelgit.utils.ObjectUtils;
 import com.beijunyi.parallelgit.utils.RevTreeHelper;
 import org.eclipse.jgit.dircache.DirCache;
 import org.eclipse.jgit.lib.AnyObjectId;
@@ -45,7 +45,7 @@ public class ParallelCacheCommandUseCaseTest extends AbstractParallelGitTest {
   @Test
   public void deleteFileFollowedByAddingAnotherFile() throws IOException {
     writeToCache("/file.txt");
-    AnyObjectId blobId = BlobHelper.calculateBlobId("some content");
+    AnyObjectId blobId = ObjectUtils.calculateBlobId("some content");
     AnyObjectId commitId = commitToMaster();
     DirCache cache = ParallelCacheCommand
                        .prepare(repo)
@@ -60,7 +60,7 @@ public class ParallelCacheCommandUseCaseTest extends AbstractParallelGitTest {
   @Test
   public void addFileFollowedByDeletingAnotherFile() throws IOException {
     writeToCache("/another_file.txt");
-    AnyObjectId blobId = BlobHelper.calculateBlobId("some content");
+    AnyObjectId blobId = ObjectUtils.calculateBlobId("some content");
     AnyObjectId commitId = commitToMaster();
     DirCache cache = ParallelCacheCommand
                        .prepare(repo)

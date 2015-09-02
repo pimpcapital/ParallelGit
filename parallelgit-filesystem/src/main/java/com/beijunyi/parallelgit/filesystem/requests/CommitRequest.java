@@ -161,13 +161,13 @@ public final class CommitRequest extends GitFileSystemRequest<RevCommit> {
   private void updateRef(@Nonnull AnyObjectId head) throws IOException {
     RefUpdate.Result result;
     if(refLog != null)
-      result = BranchHelper.setBranchHead(repository, branchRef, head, refLog, true);
+      result = BranchHelper.setBranchHead(branchRef, head, repository, refLog, true);
     else if(amend)
-      result = BranchHelper.amendBranchHead(repository, branchRef, head);
+      result = BranchHelper.amendBranchHead(branchRef, head, repository);
     else if(commit != null)
-      result = BranchHelper.commitBranchHead(repository, branchRef, head);
+      result = BranchHelper.commitBranchHead(branchRef, head, repository);
     else
-      result = BranchHelper.initBranchHead(repository, branchRef, head);
+      result = BranchHelper.initBranchHead(branchRef, head, repository);
     RefUpdateValidator.validate(branchRef, result);
   }
 
