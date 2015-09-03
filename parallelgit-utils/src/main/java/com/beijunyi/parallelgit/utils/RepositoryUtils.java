@@ -26,12 +26,15 @@ public final class RepositoryUtils {
   }
 
   @Nonnull
+  public static Repository openRepository(@Nonnull File dir, boolean bare) throws IOException {
+    if(!bare)
+      return openRepository(new File(dir, Constants.DOT_GIT), true);
+    return new FileRepository(dir);
+  }
+
+  @Nonnull
   public static Repository openRepository(@Nonnull File dir) throws IOException {
-    File dotGit = new File(dir, Constants.DOT_GIT);
-    if(dotGit.exists())
-      return new FileRepository(dotGit);
-    else
-      return new FileRepository(dir);
+    return openRepository(dir, !new File(dir, Constants.DOT_GIT).exists());
   }
 
 

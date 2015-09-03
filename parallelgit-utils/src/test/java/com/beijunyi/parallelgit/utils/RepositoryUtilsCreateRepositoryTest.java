@@ -7,7 +7,7 @@ import org.eclipse.jgit.lib.Repository;
 import org.eclipse.jgit.util.FileUtils;
 import org.junit.*;
 
-public class RepositoryUtilsTest {
+public class RepositoryUtilsCreateRepositoryTest {
 
   private File dir;
   private Repository repo;
@@ -25,22 +25,21 @@ public class RepositoryUtilsTest {
   }
 
   @Test
-  public void createNonBareRepository_theResultRepositoryWorkTreeShouldEqualToTheInputDirectory() throws Exception {
-    repo = RepositoryUtils.createRepository(dir, false);
-    Assert.assertEquals(dir, repo.getWorkTree());
-  }
-
-  @Test
   public void createBareRepository_theResultRepositoryDirectoryShouldEqualToTheInputDirectory() throws Exception {
     repo = RepositoryUtils.createRepository(dir, true);
     Assert.assertEquals(dir, repo.getDirectory());
   }
 
   @Test
-  public void createRepository_theResultShouldBeBareRepositoryByDefault() throws Exception {
+  public void createNonBareRepository_theResultRepositoryWorkTreeShouldEqualToTheInputDirectory() throws Exception {
+    repo = RepositoryUtils.createRepository(dir, false);
+    Assert.assertEquals(dir, repo.getWorkTree());
+  }
+
+  @Test
+  public void createRepositoryWithoutSpecifyingBareness_theResultShouldBeBareRepository() throws Exception {
     repo = RepositoryUtils.createRepository(dir);
     Assert.assertTrue(repo.isBare());
   }
-
 
 }
