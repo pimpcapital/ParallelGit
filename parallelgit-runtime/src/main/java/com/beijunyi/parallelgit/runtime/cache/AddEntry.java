@@ -3,7 +3,7 @@ package com.beijunyi.parallelgit.runtime.cache;
 import java.io.IOException;
 import javax.annotation.Nonnull;
 
-import com.beijunyi.parallelgit.utils.CacheHelper;
+import com.beijunyi.parallelgit.utils.CacheUtils;
 import org.eclipse.jgit.lib.AnyObjectId;
 import org.eclipse.jgit.lib.FileMode;
 
@@ -25,6 +25,6 @@ public class AddEntry extends CacheEditor {
 
   @Override
   public void edit(@Nonnull CacheStateProvider provider) throws IOException {
-    CacheHelper.addFile(provider.getCurrentBuilder(), mode, path, blobId);
+    CacheUtils.addFile(provider.getCurrentBuilder(), mode, path, blobId);
   }
 }

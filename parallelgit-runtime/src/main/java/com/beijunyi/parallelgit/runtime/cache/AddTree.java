@@ -4,7 +4,7 @@ import java.io.IOException;
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 
-import com.beijunyi.parallelgit.utils.CacheHelper;
+import com.beijunyi.parallelgit.utils.CacheUtils;
 import org.eclipse.jgit.dircache.DirCacheBuilder;
 import org.eclipse.jgit.lib.AnyObjectId;
 import org.eclipse.jgit.lib.ObjectReader;
@@ -31,6 +31,6 @@ public class AddTree extends CacheEditor {
     if(treeId == null)
       treeId = provider.getRepository().resolve(treeIdStr);
     DirCacheBuilder builder = provider.getCurrentBuilder();
-    CacheHelper.addTree(builder, reader, path, treeId);
+    CacheUtils.addTree(builder, reader, path, treeId);
   }
 }

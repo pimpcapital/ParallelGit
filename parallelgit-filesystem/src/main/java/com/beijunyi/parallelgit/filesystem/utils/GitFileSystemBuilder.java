@@ -10,8 +10,8 @@ import javax.annotation.Nullable;
 
 import com.beijunyi.parallelgit.filesystem.GitFileSystem;
 import com.beijunyi.parallelgit.filesystem.GitFileSystemProvider;
-import com.beijunyi.parallelgit.utils.CommitHelper;
-import com.beijunyi.parallelgit.utils.RefHelper;
+import com.beijunyi.parallelgit.utils.CommitUtils;
+import com.beijunyi.parallelgit.utils.RefUtils;
 import org.eclipse.jgit.internal.storage.file.FileRepository;
 import org.eclipse.jgit.lib.AnyObjectId;
 import org.eclipse.jgit.lib.Constants;
@@ -195,7 +195,7 @@ public class GitFileSystemBuilder {
 
   private void prepareBranch() throws IOException {
     if(branch != null) {
-      branchRef = RefHelper.getBranchRefName(branch);
+      branchRef = RefUtils.ensureBranchRefName(branch);
       branch = branchRef.substring(Constants.R_HEADS.length());
     }
   }
@@ -213,7 +213,7 @@ public class GitFileSystemBuilder {
     if(commit == null) {
       prepareCommitId();
       if(commitId != null)
-        commit = CommitHelper.getCommit(repository, commitId);
+        commit = CommitUtils.getCommit(repository, commitId);
     }
 
   }

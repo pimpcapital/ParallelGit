@@ -8,21 +8,21 @@ import org.eclipse.jgit.lib.ObjectReader;
 import org.eclipse.jgit.lib.Repository;
 import org.eclipse.jgit.revwalk.RevTree;
 
-public final class RevTreeHelper {
+public final class RevTreeUtils {
 
   @Nonnull
   public static RevTree getRootTree(@Nonnull ObjectReader reader, @Nonnull AnyObjectId commitId) throws IOException {
-    return CommitHelper.getCommit(reader, commitId).getTree();
+    return CommitUtils.getCommit(reader, commitId).getTree();
   }
 
   @Nonnull
   public static RevTree getRootTree(@Nonnull Repository repo, @Nonnull AnyObjectId commitId) throws IOException {
-    return CommitHelper.getCommit(repo, commitId).getTree();
+    return CommitUtils.getCommit(repo, commitId).getTree();
   }
 
   @Nonnull
   public static RevTree getRootTree(@Nonnull Repository repo, @Nonnull String commitIdStr) throws IOException {
-    return CommitHelper.getCommit(repo, repo.resolve(commitIdStr)).getTree();
+    return CommitUtils.getCommit(repo, repo.resolve(commitIdStr)).getTree();
   }
 
 }

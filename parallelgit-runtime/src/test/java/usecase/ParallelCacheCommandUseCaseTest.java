@@ -4,9 +4,9 @@ import java.io.IOException;
 
 import com.beijunyi.parallelgit.AbstractParallelGitTest;
 import com.beijunyi.parallelgit.runtime.ParallelCacheCommand;
-import com.beijunyi.parallelgit.utils.CacheHelper;
+import com.beijunyi.parallelgit.utils.CacheUtils;
 import com.beijunyi.parallelgit.utils.ObjectUtils;
-import com.beijunyi.parallelgit.utils.RevTreeHelper;
+import com.beijunyi.parallelgit.utils.RevTreeUtils;
 import org.eclipse.jgit.dircache.DirCache;
 import org.eclipse.jgit.lib.AnyObjectId;
 import org.junit.Assert;
@@ -23,11 +23,11 @@ public class ParallelCacheCommandUseCaseTest extends AbstractParallelGitTest {
   @Test
   public void addDirectoryWhenInputNameEndsWithSlash() throws IOException {
     writeToCache("/file.txt");
-    AnyObjectId treeWithTwoChildren = RevTreeHelper.getRootTree(repo, commitToMaster());
+    AnyObjectId treeWithTwoChildren = RevTreeUtils.getRootTree(repo, commitToMaster());
     DirCache cache = ParallelCacheCommand.prepare(repo)
                        .addDirectory("/dir/", treeWithTwoChildren.getName())
                        .call();
-    Assert.assertNotNull(CacheHelper.getEntry(cache, "/dir/file.txt"));
+    Assert.assertNotNull(CacheUtils.getEntry(cache, "/dir/file.txt"));
   }
 
   @Test
@@ -39,7 +39,7 @@ public class ParallelCacheCommandUseCaseTest extends AbstractParallelGitTest {
                        .baseCommit(commitId)
                        .deleteDirectory("/dir/")
                        .call();
-    Assert.assertNull(CacheHelper.getEntry(cache, "/dir/file.txt"));
+    Assert.assertNull(CacheUtils.getEntry(cache, "/dir/file.txt"));
   }
 
   @Test
@@ -53,8 +53,8 @@ public class ParallelCacheCommandUseCaseTest extends AbstractParallelGitTest {
                        .deleteFile("/file.txt")
                        .addFile("/another_file.txt", blobId)
                        .call();
-    Assert.assertNull(CacheHelper.getEntry(cache, "/file.txt"));
-    Assert.assertNotNull(CacheHelper.getEntry(cache, "/another_file.txt"));
+    Assert.assertNull(CacheUtils.getEntry(cache, "/file.txt"));
+    Assert.assertNotNull(CacheUtils.getEntry(cache, "/another_file.txt"));
   }
 
   @Test
@@ -68,8 +68,8 @@ public class ParallelCacheCommandUseCaseTest extends AbstractParallelGitTest {
                        .addFile("/file.txt", blobId)
                        .deleteFile("/another_file.txt")
                        .call();
-    Assert.assertNotNull(CacheHelper.getEntry(cache, "/file.txt"));
-    Assert.assertNull(CacheHelper.getEntry(cache, "/another_file.txt"));
+    Assert.assertNotNull(CacheUtils.getEntry(cache, "/file.txt"));
+    Assert.assertNull(CacheUtils.getEntry(cache, "/another_file.txt"));
   }
 
 }

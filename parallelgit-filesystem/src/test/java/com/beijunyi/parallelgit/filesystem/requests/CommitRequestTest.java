@@ -45,7 +45,7 @@ public class CommitRequestTest extends PreSetupGitFileSystemTest {
                          .allowEmpty(true)
                          .execute();
     assert commit != null;
-    Assert.assertEquals(RevTreeHelper.getRootTree(repo, commit.getParent(0)), commit.getTree());
+    Assert.assertEquals(RevTreeUtils.getRootTree(repo, commit.getParent(0)), commit.getTree());
   }
 
   @Test
@@ -131,8 +131,8 @@ public class CommitRequestTest extends PreSetupGitFileSystemTest {
     writeSomeFileToGfs();
     DirCache cache = DirCache.newInCore();
     AnyObjectId blobId = ObjectUtils.insertBlob("some other content", repo);
-    CacheHelper.addFile(cache, "some_other_file.txt", blobId);
-    AnyObjectId parent = CommitHelper.createCommit(repo, cache, new PersonIdent(repo), "some orphan commit");
+    CacheUtils.addFile(cache, "some_other_file.txt", blobId);
+    AnyObjectId parent = CommitUtils.createCommit(repo, cache, new PersonIdent(repo), "some orphan commit");
     RevCommit commit = Requests.commit(gfs)
                          .parent(parent)
                          .execute();
@@ -145,9 +145,9 @@ public class CommitRequestTest extends PreSetupGitFileSystemTest {
     writeSomeFileToGfs();
     DirCache cache = DirCache.newInCore();
     AnyObjectId blobId = ObjectUtils.insertBlob("some other content", repo);
-    CacheHelper.addFile(cache, "some_other_file.txt", blobId);
-    AnyObjectId secondParent = CommitHelper.createCommit(repo, cache, new PersonIdent(repo), "some orphan commit");
-    AnyObjectId[] parents = new AnyObjectId[] {CommitHelper.getCommit(repo, branch), secondParent};
+    CacheUtils.addFile(cache, "some_other_file.txt", blobId);
+    AnyObjectId secondParent = CommitUtils.createCommit(repo, cache, new PersonIdent(repo), "some orphan commit");
+    AnyObjectId[] parents = new AnyObjectId[] {CommitUtils.getCommit(repo, branch), secondParent};
     RevCommit commit = Requests.commit(gfs)
                          .parents(Arrays.asList(parents))
                          .execute();

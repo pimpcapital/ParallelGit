@@ -31,7 +31,7 @@ public abstract class AbstractParallelGitTest {
   @Nonnull
   protected AnyObjectId writeToCache(@Nonnull String path, @Nonnull byte[] content, @Nonnull FileMode mode) throws IOException {
     AnyObjectId blobId = ObjectUtils.insertBlob(content, repo);
-    CacheHelper.addFile(cache, mode, path, blobId);
+    CacheUtils.addFile(cache, mode, path, blobId);
     return blobId;
   }
 
@@ -62,17 +62,17 @@ public abstract class AbstractParallelGitTest {
 
   @Nonnull
   protected AnyObjectId commit(@Nonnull String message, @Nullable AnyObjectId parent) throws IOException {
-    return CommitHelper.createCommit(repo, cache, new PersonIdent(getClass().getSimpleName(), ""), message, parent);
+    return CommitUtils.createCommit(repo, cache, new PersonIdent(getClass().getSimpleName(), ""), message, parent);
   }
 
   protected void updateBranchHead(@Nonnull String branch, @Nonnull AnyObjectId commit) throws IOException {
-    BranchHelper.commitBranchHead(branch, commit, repo);
+    BranchUtils.commitBranchHead(branch, commit, repo);
   }
 
   @Nonnull
   protected AnyObjectId commitToBranch(@Nonnull String branch, @Nonnull String message, @Nullable AnyObjectId parent) throws IOException {
     if(parent == null)
-      parent = BranchHelper.getBranchHeadCommitId(branch, repo);
+      parent = BranchUtils.getBranchHeadCommitId(branch, repo);
     AnyObjectId commitId = commit(message, parent);
     updateBranchHead(branch, commitId);
     return commitId;
@@ -137,6 +137,11 @@ public abstract class AbstractParallelGitTest {
   }
 
   @Nonnull
+  protected AnyObjectId initMemoryRepository(boolean bare) throws IOException {
+    return initRepository(true, bare);
+  }
+
+  @Nonnull
   protected AnyObjectId initRepository() throws IOException {
     return initRepository(true, true);
   }
@@ -151,6 +156,10 @@ public abstract class AbstractParallelGitTest {
       File mockLocation = new File(System.getProperty("java.io.tmpdir"));
       directory = bare ? mockLocation : new File(mockLocation, Constants.DOT_GIT);
       workTree = bare ? null : mockLocation;
+    }
+
+    public TestRepository() {
+      this(true);
     }
 
     @Override

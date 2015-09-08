@@ -1,44 +1,34 @@
 package com.beijunyi.parallelgit.utils;
 
-import java.io.File;
 import java.io.IOException;
 
-import org.eclipse.jgit.lib.Repository;
-import org.eclipse.jgit.util.FileUtils;
-import org.junit.*;
+import com.beijunyi.parallelgit.AbstractParallelGitTest;
+import org.junit.Assert;
+import org.junit.Before;
+import org.junit.Test;
 
-public class RepositoryUtilsCreateRepositoryTest {
-
-  private File dir;
-  private Repository repo;
+public class RepositoryUtilsCreateRepositoryTest extends AbstractParallelGitTest {
 
   @Before
   public void setUp() throws IOException {
-    dir = FileUtils.createTempDir(getClass().getSimpleName(), null, null);
-  }
-
-  @After
-  public void tearDown() throws IOException {
-    if(repo != null)
-      repo.close();
-    FileUtils.delete(dir, FileUtils.RECURSIVE);
+    initRepositoryDir();
   }
 
   @Test
   public void createBareRepository_theResultRepositoryDirectoryShouldEqualToTheInputDirectory() throws Exception {
-    repo = RepositoryUtils.createRepository(dir, true);
-    Assert.assertEquals(dir, repo.getDirectory());
+    repo = RepositoryUtils.createRepository(repoDir, true);
+    Assert.assertEquals(repoDir, repo.getDirectory());
   }
 
   @Test
   public void createNonBareRepository_theResultRepositoryWorkTreeShouldEqualToTheInputDirectory() throws Exception {
-    repo = RepositoryUtils.createRepository(dir, false);
-    Assert.assertEquals(dir, repo.getWorkTree());
+    repo = RepositoryUtils.createRepository(repoDir, false);
+    Assert.assertEquals(repoDir, repo.getWorkTree());
   }
 
   @Test
   public void createRepositoryWithoutSpecifyingBareness_theResultShouldBeBareRepository() throws Exception {
-    repo = RepositoryUtils.createRepository(dir);
+    repo = RepositoryUtils.createRepository(repoDir);
     Assert.assertTrue(repo.isBare());
   }
 

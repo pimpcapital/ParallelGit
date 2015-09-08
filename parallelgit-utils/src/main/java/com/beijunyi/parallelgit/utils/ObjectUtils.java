@@ -35,7 +35,7 @@ public final class ObjectUtils {
 
   @Nullable
   public static AnyObjectId findObject(@Nonnull String file, @Nonnull AnyObjectId commit, @Nonnull ObjectReader reader) throws IOException {
-    return TreeWalkHelper.getObjectId(reader, file, RevTreeHelper.getRootTree(reader, commit));
+    return TreeUtils.getObjectId(reader, file, RevTreeUtils.getRootTree(reader, commit));
   }
 
   @Nullable

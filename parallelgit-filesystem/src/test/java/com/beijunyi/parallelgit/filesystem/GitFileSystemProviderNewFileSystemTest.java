@@ -6,7 +6,7 @@ import java.util.Collections;
 
 import com.beijunyi.parallelgit.filesystem.utils.GitParams;
 import com.beijunyi.parallelgit.filesystem.utils.GitUriBuilder;
-import com.beijunyi.parallelgit.utils.CommitHelper;
+import com.beijunyi.parallelgit.utils.CommitUtils;
 import org.eclipse.jgit.lib.AnyObjectId;
 import org.eclipse.jgit.lib.Repository;
 import org.eclipse.jgit.revwalk.RevCommit;
@@ -46,7 +46,7 @@ public class GitFileSystemProviderNewFileSystemTest extends AbstractGitFileSyste
   public void openWithBranch() throws IOException {
     initFileRepository(true);
     writeToCache("some_file");
-    RevCommit commit = CommitHelper.getCommit(repo, commitToBranch("test_branch"));
+    RevCommit commit = CommitUtils.getCommit(repo, commitToBranch("test_branch"));
     URI uri = GitUriBuilder.prepare()
                 .repository(repoDir)
                 .build();
@@ -67,7 +67,7 @@ public class GitFileSystemProviderNewFileSystemTest extends AbstractGitFileSyste
   public void openWithRevision() throws IOException {
     initFileRepository(true);
     writeToCache("some_file");
-    RevCommit commit = CommitHelper.getCommit(repo, commitToMaster());
+    RevCommit commit = CommitUtils.getCommit(repo, commitToMaster());
     URI uri = GitUriBuilder.prepare()
                 .repository(repoDir)
                 .build();
@@ -88,7 +88,7 @@ public class GitFileSystemProviderNewFileSystemTest extends AbstractGitFileSyste
   public void openWithTree() throws IOException {
     initFileRepository(true);
     writeToCache("some_file");
-    RevTree tree = CommitHelper.getCommit(repo, commitToMaster()).getTree();
+    RevTree tree = CommitUtils.getCommit(repo, commitToMaster()).getTree();
     URI uri = GitUriBuilder.prepare()
                 .repository(repoDir)
                 .build();

@@ -9,7 +9,7 @@ import javax.annotation.Nullable;
 import org.eclipse.jgit.dircache.*;
 import org.eclipse.jgit.lib.*;
 
-public final class CacheHelper {
+public final class CacheUtils {
 
   @Nonnull
   public static String normalizeCachePath(@Nonnull String path) {
@@ -49,7 +49,7 @@ public final class CacheHelper {
   }
 
   public static void loadRevision(@Nonnull DirCache cache, @Nonnull ObjectReader reader, @Nonnull AnyObjectId commitId) throws IOException {
-    loadTree(cache, reader, RevTreeHelper.getRootTree(reader, commitId));
+    loadTree(cache, reader, RevTreeUtils.getRootTree(reader, commitId));
   }
 
   public static DirCache forTree(@Nonnull ObjectReader reader, @Nonnull AnyObjectId treeId) throws IOException {

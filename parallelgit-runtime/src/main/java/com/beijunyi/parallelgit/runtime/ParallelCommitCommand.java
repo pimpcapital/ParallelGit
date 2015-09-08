@@ -14,8 +14,8 @@ import javax.annotation.Nullable;
 import com.beijunyi.parallelgit.runtime.cache.AddDirectory;
 import com.beijunyi.parallelgit.runtime.cache.AddFile;
 import com.beijunyi.parallelgit.runtime.cache.UpdateFile;
-import com.beijunyi.parallelgit.utils.BranchHelper;
-import com.beijunyi.parallelgit.utils.CommitHelper;
+import com.beijunyi.parallelgit.utils.BranchUtils;
+import com.beijunyi.parallelgit.utils.CommitUtils;
 import com.beijunyi.parallelgit.utils.exception.RefUpdateValidator;
 import org.eclipse.jgit.dircache.DirCache;
 import org.eclipse.jgit.lib.*;
@@ -308,11 +308,11 @@ public final class ParallelCommitCommand extends CacheBasedCommand<ParallelCommi
   private void prepareHead() throws IOException {
     assert repository != null;
     if(revisionId != null)
-      head = CommitHelper.getCommit(repository, revisionId);
+      head = CommitUtils.getCommit(repository, revisionId);
     else if(revisionIdStr != null)
-      head = CommitHelper.getCommit(repository, revisionIdStr);
+      head = CommitUtils.getCommit(repository, revisionIdStr);
     else if(branch != null)
-      head = CommitHelper.getCommit(repository, branch) ;
+      head = CommitUtils.getCommit(repository, branch) ;
   }
 
   private boolean isResultTreeSpecified() {
@@ -392,21 +392,21 @@ public final class ParallelCommitCommand extends CacheBasedCommand<ParallelCommi
     if(allowEmptyCommit || parents.isEmpty())
       return true;
     assert repository != null;
-    return !treeId.equals(CommitHelper.getCommit(repository, parents.get(0)).getTree());
+    return !treeId.equals(CommitUtils.getCommit(repository, parents.get(0)).getTree());
   }
 
   private void updateBranchRef(@Nonnull AnyObjectId newCommitId) throws IOException {
     if(branch != null) {
       assert repository != null;
-      RevCommit newCommit = CommitHelper.getCommit(repository, newCommitId);
+      RevCommit newCommit = CommitUtils.getCommit(repository, newCommitId);
       RefUpdate.Result result;
       if(head == null)
-        result = BranchHelper.initBranchHead(branch, newCommit, repository);
+        result = BranchUtils.initBranchHead(branch, newCommit, repository);
       else if(amend)
-        result = BranchHelper.amendBranchHead(branch, newCommit, repository);
+        result = BranchUtils.amendBranchHead(branch, newCommit, repository);
       else
-        result = BranchHelper.commitBranchHead(branch, newCommit, repository);
-      RefUpdateValidator.validate(branch, result);
+        result = BranchUtils.commitBranchHead(branch, newCommit, repository);
+      RefUpdateValidator.validate(result);
     }
   }
 

@@ -11,7 +11,7 @@ import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
 
-public class TreeWalkHelperTest extends AbstractParallelGitTest {
+public class TreeUtilsTest extends AbstractParallelGitTest {
 
   private static void assertNextEntry(@Nonnull TreeWalk treeWalk, @Nonnull String path) throws IOException {
     Assert.assertTrue(treeWalk.next());
@@ -28,8 +28,8 @@ public class TreeWalkHelperTest extends AbstractParallelGitTest {
     clearCache();
     writeFilesToCache("a.txt", "b.txt", "c/d.txt", "c/e.txt", "f/g.txt");
     AnyObjectId commitId = commitToMaster();
-    RevTree tree = RevTreeHelper.getRootTree(repo, commitId);
-    TreeWalk treeWalk = TreeWalkHelper.newTreeWalk(repo, tree);
+    RevTree tree = RevTreeUtils.getRootTree(repo, commitId);
+    TreeWalk treeWalk = TreeUtils.newTreeWalk(repo, tree);
 
     assertNextEntry(treeWalk, "a.txt");
     assertNextEntry(treeWalk, "b.txt");
@@ -43,10 +43,10 @@ public class TreeWalkHelperTest extends AbstractParallelGitTest {
     writeToCache("a/b.txt");
     AnyObjectId commit = commitToMaster();
 
-    RevTree tree = RevTreeHelper.getRootTree(repo, commit);
-    Assert.assertTrue(TreeWalkHelper.exists(repo, "a", tree));
-    Assert.assertTrue(TreeWalkHelper.exists(repo, "a/b.txt", tree));
-    Assert.assertFalse(TreeWalkHelper.exists(repo, "a/b", tree));
+    RevTree tree = RevTreeUtils.getRootTree(repo, commit);
+    Assert.assertTrue(TreeUtils.exists(repo, "a", tree));
+    Assert.assertTrue(TreeUtils.exists(repo, "a/b.txt", tree));
+    Assert.assertFalse(TreeUtils.exists(repo, "a/b", tree));
   }
 
   @Test
@@ -54,8 +54,8 @@ public class TreeWalkHelperTest extends AbstractParallelGitTest {
     AnyObjectId objectId = writeToCache("a/b.txt");
     AnyObjectId commit = commitToMaster();
 
-    RevTree tree = RevTreeHelper.getRootTree(repo, commit);
-    Assert.assertEquals(objectId, TreeWalkHelper.getObjectId(repo, "a/b.txt", tree));
+    RevTree tree = RevTreeUtils.getRootTree(repo, commit);
+    Assert.assertEquals(objectId, TreeUtils.getObjectId(repo, "a/b.txt", tree));
   }
 
   @Test
@@ -63,10 +63,10 @@ public class TreeWalkHelperTest extends AbstractParallelGitTest {
     writeToCache("a/b.txt");
     AnyObjectId commit = commitToMaster();
 
-    RevTree tree = RevTreeHelper.getRootTree(repo, commit);
-    Assert.assertFalse(TreeWalkHelper.isFileOrSymbolicLink(repo, "a", tree));
-    Assert.assertTrue(TreeWalkHelper.isFileOrSymbolicLink(repo, "a/b.txt", tree));
-    Assert.assertFalse(TreeWalkHelper.isFileOrSymbolicLink(repo, "a/b", tree));
+    RevTree tree = RevTreeUtils.getRootTree(repo, commit);
+    Assert.assertFalse(TreeUtils.isFileOrSymbolicLink(repo, "a", tree));
+    Assert.assertTrue(TreeUtils.isFileOrSymbolicLink(repo, "a/b.txt", tree));
+    Assert.assertFalse(TreeUtils.isFileOrSymbolicLink(repo, "a/b", tree));
   }
 
   @Test
@@ -74,9 +74,9 @@ public class TreeWalkHelperTest extends AbstractParallelGitTest {
     writeToCache("a/b.txt");
     AnyObjectId commit = commitToMaster();
 
-    RevTree tree = RevTreeHelper.getRootTree(repo, commit);
-    Assert.assertTrue(TreeWalkHelper.isDirectory(repo, "a", tree));
-    Assert.assertFalse(TreeWalkHelper.isDirectory(repo, "a/b.txt", tree));
-    Assert.assertFalse(TreeWalkHelper.isDirectory(repo, "a/b", tree));
+    RevTree tree = RevTreeUtils.getRootTree(repo, commit);
+    Assert.assertTrue(TreeUtils.isDirectory(repo, "a", tree));
+    Assert.assertFalse(TreeUtils.isDirectory(repo, "a/b.txt", tree));
+    Assert.assertFalse(TreeUtils.isDirectory(repo, "a/b", tree));
   }
 }

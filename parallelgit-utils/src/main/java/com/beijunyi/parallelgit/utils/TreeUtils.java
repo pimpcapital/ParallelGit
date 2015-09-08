@@ -7,7 +7,7 @@ import javax.annotation.Nullable;
 import org.eclipse.jgit.lib.*;
 import org.eclipse.jgit.treewalk.TreeWalk;
 
-public final class TreeWalkHelper {
+public final class TreeUtils {
 
   @Nonnull
   public static TreeWalk newTreeWalk(@Nonnull ObjectReader reader, @Nonnull AnyObjectId treeId) throws IOException {

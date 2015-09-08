@@ -8,9 +8,9 @@ import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 
 import com.beijunyi.parallelgit.filesystem.GitFileSystem;
-import com.beijunyi.parallelgit.utils.BranchHelper;
-import com.beijunyi.parallelgit.utils.CommitHelper;
-import com.beijunyi.parallelgit.utils.RefHelper;
+import com.beijunyi.parallelgit.utils.BranchUtils;
+import com.beijunyi.parallelgit.utils.CommitUtils;
+import com.beijunyi.parallelgit.utils.RefUtils;
 import com.beijunyi.parallelgit.utils.exception.RefUpdateValidator;
 import org.eclipse.jgit.lib.AnyObjectId;
 import org.eclipse.jgit.lib.PersonIdent;
@@ -36,7 +36,7 @@ public final class CommitRequest extends GitFileSystemRequest<RevCommit> {
   private CommitRequest(@Nonnull GitFileSystem gfs) {
     super(gfs);
     String branch = gfs.getBranch();
-    branchRef = branch != null ? RefHelper.getBranchRefName(branch) : null;
+    branchRef = branch != null ? RefUtils.ensureBranchRefName(branch) : null;
     commit = gfs.getCommit();
   }
 
@@ -161,14 +161,14 @@ public final class CommitRequest extends GitFileSystemRequest<RevCommit> {
   private void updateRef(@Nonnull AnyObjectId head) throws IOException {
     RefUpdate.Result result;
     if(refLog != null)
-      result = BranchHelper.setBranchHead(branchRef, head, repository, refLog, true);
+      result = BranchUtils.setBranchHead(branchRef, head, repository, refLog, true);
     else if(amend)
-      result = BranchHelper.amendBranchHead(branchRef, head, repository);
+      result = BranchUtils.amendBranchHead(branchRef, head, repository);
     else if(commit != null)
-      result = BranchHelper.commitBranchHead(branchRef, head, repository);
+      result = BranchUtils.commitBranchHead(branchRef, head, repository);
     else
-      result = BranchHelper.initBranchHead(branchRef, head, repository);
-    RefUpdateValidator.validate(branchRef, result);
+      result = BranchUtils.initBranchHead(branchRef, head, repository);
+    RefUpdateValidator.validate(result);
   }
 
   private void updateFileSystem(@Nonnull RevCommit head) {
@@ -184,9 +184,9 @@ public final class CommitRequest extends GitFileSystemRequest<RevCommit> {
     AnyObjectId tree = gfs.persist();
     if(!allowEmpty && !amend && tree.equals(commit.getTree()))
       return null;
-    AnyObjectId resultCommitId = CommitHelper.createCommit(repository, tree, author, committer, message, parents);
+    AnyObjectId resultCommitId = CommitUtils.createCommit(repository, tree, author, committer, message, parents);
     updateRef(resultCommitId);
-    RevCommit resultCommit = CommitHelper.getCommit(repository, resultCommitId);
+    RevCommit resultCommit = CommitUtils.getCommit(repository, resultCommitId);
     updateFileSystem(resultCommit);
     return resultCommit;
   }

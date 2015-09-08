@@ -3,7 +3,7 @@ package com.beijunyi.parallelgit.runtime.cache;
 import java.io.IOException;
 import javax.annotation.Nonnull;
 
-import com.beijunyi.parallelgit.utils.CacheHelper;
+import com.beijunyi.parallelgit.utils.CacheUtils;
 
 public class DeleteEntry extends CacheEditor {
   public DeleteEntry(@Nonnull String path) {
@@ -12,6 +12,6 @@ public class DeleteEntry extends CacheEditor {
 
   @Override
   public void edit(@Nonnull CacheStateProvider provider) throws IOException {
-    CacheHelper.deleteFile(provider.getEditor(), path);
+    CacheUtils.deleteFile(provider.getEditor(), path);
   }
 }

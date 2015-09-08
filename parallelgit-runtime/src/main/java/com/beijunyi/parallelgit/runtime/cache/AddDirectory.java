@@ -6,7 +6,7 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import javax.annotation.Nonnull;
 
-import com.beijunyi.parallelgit.utils.CacheHelper;
+import com.beijunyi.parallelgit.utils.CacheUtils;
 import org.eclipse.jgit.lib.AnyObjectId;
 import org.eclipse.jgit.lib.Constants;
 import org.eclipse.jgit.lib.FileMode;
@@ -37,7 +37,7 @@ public class AddDirectory extends CacheEditor {
   CacheStateProvider provider) throws IOException {
     AnyObjectId blobId = provider.getInserter().insert(Constants.OBJ_BLOB, bytes);
     FileMode mode = executable ? FileMode.EXECUTABLE_FILE : FileMode.REGULAR_FILE;
-    CacheHelper.addFile(provider.getCurrentBuilder(), mode, path, blobId);
+    CacheUtils.addFile(provider.getCurrentBuilder(), mode, path, blobId);
   }
 
   private void addFile(@Nonnull Path sourcePath, @Nonnull String path, @Nonnull

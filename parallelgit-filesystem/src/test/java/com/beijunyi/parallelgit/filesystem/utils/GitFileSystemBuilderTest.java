@@ -6,7 +6,7 @@ import java.nio.file.Path;
 
 import com.beijunyi.parallelgit.AbstractParallelGitTest;
 import com.beijunyi.parallelgit.filesystem.GitFileSystem;
-import com.beijunyi.parallelgit.utils.CommitHelper;
+import com.beijunyi.parallelgit.utils.CommitUtils;
 import org.eclipse.jgit.lib.AnyObjectId;
 import org.junit.Assert;
 import org.junit.Before;
@@ -111,7 +111,7 @@ public class GitFileSystemBuilderTest extends AbstractParallelGitTest {
   @Test
   public void buildWithTree() throws IOException {
     writeSomeFileToCache();
-    AnyObjectId tree = CommitHelper.getCommit(repo, commitToMaster()).getTree();
+    AnyObjectId tree = CommitUtils.getCommit(repo, commitToMaster()).getTree();
     GitFileSystem gfs = GitFileSystemBuilder.prepare()
                           .repository(repo)
                           .tree(tree)
@@ -122,7 +122,7 @@ public class GitFileSystemBuilderTest extends AbstractParallelGitTest {
   @Test
   public void buildWithTreeString() throws IOException {
     writeSomeFileToCache();
-    AnyObjectId tree = CommitHelper.getCommit(repo, commitToMaster()).getTree();
+    AnyObjectId tree = CommitUtils.getCommit(repo, commitToMaster()).getTree();
     GitFileSystem gfs = GitFileSystemBuilder.prepare()
                           .repository(repo)
                           .tree(tree.getName())

@@ -13,7 +13,7 @@ import org.eclipse.jgit.revwalk.RevCommit;
 import org.eclipse.jgit.revwalk.RevWalk;
 import org.eclipse.jgit.util.StringUtils;
 
-public final class CommitHelper {
+public final class CommitUtils {
 
   @Nonnull
   public static String toShortMessage(@Nonnull String fullMessage) {

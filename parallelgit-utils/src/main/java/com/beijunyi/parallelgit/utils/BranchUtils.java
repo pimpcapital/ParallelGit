@@ -9,30 +9,30 @@ import org.eclipse.jgit.lib.*;
 import org.eclipse.jgit.revwalk.RevCommit;
 import org.eclipse.jgit.revwalk.RevWalk;
 
-public final class BranchHelper {
+public final class BranchUtils {
 
   @Nonnull
   public static List<RevCommit> getBranchHistory(@Nonnull String name, @Nonnull Repository repo) throws IOException {
-    String branchRef = RefHelper.getBranchRefName(name);
-    RevCommit head = CommitHelper.getCommit(repo, branchRef);
+    String branchRef = RefUtils.ensureBranchRefName(name);
+    RevCommit head = CommitUtils.getCommit(repo, branchRef);
     if(head == null)
       throw new IllegalArgumentException("Branch " + name + " does not exist");
-    return CommitHelper.getCommitHistory(repo, head);
+    return CommitUtils.getCommitHistory(repo, head);
   }
 
   public static boolean existsBranch(@Nonnull String name, @Nonnull Repository repo) throws IOException {
     Ref ref = repo.getRef(name);
-    return ref != null && RefHelper.isBranchRef(ref);
+    return ref != null && RefUtils.isBranchRef(ref);
   }
 
   @Nullable
   public static AnyObjectId getBranchHeadCommitId(@Nonnull String name, @Nonnull Repository repo) throws IOException {
-    return repo.resolve(RefHelper.getBranchRefName(name));
+    return repo.resolve(RefUtils.ensureBranchRefName(name));
   }
 
   @Nonnull
   public static RefUpdate.Result createBranch(@Nonnull String name, @Nonnull String revision, @Nonnull Repository repo, boolean force) throws IOException {
-    String branchRef = RefHelper.getBranchRefName(name);
+    String branchRef = RefUtils.ensureBranchRefName(name);
     boolean exists = existsBranch(branchRef, repo);
     if(exists && !force)
       throw new IllegalArgumentException("Branch " + name + " already exists");
@@ -49,9 +49,9 @@ public final class BranchHelper {
       RevCommit commit = revWalk.parseCommit(revisionId);
       refLogMessage = "branch: " + (exists ? "Reset start-point to commit" : "Created from commit") + " " + commit.getShortMessage();
     } else {
-      if(RefHelper.isBranchRef(baseRef))
+      if(RefUtils.isBranchRef(baseRef))
         refLogMessage = "branch: " + (exists ? "Reset start-point to branch" : "Created from branch") + " " + baseRef.getName();
-      else if (RefHelper.isTagRef(baseRef)) {
+      else if (RefUtils.isTagRef(baseRef)) {
         revisionId = revWalk.peel(revWalk.parseAny(revisionId));
         refLogMessage = "branch: " + (exists ? "Reset start-point to tag" : "Created from tag") + " " + baseRef.getName();
       } else
@@ -66,7 +66,7 @@ public final class BranchHelper {
 
   @Nonnull
   public static RefUpdate.Result setBranchHead(@Nonnull String name, @Nonnull AnyObjectId commitId, @Nonnull Repository repo, @Nonnull String refLogMessage, boolean forceUpdate) throws IOException {
-    String refName = RefHelper.getBranchRefName(name);
+    String refName = RefUtils.ensureBranchRefName(name);
     AnyObjectId currentHead = repo.resolve(refName);
     if(currentHead == null)
       currentHead = ObjectId.zeroId();
@@ -81,7 +81,7 @@ public final class BranchHelper {
 
   @Nonnull
   public static RefUpdate.Result resetBranchHead(@Nonnull String name, @Nonnull AnyObjectId commitId, @Nonnull Repository repo) throws IOException {
-    return setBranchHead(name, commitId, repo, RefHelper.getBranchRefName(name) + ": updating " + Constants.HEAD, true);
+    return setBranchHead(name, commitId, repo, RefUtils.ensureBranchRefName(name) + ": updating " + Constants.HEAD, true);
   }
 
   @Nonnull
@@ -91,7 +91,7 @@ public final class BranchHelper {
 
   @Nonnull
   public static RefUpdate.Result commitBranchHead(@Nonnull String name, @Nonnull AnyObjectId commitId, @Nonnull Repository repo) throws IOException {
-    return commitBranchHead(name, commitId, repo, CommitHelper.getCommit(repo, commitId).getShortMessage());
+    return commitBranchHead(name, commitId, repo, CommitUtils.getCommit(repo, commitId).getShortMessage());
   }
 
   @Nonnull
@@ -101,7 +101,7 @@ public final class BranchHelper {
 
   @Nonnull
   public static RefUpdate.Result amendBranchHead(@Nonnull String name, @Nonnull AnyObjectId commitId, @Nonnull Repository repo) throws IOException {
-    return amendBranchHead(name, commitId, repo, CommitHelper.getCommit(repo, commitId).getShortMessage());
+    return amendBranchHead(name, commitId, repo, CommitUtils.getCommit(repo, commitId).getShortMessage());
   }
 
   @Nonnull
@@ -111,7 +111,7 @@ public final class BranchHelper {
 
   @Nonnull
   public static RefUpdate.Result cherryPickBranchHead(@Nonnull String name, @Nonnull AnyObjectId commitId, @Nonnull Repository repo) throws IOException {
-    return cherryPickBranchHead(name, commitId, repo, CommitHelper.getCommit(repo, commitId).getShortMessage());
+    return cherryPickBranchHead(name, commitId, repo, CommitUtils.getCommit(repo, commitId).getShortMessage());
   }
 
   @Nonnull
@@ -126,12 +126,12 @@ public final class BranchHelper {
 
   @Nonnull
   public static RefUpdate.Result initBranchHead(@Nonnull String name, @Nonnull AnyObjectId commitId, @Nonnull Repository repo) throws IOException {
-    return initBranchHead(name, commitId, repo, CommitHelper.getCommit(repo, commitId).getShortMessage());
+    return initBranchHead(name, commitId, repo, CommitUtils.getCommit(repo, commitId).getShortMessage());
   }
 
   @Nonnull
   public static RefUpdate.Result deleteBranch(@Nonnull String name, @Nonnull Repository repo) throws IOException {
-    String refName = RefHelper.getBranchRefName(name);
+    String refName = RefUtils.ensureBranchRefName(name);
     RefUpdate update = repo.updateRef(refName);
     update.setRefLogMessage("branch deleted", false);
     update.setForceUpdate(true);

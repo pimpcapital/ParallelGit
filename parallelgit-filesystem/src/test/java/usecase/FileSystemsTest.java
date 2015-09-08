@@ -9,7 +9,7 @@ import com.beijunyi.parallelgit.AbstractParallelGitTest;
 import com.beijunyi.parallelgit.filesystem.GitFileSystem;
 import com.beijunyi.parallelgit.filesystem.utils.GitParams;
 import com.beijunyi.parallelgit.filesystem.utils.GitUriBuilder;
-import com.beijunyi.parallelgit.utils.RevTreeHelper;
+import com.beijunyi.parallelgit.utils.RevTreeUtils;
 import org.eclipse.jgit.lib.AnyObjectId;
 import org.junit.Assert;
 import org.junit.Before;
@@ -57,7 +57,7 @@ public class FileSystemsTest extends AbstractParallelGitTest {
     URI uri = GitUriBuilder.prepare()
                 .repository(repoDir)
                 .build();
-    AnyObjectId treeId = RevTreeHelper.getRootTree(repo, head);
+    AnyObjectId treeId = RevTreeUtils.getRootTree(repo, head);
     FileSystem fs = FileSystems.newFileSystem(uri, GitParams.emptyMap().setTree(treeId));
     Assert.assertEquals(treeId, ((GitFileSystem)fs).getTree());
   }

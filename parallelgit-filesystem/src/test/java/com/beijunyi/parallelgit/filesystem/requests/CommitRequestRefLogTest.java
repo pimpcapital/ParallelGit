@@ -3,7 +3,7 @@ package com.beijunyi.parallelgit.filesystem.requests;
 import java.io.IOException;
 
 import com.beijunyi.parallelgit.filesystem.AbstractGitFileSystemTest;
-import com.beijunyi.parallelgit.utils.RefHelper;
+import com.beijunyi.parallelgit.utils.RefUtils;
 import org.eclipse.jgit.revwalk.RevCommit;
 import org.junit.Assert;
 import org.junit.Before;
@@ -26,7 +26,7 @@ public class CommitRequestRefLogTest extends AbstractGitFileSystemTest {
     RevCommit commit = Requests.commit(gfs)
                          .message("expected message")
                          .execute();
-    String reflogComment = RefHelper.getLastReflogComment(repo, branch);
+    String reflogComment = RefUtils.getLastRefLogComment(repo, branch);
     assert commit != null;
     assert reflogComment != null;
     Assert.assertTrue(reflogComment.contains(commit.getShortMessage()));
@@ -39,7 +39,7 @@ public class CommitRequestRefLogTest extends AbstractGitFileSystemTest {
     Requests.commit(gfs)
       .refLog("some custom reflog message")
       .execute();
-    Assert.assertEquals(reflog, RefHelper.getLastReflogComment(repo, branch));
+    Assert.assertEquals(reflog, RefUtils.getLastRefLogComment(repo, branch));
   }
 
 }
