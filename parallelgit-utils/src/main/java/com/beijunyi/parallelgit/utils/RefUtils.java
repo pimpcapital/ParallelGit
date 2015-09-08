@@ -39,7 +39,7 @@ public final class RefUtils {
     if(!matchesPrefix(name, prefix)) {
       if(matchesRefPrefix(name))
         throw new IllegalArgumentException("\"" + prefix + "\" is not the prefix of " + name);
-      name = Constants.R_HEADS + name;
+      name = prefix + name;
     }
     if(!Repository.isValidRefName(name))
       throw new IllegalArgumentException(name + " is not a valid ref name");

@@ -9,7 +9,7 @@ import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
 
-public class RepositoryUtilsSetHeadTest extends AbstractParallelGitTest {
+public class RepositoryUtilsSetRepositoryHeadTest extends AbstractParallelGitTest {
 
   @Before
   public void setUp() throws IOException {
@@ -30,7 +30,6 @@ public class RepositoryUtilsSetHeadTest extends AbstractParallelGitTest {
     Assert.assertEquals("new_branch", repo.getBranch());
   }
 
-
   @Test
   public void attachHeadToBranchRef_theRepositoryHeadShouldBecomeTheSpecifiedBranch() throws IOException {
     String branch = "test_branch";
@@ -47,8 +46,6 @@ public class RepositoryUtilsSetHeadTest extends AbstractParallelGitTest {
     RepositoryUtils.detachRepositoryHead(repo, commitId);
     Assert.assertEquals(commitId.getName(), repo.getBranch());
   }
-
-
 
   @Test
   public void setHeadToBranch_theRepositoryHeadShouldAttachToTheSpecifiedBranch() throws IOException {
@@ -70,6 +67,15 @@ public class RepositoryUtilsSetHeadTest extends AbstractParallelGitTest {
     writeSomeFileToCache();
     AnyObjectId commitId = commitToMaster();
     RepositoryUtils.setRepositoryHead(repo, commitId.getName());
+    Assert.assertEquals(commitId.getName(), repo.getBranch());
+  }
+
+  @Test
+  public void setHeadToTag_theRepositoryHeadShouldDetachToTheTaggedCommit() throws IOException {
+    writeSomeFileToCache();
+    AnyObjectId commitId = commitToMaster();
+    Ref tagRef = TagUtils.tagCommit(commitId, "test_tag", repo);
+    RepositoryUtils.setRepositoryHead(repo, tagRef.getName());
     Assert.assertEquals(commitId.getName(), repo.getBranch());
   }
 

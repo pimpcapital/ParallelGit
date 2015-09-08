@@ -2,6 +2,7 @@ package com.beijunyi.parallelgit.utils;
 
 import java.io.IOException;
 import javax.annotation.Nonnull;
+import javax.annotation.Nullable;
 
 import com.beijunyi.parallelgit.utils.exception.RefUpdateValidator;
 import org.eclipse.jgit.lib.*;
@@ -24,7 +25,7 @@ public final class TagUtils {
   }
 
   @Nonnull
-  public static Ref tagCommit(@Nonnull AnyObjectId commitId, @Nonnull String name, @Nonnull String message, @Nonnull PersonIdent tagger, @Nonnull Repository repo, boolean force) throws IOException {
+  public static Ref tagCommit(@Nonnull AnyObjectId commitId, @Nonnull String name, @Nullable String message, @Nullable PersonIdent tagger, @Nonnull Repository repo, boolean force) throws IOException {
     TagBuilder builder = new TagBuilder();
     builder.setTag(name);
     builder.setMessage(message);
@@ -39,38 +40,63 @@ public final class TagUtils {
   }
 
   @Nonnull
-  public static Ref tagCommit(@Nonnull AnyObjectId commitId, @Nonnull String name, @Nonnull String message, @Nonnull PersonIdent tagger, @Nonnull Repository repo) throws IOException {
+  public static Ref tagCommit(@Nonnull AnyObjectId commitId, @Nonnull String name, @Nullable String message, @Nullable PersonIdent tagger, @Nonnull Repository repo) throws IOException {
     return tagCommit(commitId, name, message, tagger, repo, false);
   }
 
-  public static void tagCommit(@Nonnull AnyObjectId commitId, @Nonnull String name, @Nonnull String message, @Nonnull String taggerName, @Nonnull String taggerEmail, @Nonnull Repository repo, boolean force) throws IOException {
+  @Nonnull
+  public static Ref tagCommit(@Nonnull AnyObjectId commitId, @Nonnull String name, @Nullable String message, @Nonnull String taggerName, @Nonnull String taggerEmail, @Nonnull Repository repo, boolean force) throws IOException {
     PersonIdent tagger = new PersonIdent(taggerName, taggerEmail);
-    tagCommit(commitId, name, message, tagger, repo, force);
+    return tagCommit(commitId, name, message, tagger, repo, force);
   }
 
-  public static void tagCommit(@Nonnull AnyObjectId commitId, @Nonnull String name, @Nonnull String message, @Nonnull String taggerName, @Nonnull String taggerEmail, @Nonnull Repository repo) throws IOException {
-    tagCommit(commitId, name, message, taggerName, taggerEmail, repo, false);
+  @Nonnull
+  public static Ref tagCommit(@Nonnull AnyObjectId commitId, @Nonnull String name, @Nullable String message, @Nonnull String taggerName, @Nonnull String taggerEmail, @Nonnull Repository repo) throws IOException {
+    return tagCommit(commitId, name, message, taggerName, taggerEmail, repo, false);
   }
 
-  public static void tagCommit(@Nonnull AnyObjectId commitId, @Nonnull String name, @Nonnull String message, @Nonnull Repository repo, boolean force) throws IOException {
-    PersonIdent tagger = new PersonIdent(repo);
-    tagCommit(commitId, name, message, tagger, repo, force);
+  @Nonnull
+  public static Ref tagCommit(@Nonnull AnyObjectId commitId, @Nonnull String name, @Nullable String message, @Nonnull Repository repo, boolean force) throws IOException {
+    PersonIdent tagger = message != null ? new PersonIdent(repo) : null;
+    return tagCommit(commitId, name, message, tagger, repo, force);
   }
 
-  public static void tagCommit(@Nonnull AnyObjectId commitId, @Nonnull String name, @Nonnull String message, @Nonnull Repository repo) throws IOException {
-    tagCommit(commitId, name, message, repo, false);
+  @Nonnull
+  public static Ref tagCommit(@Nonnull AnyObjectId commitId, @Nonnull String name, @Nullable String message, @Nonnull Repository repo) throws IOException {
+    return tagCommit(commitId, name, message, repo, false);
   }
 
-  public static void tagHeadCommit(@Nonnull String name, @Nonnull String message, @Nonnull Repository repo, boolean force) throws IOException {
+  @Nonnull
+  public static Ref tagCommit(@Nonnull AnyObjectId commitId, @Nonnull String name, @Nonnull Repository repo, boolean force) throws IOException {
+    return tagCommit(commitId, name, null, repo, force);
+  }
+
+  @Nonnull
+  public static Ref tagCommit(@Nonnull AnyObjectId commitId, @Nonnull String name, @Nonnull Repository repo) throws IOException {
+    return tagCommit(commitId, name, repo, false);
+  }
+
+  @Nonnull
+  public static Ref tagHeadCommit(@Nonnull String name, @Nullable String message, @Nonnull Repository repo, boolean force) throws IOException {
     if(repo.isBare())
       throw new IllegalArgumentException("Bare repository does not have head commit");
     AnyObjectId headCommit = repo.resolve(Constants.HEAD);
-    tagCommit(headCommit, name, message, repo, force);
+    return tagCommit(headCommit, name, message, repo, force);
   }
 
-  public static void tagHeadCommit(@Nonnull String name, @Nonnull String message, @Nonnull Repository repo) throws IOException {
-    tagHeadCommit(name, message, repo, false);
+  @Nonnull
+  public static Ref tagHeadCommit(@Nonnull String name, @Nullable String message, @Nonnull Repository repo) throws IOException {
+    return tagHeadCommit(name, message, repo, false);
   }
 
+  @Nonnull
+  public static Ref tagHeadCommit(@Nonnull String name, @Nonnull Repository repo, boolean force) throws IOException {
+    return tagHeadCommit(name, null, repo, force);
+  }
+
+  @Nonnull
+  public static Ref tagHeadCommit(@Nonnull String name, @Nonnull Repository repo) throws IOException {
+    return tagHeadCommit(name, repo, false);
+  }
 
 }
