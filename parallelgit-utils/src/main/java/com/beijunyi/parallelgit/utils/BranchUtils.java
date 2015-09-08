@@ -138,12 +138,4 @@ public final class BranchUtils {
     return update.delete();
   }
 
-  public static enum UpdateType {
-    COMMIT,
-    AMEND,
-    INIT,
-    CHERRYPICK,
-    MERGE
-  }
-
 }
