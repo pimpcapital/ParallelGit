@@ -66,7 +66,7 @@ public final class RepositoryUtils {
   }
 
   public static void detachRepositoryHead(@Nonnull Repository repo, @Nonnull AnyObjectId id) throws IOException {
-    id = CommitUtils.getCommit(repo, id);
+    id = CommitUtils.getCommit(id, repo);
     RefUpdate update = prepareUpdateHead(repo, id.getName(), true);
     update.setNewObjectId(id);
     RefUpdateValidator.validate(update.forceUpdate());

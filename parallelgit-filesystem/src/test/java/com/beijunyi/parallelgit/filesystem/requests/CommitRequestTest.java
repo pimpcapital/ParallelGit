@@ -147,7 +147,7 @@ public class CommitRequestTest extends PreSetupGitFileSystemTest {
     AnyObjectId blobId = ObjectUtils.insertBlob("some other content", repo);
     CacheUtils.addFile(cache, "some_other_file.txt", blobId);
     AnyObjectId secondParent = CommitUtils.createCommit(repo, cache, new PersonIdent(repo), "some orphan commit");
-    AnyObjectId[] parents = new AnyObjectId[] {CommitUtils.getCommit(repo, branch), secondParent};
+    AnyObjectId[] parents = new AnyObjectId[] {CommitUtils.getCommit(branch, repo), secondParent};
     RevCommit commit = Requests.commit(gfs)
                          .parents(Arrays.asList(parents))
                          .execute();

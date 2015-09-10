@@ -213,7 +213,7 @@ public class GitFileSystemBuilder {
     if(commit == null) {
       prepareCommitId();
       if(commitId != null)
-        commit = CommitUtils.getCommit(repository, commitId);
+        commit = CommitUtils.getCommit(commitId, repository);
     }
 
   }

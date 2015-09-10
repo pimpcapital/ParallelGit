@@ -10,14 +10,16 @@ import org.junit.Test;
 
 public class BranchUtilsTest extends AbstractParallelGitTest {
 
+
+
   @Test
   public void getBranchHeadCommitTest() throws IOException {
     AnyObjectId firstCommit = initRepository();
-    Assert.assertEquals(firstCommit, BranchUtils.getBranchHeadCommitId(Constants.MASTER, repo));
+    Assert.assertEquals(firstCommit, BranchUtils.getBranchHeadCommit(Constants.MASTER, repo));
     writeToCache("a.txt");
     String branchName = "second";
     AnyObjectId branchCommit = commitToBranch(branchName, firstCommit);
-    Assert.assertEquals(branchCommit, BranchUtils.getBranchHeadCommitId(branchName, repo));
+    Assert.assertEquals(branchCommit, BranchUtils.getBranchHeadCommit(branchName, repo));
   }
 
   @Test
@@ -27,7 +29,7 @@ public class BranchUtilsTest extends AbstractParallelGitTest {
     String branchName = "second";
     AnyObjectId branchCommit = commitToBranch(branchName, firstCommit);
     BranchUtils.resetBranchHead(Constants.MASTER, branchCommit, repo);
-    Assert.assertEquals(branchCommit, BranchUtils.getBranchHeadCommitId(Constants.MASTER, repo));
+    Assert.assertEquals(branchCommit, BranchUtils.getBranchHeadCommit(Constants.MASTER, repo));
   }
 
 }

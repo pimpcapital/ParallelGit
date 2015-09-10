@@ -159,16 +159,14 @@ public final class CommitRequest extends GitFileSystemRequest<RevCommit> {
   }
 
   private void updateRef(@Nonnull AnyObjectId head) throws IOException {
-    RefUpdate.Result result;
     if(refLog != null)
-      result = BranchUtils.setBranchHead(branchRef, head, repository, refLog, true);
+      BranchUtils.setBranchHead(branchRef, head, repository, refLog, true);
     else if(amend)
-      result = BranchUtils.amendBranchHead(branchRef, head, repository);
+      BranchUtils.amendBranchHead(branchRef, head, repository);
     else if(commit != null)
-      result = BranchUtils.commitBranchHead(branchRef, head, repository);
+      BranchUtils.commitBranchHead(branchRef, head, repository);
     else
-      result = BranchUtils.initBranchHead(branchRef, head, repository);
-    RefUpdateValidator.validate(result);
+      BranchUtils.initBranchHead(branchRef, head, repository);
   }
 
   private void updateFileSystem(@Nonnull RevCommit head) {
@@ -186,7 +184,7 @@ public final class CommitRequest extends GitFileSystemRequest<RevCommit> {
       return null;
     AnyObjectId resultCommitId = CommitUtils.createCommit(repository, tree, author, committer, message, parents);
     updateRef(resultCommitId);
-    RevCommit resultCommit = CommitUtils.getCommit(repository, resultCommitId);
+    RevCommit resultCommit = CommitUtils.getCommit(resultCommitId, repository);
     updateFileSystem(resultCommit);
     return resultCommit;
   }

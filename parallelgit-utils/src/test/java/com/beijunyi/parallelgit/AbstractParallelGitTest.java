@@ -2,6 +2,7 @@ package com.beijunyi.parallelgit;
 
 import java.io.File;
 import java.io.IOException;
+import java.util.UUID;
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 
@@ -52,7 +53,7 @@ public abstract class AbstractParallelGitTest {
 
   @Nonnull
   protected AnyObjectId writeSomeFileToCache() throws IOException {
-    return writeToCache("some_file.txt");
+    return writeToCache(UUID.randomUUID().toString() + ".txt");
   }
 
   protected void writeFilesToCache(@Nonnull String... paths) throws IOException {
@@ -61,8 +62,18 @@ public abstract class AbstractParallelGitTest {
   }
 
   @Nonnull
+  private static String generateCommitMessage() {
+    return "test commit: " + System.currentTimeMillis();
+  }
+
+  @Nonnull
   protected AnyObjectId commit(@Nonnull String message, @Nullable AnyObjectId parent) throws IOException {
     return CommitUtils.createCommit(repo, cache, new PersonIdent(getClass().getSimpleName(), ""), message, parent);
+  }
+
+  @Nonnull
+  protected AnyObjectId commit(@Nullable AnyObjectId parent) throws IOException {
+    return commit(generateCommitMessage(), parent);
   }
 
   protected void updateBranchHead(@Nonnull String branch, @Nonnull AnyObjectId commit) throws IOException {
@@ -72,7 +83,7 @@ public abstract class AbstractParallelGitTest {
   @Nonnull
   protected AnyObjectId commitToBranch(@Nonnull String branch, @Nonnull String message, @Nullable AnyObjectId parent) throws IOException {
     if(parent == null)
-      parent = BranchUtils.getBranchHeadCommitId(branch, repo);
+      parent = BranchUtils.getBranchHeadCommit(branch, repo);
     AnyObjectId commitId = commit(message, parent);
     updateBranchHead(branch, commitId);
     return commitId;
@@ -80,12 +91,12 @@ public abstract class AbstractParallelGitTest {
 
   @Nonnull
   protected AnyObjectId commitToBranch(@Nonnull String branch, @Nullable AnyObjectId parent) throws IOException {
-    return commitToBranch(branch, getClass().getSimpleName() + " test commit: " + System.currentTimeMillis(), parent);
+    return commitToBranch(branch, generateCommitMessage(), parent);
   }
 
   @Nonnull
   protected AnyObjectId commitToBranch(@Nonnull String branch) throws IOException {
-    return commitToBranch(branch, getClass().getSimpleName() + " test commit: " + System.currentTimeMillis(), null);
+    return commitToBranch(branch, generateCommitMessage(), null);
   }
 
   @Nonnull

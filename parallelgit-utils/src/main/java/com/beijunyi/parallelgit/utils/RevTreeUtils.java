@@ -12,17 +12,17 @@ public final class RevTreeUtils {
 
   @Nonnull
   public static RevTree getRootTree(@Nonnull ObjectReader reader, @Nonnull AnyObjectId commitId) throws IOException {
-    return CommitUtils.getCommit(reader, commitId).getTree();
+    return CommitUtils.getCommit(commitId, reader).getTree();
   }
 
   @Nonnull
   public static RevTree getRootTree(@Nonnull Repository repo, @Nonnull AnyObjectId commitId) throws IOException {
-    return CommitUtils.getCommit(repo, commitId).getTree();
+    return CommitUtils.getCommit(commitId, repo).getTree();
   }
 
   @Nonnull
   public static RevTree getRootTree(@Nonnull Repository repo, @Nonnull String commitIdStr) throws IOException {
-    return CommitUtils.getCommit(repo, repo.resolve(commitIdStr)).getTree();
+    return CommitUtils.getCommit(repo.resolve(commitIdStr), repo).getTree();
   }
 
 }

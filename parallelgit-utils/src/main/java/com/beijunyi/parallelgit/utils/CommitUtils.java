@@ -23,23 +23,23 @@ public final class CommitUtils {
   }
 
   @Nonnull
-  public static RevCommit getCommit(@Nonnull ObjectReader reader, @Nonnull AnyObjectId commitId) throws IOException {
+  public static RevCommit getCommit(@Nonnull AnyObjectId commitId, @Nonnull ObjectReader reader) throws IOException {
     try(RevWalk revWalk = new RevWalk(reader)) {
       return revWalk.parseCommit(commitId);
     }
   }
 
   @Nonnull
-  public static RevCommit getCommit(@Nonnull Repository repo, @Nonnull AnyObjectId commitId) throws IOException {
+  public static RevCommit getCommit(@Nonnull AnyObjectId commitId, @Nonnull Repository repo) throws IOException {
     try(ObjectReader reader = repo.newObjectReader()) {
-      return getCommit(reader, commitId);
+      return getCommit(commitId, reader);
     }
   }
 
   @Nullable
-  public static RevCommit getCommit(@Nonnull Repository repo, @Nonnull String revision) throws IOException {
+  public static RevCommit getCommit(@Nonnull String revision, @Nonnull Repository repo) throws IOException {
     AnyObjectId commitId = repo.resolve(revision);
-    return commitId != null ? getCommit(repo, commitId) : null;
+    return commitId != null ? getCommit(commitId, repo) : null;
   }
 
   @Nonnull

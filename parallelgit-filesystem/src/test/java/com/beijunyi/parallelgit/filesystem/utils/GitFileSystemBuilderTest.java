@@ -111,7 +111,7 @@ public class GitFileSystemBuilderTest extends AbstractParallelGitTest {
   @Test
   public void buildWithTree() throws IOException {
     writeSomeFileToCache();
-    AnyObjectId tree = CommitUtils.getCommit(repo, commitToMaster()).getTree();
+    AnyObjectId tree = CommitUtils.getCommit(commitToMaster(), repo).getTree();
     GitFileSystem gfs = GitFileSystemBuilder.prepare()
                           .repository(repo)
                           .tree(tree)
@@ -122,7 +122,7 @@ public class GitFileSystemBuilderTest extends AbstractParallelGitTest {
   @Test
   public void buildWithTreeString() throws IOException {
     writeSomeFileToCache();
-    AnyObjectId tree = CommitUtils.getCommit(repo, commitToMaster()).getTree();
+    AnyObjectId tree = CommitUtils.getCommit(commitToMaster(), repo).getTree();
     GitFileSystem gfs = GitFileSystemBuilder.prepare()
                           .repository(repo)
                           .tree(tree.getName())

@@ -46,7 +46,7 @@ public class GitFileSystemProviderNewFileSystemTest extends AbstractGitFileSyste
   public void openWithBranch() throws IOException {
     initFileRepository(true);
     writeToCache("some_file");
-    RevCommit commit = CommitUtils.getCommit(repo, commitToBranch("test_branch"));
+    RevCommit commit = CommitUtils.getCommit(commitToBranch("test_branch"), repo);
     URI uri = GitUriBuilder.prepare()
                 .repository(repoDir)
                 .build();
@@ -67,7 +67,7 @@ public class GitFileSystemProviderNewFileSystemTest extends AbstractGitFileSyste
   public void openWithRevision() throws IOException {
     initFileRepository(true);
     writeToCache("some_file");
-    RevCommit commit = CommitUtils.getCommit(repo, commitToMaster());
+    RevCommit commit = CommitUtils.getCommit(commitToMaster(), repo);
     URI uri = GitUriBuilder.prepare()
                 .repository(repoDir)
                 .build();
@@ -88,7 +88,7 @@ public class GitFileSystemProviderNewFileSystemTest extends AbstractGitFileSyste
   public void openWithTree() throws IOException {
     initFileRepository(true);
     writeToCache("some_file");
-    RevTree tree = CommitUtils.getCommit(repo, commitToMaster()).getTree();
+    RevTree tree = CommitUtils.getCommit(commitToMaster(), repo).getTree();
     URI uri = GitUriBuilder.prepare()
                 .repository(repoDir)
                 .build();

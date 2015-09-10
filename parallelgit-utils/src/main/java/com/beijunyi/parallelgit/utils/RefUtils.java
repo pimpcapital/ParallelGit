@@ -57,45 +57,45 @@ public final class RefUtils {
   }
 
   @Nullable
-  public static Ref getBranchRef(@Nonnull Repository repo, @Nonnull String name) throws IOException {
+  public static Ref getBranchRef(@Nonnull String name, @Nonnull Repository repo) throws IOException {
     return repo.getRef(ensureBranchRefName(name));
   }
 
   @Nonnull
-  public static List<ReflogEntry> getRefLogs(@Nonnull Repository repository, @Nonnull String branch, int max) throws IOException {
+  public static List<ReflogEntry> getRefLogs(@Nonnull String branch, int max, @Nonnull Repository repository) throws IOException {
     ReflogReader reader = repository.getReflogReader(ensureBranchRefName(branch));
     return reader.getReverseEntries(max);
   }
 
   @Nonnull
-  public static List<ReflogEntry> getRefLogs(@Nonnull Repository repository, @Nonnull String branch) throws IOException {
-    return getRefLogs(repository, branch, Integer.MAX_VALUE);
+  public static List<ReflogEntry> getRefLogs(@Nonnull String branch, @Nonnull Repository repository) throws IOException {
+    return getRefLogs(branch, Integer.MAX_VALUE, repository);
   }
 
   @Nullable
-  public static ReflogEntry getLastRefLog(@Nonnull Repository repository, @Nonnull String branch) throws IOException {
-    List<ReflogEntry> entries = getRefLogs(repository, branch, 1);
+  public static ReflogEntry getLastRefLog(@Nonnull String branch, @Nonnull Repository repository) throws IOException {
+    List<ReflogEntry> entries = getRefLogs(branch, 1, repository);
     if(entries.isEmpty())
       return null;
     return entries.get(0);
   }
 
   @Nonnull
-  public static List<String> getRefLogComments(@Nonnull Repository repository, @Nonnull String branch, int max) throws IOException {
+  public static List<String> getRefLogComments(@Nonnull String branch, int max, @Nonnull Repository repository) throws IOException {
     List<String> ret = new ArrayList<>();
-    for(ReflogEntry entry : getRefLogs(repository, branch, max))
+    for(ReflogEntry entry : getRefLogs(branch, max, repository))
       ret.add(entry.getComment());
     return ret;
   }
 
   @Nonnull
-  public static List<String> getRefLogComments(@Nonnull Repository repository, @Nonnull String branch) throws IOException {
-    return getRefLogComments(repository, branch, Integer.MAX_VALUE);
+  public static List<String> getRefLogComments(@Nonnull String branch, @Nonnull Repository repository) throws IOException {
+    return getRefLogComments(branch, Integer.MAX_VALUE, repository);
   }
 
   @Nullable
-  public static String getLastRefLogComment(@Nonnull Repository repository, @Nonnull String branch) throws IOException {
-    ReflogEntry entry = getLastRefLog(repository, branch);
+  public static String getLastRefLogComment(@Nonnull String branch, @Nonnull Repository repository) throws IOException {
+    ReflogEntry entry = getLastRefLog(branch, repository);
     if(entry == null)
       return null;
     return entry.getComment();
