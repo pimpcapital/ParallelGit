@@ -18,7 +18,7 @@ public final class BranchUtils {
     String branchRef = RefUtils.ensureBranchRefName(name);
     RevCommit head = CommitUtils.getCommit(branchRef, repo);
     if(head == null)
-      throw new IllegalArgumentException("Branch " + name + " does not exist");
+      throw new NoSuchRefException(branchRef);
     return CommitUtils.getCommitHistory(repo, head);
   }
 
@@ -116,7 +116,7 @@ public final class BranchUtils {
     initBranchHead(name, commitId, repo, CommitUtils.getCommit(commitId, repo).getShortMessage());
   }
 
-  public static boolean prepareDeleteBranch(@Nonnull String refName, @Nonnull Repository repo) throws IOException {
+  private static boolean prepareDeleteBranch(@Nonnull String refName, @Nonnull Repository repo) throws IOException {
     boolean branchExists = existsBranch(refName, repo);
     if(refName.equals(repo.getFullBranch())) {
       if(branchExists)

@@ -6,6 +6,8 @@ import javax.annotation.Nullable;
 
 import com.beijunyi.parallelgit.utils.exception.RefUpdateValidator;
 import org.eclipse.jgit.lib.*;
+import org.eclipse.jgit.revwalk.RevTag;
+import org.eclipse.jgit.revwalk.RevWalk;
 
 public final class TagUtils {
 
@@ -97,6 +99,31 @@ public final class TagUtils {
   @Nonnull
   public static Ref tagHeadCommit(@Nonnull String name, @Nonnull Repository repo) throws IOException {
     return tagHeadCommit(name, repo, false);
+  }
+
+  @Nonnull
+  public static RevTag getTag(@Nonnull AnyObjectId tagObjectId, @Nonnull ObjectReader reader) throws IOException {
+    try(RevWalk revWalk = new RevWalk(reader)) {
+      return revWalk.parseTag(tagObjectId);
+    }
+  }
+
+  @Nonnull
+  public static RevTag getTag(@Nonnull Ref tagRef, @Nonnull ObjectReader reader) throws IOException {
+    return getTag(tagRef.getObjectId(), reader);
+  }
+
+  @Nonnull
+  public static RevTag getTag(@Nonnull Ref tagRef, @Nonnull Repository repo) throws IOException {
+    try(ObjectReader reader = repo.newObjectReader()) {
+      return getTag(tagRef.getObjectId(), reader);
+    }
+  }
+
+  @Nullable
+  public static RevTag getTag(@Nonnull String tagName, @Nonnull Repository repo) throws IOException {
+    Ref tagRef = repo.getRef(RefUtils.ensureTagRefName(tagName));
+    return tagRef != null ? getTag(tagRef, repo) : null;
   }
 
 }

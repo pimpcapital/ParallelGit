@@ -36,6 +36,13 @@ public final class CommitUtils {
     }
   }
 
+  @Nonnull
+  public static RevCommit getCommit(@Nonnull Ref ref, @Nonnull Repository repo) throws IOException {
+    try(ObjectReader reader = repo.newObjectReader()) {
+      return getCommit(ref.getObjectId(), reader);
+    }
+  }
+
   @Nullable
   public static RevCommit getCommit(@Nonnull String revision, @Nonnull Repository repo) throws IOException {
     AnyObjectId commitId = repo.resolve(revision);
