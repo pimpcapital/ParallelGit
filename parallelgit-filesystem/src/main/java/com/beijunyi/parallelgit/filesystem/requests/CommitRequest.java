@@ -78,21 +78,6 @@ public final class CommitRequest extends GitFileSystemRequest<RevCommit> {
   }
 
   @Nonnull
-  public CommitRequest parents(@Nonnull List<AnyObjectId> parents) {
-    this.parents = parents;
-    return this;
-  }
-
-  @Nonnull
-  public CommitRequest parent(@Nullable AnyObjectId parent) {
-    if(parent == null)
-      parents = Collections.emptyList();
-    else
-      parents = Collections.singletonList(parent);
-    return this;
-  }
-
-  @Nonnull
   public CommitRequest amend(boolean amend) {
     this.amend = amend;
     return this;

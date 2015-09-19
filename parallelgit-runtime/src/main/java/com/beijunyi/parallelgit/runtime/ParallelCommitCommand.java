@@ -25,7 +25,6 @@ public final class ParallelCommitCommand extends CacheBasedCommand<ParallelCommi
   private String revisionIdStr;
   private String branch;
   private boolean amend;
-  private boolean orphan;
   private boolean allowEmptyCommit;
   private AnyObjectId treeId;
   private DirCache cache;
@@ -70,12 +69,6 @@ public final class ParallelCommitCommand extends CacheBasedCommand<ParallelCommi
   @Nonnull
   public ParallelCommitCommand amend(boolean amend) {
     this.amend = amend;
-    return this;
-  }
-
-  @Nonnull
-  public ParallelCommitCommand orphan(boolean orphan) {
-    this.orphan = orphan;
     return this;
   }
 
@@ -329,8 +322,6 @@ public final class ParallelCommitCommand extends CacheBasedCommand<ParallelCommi
     if(parents != null)
       return;
     parents = new ArrayList<>();
-    if(orphan)
-      return;
     if(head != null) {
       if(amend)
         parents.addAll(Arrays.asList(head.getParents()));

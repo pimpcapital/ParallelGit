@@ -127,45 +127,6 @@ public class CommitRequestTest extends PreSetupGitFileSystemTest {
   }
 
   @Test
-  public void commitWithParent_theResultCommitShouldHaveTheSpecifiedParent() throws IOException {
-    writeSomeFileToGfs();
-    DirCache cache = DirCache.newInCore();
-    AnyObjectId blobId = ObjectUtils.insertBlob("some other content", repo);
-    CacheUtils.addFile(cache, "some_other_file.txt", blobId);
-    AnyObjectId parent = CommitUtils.createCommit(repo, cache, new PersonIdent(repo), "some orphan commit");
-    RevCommit commit = Requests.commit(gfs)
-                         .parent(parent)
-                         .execute();
-    assert commit != null;
-    Assert.assertEquals(parent, commit.getParent(0));
-  }
-
-  @Test
-  public void commitWithMultipleParents_theResultCommitShouldHaveTheSpecifiedParents() throws IOException {
-    writeSomeFileToGfs();
-    DirCache cache = DirCache.newInCore();
-    AnyObjectId blobId = ObjectUtils.insertBlob("some other content", repo);
-    CacheUtils.addFile(cache, "some_other_file.txt", blobId);
-    AnyObjectId secondParent = CommitUtils.createCommit(repo, cache, new PersonIdent(repo), "some orphan commit");
-    AnyObjectId[] parents = new AnyObjectId[] {CommitUtils.getCommit(branch, repo), secondParent};
-    RevCommit commit = Requests.commit(gfs)
-                         .parents(Arrays.asList(parents))
-                         .execute();
-    assert commit != null;
-    Assert.assertArrayEquals(parents, commit.getParents());
-  }
-
-  @Test
-  public void commitWithNoParent_theResultCommitShouldHaveNoParent() throws IOException {
-    writeSomeFileToGfs();
-    RevCommit commit = Requests.commit(gfs)
-                         .parents(Collections.<AnyObjectId>emptyList())
-                         .execute();
-    assert commit != null;
-    Assert.assertEquals(0, commit.getParentCount());
-  }
-
-  @Test
   public void amendCommit_theResultCommitShouldHaveTheSameParentCommitsAsTheAmendedCommit() throws IOException {
     writeSomeFileToGfs();
     assert gfs.getCommit() != null;

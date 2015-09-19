@@ -1,7 +1,6 @@
 package com.beijunyi.parallelgit.utils;
 
 import java.io.IOException;
-import java.util.*;
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 
@@ -11,22 +10,6 @@ import org.eclipse.jgit.revwalk.RevTag;
 import org.eclipse.jgit.revwalk.RevWalk;
 
 public final class TagUtils {
-
-  @Nonnull
-  public static List<RevTag> getTags(@Nonnull Repository repo) throws IOException {
-    Map<String, Ref> tags = repo.getTags();
-    List<RevTag> ret = new ArrayList<>(tags.size());
-    for(Ref tagRef : tags.values())
-      ret.add(getTag(tagRef, repo));
-    Collections.sort(ret, new RevTagTimestampComparator());
-    return ret;
-  }
-
-  @Nullable
-  public static RevTag getLatestTag(@Nonnull Repository repo) throws IOException {
-    List<RevTag> tags = getTags(repo);
-    return tags.isEmpty() ? null : tags.get(0);
-  }
 
   @Nonnull
   public static Ref updateTagRef(@Nonnull AnyObjectId tagId, @Nonnull String name, @Nonnull Repository repo, boolean force) throws IOException {
