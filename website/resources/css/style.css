@@ -2,14 +2,9 @@ html {
   overflow-y: scroll;
 }
 
-body {
-  min-width: 1200px;
-}
-
 .navbar {
   border-top: 10px #bf5a16 solid;
   border-bottom: 10px #485563 solid;
-  height: 100px;
 }
 
 .navbar-brand {
