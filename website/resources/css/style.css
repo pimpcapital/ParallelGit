@@ -1,3 +1,11 @@
+html {
+  overflow-y: scroll;
+}
+
+body {
+  min-width: 1200px;
+}
+
 .navbar {
   border-top: 10px #bf5a16 solid;
   border-bottom: 10px #485563 solid;
@@ -11,17 +19,22 @@
   padding: 20px 30px;
 }
 
-.nav li {
+.nav > li {
   width: 120px;
   margin: 0 10px;
 }
 
-.nav a {
+.nav > li > a {
   text-align: center;
   font-size: 20px;
+  padding: 10px 0;
 }
 
-.nav i {
+.nav > li > a > i {
   display: block;
   font-size: 40px;
+}
+
+.highlight {
+
 }
