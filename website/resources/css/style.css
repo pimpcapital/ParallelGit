@@ -1,0 +1,27 @@
+.navbar {
+  border-top: 10px #bf5a16 solid;
+  border-bottom: 10px #485563 solid;
+  height: 100px;
+}
+
+.navbar-brand {
+  height: 80px;
+  font-size: 40px;
+  line-height: 40px;
+  padding: 20px 30px;
+}
+
+.nav li {
+  width: 120px;
+  margin: 0 10px;
+}
+
+.nav a {
+  text-align: center;
+  font-size: 20px;
+}
+
+.nav i {
+  display: block;
+  font-size: 40px;
+}
