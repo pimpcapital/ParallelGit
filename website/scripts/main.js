@@ -1,1 +1,1 @@
-app = angular.module('pg-site', ['ngRoute']);
+app = angular.module('pg-site', ['ngRoute', 'ui.bootstrap']);

@@ -39,13 +39,16 @@ app.config(function($routeProvider) {
 });
 
 app.controller('NavigationCtrl', function($scope, $route, $location) {
-  var current = $location.path();
   $scope.pages = [];
   angular.forEach($route.routes, function(route, path) {
     if(route.name != null) {
       $scope.pages.push(angular.extend({
-        active: path == current
+        active: function() {
+          return path == $location.path();
+        }
       }, route))
     }
   });
+
+
 });

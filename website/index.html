@@ -12,7 +12,7 @@
         <a href="#/" class="navbar-brand">ParallelGit</a>
       </div>
       <ul class="nav navbar-nav">
-        <li ng-repeat="page in pages" ng-class="{active: page.active}">
+        <li ng-repeat="page in pages" ng-class="{active: page.active()}">
           <a ng-href="{{'#' + page.originalPath}}">
             <i class="fa {{page.icon}}"></i>
             <span>{{page.name}}</span>
@@ -26,6 +26,7 @@
   </div>
 <script src="lib/angular/angular.min.js"></script>
 <script src="lib/angular/angular-route.min.js"></script>
+<script src="lib/ui-bootstrap/ui-bootstrap-tpls-0.13.4.min.js"></script>
 <script src="scripts/main.js"></script>
 <script src="scripts/navigation.js"></script>
 </body>

@@ -30,6 +30,23 @@ html {
   font-size: 40px;
 }
 
-.highlight {
+.nav-tabs > li > a {
+  border: 1px solid #4e5d6c;
+}
 
+.nav-tabs > li > a:hover {
+  background: none;
+}
+
+.nav-tabs > li.active > a,
+.nav-tabs > li.active > a:hover,
+.nav-tabs > li.active > a:focus {
+  background: #4e5d6c;
+}
+
+.tab-pane {
+  border: 1px #4e5d6c solid;
+  margin-top: -2px;
+  padding: 15px;
+  background: #4e5d6c;
 }
