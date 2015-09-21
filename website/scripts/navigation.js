@@ -15,6 +15,7 @@ app.config(function($routeProvider) {
     })
     .when('/download', {
       templateUrl: 'partials/download.html',
+      controller: 'DownloadCtrl',
       name: 'Download',
       icon: 'fa-cloud-download'
     })
