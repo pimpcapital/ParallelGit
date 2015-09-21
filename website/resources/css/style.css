@@ -12,6 +12,7 @@ html {
   font-size: 40px;
   line-height: 40px;
   padding: 20px 30px;
+  text-shadow: 4px 4px #485563;
 }
 
 .nav > li {
@@ -72,4 +73,12 @@ p a.btn-xs i.fa {
   font-size: 18px;
   line-height: 15px;
   margin-top: 5px;
+}
+
+.highlight {
+  color: #bf5a16;
+}
+
+.chill {
+  line-height: 50px;
 }
