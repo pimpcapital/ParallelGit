@@ -11,37 +11,28 @@ import org.eclipse.jgit.lib.*;
 
 public final class CacheUtils {
 
-  @Nonnull
-  public static String normalizeCachePath(@Nonnull String path) {
-    if(path.startsWith("/"))
-      return path.substring(1);
-    if(path.endsWith("/"))
-      return path.substring(0, path.length() - 1);
-    return path;
-  }
-
   @Nullable
   public static DirCacheEntry getEntry(@Nonnull DirCache cache, @Nonnull String path) {
-    return cache.getEntry(normalizeCachePath(path));
+    return cache.getEntry(TreeUtils.normalizeTreePath(path));
   }
 
   public static int findEntry(@Nonnull DirCache cache, @Nonnull String path) {
-    return cache.findEntry(normalizeCachePath(path));
+    return cache.findEntry(TreeUtils.normalizeTreePath(path));
   }
 
   @Nonnull
   public static DirCacheEntry newDirCacheEntry(@Nonnull String path) {
-    return new DirCacheEntry(normalizeCachePath(path));
+    return new DirCacheEntry(TreeUtils.normalizeTreePath(path));
   }
 
   @Nonnull
   public static DirCacheEditor.DeletePath deleteEntry(@Nonnull String path) {
-    return new DirCacheEditor.DeletePath(normalizeCachePath(path));
+    return new DirCacheEditor.DeletePath(TreeUtils.normalizeTreePath(path));
   }
 
   @Nonnull
   public static DirCacheEditor.DeleteTree deleteChildren(@Nonnull String path) {
-    return new DirCacheEditor.DeleteTree(normalizeCachePath(path));
+    return new DirCacheEditor.DeleteTree(TreeUtils.normalizeTreePath(path));
   }
 
   public static void loadTree(@Nonnull DirCache cache, @Nonnull ObjectReader reader, @Nonnull AnyObjectId treeId) throws IOException {
@@ -106,7 +97,7 @@ public final class CacheUtils {
   }
 
   public static void addTree(@Nonnull DirCacheBuilder builder, @Nonnull ObjectReader reader, @Nonnull String path, @Nonnull AnyObjectId treeId) throws IOException {
-    builder.addTree(normalizeCachePath(path).getBytes(), DirCacheEntry.STAGE_0, reader, treeId);
+    builder.addTree(TreeUtils.normalizeTreePath(path).getBytes(), DirCacheEntry.STAGE_0, reader, treeId);
   }
 
   public static void addTree(@Nonnull DirCache cache, @Nonnull ObjectReader reader, @Nonnull String path, @Nonnull AnyObjectId treeId) throws IOException {
@@ -178,7 +169,7 @@ public final class CacheUtils {
   }
 
   public static boolean isNonTrivialDirectory(@Nonnull DirCache cache, @Nonnull String path) {
-    path = normalizeCachePath(path) + "/";
+    path = TreeUtils.normalizeTreePath(path) + "/";
     if(path.equals("/")) // if it is root
       return true;
 

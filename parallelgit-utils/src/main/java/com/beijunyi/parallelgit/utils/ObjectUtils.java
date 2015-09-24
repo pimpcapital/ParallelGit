@@ -1,6 +1,7 @@
 package com.beijunyi.parallelgit.utils;
 
 import java.io.IOException;
+import java.io.InputStream;
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 
@@ -42,6 +43,18 @@ public final class ObjectUtils {
   public static AnyObjectId findObject(@Nonnull String file, @Nonnull AnyObjectId commit, @Nonnull Repository repo) throws IOException {
     try(ObjectReader reader = repo.newObjectReader()) {
       return findObject(file, commit, reader);
+    }
+  }
+
+  @Nonnull
+  public static InputStream openObject(@Nonnull AnyObjectId id, @Nonnull ObjectReader reader) throws IOException {
+    return reader.open(id).openStream();
+  }
+
+  @Nonnull
+  public static InputStream openObject(@Nonnull AnyObjectId id, @Nonnull Repository repo) throws IOException {
+    try(ObjectReader reader = repo.newObjectReader()) {
+      return openObject(id, reader);
     }
   }
 

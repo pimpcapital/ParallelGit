@@ -10,8 +10,6 @@ import org.junit.Test;
 
 public class BranchUtilsTest extends AbstractParallelGitTest {
 
-
-
   @Test
   public void getBranchHeadCommitTest() throws IOException {
     AnyObjectId firstCommit = initRepository();
