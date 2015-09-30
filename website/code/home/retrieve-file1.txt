@@ -1,0 +1,11 @@
+public byte[] readMyFile(Repository repo) throws Exception {
+  Git git = new Git(repo);
+  git.checkout().setName("my_branch").call();
+  // wait for checkout to finish
+  File myFile = new File(repo.getWorkTree(), "my-file.txt");
+  byte[] bytes = new byte[(int) myFile.length()];
+  try(FileInputStream input = new FileInputStream(myFile)) {
+    input.read(bytes);
+   }
+  return bytes;
+}

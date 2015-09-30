@@ -35,10 +35,71 @@
     If you are managing some text files and want a system to keep a close eye on them, Git is a good candidate for this job.<br/>
     <br/>
     In fact, Git doesn't care about the format of a file.<br/>
-    You can drop a binary file into a Git repository and Git will keep a nice and neat history of this file (assuming you use the system sensibly).<br/>
+    You can drop a binary file into a Git repository and Git will keep a nice and neat history of this file.<br/>
     <br/>
-    What Git really offers is the ability to keep the entire history of a data structure.
+    What Git really offers is the ability to keep the entire history of a data structure at a very low cost.<br/>
+    <br/>
+    <br/>
+  </p>
+
+
+  <div class="page-header">
+    <h3>A time machine</h3>
+  </div>
+  <p>
+    People use Git know how to change the state of a repository by checking out a commit.<br/>
+    <br/>
+    It is like you have a time machine that allows you to jump from one point to another on the time line.<br/>
+    <br/>
+    If you want your Java program to have such power, you should consider adding a library that can talk to a Git repository such as <a>JGit</a>.<br/>
+    <br/>
+    <br/>
+  </p>
+
+
+  <div class="page-header">
+    <h3>A touch screen for your time machine</h3>
+  </div>
+  <p>
+    Let me just tell you that using the JGit API is not the most enjoyable thing in the world.<br/>
+    <br/>
+    Imagine you have very powerful a time machine.<br/>
+    It can do 2000 things. (10 locations * 200 times)<br/>
+    There are 10 buttons in front of you.<br/>
+    The machine will take you to the place you want to go, if you press the buttons in a certain order.<br/>
+    The machine will either blow up or take you to a random place, if you get the combination wrong.<br/>
+    <br/>
+    Are you comfortable with this time machine?<br/>
+    <br/>
+    How would you like a touch screen for this time machine?<br/>
+    How would you like having all the options displayed right in front your eyes. Anything you want to do is just a few taps away.<br/>
+    Sounds good?<br/>
+    ParallelGit may just be the touch screen for your time machine.<br/>
+
 
   </p>
+  <table class="table">
+    <thead>
+    <tr>
+      <th class="col-md-6">Method 1</th>
+      <th class="col-md-6">Method 2</th>
+    </tr>
+    </thead>
+    <tbody>
+    <tr>
+      <td>Checkout -> File Stream -> Read Bytes</td>
+      <td>Commit -> Tree -> Blob -> Read Bytes</td>
+    </tr>
+    <tr>
+      <td>
+        <div hljs language="java" include="'code/home/retrieve-file1.txt'"></div>
+      </td>
+      <td>
+        <div hljs language="java" include="'code/home/retrieve-file2.txt'"></div>
+      </td>
+    </tr>
+    </tbody>
+  </table>
+
 
 </div>

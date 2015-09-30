@@ -1,0 +1,12 @@
+public byte[] readMyFile(Repository repo) throws Exception {
+  try(ObjectReader reader = repo.newObjectReader()) {
+    ObjectId commitId = repo.resolve("my_branch");
+    RevWalk rw = new RevWalk(reader);
+    RevCommit commit = rw.parseCommit(commitId);
+    RevTree commitTree = commit.getTree();
+    TreeWalk tw = TreeWalk.forPath(reader, "my-file.txt", commitTree);
+    ObjectId blobId = tw.getObjectId(0);
+    ObjectLoader loader = reader.open(blobId);
+    return loader.getBytes();
+  }
+}
