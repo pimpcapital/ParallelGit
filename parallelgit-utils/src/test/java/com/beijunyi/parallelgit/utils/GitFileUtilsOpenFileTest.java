@@ -2,6 +2,7 @@ package com.beijunyi.parallelgit.utils;
 
 import java.io.IOException;
 import java.io.InputStream;
+import java.nio.file.NoSuchFileException;
 
 import com.beijunyi.parallelgit.AbstractParallelGitTest;
 import org.eclipse.jgit.lib.AnyObjectId;
@@ -27,5 +28,13 @@ public class GitFileUtilsOpenFileTest extends AbstractParallelGitTest {
     }
     Assert.assertArrayEquals(expected, actual);
   }
+
+  @Test(expected = NoSuchFileException.class)
+  public void openNonExistentFile_shouldThrowNoSuchFileException() throws IOException {
+    writeSomeFileToCache();
+    AnyObjectId commit = commitToMaster();
+    GitFileUtils.openFile("/non_existent_file.txt", commit.getName(), repo);
+  }
+
 
 }

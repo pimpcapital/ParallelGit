@@ -1,7 +1,7 @@
 package com.beijunyi.parallelgit.utils;
 
 import java.io.IOException;
-import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
@@ -64,7 +64,7 @@ public final class RefUtils {
   @Nonnull
   public static List<ReflogEntry> getRefLogs(@Nonnull String branch, int max, @Nonnull Repository repository) throws IOException {
     ReflogReader reader = repository.getReflogReader(ensureBranchRefName(branch));
-    return reader.getReverseEntries(max);
+    return reader != null ? reader.getReverseEntries(max) : Collections.<ReflogEntry>emptyList();
   }
 
   @Nonnull
@@ -79,27 +79,5 @@ public final class RefUtils {
       return null;
     return entries.get(0);
   }
-
-  @Nonnull
-  public static List<String> getRefLogComments(@Nonnull String branch, int max, @Nonnull Repository repository) throws IOException {
-    List<String> ret = new ArrayList<>();
-    for(ReflogEntry entry : getRefLogs(branch, max, repository))
-      ret.add(entry.getComment());
-    return ret;
-  }
-
-  @Nonnull
-  public static List<String> getRefLogComments(@Nonnull String branch, @Nonnull Repository repository) throws IOException {
-    return getRefLogComments(branch, Integer.MAX_VALUE, repository);
-  }
-
-  @Nullable
-  public static String getLastRefLogComment(@Nonnull String branch, @Nonnull Repository repository) throws IOException {
-    ReflogEntry entry = getLastRefLog(branch, repository);
-    if(entry == null)
-      return null;
-    return entry.getComment();
-  }
-
 
 }
