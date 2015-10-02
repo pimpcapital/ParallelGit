@@ -52,15 +52,8 @@ public final class TagUtils {
   }
 
   @Nonnull
-  public static Ref tagCommit(@Nonnull AnyObjectId commitId, @Nonnull String name, @Nullable String message, @Nonnull String taggerName, @Nonnull String taggerEmail, @Nonnull Repository repo) throws IOException {
-    PersonIdent tagger = new PersonIdent(taggerName, taggerEmail);
-    return tagCommit(commitId, name, message, tagger, repo);
-  }
-
-  @Nonnull
   public static Ref tagCommit(@Nonnull AnyObjectId commitId, @Nonnull String name, @Nullable String message, @Nonnull Repository repo) throws IOException {
-    PersonIdent tagger = message != null ? new PersonIdent(repo) : null;
-    return tagCommit(commitId, name, message, tagger, repo);
+    return tagCommit(commitId, name, message, new PersonIdent(repo), repo);
   }
 
   @Nonnull
@@ -96,7 +89,7 @@ public final class TagUtils {
   @Nonnull
   public static RevTag getTag(@Nonnull Ref tagRef, @Nonnull Repository repo) throws IOException {
     try(ObjectReader reader = repo.newObjectReader()) {
-      return getTag(tagRef.getObjectId(), reader);
+      return getTag(tagRef, reader);
     }
   }
 

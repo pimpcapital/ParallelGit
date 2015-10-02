@@ -1,13 +1,9 @@
 package com.beijunyi.parallelgit.filesystem.requests;
 
 import java.io.IOException;
-import java.util.Arrays;
-import java.util.Collections;
 
 import com.beijunyi.parallelgit.filesystem.PreSetupGitFileSystemTest;
-import com.beijunyi.parallelgit.utils.*;
-import org.eclipse.jgit.dircache.DirCache;
-import org.eclipse.jgit.lib.AnyObjectId;
+import com.beijunyi.parallelgit.utils.RevTreeUtils;
 import org.eclipse.jgit.lib.PersonIdent;
 import org.eclipse.jgit.revwalk.RevCommit;
 import org.junit.Assert;
@@ -59,17 +55,6 @@ public class CommitRequestTest extends PreSetupGitFileSystemTest {
   }
 
   @Test
-  public void commitWithAuthorNameAndEmail_theResultCommitShouldHaveTheInputAuthorNameAndEmail() throws IOException {
-    writeSomeFileToGfs();
-    RevCommit commit = Requests.commit(gfs)
-                         .author("test_author_name", "test_author@email.com")
-                         .execute();
-    assert commit != null;
-    Assert.assertEquals("test_author_name", commit.getAuthorIdent().getName());
-    Assert.assertEquals("test_author@email.com", commit.getAuthorIdent().getEmailAddress());
-  }
-
-  @Test
   public void commitWithAuthor_theResultCommitShouldHaveTheInputAuthor() throws IOException {
     writeSomeFileToGfs();
     PersonIdent author = new PersonIdent("test_author_name", "test_author@email.com");
@@ -78,17 +63,6 @@ public class CommitRequestTest extends PreSetupGitFileSystemTest {
                          .execute();
     assert commit != null;
     Assert.assertEquals(author, commit.getAuthorIdent());
-  }
-
-  @Test
-  public void commitWithCommitterNameAndEmail_theResultCommitShouldHaveTheInputCommitterNameAndEmail() throws IOException {
-    writeSomeFileToGfs();
-    RevCommit commit = Requests.commit(gfs)
-                         .committer("test_committer_name", "test_committer@email.com")
-                         .execute();
-    assert commit != null;
-    Assert.assertEquals("test_committer_name", commit.getCommitterIdent().getName());
-    Assert.assertEquals("test_committer@email.com", commit.getCommitterIdent().getEmailAddress());
   }
 
   @Test

@@ -20,11 +20,7 @@ public final class CommitRequest extends GitFileSystemRequest<RevCommit> {
   private final String branchRef;
   private final RevCommit commit;
   private PersonIdent author;
-  private String authorName;
-  private String authorEmail;
   private PersonIdent committer;
-  private String committerName;
-  private String committerEmail;
   private String message;
   private List<AnyObjectId> parents;
   private boolean amend = false;
@@ -49,22 +45,8 @@ public final class CommitRequest extends GitFileSystemRequest<RevCommit> {
   }
 
   @Nonnull
-  public CommitRequest author(@Nullable String name, @Nullable String email) {
-    this.authorName = name;
-    this.authorEmail = email;
-    return this;
-  }
-
-  @Nonnull
   public CommitRequest committer(@Nullable PersonIdent committer) {
     this.committer = committer;
-    return this;
-  }
-
-  @Nonnull
-  public CommitRequest committer(@Nullable String name, @Nullable String email) {
-    this.committerName = name;
-    this.committerEmail = email;
     return this;
   }
 
@@ -94,31 +76,16 @@ public final class CommitRequest extends GitFileSystemRequest<RevCommit> {
   }
 
   private void prepareCommitter() {
-    if(committer == null) {
-      if(committerName != null && committerEmail != null)
-        committer = new PersonIdent(committerName, committerEmail);
-      else if(committerName == null && committerEmail == null)
-        committer = new PersonIdent(repository);
-      else
-        throw new IllegalStateException();
-    }
+    if(committer == null)
+      committer = new PersonIdent(repository);
   }
 
   private void prepareAuthor() {
     if(author == null) {
-      if(!amend) {
-        if(authorName != null && authorEmail != null)
-          author = new PersonIdent(authorName, authorEmail);
-        else if(authorName == null && authorEmail == null && committer != null)
-          author = committer;
-        else
-          throw new IllegalStateException();
-      } else {
-        RevCommit amendedCommit = amendedCommit();
-        PersonIdent amendedAuthor = amendedCommit.getAuthorIdent();
-        author = new PersonIdent(authorName != null ? authorName : amendedAuthor.getName(),
-                                  authorEmail != null ? authorEmail : amendedAuthor.getEmailAddress());
-      }
+      if(!amend)
+        author = committer;
+      else
+        author = amendedCommit().getAuthorIdent();
     }
   }
 

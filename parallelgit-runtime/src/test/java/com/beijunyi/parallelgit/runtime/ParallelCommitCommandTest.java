@@ -85,23 +85,6 @@ public class ParallelCommitCommandTest extends AbstractParallelGitTest {
   }
 
   @Test
-  public void createCommitWithAuthorNameAndEmailTest() throws IOException {
-    initRepository();
-    writeSomeFileToCache();
-    String authorName = "testuser";
-    String authorEmail = "testuser@email.com";
-    AnyObjectId commitId = ParallelCommitCommand.prepare(repo)
-                             .fromCache(cache)
-                             .author(authorName, authorEmail)
-                             .call();
-    Assert.assertNotNull(commitId);
-    RevCommit commit = CommitUtils.getCommit(commitId, repo);
-    PersonIdent author = commit.getAuthorIdent();
-    Assert.assertEquals(authorName, author.getName());
-    Assert.assertEquals(authorEmail, author.getEmailAddress());
-  }
-
-  @Test
   public void createCommitWithCommitterTest() throws IOException {
     initRepository();
     writeSomeFileToCache();
@@ -114,24 +97,6 @@ public class ParallelCommitCommandTest extends AbstractParallelGitTest {
     RevCommit commit = CommitUtils.getCommit(commitId, repo);
     Assert.assertEquals(committer, commit.getCommitterIdent());
     Assert.assertEquals(committer, commit.getAuthorIdent());
-  }
-
-  @Test
-  public void createCommitWithCommitterNameAndEmailTest() throws IOException {
-    initRepository();
-    writeSomeFileToCache();
-    String committerName = "testuser";
-    String committerEmail = "testuser@email.com";
-    AnyObjectId commitId = ParallelCommitCommand.prepare(repo)
-                             .fromCache(cache)
-                             .committer(committerName, committerEmail)
-                             .call();
-    Assert.assertNotNull(commitId);
-    RevCommit commit = CommitUtils.getCommit(commitId, repo);
-    PersonIdent committer = commit.getCommitterIdent();
-    Assert.assertEquals(commit.getAuthorIdent(), committer);
-    Assert.assertEquals(committerName, committer.getName());
-    Assert.assertEquals(committerEmail, committer.getEmailAddress());
   }
 
   @Test

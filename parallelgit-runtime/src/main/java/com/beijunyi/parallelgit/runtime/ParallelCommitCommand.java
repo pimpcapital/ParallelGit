@@ -31,11 +31,7 @@ public final class ParallelCommitCommand extends CacheBasedCommand<ParallelCommi
   private RevCommit head;
   private List<AnyObjectId> parents;
   private PersonIdent author;
-  private String authorName;
-  private String authorEmail;
   private PersonIdent committer;
-  private String committerName;
-  private String committerEmail;
   private String message;
 
   private ParallelCommitCommand(@Nonnull Repository repository) {
@@ -97,22 +93,8 @@ public final class ParallelCommitCommand extends CacheBasedCommand<ParallelCommi
   }
 
   @Nonnull
-  public ParallelCommitCommand author(@Nonnull String authorName, @Nonnull String authorEmail) {
-    this.authorName = authorName;
-    this.authorEmail = authorEmail;
-    return this;
-  }
-
-  @Nonnull
   public ParallelCommitCommand committer(@Nonnull PersonIdent committer) {
     this.committer = committer;
-    return this;
-  }
-
-  @Nonnull
-  public ParallelCommitCommand committer(@Nonnull String committerName, @Nonnull String committerEmail) {
-    this.committerName = committerName;
-    this.committerEmail = committerEmail;
     return this;
   }
 
@@ -354,23 +336,13 @@ public final class ParallelCommitCommand extends CacheBasedCommand<ParallelCommi
   }
 
   private void prepareCommitter() {
-    if(committer == null) {
-      if(committerName != null && committerEmail != null)
-        committer = new PersonIdent(committerName, committerEmail);
-      else {
-        assert repository != null;
-        committer = new PersonIdent(repository);
-      }
-    }
+    if(committer == null)
+      committer = new PersonIdent(repository);
   }
 
   private void prepareAuthor() {
-    if(author == null) {
-      if(authorName != null && authorEmail != null)
-        author = new PersonIdent(authorName, authorEmail);
-      else
-        author = committer;
-    }
+    if(author == null)
+      author = committer;
   }
 
   private void prepareMessage() {
