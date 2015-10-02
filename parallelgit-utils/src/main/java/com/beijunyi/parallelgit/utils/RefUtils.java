@@ -61,6 +61,11 @@ public final class RefUtils {
     return repo.getRef(ensureBranchRefName(name));
   }
 
+  @Nullable
+  public static Ref getTagRef(@Nonnull String name, @Nonnull Repository repo) throws IOException {
+    return repo.getRef(ensureTagRefName(name));
+  }
+
   @Nonnull
   public static List<ReflogEntry> getRefLogs(@Nonnull String branch, int max, @Nonnull Repository repository) throws IOException {
     ReflogReader reader = repository.getReflogReader(ensureBranchRefName(branch));

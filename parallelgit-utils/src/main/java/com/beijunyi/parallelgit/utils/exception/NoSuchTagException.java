@@ -2,12 +2,12 @@ package com.beijunyi.parallelgit.utils.exception;
 
 import javax.annotation.Nonnull;
 
-public class NoSuchRefException extends RuntimeException {
+public class NoSuchTagException extends RuntimeException {
 
   private final String refName;
 
-  public NoSuchRefException(@Nonnull String refName) {
-    super("Ref " + refName + " does not exist");
+  public NoSuchTagException(@Nonnull String refName) {
+    super("Tag " + refName + " does not exist");
     this.refName = refName;
   }
 

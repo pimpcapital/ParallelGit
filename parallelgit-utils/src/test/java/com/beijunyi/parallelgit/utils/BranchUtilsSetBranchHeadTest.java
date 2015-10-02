@@ -26,7 +26,7 @@ public class BranchUtilsSetBranchHeadTest extends AbstractParallelGitTest {
   public void commitBranchHead_branchHeadShouldBecomeTheNewCommit() throws IOException {
     writeSomeFileToCache();
     AnyObjectId childCommit = commit(branchHead);
-    BranchUtils.commitBranchHead(branch, childCommit, repo);
+    BranchUtils.newCommit(branch, childCommit, repo);
     Assert.assertEquals(childCommit, BranchUtils.getBranchHeadCommit(branch, repo));
   }
 
@@ -34,14 +34,14 @@ public class BranchUtilsSetBranchHeadTest extends AbstractParallelGitTest {
   public void commitBranchHeadWhenInputCommitIsNotChildCommit_shouldThrowRefUpdateRejectedException() throws IOException {
     writeSomeFileToCache();
     AnyObjectId nonChildCommit = commit(null);
-    BranchUtils.commitBranchHead(branch, nonChildCommit, repo);
+    BranchUtils.newCommit(branch, nonChildCommit, repo);
   }
 
   @Test
   public void amendBranchHead_branchHeadShouldBecomeTheAmendedCommit() throws IOException {
     writeSomeFileToCache();
     AnyObjectId amendedCommit = commit(branchHead.getParent(0));
-    BranchUtils.amendBranchHead(branch, amendedCommit, repo);
+    BranchUtils.amendCommit(branch, amendedCommit, repo);
     Assert.assertEquals(amendedCommit, BranchUtils.getBranchHeadCommit(branch, repo));
   }
 
@@ -49,7 +49,7 @@ public class BranchUtilsSetBranchHeadTest extends AbstractParallelGitTest {
   public void cherryPickBranchHead_branchHeadShouldBecomeTheCherryPickedCommit() throws IOException {
     writeSomeFileToCache();
     AnyObjectId cherryPickedCommit = commit(branchHead);
-    BranchUtils.cherryPickBranchHead(branch, cherryPickedCommit, repo);
+    BranchUtils.cherryPickCommit(branch, cherryPickedCommit, repo);
     Assert.assertEquals(cherryPickedCommit, BranchUtils.getBranchHeadCommit(branch, repo));
   }
 
@@ -57,9 +57,7 @@ public class BranchUtilsSetBranchHeadTest extends AbstractParallelGitTest {
   public void cherryPickBranchHeadWhenInputCommitIsNotChildCommit_branchHeadShouldBecomeTheCherryPickedCommit() throws IOException {
     writeSomeFileToCache();
     AnyObjectId cherryPickedCommit = commit(null);
-    BranchUtils.cherryPickBranchHead(branch, cherryPickedCommit, repo);
+    BranchUtils.cherryPickCommit(branch, cherryPickedCommit, repo);
   }
-
-
 
 }

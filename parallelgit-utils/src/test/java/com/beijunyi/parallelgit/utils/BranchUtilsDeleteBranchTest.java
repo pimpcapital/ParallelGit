@@ -3,7 +3,7 @@ package com.beijunyi.parallelgit.utils;
 import java.io.IOException;
 
 import com.beijunyi.parallelgit.AbstractParallelGitTest;
-import com.beijunyi.parallelgit.utils.exception.NoSuchRefException;
+import com.beijunyi.parallelgit.utils.exception.NoSuchBranchException;
 import org.eclipse.jgit.lib.AnyObjectId;
 import org.junit.Assert;
 import org.junit.Before;
@@ -50,8 +50,8 @@ public class BranchUtilsDeleteBranchTest extends AbstractParallelGitTest {
     Assert.assertEquals(headCommit.name(), repo.getBranch());
   }
 
-  @Test(expected = NoSuchRefException.class)
-  public void deleteNonExistentBranch_shouldThrowNoSuchRefException() throws IOException {
+  @Test(expected = NoSuchBranchException.class)
+  public void deleteNonExistentBranch_shouldThrowNoSuchBranchException() throws IOException {
     BranchUtils.deleteBranch("non_existent_branch", repo);
   }
 

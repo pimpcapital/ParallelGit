@@ -390,11 +390,11 @@ public final class ParallelCommitCommand extends CacheBasedCommand<ParallelCommi
       assert repository != null;
       RevCommit newCommit = CommitUtils.getCommit(newCommitId, repository);
       if(head == null)
-        BranchUtils.initBranchHead(branch, newCommit, repository);
+        BranchUtils.initBranch(branch, newCommit, repository);
       else if(amend)
-        BranchUtils.amendBranchHead(branch, newCommit, repository);
+        BranchUtils.amendCommit(branch, newCommit, repository);
       else
-        BranchUtils.commitBranchHead(branch, newCommit, repository);
+        BranchUtils.newCommit(branch, newCommit, repository);
     }
   }
 

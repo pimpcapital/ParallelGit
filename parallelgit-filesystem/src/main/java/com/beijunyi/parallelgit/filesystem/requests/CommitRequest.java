@@ -11,10 +11,8 @@ import com.beijunyi.parallelgit.filesystem.GitFileSystem;
 import com.beijunyi.parallelgit.utils.BranchUtils;
 import com.beijunyi.parallelgit.utils.CommitUtils;
 import com.beijunyi.parallelgit.utils.RefUtils;
-import com.beijunyi.parallelgit.utils.exception.RefUpdateValidator;
 import org.eclipse.jgit.lib.AnyObjectId;
 import org.eclipse.jgit.lib.PersonIdent;
-import org.eclipse.jgit.lib.RefUpdate;
 import org.eclipse.jgit.revwalk.RevCommit;
 
 public final class CommitRequest extends GitFileSystemRequest<RevCommit> {
@@ -31,7 +29,6 @@ public final class CommitRequest extends GitFileSystemRequest<RevCommit> {
   private List<AnyObjectId> parents;
   private boolean amend = false;
   private boolean allowEmpty = false;
-  private String refLog;
 
   private CommitRequest(@Nonnull GitFileSystem gfs) {
     super(gfs);
@@ -90,12 +87,6 @@ public final class CommitRequest extends GitFileSystemRequest<RevCommit> {
   }
 
   @Nonnull
-  public CommitRequest refLog(@Nullable String refLog) {
-    this.refLog = refLog;
-    return this;
-  }
-
-  @Nonnull
   private RevCommit amendedCommit() {
     if(commit == null)
       throw new IllegalStateException("No commit to amend");
@@ -144,14 +135,12 @@ public final class CommitRequest extends GitFileSystemRequest<RevCommit> {
   }
 
   private void updateRef(@Nonnull AnyObjectId head) throws IOException {
-    if(refLog != null)
-      BranchUtils.setBranchHead(branchRef, head, repository, refLog, true);
-    else if(amend)
-      BranchUtils.amendBranchHead(branchRef, head, repository);
+    if(amend)
+      BranchUtils.amendCommit(branchRef, head, repository);
     else if(commit != null)
-      BranchUtils.commitBranchHead(branchRef, head, repository);
+      BranchUtils.newCommit(branchRef, head, repository);
     else
-      BranchUtils.initBranchHead(branchRef, head, repository);
+      BranchUtils.initBranch(branchRef, head, repository);
   }
 
   private void updateFileSystem(@Nonnull RevCommit head) {

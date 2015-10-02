@@ -4,7 +4,7 @@ import java.io.IOException;
 import java.util.List;
 
 import com.beijunyi.parallelgit.AbstractParallelGitTest;
-import com.beijunyi.parallelgit.utils.exception.NoSuchRefException;
+import com.beijunyi.parallelgit.utils.exception.NoSuchBranchException;
 import org.eclipse.jgit.lib.AnyObjectId;
 import org.eclipse.jgit.revwalk.RevCommit;
 import org.junit.Assert;
@@ -34,8 +34,8 @@ public class BranchUtilsGetBranchHistoryTest extends AbstractParallelGitTest {
     Assert.assertArrayEquals(expected, actual);
   }
 
-  @Test(expected = NoSuchRefException.class)
-  public void getHistoryOfNonExistentBranch_shouldThrowNoSuchRefException() throws IOException {
+  @Test(expected = NoSuchBranchException.class)
+  public void getHistoryOfNonExistentBranch_shouldThrowNoSuchBranchException() throws IOException {
     String branch = "non_existent_branch";
     BranchUtils.getBranchHistory(branch, repo);
   }

@@ -76,16 +76,19 @@ public abstract class AbstractParallelGitTest {
     return commit(generateCommitMessage(), parent);
   }
 
-  protected void updateBranchHead(@Nonnull String branch, @Nonnull AnyObjectId commit) throws IOException {
-    BranchUtils.commitBranchHead(branch, commit, repo);
+  protected void updateBranchHead(@Nonnull String branch, @Nonnull AnyObjectId commit, boolean init) throws IOException {
+    if(init)
+      BranchUtils.initBranch(branch, commit, repo);
+    else
+      BranchUtils.newCommit(branch, commit, repo);
   }
 
   @Nonnull
   protected AnyObjectId commitToBranch(@Nonnull String branch, @Nonnull String message, @Nullable AnyObjectId parent) throws IOException {
-    if(parent == null)
+    if(parent == null && BranchUtils.branchExists(branch, repo))
       parent = BranchUtils.getBranchHeadCommit(branch, repo);
     AnyObjectId commitId = commit(message, parent);
-    updateBranchHead(branch, commitId);
+    updateBranchHead(branch, commitId, parent == null);
     return commitId;
   }
 
