@@ -16,11 +16,6 @@ public final class ObjectUtils {
   }
 
   @Nonnull
-  public static AnyObjectId calculateBlobId(@Nonnull String data) {
-    return calculateBlobId(Constants.encode(data));
-  }
-
-  @Nonnull
   public static AnyObjectId insertBlob(@Nonnull byte[] data, @Nonnull Repository repo) throws IOException {
     try(ObjectInserter inserter = repo.newObjectInserter()) {
       AnyObjectId blobId = inserter.insert(Constants.OBJ_BLOB, data);
@@ -29,14 +24,9 @@ public final class ObjectUtils {
     }
   }
 
-  @Nonnull
-  public static AnyObjectId insertBlob(@Nonnull String data, @Nonnull Repository repo) throws IOException {
-    return insertBlob(Constants.encode(data), repo);
-  }
-
   @Nullable
   public static AnyObjectId findObject(@Nonnull String file, @Nonnull AnyObjectId commit, @Nonnull ObjectReader reader) throws IOException {
-    return TreeUtils.getObjectId(reader, file, RevTreeUtils.getRootTree(reader, commit));
+    return TreeUtils.getObjectId(file, CommitUtils.getCommit(commit, reader).getTree(), reader);
   }
 
   @Nullable

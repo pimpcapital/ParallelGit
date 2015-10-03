@@ -4,9 +4,7 @@ import java.io.IOException;
 
 import com.beijunyi.parallelgit.AbstractParallelGitTest;
 import com.beijunyi.parallelgit.runtime.ParallelCacheCommand;
-import com.beijunyi.parallelgit.utils.CacheUtils;
-import com.beijunyi.parallelgit.utils.ObjectUtils;
-import com.beijunyi.parallelgit.utils.RevTreeUtils;
+import com.beijunyi.parallelgit.utils.*;
 import org.eclipse.jgit.dircache.DirCache;
 import org.eclipse.jgit.lib.AnyObjectId;
 import org.junit.Assert;
@@ -23,7 +21,7 @@ public class ParallelCacheCommandUseCaseTest extends AbstractParallelGitTest {
   @Test
   public void addDirectoryWhenInputNameEndsWithSlash() throws IOException {
     writeToCache("/file.txt");
-    AnyObjectId treeWithTwoChildren = RevTreeUtils.getRootTree(repo, commitToMaster());
+    AnyObjectId treeWithTwoChildren = CommitUtils.getCommit(commitToMaster(), repo).getTree();
     DirCache cache = ParallelCacheCommand.prepare(repo)
                        .addDirectory("/dir/", treeWithTwoChildren.getName())
                        .call();
@@ -45,7 +43,7 @@ public class ParallelCacheCommandUseCaseTest extends AbstractParallelGitTest {
   @Test
   public void deleteFileFollowedByAddingAnotherFile() throws IOException {
     writeToCache("/file.txt");
-    AnyObjectId blobId = ObjectUtils.calculateBlobId("some content");
+    AnyObjectId blobId = someObjectId();
     AnyObjectId commitId = commitToMaster();
     DirCache cache = ParallelCacheCommand
                        .prepare(repo)
@@ -60,7 +58,7 @@ public class ParallelCacheCommandUseCaseTest extends AbstractParallelGitTest {
   @Test
   public void addFileFollowedByDeletingAnotherFile() throws IOException {
     writeToCache("/another_file.txt");
-    AnyObjectId blobId = ObjectUtils.calculateBlobId("some content");
+    AnyObjectId blobId = someObjectId();
     AnyObjectId commitId = commitToMaster();
     DirCache cache = ParallelCacheCommand
                        .prepare(repo)

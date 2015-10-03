@@ -62,6 +62,11 @@ public abstract class AbstractParallelGitTest {
   }
 
   @Nonnull
+  protected AnyObjectId someObjectId() {
+    return ObjectUtils.calculateBlobId(UUID.randomUUID().toString().getBytes());
+  }
+
+  @Nonnull
   private static String generateCommitMessage() {
     return "test commit: " + System.currentTimeMillis();
   }

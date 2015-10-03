@@ -3,7 +3,7 @@ package com.beijunyi.parallelgit.filesystem.requests;
 import java.io.IOException;
 
 import com.beijunyi.parallelgit.filesystem.PreSetupGitFileSystemTest;
-import com.beijunyi.parallelgit.utils.RevTreeUtils;
+import com.beijunyi.parallelgit.utils.CommitUtils;
 import org.eclipse.jgit.lib.PersonIdent;
 import org.eclipse.jgit.revwalk.RevCommit;
 import org.junit.Assert;
@@ -41,7 +41,7 @@ public class CommitRequestTest extends PreSetupGitFileSystemTest {
                          .allowEmpty(true)
                          .execute();
     assert commit != null;
-    Assert.assertEquals(RevTreeUtils.getRootTree(repo, commit.getParent(0)), commit.getTree());
+    Assert.assertEquals(CommitUtils.getCommit(commit.getParent(0), repo).getTree(), commit.getTree());
   }
 
   @Test

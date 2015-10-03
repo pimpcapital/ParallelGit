@@ -3,6 +3,7 @@ package com.beijunyi.parallelgit.utils;
 import java.util.Iterator;
 import javax.annotation.Nonnull;
 
+import com.beijunyi.parallelgit.AbstractParallelGitTest;
 import org.eclipse.jgit.dircache.*;
 import org.eclipse.jgit.lib.AnyObjectId;
 import org.eclipse.jgit.lib.FileMode;
@@ -10,7 +11,7 @@ import org.eclipse.jgit.lib.ObjectId;
 import org.junit.Assert;
 import org.junit.Test;
 
-public class CacheUtilsTest {
+public class CacheUtilsTest extends AbstractParallelGitTest {
 
   @Nonnull
   private static DirCache setupCache(String... files) {
@@ -43,7 +44,7 @@ public class CacheUtilsTest {
     DirCache cache = DirCache.newInCore();
 
     String file = "a/b/c.txt";
-    AnyObjectId contentId1 = ObjectUtils.calculateBlobId("a.b.c");
+    AnyObjectId contentId1 = someObjectId();
     CacheUtils.addFile(cache, file, contentId1);
 
     int entryCount = cache.getEntryCount();

@@ -27,9 +27,8 @@ public class TreeUtilsTest extends AbstractParallelGitTest {
   public void newTreeWalkTest() throws IOException {
     clearCache();
     writeFilesToCache("a.txt", "b.txt", "c/d.txt", "c/e.txt", "f/g.txt");
-    AnyObjectId commitId = commitToMaster();
-    RevTree tree = RevTreeUtils.getRootTree(repo, commitId);
-    TreeWalk treeWalk = TreeUtils.newTreeWalk(repo, tree);
+    RevTree tree = CommitUtils.getCommit(commitToMaster(), repo).getTree();
+    TreeWalk treeWalk = TreeUtils.newTreeWalk(tree, repo);
 
     assertNextEntry(treeWalk, "a.txt");
     assertNextEntry(treeWalk, "b.txt");
@@ -43,10 +42,10 @@ public class TreeUtilsTest extends AbstractParallelGitTest {
     writeToCache("a/b.txt");
     AnyObjectId commit = commitToMaster();
 
-    RevTree tree = RevTreeUtils.getRootTree(repo, commit);
-    Assert.assertTrue(TreeUtils.exists(repo, "a", tree));
-    Assert.assertTrue(TreeUtils.exists(repo, "a/b.txt", tree));
-    Assert.assertFalse(TreeUtils.exists(repo, "a/b", tree));
+    RevTree tree = CommitUtils.getCommit(commit, repo).getTree();
+    Assert.assertTrue(TreeUtils.exists("a", tree, repo));
+    Assert.assertTrue(TreeUtils.exists("a/b.txt", tree, repo));
+    Assert.assertFalse(TreeUtils.exists("a/b", tree, repo));
   }
 
   @Test
@@ -54,8 +53,8 @@ public class TreeUtilsTest extends AbstractParallelGitTest {
     AnyObjectId objectId = writeToCache("a/b.txt");
     AnyObjectId commit = commitToMaster();
 
-    RevTree tree = RevTreeUtils.getRootTree(repo, commit);
-    Assert.assertEquals(objectId, TreeUtils.getObjectId(repo, "a/b.txt", tree));
+    RevTree tree = CommitUtils.getCommit(commit, repo).getTree();
+    Assert.assertEquals(objectId, TreeUtils.getObjectId("a/b.txt", tree, repo));
   }
 
   @Test
@@ -63,10 +62,10 @@ public class TreeUtilsTest extends AbstractParallelGitTest {
     writeToCache("a/b.txt");
     AnyObjectId commit = commitToMaster();
 
-    RevTree tree = RevTreeUtils.getRootTree(repo, commit);
-    Assert.assertFalse(TreeUtils.isFileOrSymbolicLink(repo, "a", tree));
-    Assert.assertTrue(TreeUtils.isFileOrSymbolicLink(repo, "a/b.txt", tree));
-    Assert.assertFalse(TreeUtils.isFileOrSymbolicLink(repo, "a/b", tree));
+    RevTree tree = CommitUtils.getCommit(commit, repo).getTree();
+    Assert.assertFalse(TreeUtils.isFileOrSymbolicLink("a", tree, repo));
+    Assert.assertTrue(TreeUtils.isFileOrSymbolicLink("a/b.txt", tree, repo));
+    Assert.assertFalse(TreeUtils.isFileOrSymbolicLink("a/b", tree, repo));
   }
 
   @Test
@@ -74,9 +73,9 @@ public class TreeUtilsTest extends AbstractParallelGitTest {
     writeToCache("a/b.txt");
     AnyObjectId commit = commitToMaster();
 
-    RevTree tree = RevTreeUtils.getRootTree(repo, commit);
-    Assert.assertTrue(TreeUtils.isDirectory(repo, "a", tree));
-    Assert.assertFalse(TreeUtils.isDirectory(repo, "a/b.txt", tree));
-    Assert.assertFalse(TreeUtils.isDirectory(repo, "a/b", tree));
+    RevTree tree = CommitUtils.getCommit(commit, repo).getTree();
+    Assert.assertTrue(TreeUtils.isDirectory("a", tree, repo));
+    Assert.assertFalse(TreeUtils.isDirectory("a/b.txt", tree, repo));
+    Assert.assertFalse(TreeUtils.isDirectory("a/b", tree, repo));
   }
 }

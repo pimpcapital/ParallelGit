@@ -8,7 +8,7 @@ import javax.annotation.Nullable;
 
 import com.beijunyi.parallelgit.runtime.cache.*;
 import com.beijunyi.parallelgit.utils.CacheUtils;
-import com.beijunyi.parallelgit.utils.RevTreeUtils;
+import com.beijunyi.parallelgit.utils.CommitUtils;
 import org.eclipse.jgit.dircache.DirCache;
 import org.eclipse.jgit.lib.AnyObjectId;
 import org.eclipse.jgit.lib.FileMode;
@@ -134,7 +134,7 @@ public abstract class CacheBasedCommand<B extends CacheBasedCommand, T> extends 
       else {
         if(baseCommitId == null)
           baseCommitId = repository.resolve(baseCommitIdStr);
-        baseTreeId = RevTreeUtils.getRootTree(repository, baseCommitId);
+        baseTreeId = CommitUtils.getCommit(baseCommitId, repository).getTree();
       }
     }
   }

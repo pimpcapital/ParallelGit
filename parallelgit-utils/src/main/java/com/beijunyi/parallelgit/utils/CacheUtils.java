@@ -38,9 +38,9 @@ public final class CacheUtils {
   public static void loadTree(@Nonnull DirCache cache, @Nonnull ObjectReader reader, @Nonnull AnyObjectId treeId) throws IOException {
     addTree(cache, reader, "", treeId);
   }
-
+  ;
   public static void loadRevision(@Nonnull DirCache cache, @Nonnull ObjectReader reader, @Nonnull AnyObjectId commitId) throws IOException {
-    loadTree(cache, reader, RevTreeUtils.getRootTree(reader, commitId));
+    loadTree(cache, reader, CommitUtils.getCommit(commitId, reader).getTree());
   }
 
   public static DirCache forTree(@Nonnull ObjectReader reader, @Nonnull AnyObjectId treeId) throws IOException {

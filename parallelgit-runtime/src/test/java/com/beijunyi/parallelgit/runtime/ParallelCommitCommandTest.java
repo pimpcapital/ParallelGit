@@ -150,7 +150,7 @@ public class ParallelCommitCommandTest extends AbstractParallelGitTest {
     initRepository();
     writeSomeFileToCache();
     String branch = "test_branch";
-    AnyObjectId treeId = RevTreeUtils.getRootTree(repo, commitToBranch(branch));
+    AnyObjectId treeId = CommitUtils.getCommit(commitToBranch(branch), repo).getTree();
     String amendedMessage = "amended message";
     AnyObjectId commitId = ParallelCommitCommand.prepare(repo)
                              .branch(branch)

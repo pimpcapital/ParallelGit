@@ -37,9 +37,14 @@ public final class CommitUtils {
   }
 
   @Nonnull
+  public static RevCommit getCommit(@Nonnull Ref ref, @Nonnull ObjectReader reader) throws IOException {
+    return getCommit(ref.getObjectId(), reader);
+  }
+
+  @Nonnull
   public static RevCommit getCommit(@Nonnull Ref ref, @Nonnull Repository repo) throws IOException {
     try(ObjectReader reader = repo.newObjectReader()) {
-      return getCommit(ref.getObjectId(), reader);
+      return getCommit(ref, reader);
     }
   }
 
