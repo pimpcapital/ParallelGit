@@ -10,7 +10,7 @@ import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
 
-public class TagUtilsTagHeadCommitTest extends AbstractParallelGitTest {
+public class TagUtilsTagCommitTest extends AbstractParallelGitTest {
 
   @Before
   public void setupRepository() throws IOException {
@@ -39,8 +39,8 @@ public class TagUtilsTagHeadCommitTest extends AbstractParallelGitTest {
   public void tagHeadCommitWithMessage_theResultTagShouldHaveTheInputMessage() throws IOException {
     writeSomeFileToCache();
     RepositoryUtils.detachRepositoryHead(repo, commit(null));
-    Ref tag = TagUtils.tagHeadCommit("test_tag", "test_message", repo);
-    Assert.assertEquals("test_message", TagUtils.getTag(tag, repo).getFullMessage());
+    Ref tagRef = TagUtils.tagHeadCommit("test_tag", "test_message", repo);
+    Assert.assertEquals("test_message", TagUtils.getTag(tagRef, repo).getFullMessage());
   }
 
 
