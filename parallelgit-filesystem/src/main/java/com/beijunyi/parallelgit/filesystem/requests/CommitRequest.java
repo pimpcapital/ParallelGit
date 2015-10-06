@@ -123,7 +123,7 @@ public final class CommitRequest extends GitFileSystemRequest<RevCommit> {
     AnyObjectId tree = gfs.persist();
     if(!allowEmpty && !amend && tree.equals(commit.getTree()))
       return null;
-    AnyObjectId resultCommitId = CommitUtils.createCommit(repository, tree, author, committer, message, parents);
+    AnyObjectId resultCommitId = CommitUtils.createCommit(message, tree, author, committer, parents, repository);
     updateRef(resultCommitId);
     RevCommit resultCommit = CommitUtils.getCommit(resultCommitId, repository);
     updateFileSystem(resultCommit);

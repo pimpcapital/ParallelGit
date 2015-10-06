@@ -21,7 +21,7 @@ public class ParallelCommitCommandTest extends AbstractParallelGitTest {
   public void createCommitWithTreeTest() throws IOException {
     initRepository();
     writeSomeFileToCache();
-    AnyObjectId treeId = CacheUtils.writeTree(repo, cache);
+    AnyObjectId treeId = CacheUtils.writeTree(cache, repo);
     AnyObjectId commitId = ParallelCommitCommand.prepare(repo)
                              .withTree(treeId)
                              .call();

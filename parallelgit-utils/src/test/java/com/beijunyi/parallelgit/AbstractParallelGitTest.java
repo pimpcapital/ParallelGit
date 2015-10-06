@@ -2,18 +2,22 @@ package com.beijunyi.parallelgit;
 
 import java.io.File;
 import java.io.IOException;
+import java.lang.reflect.Array;
 import java.util.UUID;
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 
 import com.beijunyi.parallelgit.utils.*;
 import org.eclipse.jgit.dircache.DirCache;
+import org.eclipse.jgit.dircache.DirCacheEntry;
 import org.eclipse.jgit.errors.NoWorkTreeException;
 import org.eclipse.jgit.internal.storage.dfs.DfsRepositoryDescription;
 import org.eclipse.jgit.internal.storage.dfs.InMemoryRepository;
 import org.eclipse.jgit.lib.*;
 import org.eclipse.jgit.util.FileUtils;
 import org.junit.After;
+import org.junit.Assert;
+import org.junit.internal.ArrayComparisonFailure;
 
 public abstract class AbstractParallelGitTest {
 
@@ -67,18 +71,24 @@ public abstract class AbstractParallelGitTest {
   }
 
   @Nonnull
-  private static String generateCommitMessage() {
-    return "test commit: " + System.currentTimeMillis();
+  protected String someCommitMessage() {
+    return getClass().getSimpleName() + " commit: " + UUID.randomUUID().toString();
+  }
+
+  @Nonnull
+  protected PersonIdent somePersonIdent() {
+    String name = getClass().getSimpleName();
+    return new PersonIdent(name, name + "@test.com");
   }
 
   @Nonnull
   protected AnyObjectId commit(@Nonnull String message, @Nullable AnyObjectId parent) throws IOException {
-    return CommitUtils.createCommit(repo, cache, new PersonIdent(getClass().getSimpleName(), ""), message, parent);
+    return CommitUtils.createCommit(message, cache, somePersonIdent(), parent, repo);
   }
 
   @Nonnull
   protected AnyObjectId commit(@Nullable AnyObjectId parent) throws IOException {
-    return commit(generateCommitMessage(), parent);
+    return commit(someCommitMessage(), parent);
   }
 
   protected void updateBranchHead(@Nonnull String branch, @Nonnull AnyObjectId commit, boolean init) throws IOException {
@@ -99,12 +109,12 @@ public abstract class AbstractParallelGitTest {
 
   @Nonnull
   protected AnyObjectId commitToBranch(@Nonnull String branch, @Nullable AnyObjectId parent) throws IOException {
-    return commitToBranch(branch, generateCommitMessage(), parent);
+    return commitToBranch(branch, someCommitMessage(), parent);
   }
 
   @Nonnull
   protected AnyObjectId commitToBranch(@Nonnull String branch) throws IOException {
-    return commitToBranch(branch, generateCommitMessage(), null);
+    return commitToBranch(branch, someCommitMessage(), null);
   }
 
   @Nonnull
@@ -163,6 +173,44 @@ public abstract class AbstractParallelGitTest {
   @Nonnull
   protected AnyObjectId initRepository() throws IOException {
     return initRepository(true, true);
+  }
+
+  public static void assertCacheEquals(@Nullable String message, @Nonnull DirCache expected, @Nonnull DirCache actual) {
+    if(expected != actual) {
+      String header = message == null ? "" : message + ": ";
+      int cacheSize = assertCacheSameSize(expected, actual, header);
+      DirCacheEntry[] expectedEntries = expected.getEntriesWithin("");
+      DirCacheEntry[] actualEntries = actual.getEntriesWithin("");
+      for(int i = 0; i < cacheSize; ++i) {
+        DirCacheEntry expectedEntry = expectedEntries[i];
+        DirCacheEntry actualEntry = actualEntries[i];
+        assertCacheEntryEquals(expectedEntry, actualEntry, header, i);
+      }
+    }
+  }
+
+  public static void assertCacheEquals(@Nonnull DirCache expected, @Nonnull DirCache actual) {
+    assertCacheEquals(null, expected, actual);
+  }
+
+  private static int assertCacheSameSize(@Nonnull DirCache expected, @Nonnull DirCache actual, @Nonnull String header) {
+    int actualSize = actual.getEntryCount();
+    int expectedSize = expected.getEntryCount();
+    if(actualSize != expectedSize)
+      Assert.fail(header + "cache sizes differed, expected.size=" + expectedSize + " actual.size=" + actualSize);
+    return expectedSize;
+  }
+
+  private static void assertCacheEntryEquals(@Nonnull DirCacheEntry expected, @Nonnull DirCacheEntry actual, @Nonnull String header, int index) {
+    try {
+      Assert.assertEquals("fileMode", expected.getFileMode(), actual.getFileMode());
+      Assert.assertEquals("length", expected.getLength(), actual.getLength());
+      Assert.assertEquals("objectId", expected.getObjectId(), actual.getObjectId());
+      Assert.assertEquals("stage", expected.getStage(), actual.getStage());
+      Assert.assertEquals("path", expected.getPathString(), actual.getPathString());
+    } catch(AssertionError e) {
+      Assert.fail(header + "caches first differed at entry [" + index + "]; " + e.getMessage());
+    }
   }
 
   protected class TestRepository extends InMemoryRepository {

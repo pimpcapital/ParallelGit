@@ -4,6 +4,7 @@ import java.io.IOException;
 
 import com.beijunyi.parallelgit.AbstractParallelGitTest;
 import com.beijunyi.parallelgit.utils.exception.RefUpdateRejectedException;
+import com.beijunyi.parallelgit.utils.exception.TagAlreadyExistsException;
 import org.eclipse.jgit.lib.AnyObjectId;
 import org.eclipse.jgit.lib.Ref;
 import org.junit.Assert;
@@ -26,7 +27,7 @@ public class TagUtilsTagCommitTest extends AbstractParallelGitTest {
     Assert.assertEquals(expected, tag.getPeeledObjectId());
   }
 
-  @Test(expected = RefUpdateRejectedException.class)
+  @Test(expected = TagAlreadyExistsException.class)
   public void tagHeadCommitWithExistingTagName_shouldThrowRefUpdateRejectedException() throws IOException {
     writeSomeFileToCache();
     TagUtils.tagCommit(commit(null), "test_tag", repo);

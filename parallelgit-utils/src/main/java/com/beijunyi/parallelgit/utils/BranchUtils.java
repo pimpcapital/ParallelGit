@@ -17,7 +17,7 @@ public final class BranchUtils {
     RevCommit head = CommitUtils.getCommit(branchRef, repo);
     if(head == null)
       throw new NoSuchBranchException(branchRef);
-    return CommitUtils.getCommitHistory(repo, head);
+    return CommitUtils.getCommitHistory(head, repo);
   }
 
   public static boolean branchExists(@Nonnull String name, @Nonnull Repository repo) throws IOException {

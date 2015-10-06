@@ -16,13 +16,6 @@ import org.eclipse.jgit.util.StringUtils;
 public final class CommitUtils {
 
   @Nonnull
-  public static String toShortMessage(@Nonnull String fullMessage) {
-    if(fullMessage.contains("\n"))
-      return StringUtils.replaceLineBreaksWithSpace(fullMessage);
-    return fullMessage;
-  }
-
-  @Nonnull
   public static RevCommit getCommit(@Nonnull AnyObjectId commitId, @Nonnull ObjectReader reader) throws IOException {
     try(RevWalk revWalk = new RevWalk(reader)) {
       return revWalk.parseCommit(commitId);
@@ -55,7 +48,7 @@ public final class CommitUtils {
   }
 
   @Nonnull
-  public static List<RevCommit> getCommitHistory(@Nonnull ObjectReader reader, @Nonnull RevCommit start) throws IOException {
+  public static List<RevCommit> getCommitHistory(@Nonnull RevCommit start, @Nonnull ObjectReader reader) throws IOException {
     try(RevWalk rw = new RevWalk(reader)) {
       rw.markStart(start);
       List<RevCommit> commits = new ArrayList<>();
@@ -66,14 +59,14 @@ public final class CommitUtils {
   }
 
   @Nonnull
-  public static List<RevCommit> getCommitHistory(@Nonnull Repository repo, @Nonnull RevCommit start) throws IOException {
+  public static List<RevCommit> getCommitHistory(@Nonnull RevCommit start, @Nonnull Repository repo) throws IOException {
     try(ObjectReader reader = repo.newObjectReader()) {
-      return getCommitHistory(reader, start);
+      return getCommitHistory(start, reader);
     }
   }
 
   @Nonnull
-  public static AnyObjectId createCommit(@Nonnull ObjectInserter inserter, @Nonnull AnyObjectId treeId, @Nonnull PersonIdent author, @Nonnull PersonIdent committer, @Nullable String message, @Nonnull List<AnyObjectId> parents) throws IOException {
+  public static AnyObjectId createCommit(@Nonnull String message, @Nonnull AnyObjectId treeId, @Nonnull PersonIdent author, @Nonnull PersonIdent committer, @Nonnull List<AnyObjectId> parents, @Nonnull ObjectInserter inserter) throws IOException {
     CommitBuilder builder = new CommitBuilder();
     builder.setCommitter(committer);
     builder.setAuthor(author);
@@ -84,42 +77,41 @@ public final class CommitUtils {
   }
 
   @Nonnull
-  public static AnyObjectId createCommit(@Nonnull Repository repo, @Nonnull AnyObjectId treeId, @Nonnull PersonIdent author, @Nonnull PersonIdent committer, @Nullable String message, @Nonnull List<AnyObjectId> parents) throws IOException {
+  public static AnyObjectId createCommit(@Nonnull String message, @Nonnull AnyObjectId treeId, @Nonnull PersonIdent author, @Nonnull PersonIdent committer, @Nonnull List<AnyObjectId> parents, @Nonnull Repository repo) throws IOException {
     try(ObjectInserter inserter = repo.newObjectInserter()) {
-      AnyObjectId commitId = createCommit(inserter, treeId, author, committer, message, parents);
+      AnyObjectId commitId = createCommit(message, treeId, author, committer, parents, inserter);
       inserter.flush();
       return commitId;
     }
   }
 
   @Nonnull
-  public static AnyObjectId createCommit(@Nonnull ObjectInserter inserter, @Nonnull DirCache cache, @Nonnull PersonIdent author, @Nonnull PersonIdent committer, @Nullable String message, @Nonnull List<AnyObjectId> parents) throws IOException {
-    return createCommit(inserter, cache.writeTree(inserter), author, committer, message, parents);
+  public static AnyObjectId createCommit(@Nonnull String message, @Nonnull AnyObjectId treeId, @Nonnull PersonIdent committer, @Nullable AnyObjectId parent, @Nonnull Repository repo) throws IOException {
+    return createCommit(message, treeId, committer, committer, toParentList(parent), repo);
   }
 
   @Nonnull
-  public static AnyObjectId createCommit(@Nonnull Repository repo, @Nonnull DirCache cache, @Nonnull PersonIdent author, @Nonnull PersonIdent committer, @Nullable String message, @Nonnull List<AnyObjectId> parents) throws IOException {
+  public static AnyObjectId createCommit(@Nonnull String message, @Nonnull DirCache cache, @Nonnull PersonIdent author, @Nonnull PersonIdent committer, @Nonnull List<AnyObjectId> parents, @Nonnull ObjectInserter inserter) throws IOException {
+    return createCommit(message, cache.writeTree(inserter), author, committer, parents, inserter);
+  }
+
+  @Nonnull
+  public static AnyObjectId createCommit(@Nonnull String message, @Nonnull DirCache cache, @Nonnull PersonIdent author, @Nonnull PersonIdent committer, @Nonnull List<AnyObjectId> parents, @Nonnull Repository repo) throws IOException {
     try(ObjectInserter inserter = repo.newObjectInserter()) {
-      AnyObjectId commitId = createCommit(inserter, cache, author, committer, message, parents);
+      AnyObjectId commitId = createCommit(message, cache, author, committer, parents, inserter);
       inserter.flush();
       return commitId;
     }
   }
 
   @Nonnull
-  public static AnyObjectId createCommit(@Nonnull Repository repo, @Nonnull DirCache cache, @Nonnull PersonIdent committer, @Nullable String message, @Nonnull List<AnyObjectId> parents) throws IOException {
-    return createCommit(repo, cache, committer, committer, message, parents);
+  public static AnyObjectId createCommit(@Nonnull String message, @Nonnull DirCache cache, @Nonnull PersonIdent committer, @Nullable AnyObjectId parent, @Nonnull Repository repo) throws IOException {
+    return createCommit(message, cache, committer, committer, toParentList(parent), repo);
   }
 
   @Nonnull
-  public static AnyObjectId createCommit(@Nonnull Repository repo, @Nonnull DirCache cache, @Nonnull PersonIdent committer, @Nullable String message, @Nullable AnyObjectId parent) throws IOException {
-    List<AnyObjectId> parents = parent != null ? Collections.singletonList(parent) : Collections.<AnyObjectId>emptyList();
-    return createCommit(repo, cache, committer, message, parents);
-  }
-
-  @Nonnull
-  public static AnyObjectId createCommit(@Nonnull Repository repo, @Nonnull DirCache cache, @Nonnull PersonIdent committer, @Nullable String message) throws IOException {
-    return createCommit(repo, cache, committer, message, (AnyObjectId) null);
+  private static List<AnyObjectId> toParentList(@Nullable AnyObjectId parent) {
+    return parent != null ? Collections.singletonList(parent) : Collections.<AnyObjectId>emptyList();
   }
 
 }

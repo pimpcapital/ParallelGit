@@ -6,6 +6,7 @@ import javax.annotation.Nullable;
 
 import com.beijunyi.parallelgit.utils.exception.NoSuchTagException;
 import com.beijunyi.parallelgit.utils.exception.RefUpdateValidator;
+import com.beijunyi.parallelgit.utils.exception.TagAlreadyExistsException;
 import org.eclipse.jgit.lib.*;
 import org.eclipse.jgit.revwalk.RevTag;
 import org.eclipse.jgit.revwalk.RevWalk;
@@ -27,8 +28,10 @@ public final class TagUtils {
   }
 
   @Nonnull
-  public static Ref updateTagRef(@Nonnull AnyObjectId tagId, @Nonnull String name, @Nonnull Repository repo) throws IOException {
+  public static Ref createTag(@Nonnull AnyObjectId tagId, @Nonnull String name, @Nonnull Repository repo) throws IOException {
     String refName = RefUtils.ensureTagRefName(name);
+    if(tagExists(name, repo))
+      throw new TagAlreadyExistsException(refName);
     RefUpdate update = repo.updateRef(refName);
     update.setNewObjectId(tagId);
     update.setRefLogMessage("tagged " + name, false);
@@ -48,7 +51,7 @@ public final class TagUtils {
       tag = inserter.insert(builder);
       inserter.flush();
     }
-    return updateTagRef(tag, name, repo);
+    return createTag(tag, name, repo);
   }
 
   @Nonnull

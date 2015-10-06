@@ -3,6 +3,7 @@ package com.beijunyi.parallelgit.utils;
 import java.io.IOException;
 
 import com.beijunyi.parallelgit.AbstractParallelGitTest;
+import com.beijunyi.parallelgit.utils.exception.NoSuchTagException;
 import org.eclipse.jgit.lib.AnyObjectId;
 import org.junit.Assert;
 import org.junit.Before;
@@ -23,7 +24,7 @@ public class TagUtilsGetTaggedCommitTest extends AbstractParallelGitTest {
     Assert.assertEquals(commitId, TagUtils.getTaggedCommit("test_tag", repo));
   }
 
-  @Test
+  @Test(expected = NoSuchTagException.class)
   public void getTaggedCommitWhenTagDoesNotExist_shouldThrowNoSuchTagException() throws IOException {
     TagUtils.getTaggedCommit("non_existent_tag", repo);
   }

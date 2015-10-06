@@ -232,7 +232,7 @@ public final class CacheUtils {
   }
 
   @Nonnull
-  public static AnyObjectId writeTree(@Nonnull Repository repo, @Nonnull DirCache cache) throws IOException {
+  public static AnyObjectId writeTree(@Nonnull DirCache cache, @Nonnull Repository repo) throws IOException {
     try(ObjectInserter inserter = repo.newObjectInserter()) {
       AnyObjectId tree = cache.writeTree(inserter);
       inserter.flush();
