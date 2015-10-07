@@ -140,6 +140,13 @@
         <groupId>org.codehaus.mojo</groupId>
         <artifactId>cobertura-maven-plugin</artifactId>
         <version>${cobertura-maven-plugin.version}</version>
+        <configuration>
+          <check>
+            <lineRate>90</lineRate>
+          </check>
+          <format>xml</format>
+          <aggregate>true</aggregate>
+        </configuration>
       </plugin>
 
     </plugins>
