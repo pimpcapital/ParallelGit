@@ -47,6 +47,7 @@
     <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
 
     <maven-surefire-plugin.version>2.18.1</maven-surefire-plugin.version>
+    <coveralls-maven-plugin.version>4.0.0</coveralls-maven-plugin.version>
 
     <maven-jar-plugin.version>2.6</maven-jar-plugin.version>
     <implementation.build>${maven.build.timestamp}</implementation.build>
@@ -105,12 +106,6 @@
 
       <plugin>
         <groupId>org.apache.maven.plugins</groupId>
-        <artifactId>maven-surefire-plugin</artifactId>
-        <version>${maven-surefire-plugin.version}</version>
-      </plugin>
-
-      <plugin>
-        <groupId>org.apache.maven.plugins</groupId>
         <artifactId>maven-jar-plugin</artifactId>
         <version>${maven-jar-plugin.version}</version>
         <configuration>
@@ -127,6 +122,19 @@
           </archive>
         </configuration>
       </plugin>
+
+      <plugin>
+        <groupId>org.apache.maven.plugins</groupId>
+        <artifactId>maven-surefire-plugin</artifactId>
+        <version>${maven-surefire-plugin.version}</version>
+      </plugin>
+
+      <plugin>
+        <groupId>org.eluder.coveralls</groupId>
+        <artifactId>coveralls-maven-plugin</artifactId>
+        <version>${coveralls-maven-plugin.version}</version>
+      </plugin>
+
     </plugins>
   </build>
 
