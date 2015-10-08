@@ -4,9 +4,9 @@ import java.io.IOException;
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 
-import com.beijunyi.parallelgit.utils.exception.NoSuchTagException;
-import com.beijunyi.parallelgit.utils.exception.RefUpdateValidator;
-import com.beijunyi.parallelgit.utils.exception.TagAlreadyExistsException;
+import com.beijunyi.parallelgit.utils.exceptions.NoSuchTagException;
+import com.beijunyi.parallelgit.utils.exceptions.RefUpdateValidator;
+import com.beijunyi.parallelgit.utils.exceptions.TagAlreadyExistsException;
 import org.eclipse.jgit.lib.*;
 import org.eclipse.jgit.revwalk.RevTag;
 import org.eclipse.jgit.revwalk.RevWalk;

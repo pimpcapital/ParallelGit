@@ -3,8 +3,7 @@ package com.beijunyi.parallelgit.utils;
 import java.io.IOException;
 
 import com.beijunyi.parallelgit.AbstractParallelGitTest;
-import com.beijunyi.parallelgit.utils.exception.RefUpdateRejectedException;
-import com.beijunyi.parallelgit.utils.exception.TagAlreadyExistsException;
+import com.beijunyi.parallelgit.utils.exceptions.TagAlreadyExistsException;
 import org.eclipse.jgit.lib.AnyObjectId;
 import org.eclipse.jgit.lib.Ref;
 import org.junit.Assert;

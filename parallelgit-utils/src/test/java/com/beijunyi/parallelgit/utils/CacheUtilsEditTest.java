@@ -1,7 +1,6 @@
 package com.beijunyi.parallelgit.utils;
 
 import java.io.IOException;
-import java.util.Iterator;
 import javax.annotation.Nonnull;
 
 import com.beijunyi.parallelgit.AbstractParallelGitTest;
@@ -25,13 +24,6 @@ public class CacheUtilsEditTest extends AbstractParallelGitTest {
       CacheUtils.addFile(file, FileMode.REGULAR_FILE, ObjectId.zeroId(), builder);
     builder.finish();
     return cache;
-  }
-
-  private static void assertNextEntry(@Nonnull Iterator<VirtualDirCacheEntry> iterator, @Nonnull String path, boolean isRegularFile) {
-    Assert.assertTrue(iterator.hasNext());
-    VirtualDirCacheEntry entry = iterator.next();
-    Assert.assertEquals(path, entry.getPath());
-    Assert.assertEquals(isRegularFile, entry.isRegularFile());
   }
 
   @Before
@@ -160,57 +152,6 @@ public class CacheUtilsEditTest extends AbstractParallelGitTest {
     Assert.assertEquals(2, cache.getEntryCount());
     Assert.assertNotNull(cache.getEntry("a/c5.txt"));
     Assert.assertNotNull(cache.getEntry("a/c6.txt"));
-  }
-
-  @Test
-  public void isNonTrivialDirectoryTest() {
-    DirCache cache = setupCache("a/b/c1.txt",
-                                 "a/b/c2.txt",
-                                 "a/d/c3.txt",
-                                 "a/d/c4.txt",
-                                 "a/c5.txt",
-                                 "a/c6.txt");
-
-    Assert.assertTrue(CacheUtils.isNonTrivialDirectory("a", cache));
-    Assert.assertTrue(CacheUtils.isNonTrivialDirectory("a/b", cache));
-    Assert.assertFalse(CacheUtils.isNonTrivialDirectory("a/c", cache));
-    Assert.assertTrue(CacheUtils.isNonTrivialDirectory("a/d", cache));
-  }
-
-  @Test
-  public void iterateDirectoryTest() {
-    DirCache cache = setupCache("a/b/c1.txt",
-                                 "a/b/c2.txt",
-                                 "a/b/c/c3.txt",
-                                 "a/c4.txt",
-                                 "a/c5.txt",
-                                 "a/d/c6.txt");
-
-    Iterator<VirtualDirCacheEntry> iterator = CacheUtils.iterateDirectory("a", cache);
-    Assert.assertNotNull(iterator);
-    assertNextEntry(iterator, "a/b", false);
-    assertNextEntry(iterator, "a/c4.txt", true);
-    assertNextEntry(iterator, "a/c5.txt", true);
-    assertNextEntry(iterator, "a/d", false);
-    Assert.assertFalse(iterator.hasNext());
-  }
-
-  @Test
-  public void iterateNonExistentDirectoryTest() {
-    DirCache cache = setupCache();
-    Iterator<VirtualDirCacheEntry> iterator = CacheUtils.iterateDirectory("a", cache);
-    Assert.assertNull(iterator);
-  }
-
-  @Test
-  public void iterateDirectoryThatHasPrefixNameChildrenTest() {
-    DirCache cache = setupCache("prefix/file.txt",
-                                 "prefix_plus_something/file.txt");
-    Iterator<VirtualDirCacheEntry> iterator = CacheUtils.iterateDirectory("", cache);
-    Assert.assertNotNull(iterator);
-    assertNextEntry(iterator, "prefix", false);
-    assertNextEntry(iterator, "prefix_plus_something", false);
-    Assert.assertFalse(iterator.hasNext());
   }
 
 }

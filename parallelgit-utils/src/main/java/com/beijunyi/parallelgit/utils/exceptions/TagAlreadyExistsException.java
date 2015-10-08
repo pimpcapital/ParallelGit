@@ -1,4 +1,4 @@
-package com.beijunyi.parallelgit.utils.exception;
+package com.beijunyi.parallelgit.utils.exceptions;
 
 import javax.annotation.Nonnull;
 

@@ -5,7 +5,7 @@ import java.io.IOException;
 import java.text.ParseException;
 import javax.annotation.Nonnull;
 
-import com.beijunyi.parallelgit.utils.exception.RefUpdateValidator;
+import com.beijunyi.parallelgit.utils.exceptions.RefUpdateValidator;
 import org.eclipse.jgit.internal.storage.dfs.DfsGarbageCollector;
 import org.eclipse.jgit.internal.storage.dfs.DfsRepository;
 import org.eclipse.jgit.internal.storage.file.FileRepository;

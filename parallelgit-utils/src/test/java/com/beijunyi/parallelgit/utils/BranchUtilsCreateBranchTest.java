@@ -3,8 +3,8 @@ package com.beijunyi.parallelgit.utils;
 import java.io.IOException;
 
 import com.beijunyi.parallelgit.AbstractParallelGitTest;
-import com.beijunyi.parallelgit.utils.exception.BranchAlreadyExistsException;
-import com.beijunyi.parallelgit.utils.exception.NoSuchRevisionException;
+import com.beijunyi.parallelgit.utils.exceptions.BranchAlreadyExistsException;
+import com.beijunyi.parallelgit.utils.exceptions.NoSuchRevisionException;
 import org.eclipse.jgit.lib.AnyObjectId;
 import org.junit.Assert;
 import org.junit.Before;

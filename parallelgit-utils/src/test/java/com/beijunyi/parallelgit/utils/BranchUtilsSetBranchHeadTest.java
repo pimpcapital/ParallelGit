@@ -3,7 +3,7 @@ package com.beijunyi.parallelgit.utils;
 import java.io.IOException;
 
 import com.beijunyi.parallelgit.AbstractParallelGitTest;
-import com.beijunyi.parallelgit.utils.exception.RefUpdateRejectedException;
+import com.beijunyi.parallelgit.utils.exceptions.RefUpdateRejectedException;
 import org.eclipse.jgit.lib.AnyObjectId;
 import org.eclipse.jgit.revwalk.RevCommit;
 import org.junit.Assert;

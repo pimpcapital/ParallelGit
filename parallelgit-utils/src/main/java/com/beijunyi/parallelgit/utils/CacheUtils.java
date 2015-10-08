@@ -2,24 +2,18 @@ package com.beijunyi.parallelgit.utils;
 
 import java.io.IOException;
 import java.util.Iterator;
-import java.util.NoSuchElementException;
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 
-import com.beijunyi.parallelgit.utils.exception.NoSuchRevisionException;
+import com.beijunyi.parallelgit.utils.exceptions.NoSuchCacheDirectoryException;
+import com.beijunyi.parallelgit.utils.exceptions.NoSuchCacheEntryException;
+import com.beijunyi.parallelgit.utils.exceptions.NoSuchRevisionException;
+import com.beijunyi.parallelgit.utils.io.CacheIterator;
+import com.beijunyi.parallelgit.utils.io.CacheNode;
 import org.eclipse.jgit.dircache.*;
 import org.eclipse.jgit.lib.*;
 
 public final class CacheUtils {
-
-  @Nullable
-  public static DirCacheEntry getEntry(@Nonnull String path, @Nonnull DirCache cache) {
-    return cache.getEntry(TreeUtils.normalizeTreePath(path));
-  }
-
-  public static int findEntry(@Nonnull String path, @Nonnull DirCache cache) {
-    return cache.findEntry(TreeUtils.normalizeTreePath(path));
-  }
 
   @Nonnull
   public static DirCacheEntry newDirCacheEntry(@Nonnull String path) {
@@ -94,22 +88,6 @@ public final class CacheUtils {
     return builder;
   }
 
-  @Nullable
-  public static AnyObjectId getBlobId(@Nonnull String path, @Nonnull DirCache cache) {
-    DirCacheEntry entry = getEntry(path, cache);
-    if(entry == null)
-      return null;
-    return entry.getObjectId();
-  }
-
-  @Nullable
-  public static FileMode getFileMode(@Nonnull String path, @Nonnull DirCache cache) {
-    DirCacheEntry entry = getEntry(path, cache);
-    if(entry == null)
-      return null;
-    return entry.getFileMode();
-  }
-
   public static void addTree(@Nonnull String path, @Nonnull AnyObjectId treeId, @Nonnull DirCacheBuilder builder, @Nonnull ObjectReader reader) throws IOException {
     builder.addTree(TreeUtils.normalizeTreePath(path).getBytes(), DirCacheEntry.STAGE_0, reader, treeId);
   }
@@ -157,8 +135,38 @@ public final class CacheUtils {
     editor.finish();
   }
 
-  public static boolean isFile(@Nonnull String path, @Nonnull DirCache cache) {
+  @Nullable
+  public static DirCacheEntry getEntry(@Nonnull String path, @Nonnull DirCache cache) {
+    return cache.getEntry(TreeUtils.normalizeTreePath(path));
+  }
+
+  public static int findEntry(@Nonnull String path, @Nonnull DirCache cache) {
+    return cache.findEntry(TreeUtils.normalizeTreePath(path));
+  }
+
+  public static boolean entryExists(@Nonnull String path, @Nonnull DirCache cache) {
     return findEntry(path, cache) >= 0;
+  }
+
+  @Nonnull
+  public static AnyObjectId getBlobId(@Nonnull String path, @Nonnull DirCache cache) throws NoSuchCacheEntryException {
+    DirCacheEntry entry = getEntry(path, cache);
+    if(entry == null)
+      throw new NoSuchCacheEntryException("/" + TreeUtils.normalizeTreePath(path));
+    return entry.getObjectId();
+  }
+
+  @Nonnull
+  public static FileMode getFileMode(@Nonnull String path, @Nonnull DirCache cache) throws NoSuchCacheEntryException {
+    DirCacheEntry entry = getEntry(path, cache);
+    if(entry == null)
+      throw new NoSuchCacheEntryException("/" + TreeUtils.normalizeTreePath(path));
+    return entry.getFileMode();
+  }
+
+
+  public static boolean isFile(@Nonnull String path, @Nonnull DirCache cache) {
+    return entryExists(path, cache);
   }
 
   public static boolean isSymbolicLink(@Nonnull String path, @Nonnull DirCache cache) {
@@ -182,7 +190,7 @@ public final class CacheUtils {
              && (entry.getFileMode() == FileMode.REGULAR_FILE || entry.getFileMode() == FileMode.EXECUTABLE_FILE);
   }
 
-  public static boolean isNonTrivialDirectory(@Nonnull String path, @Nonnull DirCache cache) {
+  public static boolean isNonEmptyDirectory(@Nonnull String path, @Nonnull DirCache cache) {
     path = TreeUtils.normalizeTreePath(path) + "/";
     if(path.equals("/")) // if it is root
       return true;
@@ -198,51 +206,18 @@ public final class CacheUtils {
     return childPath.startsWith(path); // if it is indeed a child path, then this directory is non-trivial
   }
 
-  @Nullable
-  public static Iterator<VirtualDirCacheEntry> iterateDirectory(@Nonnull String path, @Nonnull final DirCache cache) {
-    final DirCacheEntry[] entries = cache.getEntriesWithin(path);
+  @Nonnull
+  public static Iterator<CacheNode> iterateDirectory(@Nonnull String path, boolean recursive, @Nonnull DirCache cache) {
+    path = TreeUtils.normalizeTreePath(path);
+    DirCacheEntry[] entries = cache.getEntriesWithin(path);
     if(entries.length == 0)
-      return null;
-    final int childrenMinLength = path.length() + 1;
-    return new Iterator<VirtualDirCacheEntry>() {
-      private int index = 0;
-      private VirtualDirCacheEntry prev;
-      private VirtualDirCacheEntry next;
+      throw new NoSuchCacheDirectoryException("/" + path);
+    return recursive ? new CacheIterator(entries) : new CacheIterator(entries, path);
+  }
 
-      public boolean findNext() {
-        while(index < entries.length) {
-          DirCacheEntry entry = entries[index++];
-          String path = entry.getPathString();
-          if(prev != null && prev.hasChild(path))
-            continue;
-          int end = path.indexOf('/', childrenMinLength);
-          next = end != -1 ? VirtualDirCacheEntry.directory(path.substring(0, end)) : VirtualDirCacheEntry.file(path);
-          return true;
-        }
-        return false;
-      }
-
-      @Override
-      public boolean hasNext() {
-        return next != null || findNext();
-      }
-
-      @Nonnull
-      @Override
-      public VirtualDirCacheEntry next() {
-        if(next != null || findNext()) {
-          prev = next;
-          next = null;
-          return prev;
-        }
-        throw new NoSuchElementException();
-      }
-
-      @Override
-      public void remove() {
-        throw new UnsupportedOperationException();
-      }
-    };
+  @Nonnull
+  public static Iterator<CacheNode> iterateDirectory(@Nonnull String path, @Nonnull DirCache cache) {
+    return iterateDirectory(path, false, cache);
   }
 
   @Nonnull
