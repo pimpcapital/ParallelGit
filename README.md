@@ -20,6 +20,31 @@ A collection of utilities to assist with developing Git IO functionality.
 </dependency>
 ```
 
+###Examples
+#####Create Repository
+```java
+public Repository createProjectRepository() {
+  File dir = new File("/home/project/repo");
+  return RepositoryUtils.createRepository(dir);
+}
+```
+
+#####Create Branch
+```java
+public void branchFromMaster(String newBranch, Repository repo) {
+  BranchUtils.createBranch(newBranch, "master", repo)
+}
+```
+
+#####Read File
+```java
+public void printFile(String filename, Repository repo) {
+  byte[] data = GitFileUtils.readFile(filename, "master", repo);
+  String text = new String(data);
+  System.out.println(text);
+}
+```
+
 ParallelGit FileSystem
 ----------------------
 
@@ -31,6 +56,36 @@ A Java 7 [nio filesystem](http://docs.oracle.com/javase/7/docs/api/java/nio/file
   <artifactId>parallelgit-filesystem</artifactId>
   <version>0.9.3</version>
 </dependency>
+```
+
+###Examples
+#####Copy File
+```java
+public void copyFile(String filename, File repoDir, Path dest) {
+  try(GitFileSystem gfs = GitFileSystemBuilder.prepare()
+                                              .repository(repoDir)
+                                              .branch("master")
+                                              .build()) {
+    Path sourceFile = gfs.getPath(filename);
+    Files.copy(sourceFile, dest);
+  }
+}
+```
+
+#####Commit Files
+```java
+public void copyAndCommitFile(Path file, String dest, File repoDir) {
+  try(GitFileSystem gfs = GitFileSystemBuilder.prepare()
+                                              .repository(repoDir)
+                                              .branch("master")
+                                              .build()) {
+    Path destFile = gfs.getPath(dest);
+    Files.copy(file, destFile);
+    Requests.commit(gfs)
+            .message("copied " + file.toString())
+            .execute();
+  }
+}
 ```
 
 ParallelGit Runtime
