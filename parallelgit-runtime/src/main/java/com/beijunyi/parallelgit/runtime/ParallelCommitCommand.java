@@ -20,7 +20,7 @@ import org.eclipse.jgit.dircache.DirCache;
 import org.eclipse.jgit.lib.*;
 import org.eclipse.jgit.revwalk.RevCommit;
 
-public final class ParallelCommitCommand extends CacheBasedCommand<ParallelCommitCommand, AnyObjectId> {
+public final class ParallelCommitCommand extends CacheBasedCommand<ParallelCommitCommand, RevCommit> {
   private AnyObjectId revisionId;
   private String revisionIdStr;
   private String branch;
@@ -357,10 +357,9 @@ public final class ParallelCommitCommand extends CacheBasedCommand<ParallelCommi
     return !treeId.equals(CommitUtils.getCommit(parents.get(0), repository).getTree());
   }
 
-  private void updateBranchRef(@Nonnull AnyObjectId newCommitId) throws IOException {
+  private void updateBranchRef(@Nonnull RevCommit newCommit) throws IOException {
     if(branch != null) {
       assert repository != null;
-      RevCommit newCommit = CommitUtils.getCommit(newCommitId, repository);
       if(head == null)
         BranchUtils.initBranch(branch, newCommit, repository);
       else if(amend)
@@ -383,7 +382,7 @@ public final class ParallelCommitCommand extends CacheBasedCommand<ParallelCommi
 
   @Nullable
   @Override
-  protected AnyObjectId doCall() throws IOException {
+  protected RevCommit doCall() throws IOException {
     assert repository != null;
     try(ObjectInserter inserter = repository.newObjectInserter()) {
       prepareHead();
@@ -395,8 +394,9 @@ public final class ParallelCommitCommand extends CacheBasedCommand<ParallelCommi
       prepareMessage();
       if(!isDifferentTree())
         return null;
-      AnyObjectId commit = buildCommit(inserter);
+      AnyObjectId commitId = buildCommit(inserter);
       inserter.flush();
+      RevCommit commit = CommitUtils.getCommit(commitId, repository);
       updateBranchRef(commit);
       return commit;
     }
