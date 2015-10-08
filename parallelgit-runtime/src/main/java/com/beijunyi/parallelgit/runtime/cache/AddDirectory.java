@@ -37,7 +37,7 @@ public class AddDirectory extends CacheEditor {
   CacheStateProvider provider) throws IOException {
     AnyObjectId blobId = provider.getInserter().insert(Constants.OBJ_BLOB, bytes);
     FileMode mode = executable ? FileMode.EXECUTABLE_FILE : FileMode.REGULAR_FILE;
-    CacheUtils.addFile(provider.getCurrentBuilder(), mode, path, blobId);
+    CacheUtils.addFile(path, mode, blobId, provider.getCurrentBuilder());
   }
 
   private void addFile(@Nonnull Path sourcePath, @Nonnull String path, @Nonnull

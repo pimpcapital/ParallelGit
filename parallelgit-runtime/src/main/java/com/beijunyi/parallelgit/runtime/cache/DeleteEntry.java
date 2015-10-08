@@ -12,6 +12,6 @@ public class DeleteEntry extends CacheEditor {
 
   @Override
   public void edit(@Nonnull CacheStateProvider provider) throws IOException {
-    CacheUtils.deleteFile(provider.getEditor(), path);
+    CacheUtils.deleteFile(path, provider.getEditor());
   }
 }

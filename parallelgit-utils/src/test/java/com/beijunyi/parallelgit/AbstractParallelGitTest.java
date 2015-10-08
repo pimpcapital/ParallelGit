@@ -2,7 +2,6 @@ package com.beijunyi.parallelgit;
 
 import java.io.File;
 import java.io.IOException;
-import java.lang.reflect.Array;
 import java.util.UUID;
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
@@ -14,10 +13,10 @@ import org.eclipse.jgit.errors.NoWorkTreeException;
 import org.eclipse.jgit.internal.storage.dfs.DfsRepositoryDescription;
 import org.eclipse.jgit.internal.storage.dfs.InMemoryRepository;
 import org.eclipse.jgit.lib.*;
+import org.eclipse.jgit.revwalk.RevCommit;
 import org.eclipse.jgit.util.FileUtils;
 import org.junit.After;
 import org.junit.Assert;
-import org.junit.internal.ArrayComparisonFailure;
 
 public abstract class AbstractParallelGitTest {
 
@@ -36,7 +35,7 @@ public abstract class AbstractParallelGitTest {
   @Nonnull
   protected AnyObjectId writeToCache(@Nonnull String path, @Nonnull byte[] content, @Nonnull FileMode mode) throws IOException {
     AnyObjectId blobId = ObjectUtils.insertBlob(content, repo);
-    CacheUtils.addFile(cache, mode, path, blobId);
+    CacheUtils.addFile(path, mode, blobId, cache);
     return blobId;
   }
 
@@ -82,12 +81,12 @@ public abstract class AbstractParallelGitTest {
   }
 
   @Nonnull
-  protected AnyObjectId commit(@Nonnull String message, @Nullable AnyObjectId parent) throws IOException {
+  protected RevCommit commit(@Nonnull String message, @Nullable AnyObjectId parent) throws IOException {
     return CommitUtils.createCommit(message, cache, somePersonIdent(), parent, repo);
   }
 
   @Nonnull
-  protected AnyObjectId commit(@Nullable AnyObjectId parent) throws IOException {
+  protected RevCommit commit(@Nullable AnyObjectId parent) throws IOException {
     return commit(someCommitMessage(), parent);
   }
 
@@ -99,36 +98,36 @@ public abstract class AbstractParallelGitTest {
   }
 
   @Nonnull
-  protected AnyObjectId commitToBranch(@Nonnull String branch, @Nonnull String message, @Nullable AnyObjectId parent) throws IOException {
+  protected RevCommit commitToBranch(@Nonnull String branch, @Nonnull String message, @Nullable AnyObjectId parent) throws IOException {
     if(parent == null && BranchUtils.branchExists(branch, repo))
       parent = BranchUtils.getBranchHeadCommit(branch, repo);
-    AnyObjectId commitId = commit(message, parent);
+    RevCommit commitId = commit(message, parent);
     updateBranchHead(branch, commitId, parent == null);
     return commitId;
   }
 
   @Nonnull
-  protected AnyObjectId commitToBranch(@Nonnull String branch, @Nullable AnyObjectId parent) throws IOException {
+  protected RevCommit commitToBranch(@Nonnull String branch, @Nullable AnyObjectId parent) throws IOException {
     return commitToBranch(branch, someCommitMessage(), parent);
   }
 
   @Nonnull
-  protected AnyObjectId commitToBranch(@Nonnull String branch) throws IOException {
+  protected RevCommit commitToBranch(@Nonnull String branch) throws IOException {
     return commitToBranch(branch, someCommitMessage(), null);
   }
 
   @Nonnull
-  protected AnyObjectId commitToMaster(@Nonnull String message, @Nullable AnyObjectId parent) throws IOException {
+  protected RevCommit commitToMaster(@Nonnull String message, @Nullable AnyObjectId parent) throws IOException {
     return commitToBranch(Constants.MASTER, message, parent);
   }
 
   @Nonnull
-  protected AnyObjectId commitToMaster(@Nonnull String message) throws IOException {
+  protected RevCommit commitToMaster(@Nonnull String message) throws IOException {
     return commitToBranch(Constants.MASTER, message, null);
   }
 
   @Nonnull
-  protected AnyObjectId commitToMaster() throws IOException {
+  protected RevCommit commitToMaster() throws IOException {
     return commitToBranch(Constants.MASTER);
   }
 
@@ -142,17 +141,17 @@ public abstract class AbstractParallelGitTest {
   }
 
   @Nonnull
-  protected AnyObjectId initContent() throws IOException {
+  protected RevCommit initContent() throws IOException {
     writeToCache("existing_file.txt");
     commitToMaster();
     writeToCache("some_other_file.txt");
-    AnyObjectId head = commitToMaster();
+    RevCommit head = commitToMaster();
     clearCache();
     return head;
   }
 
   @Nonnull
-  protected AnyObjectId initRepository(boolean memory, boolean bare) throws IOException {
+  protected RevCommit initRepository(boolean memory, boolean bare) throws IOException {
     if(!memory)
       initRepositoryDir();
     repo = memory ? new TestRepository(bare) : RepositoryUtils.createRepository(repoDir, bare);
@@ -161,17 +160,17 @@ public abstract class AbstractParallelGitTest {
   }
 
   @Nonnull
-  protected AnyObjectId initFileRepository(boolean bare) throws IOException {
+  protected RevCommit initFileRepository(boolean bare) throws IOException {
     return initRepository(false, bare);
   }
 
   @Nonnull
-  protected AnyObjectId initMemoryRepository(boolean bare) throws IOException {
+  protected RevCommit initMemoryRepository(boolean bare) throws IOException {
     return initRepository(true, bare);
   }
 
   @Nonnull
-  protected AnyObjectId initRepository() throws IOException {
+  protected RevCommit initRepository() throws IOException {
     return initRepository(true, true);
   }
 

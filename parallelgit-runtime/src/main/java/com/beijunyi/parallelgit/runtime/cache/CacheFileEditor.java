@@ -113,7 +113,7 @@ public abstract class CacheFileEditor extends CacheEditor {
 
   protected void createEntry(@Nonnull CacheStateProvider provider) throws IOException {
     AnyObjectId blobId = provider.getInserter().insert(Constants.OBJ_BLOB, bytes);
-    CacheUtils.addFile(provider.getCurrentBuilder(), mode != null ? mode : FileMode.REGULAR_FILE, path, blobId);
+    CacheUtils.addFile(path, mode != null ? mode : FileMode.REGULAR_FILE, blobId, provider.getCurrentBuilder());
   }
 
 }

@@ -39,15 +39,14 @@ public class ParallelCommitCommandTest extends AbstractParallelGitTest {
                              .fromCache(cache)
                              .call();
     Assert.assertNotNull(commitId);
-    DirCache cache = CacheUtils.forRevision(repo, commitId);
+    DirCache cache = CacheUtils.forRevision(commitId, repo);
     Assert.assertEquals(1, cache.getEntryCount());
     Assert.assertEquals(blobId, cache.getEntry(testFile).getObjectId());
   }
 
   @Test
   public void createEmptyCommitTest() throws IOException {
-    AnyObjectId currentHeadId = initRepository();
-    RevCommit currentHead = CommitUtils.getCommit(currentHeadId, repo);
+    RevCommit currentHead = initRepository();
     AnyObjectId commitId = ParallelCommitCommand.prepare(repo)
                              .withTree(currentHead.getTree())
                              .parents(currentHead)
@@ -150,7 +149,7 @@ public class ParallelCommitCommandTest extends AbstractParallelGitTest {
     initRepository();
     writeSomeFileToCache();
     String branch = "test_branch";
-    AnyObjectId treeId = CommitUtils.getCommit(commitToBranch(branch), repo).getTree();
+    AnyObjectId treeId = commitToBranch(branch).getTree();
     String amendedMessage = "amended message";
     AnyObjectId commitId = ParallelCommitCommand.prepare(repo)
                              .branch(branch)
@@ -172,7 +171,7 @@ public class ParallelCommitCommandTest extends AbstractParallelGitTest {
     String existingFile = "existing_file.txt";
     writeToCache(existingFile);
     String branch = "test_branch";
-    String previousMessage = CommitUtils.getCommit(commitToBranch(branch), repo).getFullMessage();
+    String previousMessage = commitToBranch(branch).getFullMessage();
     String newFile = "new_file.txt";
     AnyObjectId commitId = ParallelCommitCommand.prepare(repo)
                              .branch(branch)

@@ -27,7 +27,7 @@ public class TreeUtilsTest extends AbstractParallelGitTest {
   public void newTreeWalkTest() throws IOException {
     clearCache();
     writeFilesToCache("a.txt", "b.txt", "c/d.txt", "c/e.txt", "f/g.txt");
-    RevTree tree = CommitUtils.getCommit(commitToMaster(), repo).getTree();
+    RevTree tree = commitToMaster().getTree();
     TreeWalk treeWalk = TreeUtils.newTreeWalk(tree, repo);
 
     assertNextEntry(treeWalk, "a.txt");
@@ -40,9 +40,7 @@ public class TreeUtilsTest extends AbstractParallelGitTest {
   @Test
   public void existsTest() throws IOException {
     writeToCache("a/b.txt");
-    AnyObjectId commit = commitToMaster();
-
-    RevTree tree = CommitUtils.getCommit(commit, repo).getTree();
+    RevTree tree = commitToMaster().getTree();
     Assert.assertTrue(TreeUtils.exists("a", tree, repo));
     Assert.assertTrue(TreeUtils.exists("a/b.txt", tree, repo));
     Assert.assertFalse(TreeUtils.exists("a/b", tree, repo));
@@ -51,18 +49,14 @@ public class TreeUtilsTest extends AbstractParallelGitTest {
   @Test
   public void getObjectTest() throws IOException {
     AnyObjectId objectId = writeToCache("a/b.txt");
-    AnyObjectId commit = commitToMaster();
-
-    RevTree tree = CommitUtils.getCommit(commit, repo).getTree();
+    RevTree tree = commitToMaster().getTree();
     Assert.assertEquals(objectId, TreeUtils.getObjectId("a/b.txt", tree, repo));
   }
 
   @Test
   public void isBlobTest() throws IOException {
     writeToCache("a/b.txt");
-    AnyObjectId commit = commitToMaster();
-
-    RevTree tree = CommitUtils.getCommit(commit, repo).getTree();
+    RevTree tree = commitToMaster().getTree();
     Assert.assertFalse(TreeUtils.isFileOrSymbolicLink("a", tree, repo));
     Assert.assertTrue(TreeUtils.isFileOrSymbolicLink("a/b.txt", tree, repo));
     Assert.assertFalse(TreeUtils.isFileOrSymbolicLink("a/b", tree, repo));
@@ -71,9 +65,7 @@ public class TreeUtilsTest extends AbstractParallelGitTest {
   @Test
   public void isTreeTest() throws IOException {
     writeToCache("a/b.txt");
-    AnyObjectId commit = commitToMaster();
-
-    RevTree tree = CommitUtils.getCommit(commit, repo).getTree();
+    RevTree tree = commitToMaster().getTree();
     Assert.assertTrue(TreeUtils.isDirectory("a", tree, repo));
     Assert.assertFalse(TreeUtils.isDirectory("a/b.txt", tree, repo));
     Assert.assertFalse(TreeUtils.isDirectory("a/b", tree, repo));

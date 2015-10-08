@@ -4,7 +4,7 @@ import java.io.IOException;
 
 import com.beijunyi.parallelgit.AbstractParallelGitTest;
 import com.beijunyi.parallelgit.runtime.ParallelCacheCommand;
-import com.beijunyi.parallelgit.utils.*;
+import com.beijunyi.parallelgit.utils.CacheUtils;
 import org.eclipse.jgit.dircache.DirCache;
 import org.eclipse.jgit.lib.AnyObjectId;
 import org.junit.Assert;
@@ -21,11 +21,11 @@ public class ParallelCacheCommandUseCaseTest extends AbstractParallelGitTest {
   @Test
   public void addDirectoryWhenInputNameEndsWithSlash() throws IOException {
     writeToCache("/file.txt");
-    AnyObjectId treeWithTwoChildren = CommitUtils.getCommit(commitToMaster(), repo).getTree();
+    AnyObjectId treeWithTwoChildren = commitToMaster().getTree();
     DirCache cache = ParallelCacheCommand.prepare(repo)
                        .addDirectory("/dir/", treeWithTwoChildren.getName())
                        .call();
-    Assert.assertNotNull(CacheUtils.getEntry(cache, "/dir/file.txt"));
+    Assert.assertNotNull(CacheUtils.getEntry("/dir/file.txt", cache));
   }
 
   @Test
@@ -37,7 +37,7 @@ public class ParallelCacheCommandUseCaseTest extends AbstractParallelGitTest {
                        .baseCommit(commitId)
                        .deleteDirectory("/dir/")
                        .call();
-    Assert.assertNull(CacheUtils.getEntry(cache, "/dir/file.txt"));
+    Assert.assertNull(CacheUtils.getEntry("/dir/file.txt", cache));
   }
 
   @Test
@@ -51,8 +51,8 @@ public class ParallelCacheCommandUseCaseTest extends AbstractParallelGitTest {
                        .deleteFile("/file.txt")
                        .addFile("/another_file.txt", blobId)
                        .call();
-    Assert.assertNull(CacheUtils.getEntry(cache, "/file.txt"));
-    Assert.assertNotNull(CacheUtils.getEntry(cache, "/another_file.txt"));
+    Assert.assertNull(CacheUtils.getEntry("/file.txt", cache));
+    Assert.assertNotNull(CacheUtils.getEntry("/another_file.txt", cache));
   }
 
   @Test
@@ -66,8 +66,8 @@ public class ParallelCacheCommandUseCaseTest extends AbstractParallelGitTest {
                        .addFile("/file.txt", blobId)
                        .deleteFile("/another_file.txt")
                        .call();
-    Assert.assertNotNull(CacheUtils.getEntry(cache, "/file.txt"));
-    Assert.assertNull(CacheUtils.getEntry(cache, "/another_file.txt"));
+    Assert.assertNotNull(CacheUtils.getEntry("/file.txt", cache));
+    Assert.assertNull(CacheUtils.getEntry("/another_file.txt", cache));
   }
 
 }

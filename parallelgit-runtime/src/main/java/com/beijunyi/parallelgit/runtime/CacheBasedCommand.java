@@ -142,7 +142,7 @@ public abstract class CacheBasedCommand<B extends CacheBasedCommand, T> extends 
   private void setupBase(@Nonnull CacheStateProvider provider) throws IOException {
     if(isBaseSpecified()) {
       resolveBaseTree(provider.getRepository());
-      CacheUtils.addTree(provider.getCurrentCache(), provider.getReader(), "", baseTreeId);
+      CacheUtils.addTree("", baseTreeId, provider.getCurrentCache(), provider.getReader());
     }
   }
 

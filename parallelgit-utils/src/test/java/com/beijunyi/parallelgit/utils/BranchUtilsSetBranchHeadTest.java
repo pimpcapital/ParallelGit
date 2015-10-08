@@ -19,7 +19,7 @@ public class BranchUtilsSetBranchHeadTest extends AbstractParallelGitTest {
   public void setUpBranch() throws IOException {
     AnyObjectId masterHead = initMemoryRepository(false);
     writeSomeFileToCache();
-    branchHead = CommitUtils.getCommit(commitToBranch(branch, masterHead), repo);
+    branchHead =commitToBranch(branch, masterHead);
   }
 
   @Test

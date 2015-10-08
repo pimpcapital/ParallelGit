@@ -13,6 +13,6 @@ public class DeleteTree extends CacheEditor {
 
   @Override
   public void edit(@Nonnull CacheStateProvider provider) throws IOException {
-    CacheUtils.deleteDirectory(provider.getEditor(), path);
+    CacheUtils.deleteDirectory(path, provider.getEditor());
   }
 }

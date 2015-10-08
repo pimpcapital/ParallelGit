@@ -25,6 +25,6 @@ public class AddEntry extends CacheEditor {
 
   @Override
   public void edit(@Nonnull CacheStateProvider provider) throws IOException {
-    CacheUtils.addFile(provider.getCurrentBuilder(), mode, path, blobId);
+    CacheUtils.addFile(path, mode, blobId, provider.getCurrentBuilder());
   }
 }

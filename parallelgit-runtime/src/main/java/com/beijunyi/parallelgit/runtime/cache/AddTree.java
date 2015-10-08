@@ -31,6 +31,6 @@ public class AddTree extends CacheEditor {
     if(treeId == null)
       treeId = provider.getRepository().resolve(treeIdStr);
     DirCacheBuilder builder = provider.getCurrentBuilder();
-    CacheUtils.addTree(builder, reader, path, treeId);
+    CacheUtils.addTree(path, treeId, builder, reader);
   }
 }

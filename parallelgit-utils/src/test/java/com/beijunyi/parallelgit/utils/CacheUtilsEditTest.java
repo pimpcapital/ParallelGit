@@ -1,24 +1,28 @@
 package com.beijunyi.parallelgit.utils;
 
+import java.io.IOException;
 import java.util.Iterator;
 import javax.annotation.Nonnull;
 
 import com.beijunyi.parallelgit.AbstractParallelGitTest;
-import org.eclipse.jgit.dircache.*;
+import org.eclipse.jgit.dircache.DirCache;
+import org.eclipse.jgit.dircache.DirCacheBuilder;
+import org.eclipse.jgit.dircache.DirCacheEditor;
 import org.eclipse.jgit.lib.AnyObjectId;
 import org.eclipse.jgit.lib.FileMode;
 import org.eclipse.jgit.lib.ObjectId;
 import org.junit.Assert;
+import org.junit.Before;
 import org.junit.Test;
 
-public class CacheUtilsTest extends AbstractParallelGitTest {
+public class CacheUtilsEditTest extends AbstractParallelGitTest {
 
   @Nonnull
-  private static DirCache setupCache(String... files) {
+  private static DirCache setupCache(@Nonnull String... files) {
     DirCache cache = DirCache.newInCore();
     DirCacheBuilder builder = cache.builder();
     for(String file : files)
-      CacheUtils.addFile(builder, FileMode.REGULAR_FILE, file, ObjectId.zeroId());
+      CacheUtils.addFile(file, FileMode.REGULAR_FILE, ObjectId.zeroId(), builder);
     builder.finish();
     return cache;
   }
@@ -30,32 +34,39 @@ public class CacheUtilsTest extends AbstractParallelGitTest {
     Assert.assertEquals(isRegularFile, entry.isRegularFile());
   }
 
-  @Test
-  public void keepEverythingTest() {
-    String file1 = "file1.txt";
-    String file2 = "file2.txt";
-    DirCache cache = setupCache(file1, file2);
-    Assert.assertNotNull(cache.getEntry(file1));
-    Assert.assertNotNull(cache.getEntry(file2));
+  @Before
+  public void setUp() throws IOException {
+    initRepository();
   }
 
   @Test
-  public void addFileTest() {
-    DirCache cache = DirCache.newInCore();
+  public void keepEverything_ExistingEntriesShouldBeKept() throws IOException {
+    writeFilesToCache("/file1.txt");
+    writeFilesToCache("/file2.txt");
+    DirCacheBuilder builder = CacheUtils.keepEverything(cache);
+    builder.finish();
+    Assert.assertNotNull(CacheUtils.getEntry("/file1.txt", cache));
+    Assert.assertNotNull(CacheUtils.getEntry("/file2.txt", cache));
+  }
 
-    String file = "a/b/c.txt";
-    AnyObjectId contentId1 = someObjectId();
-    CacheUtils.addFile(cache, file, contentId1);
+  @Test
+  public void addFile_theFileShouldExistInTheCacheAfterTheOperation() {
+    CacheUtils.addFile("/test_file.txt", someObjectId(), cache);
+    Assert.assertNotNull(CacheUtils.getEntry("/test_file.txt", cache));
+  }
 
-    int entryCount = cache.getEntryCount();
-    Assert.assertEquals(1, entryCount);
+  @Test
+  public void addFile_theAddedFileShouldHaveTheSpecifiedObjectId() {
+    AnyObjectId expected = someObjectId();
+    CacheUtils.addFile("/test_file.txt", expected, cache);
+    Assert.assertEquals(expected, CacheUtils.getBlobId("/test_file.txt", cache));
+  }
 
-    int index = cache.findEntry(file);
-    Assert.assertTrue(index >= 0);
-
-    DirCacheEntry entry = cache.getEntry(index);
-    Assert.assertNotNull(entry);
-    Assert.assertEquals(contentId1, entry.getObjectId());
+  @Test
+  public void addFile_theAddedFileShouldHaveTheSpecifiedFileMode() {
+    FileMode expected = FileMode.EXECUTABLE_FILE;
+    CacheUtils.addFile("/test_file.txt", expected, someObjectId(), cache);
+    Assert.assertEquals(expected, CacheUtils.getFileMode("/test_file.txt", cache));
   }
 
   @Test
@@ -68,7 +79,7 @@ public class CacheUtilsTest extends AbstractParallelGitTest {
                                     "a/c3.txt",
                                     "a/b/c4.txt"};
     for(String file : files)
-      CacheUtils.addFile(builder, FileMode.REGULAR_FILE, file, ObjectId.zeroId());builder.finish();
+      CacheUtils.addFile(file, FileMode.REGULAR_FILE, ObjectId.zeroId(), builder);builder.finish();
 
     int entryCount = cache.getEntryCount();
     Assert.assertEquals(4, entryCount);
@@ -80,13 +91,13 @@ public class CacheUtilsTest extends AbstractParallelGitTest {
                                  "a/c2.txt",
                                  "a/c3.txt");
 
-    CacheUtils.deleteFile(cache, "non_existent_file");
+    CacheUtils.deleteFile("non_existent_file", cache);
     Assert.assertEquals(3, cache.getEntryCount());
 
-    CacheUtils.deleteFile(cache, "a/b/c1.txt");
+    CacheUtils.deleteFile("a/b/c1.txt", cache);
     Assert.assertEquals(2, cache.getEntryCount());
 
-    CacheUtils.deleteFile(cache, "a/c2.txt");
+    CacheUtils.deleteFile("a/c2.txt", cache);
     Assert.assertEquals(1, cache.getEntryCount());
   }
 
@@ -100,10 +111,10 @@ public class CacheUtilsTest extends AbstractParallelGitTest {
                                  "a/c6.txt");
 
     DirCacheEditor editor = cache.editor();
-    CacheUtils.deleteFile(editor, "a/b/c1.txt");
-    CacheUtils.deleteFile(editor, "a/c3.txt");
-    CacheUtils.deleteFile(editor, "a/c4.txt");
-    CacheUtils.deleteFile(editor, "a/c6.txt");
+    CacheUtils.deleteFile("a/b/c1.txt", editor);
+    CacheUtils.deleteFile("a/c3.txt", editor);
+    CacheUtils.deleteFile("a/c4.txt", editor);
+    CacheUtils.deleteFile("a/c6.txt", editor);
     editor.finish();
 
     Assert.assertEquals(2, cache.getEntryCount());
@@ -121,7 +132,7 @@ public class CacheUtilsTest extends AbstractParallelGitTest {
                                  "a/c5.txt",
                                  "a/c6.txt");
 
-    CacheUtils.deleteDirectory(cache, "a/b");
+    CacheUtils.deleteDirectory("a/b", cache);
 
     Assert.assertEquals(4, cache.getEntryCount());
     Assert.assertNull(cache.getEntry("a/b/c1.txt"));
@@ -142,8 +153,8 @@ public class CacheUtilsTest extends AbstractParallelGitTest {
                                  "a/c6.txt");
 
     DirCacheEditor editor = cache.editor();
-    CacheUtils.deleteDirectory(editor, "a/b");
-    CacheUtils.deleteDirectory(editor, "a/d");
+    CacheUtils.deleteDirectory("a/b", editor);
+    CacheUtils.deleteDirectory("a/d", editor);
     editor.finish();
 
     Assert.assertEquals(2, cache.getEntryCount());
@@ -160,10 +171,10 @@ public class CacheUtilsTest extends AbstractParallelGitTest {
                                  "a/c5.txt",
                                  "a/c6.txt");
 
-    Assert.assertTrue(CacheUtils.isNonTrivialDirectory(cache, "a"));
-    Assert.assertTrue(CacheUtils.isNonTrivialDirectory(cache, "a/b"));
-    Assert.assertFalse(CacheUtils.isNonTrivialDirectory(cache, "a/c"));
-    Assert.assertTrue(CacheUtils.isNonTrivialDirectory(cache, "a/d"));
+    Assert.assertTrue(CacheUtils.isNonTrivialDirectory("a", cache));
+    Assert.assertTrue(CacheUtils.isNonTrivialDirectory("a/b", cache));
+    Assert.assertFalse(CacheUtils.isNonTrivialDirectory("a/c", cache));
+    Assert.assertTrue(CacheUtils.isNonTrivialDirectory("a/d", cache));
   }
 
   @Test
@@ -175,7 +186,7 @@ public class CacheUtilsTest extends AbstractParallelGitTest {
                                  "a/c5.txt",
                                  "a/d/c6.txt");
 
-    Iterator<VirtualDirCacheEntry> iterator = CacheUtils.iterateDirectory(cache, "a");
+    Iterator<VirtualDirCacheEntry> iterator = CacheUtils.iterateDirectory("a", cache);
     Assert.assertNotNull(iterator);
     assertNextEntry(iterator, "a/b", false);
     assertNextEntry(iterator, "a/c4.txt", true);
@@ -187,7 +198,7 @@ public class CacheUtilsTest extends AbstractParallelGitTest {
   @Test
   public void iterateNonExistentDirectoryTest() {
     DirCache cache = setupCache();
-    Iterator<VirtualDirCacheEntry> iterator = CacheUtils.iterateDirectory(cache, "a");
+    Iterator<VirtualDirCacheEntry> iterator = CacheUtils.iterateDirectory("a", cache);
     Assert.assertNull(iterator);
   }
 
@@ -195,7 +206,7 @@ public class CacheUtilsTest extends AbstractParallelGitTest {
   public void iterateDirectoryThatHasPrefixNameChildrenTest() {
     DirCache cache = setupCache("prefix/file.txt",
                                  "prefix_plus_something/file.txt");
-    Iterator<VirtualDirCacheEntry> iterator = CacheUtils.iterateDirectory(cache, "");
+    Iterator<VirtualDirCacheEntry> iterator = CacheUtils.iterateDirectory("", cache);
     Assert.assertNotNull(iterator);
     assertNextEntry(iterator, "prefix", false);
     assertNextEntry(iterator, "prefix_plus_something", false);
