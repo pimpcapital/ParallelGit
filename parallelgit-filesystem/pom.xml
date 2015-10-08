@@ -3,7 +3,7 @@
   <parent>
     <artifactId>parallelgit</artifactId>
     <groupId>com.beijunyi.parallelgit</groupId>
-    <version>0.9.3-SNAPSHOT</version>
+    <version>0.9.3</version>
   </parent>
   <modelVersion>4.0.0</modelVersion>
 
@@ -15,20 +15,20 @@
     <dependency>
       <groupId>com.beijunyi.parallelgit</groupId>
       <artifactId>parallelgit-utils</artifactId>
-      <version>0.9.3-SNAPSHOT</version>
+      <version>0.9.3</version>
     </dependency>
 
     <dependency>
       <groupId>com.beijunyi.parallelgit</groupId>
       <artifactId>parallelgit-utils</artifactId>
-      <version>0.9.3-SNAPSHOT</version>
+      <version>0.9.3</version>
       <type>test-jar</type>
       <scope>test</scope>
     </dependency>
     <dependency>
       <groupId>com.beijunyi.parallelgit</groupId>
       <artifactId>parallelgit-runtime</artifactId>
-      <version>0.9.3-SNAPSHOT</version>
+      <version>0.9.3</version>
       <scope>test</scope>
     </dependency>
   </dependencies>
