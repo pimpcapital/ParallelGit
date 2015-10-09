@@ -103,7 +103,10 @@ An in progress module inspired by [fluent design pattern](https://en.wikipedia.o
 
 Donate
 ------
-If this library helped you, consider a donation to [![Cancer Research UK](http://www.cancerresearchuk.org/sites/all/themes/custom/cruk/logo.png)](http://www.cancerresearchuk.org/support-us/donate)
+[![Cancer Research UK](http://www.cancerresearchuk.org/sites/all/themes/custom/cruk/logo.png)](http://www.cancerresearchuk.org/support-us/donate)
+If this library has helped you, consider a donation to [Cancer Research UK](http://www.cancerresearchuk.org/support-us/donate).
+Thank you!
+
 
 License
 -------
