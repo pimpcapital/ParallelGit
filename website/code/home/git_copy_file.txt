@@ -1,0 +1,5 @@
+public void copyFile(String filename, File repoDir, Path dest) {
+ new Git(repo).checkout().setName("master").call();
+ Path file = repo.getWorkTree().toPath().resolve(filename);
+ Files.copy(file, dest);
+}

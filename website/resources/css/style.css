@@ -75,6 +75,42 @@ p a.btn-xs i.fa {
   margin-top: 5px;
 }
 
+.label {
+  font-size: 10px;
+  margin: 0 5px;
+  font-weight: 700;
+}
+
+.label-success {
+  background-color: #369936;
+}
+
+.label-success + .popover {
+  background-color: #C5F0B4;
+  color: #369936;
+}
+
+.label-success + .popover.right > .arrow:after {
+  border-right-color: #C5F0B4;
+}
+
+.label-danger {
+  background-color: #BD302B;
+}
+
+.label-danger + .popover {
+  background-color: #F2C4C4;
+  color: #BD302B;
+}
+
+.label-danger + .popover.right > .arrow:after {
+  border-right-color: #F2C4C4;
+}
+
+.popover {
+  max-width: 500px;
+}
+
 .highlight {
   color: #bf5a16;
 }

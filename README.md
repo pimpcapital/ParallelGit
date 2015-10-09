@@ -39,8 +39,8 @@ public void branchFromMaster(String newBranch, Repository repo) {
 #####Read File
 ```java
 public void printFile(String filename, Repository repo) {
-  byte[] data = GitFileUtils.readFile(filename, "master", repo);
-  String text = new String(data);
+  byte[] blob = GitFileUtils.readFile(filename, "master", repo);
+  String text = new String(blob);
   System.out.println(text);
 }
 ```

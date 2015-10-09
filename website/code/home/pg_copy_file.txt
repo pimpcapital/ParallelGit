@@ -1,0 +1,9 @@
+public void copyFile(String filename, File repoDir, Path dest) {
+  try(GitFileSystem gfs = GitFileSystemBuilder.prepare()
+                                              .repository(repoDir)
+                                              .branch("master")
+                                              .build()) {
+    Path sourceFile = gfs.getPath(filename);
+    Files.copy(sourceFile, dest);
+  }
+}

@@ -16,13 +16,13 @@
   </div>
   No one really reads the introduction on every open source project's website. So I am going to cut it short.<br/>
   <br/>
-  Here are the things you should know:<br/>
+  Here are the things you want to know:<br/>
   <ul>
     <li>Git is not just for code. People use it to store and version audio samples, videos, datasets, graphics etc</li>
     <li>There is a Java implementation of Git called JGit</li>
     <li>JGit is quite verbose and counter-intuitive (sometimes)</li>
   </ul>
-  ParallelGit wraps the JGit methods to provide a more friendly API to your project.<br/>
+  ParallelGit wrapped the JGit methods to provide a more friendly API to your project.<br/>
   <br/>
 
   <div class="page-header">
@@ -37,8 +37,8 @@
     </thead>
     <tbody>
     <tr>
-      <td class="col-md-6">JGit</td>
-      <td class="col-md-6">ParallelGit</td>
+      <td class="col-md-6">JGit<label-no-checkout></label-no-checkout></td>
+      <td class="col-md-6">ParallelGit<label-no-checkout></label-no-checkout></td>
     </tr>
     <tr>
       <td class="col-md-6">
@@ -54,13 +54,13 @@
   <table class="table">
     <thead>
     <tr>
-      <th colspan="2">Create Branch</th>
+      <th colspan="2">Create Branch (without checking out)</th>
     </tr>
     </thead>
     <tbody>
     <tr>
-      <td class="col-md-6">JGit</td>
-      <td class="col-md-6">ParallelGit</td>
+      <td class="col-md-6">JGit<label-no-checkout></label-no-checkout></td>
+      <td class="col-md-6">ParallelGit<label-no-checkout></label-no-checkout></td>
     </tr>
     <tr>
       <td class="col-md-6">
@@ -68,6 +68,50 @@
       </td>
       <td class="col-md-6">
         <div hljs language="java" include="'code/home/pg_create_branch.txt'"></div>
+      </td>
+    </tr>
+    </tbody>
+  </table>
+
+  <table class="table">
+    <thead>
+    <tr>
+      <th colspan="2">Read File</th>
+    </tr>
+    </thead>
+    <tbody>
+    <tr>
+      <td class="col-md-6">JGit<label-no-checkout></label-no-checkout></td>
+      <td class="col-md-6">ParallelGit<label-no-checkout></label-no-checkout></td>
+    </tr>
+    <tr>
+      <td class="col-md-6">
+        <div hljs language="java" include="'code/home/git_read_file.txt'"></div>
+      </td>
+      <td class="col-md-6">
+        <div hljs language="java" include="'code/home/pg_read_file.txt'"></div>
+      </td>
+    </tr>
+    </tbody>
+  </table>
+
+  <table class="table">
+    <thead>
+    <tr>
+      <th colspan="2">Copy File</th>
+    </tr>
+    </thead>
+    <tbody>
+    <tr>
+      <td class="col-md-6">JGit<label-checkout></label-checkout></td>
+      <td class="col-md-6">ParallelGit<label-no-checkout></label-no-checkout></td>
+    </tr>
+    <tr>
+      <td class="col-md-6">
+        <div hljs language="java" include="'code/home/git_copy_file.txt'"></div>
+      </td>
+      <td class="col-md-6">
+        <div hljs language="java" include="'code/home/pg_copy_file.txt'"></div>
       </td>
     </tr>
     </tbody>
