@@ -2,100 +2,72 @@
   <div class="page-header">
     <h3>Hello there!</h3>
   </div>
-  <p>
-    Welcome to this site!<br/>
-    <br/>
-    ParallelGit is an open source project built upon <a>JGit</a>.<br/>
-    <br/>
-    It provides you with easy access to your local Git repository.<br/>
-    <br/>
-    <br/>
-  </p>
+  Welcome to this site!<br/>
+  <br/>
+  ParallelGit is an open source project built upon <a>JGit</a>.<br/>
+  <br/>
+  It provides your Java project with easy access to your local Git repository.<br/>
+  <br/>
+  <br/>
 
 
   <div class="page-header">
-    <h3>Yet another data storage</h3>
+    <h3>Why we are here?</h3>
   </div>
-  <p>
-    Every non-trivial project needs some sort of a data storage.<br/>
-    <br/>
-    Many projects use a SQL database. Some are better off with a NoSQL database. The dodgy ones simply drop a few files in your home directory.<br/>
-    <br/>
-    A Git repository is just another place to store your data.<br/>
-    <br/>
-    <br/>
-  </p>
-
+  No one really reads the introduction on every open source project's website. So I am going to cut it short.<br/>
+  <br/>
+  Here are the things you should know:<br/>
+  <ul>
+    <li>Git is not just for code. People use it to store and version audio samples, videos, datasets, graphics etc</li>
+    <li>There is a Java implementation of Git called JGit</li>
+    <li>JGit is quite verbose and counter-intuitive (sometimes)</li>
+  </ul>
+  ParallelGit wraps the JGit methods to provide a more friendly API to your project.<br/>
+  <br/>
 
   <div class="page-header">
-    <h3>The keeper of the history</h3>
+    <h3>Examples</h3>
   </div>
-  <p>
-    We all know that Git is awesome at storing text files that change over time.<br/>
-    If you are managing some text files and want a system to keep a close eye on them, Git is a good candidate for this job.<br/>
-    <br/>
-    In fact, Git doesn't care about the format of a file.<br/>
-    You can drop a binary file into a Git repository and Git will keep a nice and neat history of this file.<br/>
-    <br/>
-    What Git really offers is the ability to keep the entire history of a data structure at a very low cost.<br/>
-    <br/>
-    <br/>
-  </p>
 
-
-  <div class="page-header">
-    <h3>A time machine</h3>
-  </div>
-  <p>
-    People use Git know how to change the state of a repository by checking out a commit.<br/>
-    <br/>
-    It is like you have a time machine that allows you to jump from one point to another on the time line.<br/>
-    <br/>
-    If you want your Java program to have such power, you should consider adding a library that can talk to a Git repository such as <a>JGit</a>.<br/>
-    <br/>
-    <br/>
-  </p>
-
-
-  <div class="page-header">
-    <h3>A touch screen for your time machine</h3>
-  </div>
-  <p>
-    Let me just tell you that using the JGit API is not the most enjoyable thing in the world.<br/>
-    <br/>
-    Imagine you have very powerful a time machine.<br/>
-    It can do 2000 things. (10 locations * 200 times)<br/>
-    There are 10 buttons in front of you.<br/>
-    The machine will take you to the place you want to go, if you press the buttons in a certain order.<br/>
-    The machine will either blow up or take you to a random place, if you get the combination wrong.<br/>
-    <br/>
-    Are you comfortable with this time machine?<br/>
-    <br/>
-    How would you like a touch screen for this time machine?<br/>
-    How would you like having all the options displayed right in front your eyes. Anything you want to do is just a few taps away.<br/>
-    Sounds good?<br/>
-    ParallelGit may just be the touch screen for your time machine.<br/>
-
-
-  </p>
   <table class="table">
     <thead>
     <tr>
-      <th class="col-md-6">Method 1</th>
-      <th class="col-md-6">Method 2</th>
+      <th class="col-md-6" colspan="2">Create Repository</th>
     </tr>
     </thead>
     <tbody>
     <tr>
-      <td>Checkout -> File Stream -> Read Bytes</td>
-      <td>Commit -> Tree -> Blob -> Read Bytes</td>
+      <td class="col-md-6">JGit</td>
+      <td class="col-md-6">ParallelGit</td>
     </tr>
     <tr>
-      <td>
-        <div hljs language="java" include="'code/home/retrieve-file1.txt'"></div>
+      <td class="col-md-6">
+        <div hljs language="java" include="'code/home/git_create_repository.txt'"></div>
       </td>
-      <td>
-        <div hljs language="java" include="'code/home/retrieve-file2.txt'"></div>
+      <td class="col-md-6">
+        <div hljs language="java" include="'code/home/pg_create_repository.txt'"></div>
+      </td>
+    </tr>
+    </tbody>
+  </table>
+
+  <table class="table">
+    <thead>
+    <tr>
+      <th colspan="2">Create Branch</th>
+    </tr>
+    </thead>
+    <tbody>
+    <tr>
+      <td class="col-md-6">JGit</td>
+      <td class="col-md-6">ParallelGit</td>
+    </tr>
+    <tr>
+      <td class="col-md-6">
+        <div hljs language="java" include="'code/home/git_create_branch.txt'"></div>
+      </td>
+      <td class="col-md-6">
+        <div hljs language="java" include="'code/home/pg_create_branch.txt'"></div>
       </td>
     </tr>
     </tbody>

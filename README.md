@@ -1,7 +1,7 @@
 ParallelGit
 ===========
 
-ParallelGit is an open source library built upon [JGit](https://eclipse.org/jgit/) to provide your Java program with easy access to your local Git repository.
+ParallelGit is an open source library built upon [JGit](https://eclipse.org/jgit/) to provide your Java project with easy access to your local Git repository.
 
 [![Build Status](https://travis-ci.org/beijunyi/ParallelGit.svg?branch=master)](https://travis-ci.org/beijunyi/ParallelGit)
 [![Coverage Status](https://coveralls.io/repos/beijunyi/ParallelGit/badge.svg?branch=master&service=github)](https://coveralls.io/github/beijunyi/ParallelGit?branch=master)
@@ -100,6 +100,10 @@ An in progress module inspired by [fluent design pattern](https://en.wikipedia.o
   <version>0.9.3</version>
 </dependency>
 ```
+
+Donate
+------
+If this library helped you, consider a donation to [![Cancer Research UK](http://www.cancerresearchuk.org/sites/all/themes/custom/cruk/logo.png)](http://www.cancerresearchuk.org/support-us/donate)
 
 License
 -------
