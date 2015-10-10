@@ -19,19 +19,19 @@ public class GitFileSystemBuilderTest extends AbstractParallelGitTest {
   }
 
   @Test
-  public void buildForUri() throws IOException {
+  public void buildFromUri() throws IOException {
     URI uri = GitUriBuilder.prepare()
                 .repository(repo)
                 .build();
-    GitFileSystem gfs = GitFileSystemBuilder.forUri(uri, GitParams.emptyMap())
+    GitFileSystem gfs = GitFileSystemBuilder.fromUri(uri, GitParams.emptyMap())
                           .build();
     Assert.assertEquals(repo.getDirectory(), gfs.getRepository().getDirectory());
   }
 
   @Test
-  public void buildForPath() throws IOException {
+  public void buildFromPath() throws IOException {
     Path path = repoDir.toPath();
-    GitFileSystem gfs = GitFileSystemBuilder.forPath(path, GitParams.emptyMap())
+    GitFileSystem gfs = GitFileSystemBuilder.fromPath(path, GitParams.emptyMap())
                           .build();
     Assert.assertEquals(repo.getDirectory(), gfs.getRepository().getDirectory());
   }

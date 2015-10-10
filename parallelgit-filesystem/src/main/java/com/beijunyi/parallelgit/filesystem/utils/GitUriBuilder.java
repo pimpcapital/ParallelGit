@@ -25,7 +25,7 @@ public class GitUriBuilder {
   }
 
   @Nonnull
-  public static GitUriBuilder forFileSystem(@Nonnull GitFileSystem gfs) {
+  public static GitUriBuilder fromFileSystem(@Nonnull GitFileSystem gfs) {
     return prepare()
              .repository(gfs.getRepository())
              .sid(gfs.getSessionId());

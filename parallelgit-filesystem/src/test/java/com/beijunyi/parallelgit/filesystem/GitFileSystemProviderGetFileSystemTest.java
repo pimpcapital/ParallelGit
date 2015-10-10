@@ -18,7 +18,7 @@ public class GitFileSystemProviderGetFileSystemTest extends PreSetupGitFileSyste
 
   @Test
   public void getFileSystemForUriWithInvalidSessionId_theResultShouldBeNull() {
-    URI uri = GitUriBuilder.forFileSystem(gfs)
+    URI uri = GitUriBuilder.fromFileSystem(gfs)
                 .sid("some_invalid_sid")
                 .build();
     Assert.assertNull(provider.getFileSystem(uri));
@@ -26,7 +26,7 @@ public class GitFileSystemProviderGetFileSystemTest extends PreSetupGitFileSyste
 
   @Test
   public void getFileSystemForUriWithNoSessionId_theResultShouldBeNull() {
-    URI uri = GitUriBuilder.forFileSystem(gfs)
+    URI uri = GitUriBuilder.fromFileSystem(gfs)
                 .sid(null)
                 .build();
     Assert.assertNull(provider.getFileSystem(uri));

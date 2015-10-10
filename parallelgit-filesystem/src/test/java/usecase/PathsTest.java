@@ -32,7 +32,7 @@ public class PathsTest extends AbstractGitFileSystemTest {
 
   @Test(expected = FileSystemNotFoundException.class)
   public void getArbitraryFileFromUri_invalidSid() {
-    URI uri = GitUriBuilder.forFileSystem(gfs)
+    URI uri = GitUriBuilder.fromFileSystem(gfs)
                 .file("/test_file.txt")
                 .sid("some_invalid_sid").build();
     Paths.get(uri);

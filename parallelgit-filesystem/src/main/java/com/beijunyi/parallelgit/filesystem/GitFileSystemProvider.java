@@ -52,7 +52,7 @@ public class GitFileSystemProvider extends FileSystemProvider {
   @Override
   public GitFileSystem newFileSystem(@Nonnull Path path, @Nonnull Map<String, ?> properties) throws IOException {
     return GitFileSystemBuilder
-             .forPath(path, properties)
+             .fromPath(path, properties)
              .provider(this)
              .build();
   }
@@ -61,7 +61,7 @@ public class GitFileSystemProvider extends FileSystemProvider {
   @Override
   public GitFileSystem newFileSystem(@Nonnull URI uri, @Nonnull Map<String, ?> properties) throws IOException {
     return GitFileSystemBuilder
-             .forUri(uri, properties)
+             .fromUri(uri, properties)
              .provider(this)
              .build();
   }

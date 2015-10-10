@@ -40,27 +40,17 @@ public class GitFileSystemBuilder {
   }
 
   @Nonnull
-  public static GitFileSystemBuilder forUri(@Nonnull URI uri, @Nonnull Map<String, ?> properties) {
+  public static GitFileSystemBuilder fromUri(@Nonnull URI uri, @Nonnull Map<String, ?> properties) {
     return prepare()
              .repository(GitUriUtils.getRepository(uri))
              .readAllParams(GitParams.getParams(properties));
   }
 
   @Nonnull
-  public static GitFileSystemBuilder forPath(@Nonnull Path path, @Nonnull Map<String, ?> properties) {
+  public static GitFileSystemBuilder fromPath(@Nonnull Path path, @Nonnull Map<String, ?> properties) {
     return prepare()
              .repository(path.toFile())
              .readAllParams(GitParams.getParams(properties));
-  }
-
-  @Nonnull
-  public GitFileSystemBuilder readAllParams(@Nonnull GitParams params) {
-    return this
-             .create(params.getCreate())
-             .bare(params.getBare())
-             .branch(params.getBranch())
-             .commit(params.getRevision())
-             .tree(params.getTree());
   }
 
   @Nonnull
@@ -145,6 +135,28 @@ public class GitFileSystemBuilder {
     return this;
   }
 
+  @Nonnull
+  public GitFileSystem build() throws IOException {
+    prepareProvider();
+    prepareRepository();
+    prepareBranch();
+    prepareCommit();
+    prepareTree();
+    GitFileSystem fs = new GitFileSystem(provider, repository, branch, commit, treeId);
+    provider.register(fs);
+    return fs;
+  }
+
+  @Nonnull
+  private GitFileSystemBuilder readAllParams(@Nonnull GitParams params) {
+    return this
+             .create(params.getCreate())
+             .bare(params.getBare())
+             .branch(params.getBranch())
+             .commit(params.getRevision())
+             .tree(params.getTree());
+  }
+
   private void errorNoRepositories() {
     throw new IllegalArgumentException("No repository provided");
   }
@@ -227,15 +239,4 @@ public class GitFileSystemBuilder {
     }
   }
 
-  @Nonnull
-  public GitFileSystem build() throws IOException {
-    prepareProvider();
-    prepareRepository();
-    prepareBranch();
-    prepareCommit();
-    prepareTree();
-    GitFileSystem fs = new GitFileSystem(provider, repository, branch, commit, treeId);
-    provider.register(fs);
-    return fs;
-  }
 }

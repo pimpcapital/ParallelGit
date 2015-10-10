@@ -17,7 +17,7 @@ public class GitFileSystemProviderGetPathTest extends AbstractGitFileSystemTest 
 
   @Test
   public void getPathFromUri() {
-    URI uri = GitUriBuilder.forFileSystem(gfs)
+    URI uri = GitUriBuilder.fromFileSystem(gfs)
                 .file("/some_file.txt")
                 .build();
     GitPath path = provider.getPath(uri);
@@ -26,7 +26,7 @@ public class GitFileSystemProviderGetPathTest extends AbstractGitFileSystemTest 
 
   @Test
   public void getRootPathFromUri() {
-    URI uri = GitUriBuilder.forFileSystem(gfs)
+    URI uri = GitUriBuilder.fromFileSystem(gfs)
                 .file("/")
                 .build();
     GitPath path = provider.getPath(uri);

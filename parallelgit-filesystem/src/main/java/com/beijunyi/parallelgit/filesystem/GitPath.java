@@ -589,7 +589,7 @@ public class GitPath implements Path {
   @Nonnull
   @Override
   public URI toUri() {
-    return GitUriBuilder.forFileSystem(gfs).file(this).build();
+    return GitUriBuilder.fromFileSystem(gfs).file(this).build();
   }
 
   @Nonnull
