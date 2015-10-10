@@ -10,12 +10,11 @@ import javax.annotation.Nullable;
 
 import com.beijunyi.parallelgit.filesystem.GitFileSystem;
 import com.beijunyi.parallelgit.filesystem.GitFileSystemProvider;
+import com.beijunyi.parallelgit.utils.BranchUtils;
 import com.beijunyi.parallelgit.utils.CommitUtils;
 import com.beijunyi.parallelgit.utils.RefUtils;
 import org.eclipse.jgit.internal.storage.file.FileRepository;
-import org.eclipse.jgit.lib.AnyObjectId;
-import org.eclipse.jgit.lib.Constants;
-import org.eclipse.jgit.lib.Repository;
+import org.eclipse.jgit.lib.*;
 import org.eclipse.jgit.revwalk.RevCommit;
 
 public class GitFileSystemBuilder {
@@ -37,6 +36,16 @@ public class GitFileSystemBuilder {
   @Nonnull
   public static GitFileSystemBuilder prepare() {
     return new GitFileSystemBuilder();
+  }
+
+  @Nonnull
+  public static GitFileSystem forRevision(@Nonnull String revision, @Nonnull Repository repo) throws IOException {
+    GitFileSystemBuilder builder = prepare().repository(repo);
+    if(BranchUtils.branchExists(revision, repo))
+      builder.branch(revision);
+    else
+      builder.commit(revision);
+    return builder.build();
   }
 
   @Nonnull

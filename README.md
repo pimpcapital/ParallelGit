@@ -61,11 +61,8 @@ A Java 7 [nio filesystem](http://docs.oracle.com/javase/7/docs/api/java/nio/file
 ###Examples
 #####Copy File
 ```java
-public void copyFile(String filename, File repoDir, Path dest) {
-  try(GitFileSystem gfs = GitFileSystemBuilder.prepare()
-                                              .repository(repoDir)
-                                              .branch("master")
-                                              .build()) {
+public void copyFile(String filename, Repository repo, Path dest) {
+  try(GitFileSystem gfs = GitFileSystemBuilder.forRevision("master", repo)) {
     Path sourceFile = gfs.getPath(filename);
     Files.copy(sourceFile, dest);
   }

@@ -7,6 +7,7 @@ import java.nio.file.Path;
 import com.beijunyi.parallelgit.AbstractParallelGitTest;
 import com.beijunyi.parallelgit.filesystem.GitFileSystem;
 import org.eclipse.jgit.lib.AnyObjectId;
+import org.eclipse.jgit.revwalk.RevCommit;
 import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
@@ -16,6 +17,22 @@ public class GitFileSystemBuilderTest extends AbstractParallelGitTest {
   @Before
   public void setupRepository() throws IOException {
     initFileRepository(false);
+  }
+
+  @Test
+  public void buildFileSystemForBranch_fileSystemBranchShouldBeTheInputBranch() throws IOException {
+    writeSomeFileToCache();
+    commitToBranch("test_branch");
+    GitFileSystem gfs = GitFileSystemBuilder.forRevision("test_branch", repo);
+    Assert.assertEquals("test_branch", gfs.getBranch());
+  }
+
+  @Test
+  public void buildFileSystemForCommit_fileSystemCommitShouldBeTheInputCommit() throws IOException {
+    writeSomeFileToCache();
+    RevCommit commit = commit(null);
+    GitFileSystem gfs = GitFileSystemBuilder.forRevision(commit.getName(), repo);
+    Assert.assertEquals(commit, gfs.getCommit());
   }
 
   @Test
