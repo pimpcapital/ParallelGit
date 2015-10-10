@@ -4,7 +4,7 @@
   </div>
   Welcome to this site!<br/>
   <br/>
-  ParallelGit is an open source project built upon <a>JGit</a>.<br/>
+  ParallelGit is an open source project built upon <a href="https://eclipse.org/jgit">JGit</a>.<br/>
   <br/>
   It provides your Java project with easy access to your local Git repository.<br/>
   <br/>
@@ -18,11 +18,12 @@
   <br/>
   Here are the things you want to know:<br/>
   <ul>
-    <li>Git is not just for code. People use it to store and version audio samples, videos, datasets, graphics etc</li>
+    <li>Git is not just for code. People use it to store and version configuration files, audio samples, videos, datasets, graphics etc</li>
     <li>There is a Java implementation of Git called JGit</li>
-    <li>JGit is quite verbose and counter-intuitive (sometimes)</li>
+    <li>JGit could be quite verbose and counter-intuitive (sometimes)</li>
   </ul>
-  ParallelGit wrapped the JGit methods to provide a more friendly API to your project.<br/>
+  ParallelGit wrapped the JGit methods to provide a more friendly API for you to use.<br/>
+  <br/>
   <br/>
 
   <div class="page-header">
@@ -112,6 +113,28 @@
       </td>
       <td class="col-md-6">
         <div hljs language="java" include="'code/home/pg_copy_file.txt'"></div>
+      </td>
+    </tr>
+    </tbody>
+  </table>
+
+  <table class="table">
+    <thead>
+    <tr>
+      <th colspan="2">Copy File</th>
+    </tr>
+    </thead>
+    <tbody>
+    <tr>
+      <td class="col-md-6">JGit<label-checkout></label-checkout></td>
+      <td class="col-md-6">ParallelGit<label-no-checkout></label-no-checkout></td>
+    </tr>
+    <tr>
+      <td class="col-md-6">
+        <div hljs language="java" include="'code/home/git_commit_file.txt'"></div>
+      </td>
+      <td class="col-md-6">
+        <div hljs language="java" include="'code/home/pg_commit_file.txt'"></div>
       </td>
     </tr>
     </tbody>

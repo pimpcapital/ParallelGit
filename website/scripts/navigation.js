@@ -8,26 +8,21 @@ app.config(function($routeProvider) {
       name: 'News',
       icon: 'fa-newspaper-o'
     })
-    .when('/features', {
-      templateUrl: 'partials/features.html',
-      name: 'Features',
-      icon: 'fa-star-half-o'
+    .when('/get-started', {
+      templateUrl: 'partials/get-started.html',
+      name: 'Get started',
+      icon: 'fa-caret-square-o-right'
     })
-    .when('/download', {
-      templateUrl: 'partials/download.html',
+    .when('/examples', {
+      templateUrl: 'partials/examples.html',
       controller: 'DownloadCtrl',
-      name: 'Download',
-      icon: 'fa-cloud-download'
+      name: 'Examples',
+      icon: 'fa-cubes'
     })
     .when('/source', {
       templateUrl: 'partials/source.html',
       name: 'Source',
       icon: 'fa-code'
-    })
-    .when('/get-started', {
-      templateUrl: 'partials/get-started.html',
-      name: 'Get started',
-      icon: 'fa-cubes'
     })
     .when('/community', {
       templateUrl: 'partials/community.html',

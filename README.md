@@ -61,27 +61,20 @@ A Java 7 [nio filesystem](http://docs.oracle.com/javase/7/docs/api/java/nio/file
 ###Examples
 #####Copy File
 ```java
-public void copyFile(String filename, Repository repo, Path dest) {
-  try(GitFileSystem gfs = GitFileSystemBuilder.forRevision("master", repo)) {
-    Path sourceFile = gfs.getPath(filename);
-    Files.copy(sourceFile, dest);
-  }
+public void copyFile(String src, Repository repo, Path dest) {
+  GitFileSystem gfs = GitFileSystemBuilder.forRevision("master", repo));
+  Path srcFile = gfs.getPath(src);
+  Files.copy(srcFile, dest);
 }
 ```
 
 #####Commit Files
 ```java
-public void copyAndCommitFile(Path file, String dest, File repoDir) {
-  try(GitFileSystem gfs = GitFileSystemBuilder.prepare()
-                                              .repository(repoDir)
-                                              .branch("master")
-                                              .build()) {
-    Path destFile = gfs.getPath(dest);
-    Files.copy(file, destFile);
-    Requests.commit(gfs)
-            .message("copied " + file.toString())
-            .execute();
-  }
+public void copyAndCommitFile(Path src, String dest, Repository repo) {
+  GitFileSystem gfs = GitFileSystemBuilder.forRevision("master", repo));
+  Path destFile = gfs.getPath(dest);
+  Files.copy(src, destFile);
+  Requests.commit(gfs).message("copied " + src).execute();
 }
 ```
 
@@ -103,6 +96,7 @@ Donate
 [![Cancer Research UK](http://www.cancerresearchuk.org/sites/all/themes/custom/cruk/logo.png)](http://www.cancerresearchuk.org/support-us/donate)
 
 If this library has helped you, consider a donation to [Cancer Research UK](http://www.cancerresearchuk.org/support-us/donate).
+
 Thank you!
 
 
