@@ -14,7 +14,9 @@ import com.beijunyi.parallelgit.utils.BranchUtils;
 import com.beijunyi.parallelgit.utils.CommitUtils;
 import com.beijunyi.parallelgit.utils.RefUtils;
 import org.eclipse.jgit.internal.storage.file.FileRepository;
-import org.eclipse.jgit.lib.*;
+import org.eclipse.jgit.lib.AnyObjectId;
+import org.eclipse.jgit.lib.Constants;
+import org.eclipse.jgit.lib.Repository;
 import org.eclipse.jgit.revwalk.RevCommit;
 
 public class GitFileSystemBuilder {
@@ -30,6 +32,7 @@ public class GitFileSystemBuilder {
   private RevCommit commit;
   private AnyObjectId commitId;
   private String commitIdStr;
+  private String revision;
   private AnyObjectId treeId;
   private String treeIdStr;
 
@@ -40,12 +43,18 @@ public class GitFileSystemBuilder {
 
   @Nonnull
   public static GitFileSystem forRevision(@Nonnull String revision, @Nonnull Repository repo) throws IOException {
-    GitFileSystemBuilder builder = prepare().repository(repo);
-    if(BranchUtils.branchExists(revision, repo))
-      builder.branch(revision);
-    else
-      builder.commit(revision);
-    return builder.build();
+    return prepare()
+             .repository(repo)
+             .revision(revision)
+             .build();
+  }
+
+  @Nonnull
+  public static GitFileSystem forRevision(@Nonnull String revision, @Nonnull File repoDir) throws IOException {
+    return prepare()
+             .repository(repoDir)
+             .revision(revision)
+             .build();
   }
 
   @Nonnull
@@ -133,6 +142,12 @@ public class GitFileSystemBuilder {
   }
 
   @Nonnull
+  public GitFileSystemBuilder revision(@Nullable String revision) {
+    this.revision = revision;
+    return this;
+  }
+
+  @Nonnull
   public GitFileSystemBuilder tree(@Nullable AnyObjectId treeId) {
     this.treeId = treeId;
     return this;
@@ -215,6 +230,8 @@ public class GitFileSystemBuilder {
   }
 
   private void prepareBranch() throws IOException {
+    if(branch == null && revision != null && BranchUtils.branchExists(revision, repository))
+      branch = revision;
     if(branch != null) {
       branchRef = RefUtils.ensureBranchRefName(branch);
       branch = branchRef.substring(Constants.R_HEADS.length());
@@ -225,6 +242,8 @@ public class GitFileSystemBuilder {
     if(commitId == null) {
       if(commitIdStr != null)
         commitId = repository.resolve(commitIdStr);
+      else if(branch == null && revision != null)
+        commitId = repository.resolve(revision);
       else if(branch != null)
         commitId = repository.resolve(branchRef);
     }
