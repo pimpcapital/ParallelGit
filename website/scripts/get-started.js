@@ -1,4 +1,4 @@
-app.controller('DownloadCtrl', function($scope) {
+app.controller('GetStartedCtrl', function($scope) {
 
   $scope.modules = [
     {

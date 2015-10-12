@@ -69,12 +69,13 @@ pre {
   font-size: 13px
 }
 
-p a.btn-xs {
+a.btn-xs {
   font-size: 15px;
-  padding: 0 3px;
+  padding: 0 6px;
+  margin: 0 4px;
 }
 
-p a.btn-xs i.fa {
+a.btn-xs i.fa {
   margin-right: 5px;
   font-size: 18px;
   line-height: 15px;
@@ -120,6 +121,7 @@ p a.btn-xs i.fa {
 .highlight {
   color: #bf5a16;
 }
+
 .footer {
   position: absolute;
   bottom: 0;
@@ -130,4 +132,13 @@ p a.btn-xs i.fa {
   font-weight: 500;
   background-color: #485563;
   text-shadow: 1px 1px #2b3e50;
+}
+
+.dimmed {
+  opacity: 0.3;
+  transition: opacity .25s ease-in-out;
+}
+
+.dimmed:hover {
+  opacity: 1;
 }
