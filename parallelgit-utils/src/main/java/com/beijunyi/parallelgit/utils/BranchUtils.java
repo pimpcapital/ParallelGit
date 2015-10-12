@@ -1,14 +1,11 @@
 package com.beijunyi.parallelgit.utils;
 
 import java.io.IOException;
-import java.nio.file.Files;
-import java.nio.file.Path;
 import java.util.List;
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 
 import com.beijunyi.parallelgit.utils.exceptions.*;
-import org.eclipse.jgit.api.Git;
 import org.eclipse.jgit.lib.*;
 import org.eclipse.jgit.revwalk.RevCommit;
 
@@ -99,16 +96,6 @@ public final class BranchUtils {
       update.setForceUpdate(true);
       RefUpdateValidator.validate(update.delete());
     }
-  }
-
-  public void _(String filename, Repository repo, Path dest) throws Exception {
-    new Git(repo).checkout().setName("master").call();
-    Path file = repo.getWorkTree().toPath().resolve(filename);
-    Files.copy(file, dest);
-    /**
-     * Note that this method requires checking out the entire worktree.
-     * It would not work on bare repository, and only one user can do this at a time.
-     */
   }
 
   private static void setBranchHead(@Nonnull String name, @Nonnull AnyObjectId commitId, @Nonnull Repository repo, @Nullable String refLogMessage, boolean forceUpdate) throws IOException {

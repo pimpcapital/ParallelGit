@@ -14,9 +14,9 @@ import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.TemporaryFolder;
 
-import static org.junit.Assert.assertTrue;
+import static org.junit.Assert.*;
 
-public class CopyFile extends AbstractParallelGitTest {
+public class MoveFile extends AbstractParallelGitTest {
 
   @Rule
   public TemporaryFolder tmpFolder = new TemporaryFolder();
@@ -30,40 +30,44 @@ public class CopyFile extends AbstractParallelGitTest {
   }
 
   @Test
-  public void copyFileWithinSameFileSystem() throws IOException {
+  public void moveFileWithinSameFileSystem() throws IOException {
     try(GitFileSystem gfs = GitFileSystemBuilder.forRevision("my_branch", repo)) {        // open git file system
-      Path exampleFile = gfs.getPath("/example.txt");                                     // convert string to nio path
+      Path source = gfs.getPath("/example.txt");                                          // convert string to nio path
       Path dest = gfs.getPath("/dest_file.txt");                                          // get the path of the dest file
-      Files.copy(exampleFile, dest);                                                      // copy file
+      Files.move(source, dest);                                                           // move file
 
       // check
       assertTrue(Files.exists(dest));                                                     // the dest file exists
+      assertFalse(Files.exists(source));                                                  // the source file does not exist
     }
   }
 
   @Test
-  public void copyFileToDifferentFileSystem() throws IOException {
+  public void moveFileToDifferentFileSystem() throws IOException {
     Path dest = tmpFolder.newFile().toPath();                                             // declare dest path (default file system, temporary folder)
 
     try(GitFileSystem gfs = GitFileSystemBuilder.forRevision("my_branch", repo)) {        // open git file system
-      Path exampleFile = gfs.getPath("/example.txt");                                     // convert string to nio path
-      Files.copy(exampleFile, dest, StandardCopyOption.REPLACE_EXISTING);                 // copy file (with replace option)
-    }
+      Path source = gfs.getPath("/example.txt");                                          // convert string to nio path
+      Files.move(source, dest, StandardCopyOption.REPLACE_EXISTING);                      // move file (with replace option)
 
-    // check
-    assertTrue(Files.exists(dest));                                                       // the dest file exists
+      // check
+      assertTrue(Files.exists(dest));                                                     // the dest file exists
+      assertFalse(Files.exists(source));                                                  // the source file does not exist
+    }
   }
 
   @Test
-  public void copyDirectoryWithinSameFileSystem() throws IOException {
+  public void moveDirectoryWithinSameFileSystem() throws IOException {
     try(GitFileSystem gfs = GitFileSystemBuilder.forRevision("my_branch", repo)) {        // open git file system
       Path dir = gfs.getPath("/dir");                                                     // convert string to nio path
       Path destDir = gfs.getPath("/dest_dir");                                            // get the path of the dest directory
-      Files.copy(dir, destDir);                                                           // copy directory
+      Files.move(dir, destDir);                                                           // move directory
 
       // check
       assertTrue(Files.exists(gfs.getPath("/dest_dir/file_in_directory.txt")));           // child file exists in the dest directory
       assertTrue(Files.exists(gfs.getPath("/dest_dir")));                                 // the dest directory exists
+      assertFalse(Files.exists(gfs.getPath("/dir/file_in_directory.txt")));               // child file does not exist in the source directory
+      assertFalse(Files.exists(gfs.getPath("/dir")));                                     // the source directory does not exist
     }
   }
 
@@ -75,11 +79,13 @@ public class CopyFile extends AbstractParallelGitTest {
         GitFileSystem otherGfs = GitFileSystemBuilder.forRevision("master", otherRepo)) { // open dest git file system
       Path dir = gfs.getPath("/dir");                                                     // convert string to nio path
       Path destDir = otherGfs.getPath("/dest_dir");                                       // get the path of the dest directory
-      Files.copy(dir, destDir);                                                           // copy directory
+      Files.move(dir, destDir);                                                           // move directory
 
       // check
       assertTrue(Files.exists(otherGfs.getPath("/dest_dir/file_in_directory.txt")));      // child file exists in the dest directory
       assertTrue(Files.exists(otherGfs.getPath("/dest_dir")));                            // the dest directory exists
+      assertFalse(Files.exists(gfs.getPath("/dir/file_in_directory.txt")));               // child file does not exist in the source directory
+      assertFalse(Files.exists(gfs.getPath("/dir")));                                     // the source directory does not exist
     }
   }
 

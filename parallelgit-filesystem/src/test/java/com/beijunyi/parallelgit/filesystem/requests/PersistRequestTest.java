@@ -14,7 +14,6 @@ public class PersistRequestTest extends PreSetupGitFileSystemTest {
     writeSomeFileToGfs();
     AnyObjectId treeId = Requests.persist(gfs)
                            .execute();
-    Assert.assertNotNull(treeId);
     Assert.assertEquals(treeId, gfs.getTree());
   }
 

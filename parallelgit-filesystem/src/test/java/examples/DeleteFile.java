@@ -7,9 +7,10 @@ import java.nio.file.Path;
 import com.beijunyi.parallelgit.AbstractParallelGitTest;
 import com.beijunyi.parallelgit.filesystem.GitFileSystem;
 import com.beijunyi.parallelgit.filesystem.utils.GitFileSystemBuilder;
-import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
+
+import static org.junit.Assert.assertFalse;
 
 public class DeleteFile extends AbstractParallelGitTest {
 
@@ -17,7 +18,7 @@ public class DeleteFile extends AbstractParallelGitTest {
   public void prepareExample() throws IOException {
     initMemoryRepository(true);
     writeToCache("/example.txt", "This is an example");
-    writeToCache("/dir/another_example.txt", "This is another example");
+    writeToCache("/dir/file_in_directory.txt", "This is another example");
     commitToBranch("my_branch");
   }
 
@@ -28,7 +29,7 @@ public class DeleteFile extends AbstractParallelGitTest {
       Files.delete(exampleFile);                                                          // delete file
 
       // check
-      Assert.assertFalse(Files.exists(exampleFile));                                      // file is deleted
+      assertFalse(Files.exists(exampleFile));                                             // file is deleted
     }
   }
 
@@ -39,8 +40,8 @@ public class DeleteFile extends AbstractParallelGitTest {
       Files.delete(dir);                                                                  // delete directory
 
       // check
-      Assert.assertFalse(Files.exists(gfs.getPath("/dir/another_example.txt")));          // child file is deleted
-      Assert.assertFalse(Files.exists(gfs.getPath("/dir")));                              // directory is deleted
+      assertFalse(Files.exists(gfs.getPath("/dir/file_in_directory.txt")));               // child file is deleted
+      assertFalse(Files.exists(gfs.getPath("/dir")));                                     // directory is deleted
     }
   }
 

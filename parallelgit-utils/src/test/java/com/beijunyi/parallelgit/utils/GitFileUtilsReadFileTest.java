@@ -1,6 +1,7 @@
 package com.beijunyi.parallelgit.utils;
 
 import java.io.IOException;
+import java.nio.file.NoSuchFileException;
 
 import com.beijunyi.parallelgit.AbstractParallelGitTest;
 import org.eclipse.jgit.lib.AnyObjectId;
@@ -16,7 +17,7 @@ public class GitFileUtilsReadFileTest extends AbstractParallelGitTest {
   }
 
   @Test
-  public void readFile_theResultShoudEqualToTheFileContent() throws IOException {
+  public void readFile_theResultShouldEqualToTheFileContent() throws IOException {
     byte[] expected = "test data".getBytes();
     writeToCache("/test_file.txt", expected);
     AnyObjectId commit = commitToMaster();
@@ -24,11 +25,11 @@ public class GitFileUtilsReadFileTest extends AbstractParallelGitTest {
     Assert.assertArrayEquals(expected, actual);
   }
 
-  @Test
-  public void readNonExistentFile_theResultShouldBeNull() throws IOException {
+  @Test(expected = NoSuchFileException.class)
+  public void readFileWhenFileDoesNotExist_shouldThrowNoSuchFileException() throws IOException {
     writeSomeFileToCache();
     AnyObjectId commit = commitToMaster();
-    Assert.assertNull(GitFileUtils.readFile("/non_existent_file.txt", commit.getName(), repo));
+    GitFileUtils.readFile("/non_existent_file.txt", commit.getName(), repo);
   }
 
 }
