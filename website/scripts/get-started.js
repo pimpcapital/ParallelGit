@@ -7,17 +7,17 @@ app.controller('GetStartedCtrl', function($scope) {
       artifacts: [
         {
           name: 'ParallelGit Utils',
-          groupId: 'com.beijunyi.parallelgit',
+          groupId: 'com.beijunyi',
           artifactId: 'parallelgit-utils',
           version: '0.9.3'
         }, {
           name: 'ParallelGit FileSystem',
-          groupId: 'com.beijunyi.parallelgit',
+          groupId: 'com.beijunyi',
           artifactId: 'parallelgit-filesystem',
           version: '0.9.3'
         }, {
           name: 'ParallelGit Runtime',
-          groupId: 'com.beijunyi.parallelgit',
+          groupId: 'com.beijunyi',
           artifactId: 'parallelgit-runtime',
           version: '0.9.3'
         }
