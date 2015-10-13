@@ -29,9 +29,11 @@
       </table>
     </uib-tab>
   </uib-tabset>
+  <br/>
+  <br/>
 
   <div class="page-header">
-    <h3>Which one do I need ?</h3>
+    <h3>Which ones do I want ?</h3>
   </div>
   <div>
     <svg width="620" height="160" class="center-block">
@@ -63,7 +65,24 @@
   <br/>
   <u>PG FileSystem</u> is an implementation of <a>Java 7 nio FileSystem</a>. It allows you to interact with a Git repository as it were a normal file system. If your project is IO intensive, you should consider adding this module.<br/>
   <br/>
-  <u>PG Commands</u> is still being developed. The main purpose of this module to simplify the usages of the complex Git operations such as <a>merging</a>, <a>rebasing</a> and <a>cherry-picking</a>.
+  <u>PG Commands</u> is still being developed. The main purpose of this module to simplify the usages of the complex Git operations such as <a>merging</a>, <a>rebasing</a> and <a>cherry-picking</a>.<br/>
+  <br/>
+  <br/>
 
+  <div class="page-header">
+    <h3>Trouble shooting</h3>
+  </div>
+  <ul>
+    <li>
+      <h5>java.nio.file.ProviderNotFoundException: Provider "gfs" not found <i class="fa fa-exclamation-circle highlight fa-2x"></i></h5>
+      It usually happens when the <a>GitFileSystemProvider</a> is not properly installed. Java 7 nio requires all 3rd party file systems to be specified in
+      <div hljs source="'/META-INF.services/java.nio.file.spi.FileSystemProvider'"></div>
+      Java reads this file at startup and creates a singleton <a>FileSystemProvider</a> for every custom file system.<br/>
+      However, it has no effect if you load this file at runtime.<br/>
+      So if you plan to package your project into a "war" file and feed it to Jetty or Tomcat, you are very likely to get this exception.<br/>
+      The solution to this problem is to manually create this file with the below content and add it to your classpath.<br/>
+      <div hljs source="'com.beijunyi.parallelgit.filesystem.GitFileSystemProvider'"></div>
+    </li>
+  </ul>
 
 </div>
