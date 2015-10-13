@@ -29,24 +29,30 @@ body {
   text-shadow: 4px 4px #485563;
 }
 
-.nav > li {
+.navbar-nav > li {
   width: 120px;
   margin: 0 10px;
 }
 
-.nav > li > a {
+.navbar-nav > li > a {
   text-align: center;
   font-size: 20px;
   padding: 10px 0;
 }
 
-.nav > li > a > i {
+.navbar-nav > li > a > i {
   display: block;
   font-size: 40px;
 }
 
+.nav-tabs > li {
+  margin: 0 10px;
+}
+
 .nav-tabs > li > a {
   border: 1px solid #4e5d6c;
+  padding: 3px 20px;
+  font-size: 18px;
 }
 
 .nav-tabs > li > a:hover {
