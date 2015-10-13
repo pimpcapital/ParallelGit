@@ -4,7 +4,7 @@
   </div>
   <uib-tabset>
     <uib-tab ng-repeat="module in modules">
-      <tab-heading>{{module.name}}</tab-heading>
+      <tab-heading>{{module.name}} <span class="text-muted">({{module.version}})</span></tab-heading>
       <table class="table">
         <thead>
         <tr>
@@ -29,4 +29,41 @@
       </table>
     </uib-tab>
   </uib-tabset>
+
+  <div class="page-header">
+    <h3>Which one do I need ?</h3>
+  </div>
+  <div>
+    <svg width="620" height="160" class="center-block">
+      <defs>
+        <marker id="arrow" markerWidth="13" markerHeight="13" refX="2" refY="6" orient="auto">
+          <path d="M2,2 L2,11 L10,6 L2,2" style="fill: #ebebeb;"></path>
+        </marker>
+      </defs>
+      <g>
+        <rect x="5" y="58" width="200" height="50" fill="#bf5a16" stroke="#C48E6A" stroke-width="3px"></rect>
+        <text x="37" y="88" font-size="20" fill="#ebebeb">ParallelGit Utils</text>
+      </g>
+      <g>
+        <rect x="405" y="5" width="210" height="50" fill="#bf5a16" stroke="#C48E6A" stroke-width="3px"></rect>
+        <text x="417" y="35" font-size="20" fill="#ebebeb">ParallelGit FileSystem</text>
+      </g>
+      <g>
+        <rect x="405" y="101" width="210" height="50" fill="#bf5a16" stroke="#C48E6A" stroke-width="3px"></rect>
+        <text x="415" y="131" font-size="20" fill="#ebebeb">ParallelGit Commands</text>
+      </g>
+      <line x1="403" y1="30" x2="222" y2="71" stroke="#ebebeb" stroke-width="2" marker-end="url(#arrow)"></line>
+      <line x1="403" y1="124" x2="222" y2="92" stroke="#ebebeb" stroke-width="2" marker-end="url(#arrow)"></line>
+    </svg>
+  </div>
+  First of all, all the modules are compatible to each other. It is absolutely fine if you want to include all of them in your project.<br/>
+  Secondly, <u>PG FileSystem</u> and <u>PG Commands</u> depend on <u>PG Utils</u>. Therefore, <u>PG Utils</u> is automatically included even if you didn't explicitly add it to your "pom.xml".<br/>
+  <br/>
+  <u>PG Utils</u> is the basic package. It includes a collection of handy utility classes. If your project only uses basic Git operations such as <a>creating branch</a>, <a>reading file</a> and <a>tagging commit</a>, this module alone might well be sufficient.<br/>
+  <br/>
+  <u>PG FileSystem</u> is an implementation of <a>Java 7 nio FileSystem</a>. It allows you to interact with a Git repository as it were a normal file system. If your project is IO intensive, you should consider adding this module.<br/>
+  <br/>
+  <u>PG Commands</u> is still being developed. The main purpose of this module to simplify the usages of the complex Git operations such as <a>merging</a>, <a>rebasing</a> and <a>cherry-picking</a>.
+
+
 </div>

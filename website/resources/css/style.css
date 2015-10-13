@@ -7,6 +7,10 @@ html {
 body {
   margin-bottom: 60px;
 }
+svg {
+  margin-top: 20px;
+  margin-bottom: 20px;
+}
 
 #fork-ribbon {
   position: absolute;
@@ -53,6 +57,11 @@ body {
   border: 1px solid #4e5d6c;
   padding: 3px 20px;
   font-size: 18px;
+}
+
+.nav-tabs > li > a .text-muted {
+  color: #99A5B0;
+  font-size: 14px;
 }
 
 .nav-tabs > li > a:hover {
