@@ -16,7 +16,7 @@ app.controller('GetStartedCtrl', function($scope) {
           artifactId: 'parallelgit-filesystem',
           version: '1.0.0'
         }, {
-          name: 'ParallelGit Runtime',
+          name: 'ParallelGit Commands',
           groupId: 'com.beijunyi',
           artifactId: 'parallelgit-commands',
           version: '1.0.0'
