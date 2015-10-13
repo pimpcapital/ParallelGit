@@ -9,7 +9,7 @@
   <modules>
     <module>parallelgit-utils</module>
     <module>parallelgit-filesystem</module>
-    <module>parallelgit-runtime</module>
+    <module>parallelgit-commands</module>
   </modules>
 
   <name>ParallelGit</name>

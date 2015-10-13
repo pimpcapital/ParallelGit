@@ -78,15 +78,15 @@ public void copyAndCommitFile(Path src, String dest, Repository repo) {
 }
 ```
 
-ParallelGit Runtime
--------------------
+ParallelGit Commands
+--------------------
 
 An in progress module inspired by [fluent design pattern](https://en.wikipedia.org/wiki/Fluent_interface) aiming to simplify the usages of complex Git functions such as [merge](https://git-scm.com/docs/git-merge), [rebase](https://git-scm.com/docs/git-rebase) and [cherry-pick](https://git-scm.com/docs/git-cherry-pick). 
 
 ```xml
 <dependency>
   <groupId>com.beijunyi.parallelgit</groupId>
-  <artifactId>parallelgit-runtime</artifactId>
+  <artifactId>parallelgit-commands</artifactId>
   <version>0.9.3</version>
 </dependency>
 ```
