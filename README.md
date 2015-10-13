@@ -16,7 +16,7 @@ A collection of utilities to assist with developing Git IO functionality.
 <dependency>
   <groupId>com.beijunyi.parallelgit</groupId>
   <artifactId>parallelgit-utils</artifactId>
-  <version>0.9.3</version>
+  <version>1.0.0</version>
 </dependency>
 ```
 
@@ -54,7 +54,7 @@ A Java 7 [nio filesystem](http://docs.oracle.com/javase/7/docs/api/java/nio/file
 <dependency>
   <groupId>com.beijunyi.parallelgit</groupId>
   <artifactId>parallelgit-filesystem</artifactId>
-  <version>0.9.3</version>
+  <version>1.0.0</version>
 </dependency>
 ```
 
@@ -87,7 +87,7 @@ An in progress module inspired by [fluent design pattern](https://en.wikipedia.o
 <dependency>
   <groupId>com.beijunyi.parallelgit</groupId>
   <artifactId>parallelgit-commands</artifactId>
-  <version>0.9.3</version>
+  <version>1.0.0</version>
 </dependency>
 ```
 
