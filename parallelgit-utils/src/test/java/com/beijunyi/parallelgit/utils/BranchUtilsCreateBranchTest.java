@@ -6,6 +6,7 @@ import com.beijunyi.parallelgit.AbstractParallelGitTest;
 import com.beijunyi.parallelgit.utils.exceptions.BranchAlreadyExistsException;
 import com.beijunyi.parallelgit.utils.exceptions.NoSuchRevisionException;
 import org.eclipse.jgit.lib.AnyObjectId;
+import org.eclipse.jgit.revwalk.RevCommit;
 import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
@@ -18,7 +19,7 @@ public class BranchUtilsCreateBranchTest extends AbstractParallelGitTest {
   }
 
   @Test
-  public void createBranch_theNewBranchShouldExistAfterOperation() throws IOException {
+  public void createBranch_theNewBranchShouldExistAfterTheOperation() throws IOException {
     writeSomeFileToCache();
     AnyObjectId commit = commitToMaster();
     BranchUtils.createBranch("test_branch", commit.getName(), repo);
@@ -26,7 +27,15 @@ public class BranchUtilsCreateBranchTest extends AbstractParallelGitTest {
   }
 
   @Test
-  public void createBranchFromCommit_theHeadOfTheNewBranchShouldEqualToTheSpecifiedCommit() throws IOException {
+  public void createBranchFromCommitId_theHeadOfTheNewBranchShouldEqualToTheSpecifiedCommit() throws IOException {
+    writeSomeFileToCache();
+    AnyObjectId commit = commitToMaster();
+    BranchUtils.createBranch("test_branch", commit, repo);
+    Assert.assertEquals(commit, BranchUtils.getBranchHeadCommit("test_branch", repo));
+  }
+
+  @Test
+  public void createBranchFromCommitName_theHeadOfTheNewBranchShouldEqualToTheSpecifiedCommit() throws IOException {
     writeSomeFileToCache();
     AnyObjectId commit = commitToMaster();
     BranchUtils.createBranch("test_branch", commit.getName(), repo);
@@ -34,7 +43,23 @@ public class BranchUtilsCreateBranchTest extends AbstractParallelGitTest {
   }
 
   @Test
-  public void createBranchFromBranch_theHeadsOfTheTwoBranchesShouldEqual() throws IOException {
+  public void createBranchFromCommit_theHeadOfTheNewBranchShouldEqualToTheSpecifiedCommit() throws IOException {
+    writeSomeFileToCache();
+    RevCommit commit = commitToMaster();
+    BranchUtils.createBranch("test_branch", commit, repo);
+    Assert.assertEquals(commit, BranchUtils.getBranchHeadCommit("test_branch", repo));
+  }
+
+  @Test
+  public void createBranchFromBranchRef_theHeadsOfTheTwoBranchesShouldEqual() throws IOException {
+    writeSomeFileToCache();
+    commitToBranch("source_branch");
+    BranchUtils.createBranch("test_branch", repo.getRef("source_branch"), repo);
+    Assert.assertEquals(BranchUtils.getBranchHeadCommit("source_branch", repo), BranchUtils.getBranchHeadCommit("test_branch", repo));
+  }
+
+  @Test
+  public void createBranchFromBranchName_theHeadsOfTheTwoBranchesShouldEqual() throws IOException {
     writeSomeFileToCache();
     commitToBranch("source_branch");
     BranchUtils.createBranch("test_branch", "source_branch", repo);
@@ -42,10 +67,26 @@ public class BranchUtilsCreateBranchTest extends AbstractParallelGitTest {
   }
 
   @Test
-  public void createBranchFromTag_theHeadOfTheNewBranchShouldEqualToTheTaggedCommit() throws IOException {
+  public void createBranchFromTagRef_theHeadOfTheNewBranchShouldEqualToTheTaggedCommit() throws IOException {
+    writeSomeFileToCache();
+    TagUtils.tagCommit(commitToMaster(), "source_tag", repo);
+    BranchUtils.createBranch("test_branch", repo.getRef("source_tag"), repo);
+    Assert.assertEquals(TagUtils.getTaggedCommit("source_tag", repo), BranchUtils.getBranchHeadCommit("test_branch", repo));
+  }
+
+  @Test
+  public void createBranchFromTagName_theHeadOfTheNewBranchShouldEqualToTheTaggedCommit() throws IOException {
     writeSomeFileToCache();
     TagUtils.tagCommit(commitToMaster(), "source_tag", repo);
     BranchUtils.createBranch("test_branch", "source_tag", repo);
+    Assert.assertEquals(TagUtils.getTaggedCommit("source_tag", repo), BranchUtils.getBranchHeadCommit("test_branch", repo));
+  }
+
+  @Test
+  public void createBranchFromTag_theHeadOfTheNewBranchShouldEqualToTheTaggedCommit() throws IOException {
+    writeSomeFileToCache();
+    TagUtils.tagCommit(commitToMaster(), "source_tag", repo);
+    BranchUtils.createBranch("test_branch", repo.resolve("source_tag"), repo);
     Assert.assertEquals(TagUtils.getTaggedCommit("source_tag", repo), BranchUtils.getBranchHeadCommit("test_branch", repo));
   }
 

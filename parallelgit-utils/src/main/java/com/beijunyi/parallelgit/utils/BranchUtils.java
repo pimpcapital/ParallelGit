@@ -7,9 +7,7 @@ import javax.annotation.Nullable;
 
 import com.beijunyi.parallelgit.utils.exceptions.*;
 import org.eclipse.jgit.lib.*;
-import org.eclipse.jgit.revwalk.RevCommit;
-import org.eclipse.jgit.revwalk.RevObject;
-import org.eclipse.jgit.revwalk.RevWalk;
+import org.eclipse.jgit.revwalk.*;
 
 public final class BranchUtils {
 
@@ -29,18 +27,14 @@ public final class BranchUtils {
 
   @Nonnull
   public static AnyObjectId getBranchHeadCommit(@Nonnull String name, @Nonnull Repository repo) throws IOException {
-    String refName = RefUtils.ensureBranchRefName(name);
-    AnyObjectId ret =  repo.resolve(refName);
-    if(ret == null)
-      throw new NoSuchBranchException(refName);
-    return ret;
+    Ref ref = RefUtils.getBranchRef(name, repo);
+    if(ref == null)
+      throw new NoSuchBranchException(name);
+    return ref.getObjectId();
   }
 
-  public static void createBranch(@Nonnull String name, @Nonnull AnyObjectId startPoint, @Nonnull Repository repo, @Nullable String startPointName) throws IOException {
-    String branchRef = RefUtils.ensureBranchRefName(name);
-    if(branchExists(branchRef, repo))
-      throw new BranchAlreadyExistsException(branchRef);
-    setBranchHead(name, startPoint, repo, startPointName != null ? "branch: Created from " + startPointName : null, false);
+  public static void createBranch(@Nonnull String name, @Nonnull RevTag startPoint, @Nonnull Repository repo) throws IOException {
+    createBranch(name, startPoint.getObject(), repo, "tag " + startPoint.getName());
   }
 
   public static void createBranch(@Nonnull String name, @Nonnull RevCommit startPoint, @Nonnull Repository repo) throws IOException {
@@ -52,7 +46,7 @@ public final class BranchUtils {
       RevObject revObj = rw.parseAny(startPoint);
       switch(revObj.getType()) {
         case Constants.OBJ_TAG:
-          createBranch(name, rw.peel(revObj), repo, "tag " + revObj.getName());
+          createBranch(name, (RevTag) revObj, repo);
           break;
         case Constants.OBJ_COMMIT:
           createBranch(name, (RevCommit) revObj, repo);
@@ -63,18 +57,20 @@ public final class BranchUtils {
     }
   }
 
+  public static void createBranch(@Nonnull String name, @Nonnull Ref startPoint, @Nonnull Repository repo) throws IOException {
+    if(RefUtils.isBranchRef(startPoint))
+      createBranch(name, startPoint.getObjectId(), repo, "branch " + startPoint.getName());
+    else if(RefUtils.isTagRef(startPoint))
+      createBranch(name, startPoint.getObjectId(), repo);
+    else
+      throw new UnsupportedOperationException(startPoint.getName());
+  }
+
   public static void createBranch(@Nonnull String name, @Nonnull String startPoint, @Nonnull Repository repo) throws IOException {
     Ref ref = repo.getRef(startPoint);
-    AnyObjectId commitId;
-    if(ref != null) {
-      if(RefUtils.isBranchRef(ref)) {
-        commitId = ref.getObjectId();
-        createBranch(name, commitId, repo, "branch " + ref.getName());
-      } else if(RefUtils.isTagRef(ref))
-        createBranch(name, ref.getObjectId(), repo);
-      else
-        throw new UnsupportedOperationException(ref.getName());
-    } else {
+    if(ref != null)
+      createBranch(name, ref, repo);
+    else {
       RevCommit commit = CommitUtils.getCommit(startPoint, repo);
       if(commit == null)
         throw new NoSuchRevisionException(startPoint);
@@ -128,6 +124,13 @@ public final class BranchUtils {
     update.setNewObjectId(commitId);
     update.setExpectedOldObjectId(currentHead);
     RefUpdateValidator.validate(update.update());
+  }
+
+  private static void createBranch(@Nonnull String name, @Nonnull AnyObjectId startPoint, @Nonnull Repository repo, @Nonnull String startPointName) throws IOException {
+    String branchRef = RefUtils.ensureBranchRefName(name);
+    if(branchExists(branchRef, repo))
+      throw new BranchAlreadyExistsException(branchRef);
+    setBranchHead(name, startPoint, repo, "branch: Created from " + startPointName, false);
   }
 
   private static boolean prepareDeleteBranch(@Nonnull String refName, @Nonnull Repository repo) throws IOException {
