@@ -7,9 +7,19 @@ html {
 body {
   margin-bottom: 60px;
 }
+
 svg {
   margin-top: 20px;
   margin-bottom: 20px;
+}
+
+pre {
+  padding: 3px;
+}
+
+::selection {
+  background-color: #b3d4fc!important;
+  text-shadow: none;
 }
 
 #fork-ribbon {

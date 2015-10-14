@@ -70,6 +70,10 @@
   <br/>
 
   <div class="page-header">
+    <h3>Create a repository</h3>
+  </div>
+
+  <div class="page-header">
     <h3>Trouble shooting</h3>
   </div>
   <ul>
@@ -78,7 +82,7 @@
       It usually happens when the <a>GitFileSystemProvider</a> is not properly installed. Java 7 nio requires all 3rd party file systems to be specified in
       <div hljs source="'/META-INF.services/java.nio.file.spi.FileSystemProvider'"></div>
       Java reads this file at startup and creates a singleton <a>FileSystemProvider</a> for every custom file system.<br/>
-      However, it has no effect if you load this file at runtime.<br/>
+      However, it has no effect when you load this file at runtime.<br/>
       So if you plan to package your project into a "war" file and feed it to Jetty or Tomcat, you are very likely to get this exception.<br/>
       The solution to this problem is to manually create this file with the below content and add it to your classpath.<br/>
       <div hljs source="'com.beijunyi.parallelgit.filesystem.GitFileSystemProvider'"></div>

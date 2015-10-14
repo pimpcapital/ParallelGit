@@ -16,6 +16,7 @@ app.config(function($routeProvider) {
     })
     .when('/examples', {
       templateUrl: 'partials/examples.html',
+      controller: 'ExamplesCtrl',
       name: 'Examples',
       icon: 'fa-cubes'
     })
