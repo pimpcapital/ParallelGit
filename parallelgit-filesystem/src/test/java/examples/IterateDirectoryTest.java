@@ -14,7 +14,7 @@ import org.junit.Test;
 
 import static org.junit.Assert.*;
 
-public class IterateDirectory extends AbstractParallelGitTest {
+public class IterateDirectoryTest extends AbstractParallelGitTest {
 
   @Before
   public void prepareExample() throws IOException {

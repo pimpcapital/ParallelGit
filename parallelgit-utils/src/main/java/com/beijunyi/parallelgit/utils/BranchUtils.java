@@ -8,6 +8,8 @@ import javax.annotation.Nullable;
 import com.beijunyi.parallelgit.utils.exceptions.*;
 import org.eclipse.jgit.lib.*;
 import org.eclipse.jgit.revwalk.RevCommit;
+import org.eclipse.jgit.revwalk.RevObject;
+import org.eclipse.jgit.revwalk.RevWalk;
 
 public final class BranchUtils {
 
@@ -34,34 +36,50 @@ public final class BranchUtils {
     return ret;
   }
 
-  public static void createBranch(@Nonnull String name, @Nonnull AnyObjectId startPoint, @Nonnull Repository repo, @Nullable String refLogMessage) throws IOException {
+  public static void createBranch(@Nonnull String name, @Nonnull AnyObjectId startPoint, @Nonnull Repository repo, @Nullable String startPointName) throws IOException {
     String branchRef = RefUtils.ensureBranchRefName(name);
     if(branchExists(branchRef, repo))
       throw new BranchAlreadyExistsException(branchRef);
-    setBranchHead(name, startPoint, repo, refLogMessage, false);
+    setBranchHead(name, startPoint, repo, startPointName != null ? "branch: Created from " + startPointName : null, false);
+  }
+
+  public static void createBranch(@Nonnull String name, @Nonnull RevCommit startPoint, @Nonnull Repository repo) throws IOException {
+    createBranch(name, startPoint, repo, "commit " + startPoint.getShortMessage());
+  }
+
+  public static void createBranch(@Nonnull String name, @Nonnull AnyObjectId startPoint, @Nonnull Repository repo) throws IOException {
+    try(RevWalk rw = new RevWalk(repo)) {
+      RevObject revObj = rw.parseAny(startPoint);
+      switch(revObj.getType()) {
+        case Constants.OBJ_TAG:
+          createBranch(name, rw.peel(revObj), repo, "tag " + revObj.getName());
+          break;
+        case Constants.OBJ_COMMIT:
+          createBranch(name, (RevCommit) revObj, repo);
+          break;
+        default:
+          throw new UnsupportedOperationException(revObj.getName());
+      }
+    }
   }
 
   public static void createBranch(@Nonnull String name, @Nonnull String startPoint, @Nonnull Repository repo) throws IOException {
     Ref ref = repo.getRef(startPoint);
     AnyObjectId commitId;
-    String refLogMessage = "branch: Created from ";
     if(ref != null) {
       if(RefUtils.isBranchRef(ref)) {
         commitId = ref.getObjectId();
-        refLogMessage += "branch " + ref.getName();
-      } else if(RefUtils.isTagRef(ref)) {
-        commitId = TagUtils.getTaggedCommit(ref.getName(), repo);
-        refLogMessage += "tag " + ref.getName();
-      } else {
-        throw new UnsupportedOperationException();
-      }
+        createBranch(name, commitId, repo, "branch " + ref.getName());
+      } else if(RefUtils.isTagRef(ref))
+        createBranch(name, ref.getObjectId(), repo);
+      else
+        throw new UnsupportedOperationException(ref.getName());
     } else {
-      commitId = repo.resolve(startPoint);
-      if(commitId == null)
+      RevCommit commit = CommitUtils.getCommit(startPoint, repo);
+      if(commit == null)
         throw new NoSuchRevisionException(startPoint);
-      refLogMessage += "commit " + getShortMessage(commitId, repo);
+      createBranch(name, commit, repo);
     }
-    createBranch(name, commitId, repo, refLogMessage);
   }
 
   public static void resetBranchHead(@Nonnull String name, @Nonnull AnyObjectId commitId, @Nonnull Repository repo) throws IOException {
@@ -69,7 +87,7 @@ public final class BranchUtils {
   }
 
   public static void updateBranchHead(@Nonnull String name, @Nonnull AnyObjectId commitId, @Nonnull Repository repo, @Nonnull BranchUpdateType type) throws IOException {
-    setBranchHead(name, commitId, repo, type.getHeader() + getShortMessage(commitId, repo), type.isForceUpdate());
+    setBranchHead(name, commitId, repo, type.getHeader() + CommitUtils.getCommit(commitId, repo).getShortMessage(), type.isForceUpdate());
   }
 
   public static void newCommit(@Nonnull String name, @Nonnull AnyObjectId commitId, @Nonnull Repository repo) throws IOException {
@@ -110,14 +128,6 @@ public final class BranchUtils {
     update.setNewObjectId(commitId);
     update.setExpectedOldObjectId(currentHead);
     RefUpdateValidator.validate(update.update());
-  }
-
-  @Nonnull
-  private static String getShortMessage(@Nonnull AnyObjectId commitId, @Nonnull Repository repo) throws IOException {
-    String ret = null;
-    if(commitId instanceof RevCommit)
-      ret = ((RevCommit) commitId).getShortMessage();
-    return ret != null ? ret : CommitUtils.getCommit(commitId, repo).getShortMessage();
   }
 
   private static boolean prepareDeleteBranch(@Nonnull String refName, @Nonnull Repository repo) throws IOException {

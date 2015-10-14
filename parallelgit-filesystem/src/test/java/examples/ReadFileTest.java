@@ -13,7 +13,7 @@ import org.junit.Test;
 
 import static org.junit.Assert.assertEquals;
 
-public class ReadFile extends AbstractParallelGitTest {
+public class ReadFileTest extends AbstractParallelGitTest {
 
   @Before
   public void prepareExample() throws IOException {

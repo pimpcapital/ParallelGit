@@ -12,7 +12,7 @@ import org.junit.Test;
 
 import static org.junit.Assert.assertTrue;
 
-public class CreateDirectory extends AbstractParallelGitTest {
+public class CreateDirectoryTest extends AbstractParallelGitTest {
 
   @Before
   public void prepareExample() throws IOException {

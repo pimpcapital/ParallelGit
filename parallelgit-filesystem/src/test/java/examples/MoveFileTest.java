@@ -16,7 +16,7 @@ import org.junit.rules.TemporaryFolder;
 
 import static org.junit.Assert.*;
 
-public class MoveFile extends AbstractParallelGitTest {
+public class MoveFileTest extends AbstractParallelGitTest {
 
   @Rule
   public TemporaryFolder tmpFolder = new TemporaryFolder();

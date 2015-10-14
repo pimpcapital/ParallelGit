@@ -13,7 +13,7 @@ import org.junit.Test;
 
 import static org.junit.Assert.*;
 
-public class WriteFile extends AbstractParallelGitTest {
+public class WriteFileTest extends AbstractParallelGitTest {
 
   @Before
   public void prepareExample() throws IOException {

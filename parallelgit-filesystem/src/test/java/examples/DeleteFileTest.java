@@ -12,7 +12,7 @@ import org.junit.Test;
 
 import static org.junit.Assert.assertFalse;
 
-public class DeleteFile extends AbstractParallelGitTest {
+public class DeleteFileTest extends AbstractParallelGitTest {
 
   @Before
   public void prepareExample() throws IOException {
