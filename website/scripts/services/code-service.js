@@ -76,8 +76,7 @@ app.service('CodeService', function($http, $q) {
   }
 
   return {
-    loadSourceCode: function(module, example, method) {
-      var url = 'https://raw.githubusercontent.com/beijunyi/ParallelGit/master/parallelgit-' + module + '/src/test/java/examples/' + example + '.java';
+    loadSourceCode: function(url, method) {
       return loadMethod(url, method);
     }
   }

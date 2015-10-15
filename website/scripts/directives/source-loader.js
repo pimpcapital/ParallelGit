@@ -2,14 +2,13 @@ app.directive('sourceLoader', function() {
   return {
     restrict: 'E',
     scope: {
-      module: '@',
-      example: '@',
-      method: '@'
+      url: '=',
+      method: '='
     },
     template: '<div hljs language="java" source="source"></div>',
     controller: function($scope, CodeService) {
       $scope.source = 'Loading...';
-      CodeService.loadSourceCode($scope.module, $scope.example, $scope.method).then(function(method) {
+      CodeService.loadSourceCode($scope.url, $scope.method).then(function(method) {
         $scope.source = method.raw;
       });
     }
