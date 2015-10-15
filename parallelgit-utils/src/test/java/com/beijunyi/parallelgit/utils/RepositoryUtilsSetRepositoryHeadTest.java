@@ -74,7 +74,7 @@ public class RepositoryUtilsSetRepositoryHeadTest extends AbstractParallelGitTes
   public void setHeadToTag_theRepositoryHeadShouldDetachToTheTaggedCommit() throws IOException {
     writeSomeFileToCache();
     AnyObjectId commitId = commitToMaster();
-    Ref tagRef = TagUtils.tagCommit(commitId, "test_tag", repo);
+    Ref tagRef = TagUtils.tagCommit("test_tag", commitId, repo);
     RepositoryUtils.setRepositoryHead(repo, tagRef.getName());
     Assert.assertEquals(commitId.getName(), repo.getBranch());
   }

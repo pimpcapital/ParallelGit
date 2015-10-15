@@ -23,7 +23,7 @@ public class CopyFileTest extends AbstractParallelGitTest {
 
   @Before
   public void prepareExample() throws IOException {
-    initMemoryRepository(true);
+    initRepository();
     writeToCache("/example.txt", "This is an example");
     writeToCache("/dir/file_in_directory.txt", "This is another example");
     commitToBranch("my_branch");
@@ -31,27 +31,27 @@ public class CopyFileTest extends AbstractParallelGitTest {
 
   @Test
   public void copyFileWithinSameFileSystem() throws IOException {
-    try(GitFileSystem gfs = GitFileSystemBuilder.forRevision("my_branch", repo)) {        // open git file system
-      Path exampleFile = gfs.getPath("/example.txt");                                     // convert string to nio path
-      Path dest = gfs.getPath("/dest_file.txt");                                          // get the path of the dest file
-      Files.copy(exampleFile, dest);                                                      // copy file
+    try(GitFileSystem gfs = GitFileSystemBuilder.forRevision("my_branch", repo)) {       // open git file system
+      Path exampleFile = gfs.getPath("/example.txt");                                    // convert string to nio path
+      Path dest = gfs.getPath("/dest_file.txt");                                         // get the path of the dest file
+      Files.copy(exampleFile, dest);                                                     // copy file
 
       // check
-      assertTrue(Files.exists(dest));                                                     // the dest file exists
+      assertTrue(Files.exists(dest));                                                    // the dest file exists
     }
   }
 
   @Test
   public void copyFileToDifferentFileSystem() throws IOException {
-    Path dest = tmpFolder.newFile().toPath();                                             // declare dest path (default file system, temporary folder)
+    Path dest = tmpFolder.newFile().toPath();                                            // declare dest path (default file system, temporary folder)
 
-    try(GitFileSystem gfs = GitFileSystemBuilder.forRevision("my_branch", repo)) {        // open git file system
-      Path exampleFile = gfs.getPath("/example.txt");                                     // convert string to nio path
-      Files.copy(exampleFile, dest, StandardCopyOption.REPLACE_EXISTING);                 // copy file (with replace option)
+    try(GitFileSystem gfs = GitFileSystemBuilder.forRevision("my_branch", repo)) {       // open git file system
+      Path exampleFile = gfs.getPath("/example.txt");                                    // convert string to nio path
+      Files.copy(exampleFile, dest, StandardCopyOption.REPLACE_EXISTING);                // copy file (with replace option)
     }
 
     // check
-    assertTrue(Files.exists(dest));                                                       // the dest file exists
+    assertTrue(Files.exists(dest));                                                      // the dest file exists
   }
 
   @Test

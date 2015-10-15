@@ -61,8 +61,8 @@ public final class GitFileUtils {
   }
 
   @Nonnull
-  public static byte[] readFile(@Nonnull String file, @Nonnull String commit, @Nonnull Repository repo) throws IOException {
-    return readFile(file, repo.resolve(commit), repo);
+  public static byte[] readFile(@Nonnull String file, @Nonnull String revision, @Nonnull Repository repo) throws IOException {
+    return readFile(file, repo.resolve(revision), repo);
   }
 
 }

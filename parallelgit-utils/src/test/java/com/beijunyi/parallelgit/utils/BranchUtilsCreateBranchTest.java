@@ -69,7 +69,7 @@ public class BranchUtilsCreateBranchTest extends AbstractParallelGitTest {
   @Test
   public void createBranchFromTagRef_theHeadOfTheNewBranchShouldEqualToTheTaggedCommit() throws IOException {
     writeSomeFileToCache();
-    TagUtils.tagCommit(commitToMaster(), "source_tag", repo);
+    TagUtils.tagCommit("source_tag", commitToMaster(), repo);
     BranchUtils.createBranch("test_branch", repo.getRef("source_tag"), repo);
     Assert.assertEquals(TagUtils.getTaggedCommit("source_tag", repo), BranchUtils.getBranchHeadCommit("test_branch", repo));
   }
@@ -77,7 +77,7 @@ public class BranchUtilsCreateBranchTest extends AbstractParallelGitTest {
   @Test
   public void createBranchFromTagName_theHeadOfTheNewBranchShouldEqualToTheTaggedCommit() throws IOException {
     writeSomeFileToCache();
-    TagUtils.tagCommit(commitToMaster(), "source_tag", repo);
+    TagUtils.tagCommit("source_tag", commitToMaster(), repo);
     BranchUtils.createBranch("test_branch", "source_tag", repo);
     Assert.assertEquals(TagUtils.getTaggedCommit("source_tag", repo), BranchUtils.getBranchHeadCommit("test_branch", repo));
   }
@@ -85,7 +85,7 @@ public class BranchUtilsCreateBranchTest extends AbstractParallelGitTest {
   @Test
   public void createBranchFromTag_theHeadOfTheNewBranchShouldEqualToTheTaggedCommit() throws IOException {
     writeSomeFileToCache();
-    TagUtils.tagCommit(commitToMaster(), "source_tag", repo);
+    TagUtils.tagCommit("source_tag", commitToMaster(), repo);
     BranchUtils.createBranch("test_branch", repo.resolve("source_tag"), repo);
     Assert.assertEquals(TagUtils.getTaggedCommit("source_tag", repo), BranchUtils.getBranchHeadCommit("test_branch", repo));
   }

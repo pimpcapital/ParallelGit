@@ -16,7 +16,7 @@ public class DeleteFileTest extends AbstractParallelGitTest {
 
   @Before
   public void prepareExample() throws IOException {
-    initMemoryRepository(true);
+    initRepository();
     writeToCache("/example.txt", "This is an example");
     writeToCache("/dir/file_in_directory.txt", "This is another example");
     commitToBranch("my_branch");
@@ -24,24 +24,24 @@ public class DeleteFileTest extends AbstractParallelGitTest {
 
   @Test
   public void deleteFile() throws IOException {
-    try(GitFileSystem gfs = GitFileSystemBuilder.forRevision("my_branch", repo)) {        // open git file system
-      Path exampleFile = gfs.getPath("/example.txt");                                     // convert string to nio path
-      Files.delete(exampleFile);                                                          // delete file
+    try(GitFileSystem gfs = GitFileSystemBuilder.forRevision("my_branch", repo)) {       // open git file system
+      Path exampleFile = gfs.getPath("/example.txt");                                    // convert string to nio path
+      Files.delete(exampleFile);                                                         // delete file
 
       // check
-      assertFalse(Files.exists(exampleFile));                                             // file is deleted
+      assertFalse(Files.exists(exampleFile));                                            // file is deleted
     }
   }
 
   @Test
   public void deleteDirectory() throws IOException {
-    try(GitFileSystem gfs = GitFileSystemBuilder.forRevision("my_branch", repo)) {        // open git file system
-      Path dir = gfs.getPath("/dir");                                                     // convert string to nio path
-      Files.delete(dir);                                                                  // delete directory
+    try(GitFileSystem gfs = GitFileSystemBuilder.forRevision("my_branch", repo)) {       // open git file system
+      Path dir = gfs.getPath("/dir");                                                    // convert string to nio path
+      Files.delete(dir);                                                                 // delete directory
 
       // check
-      assertFalse(Files.exists(gfs.getPath("/dir/file_in_directory.txt")));               // child file is deleted
-      assertFalse(Files.exists(gfs.getPath("/dir")));                                     // directory is deleted
+      assertFalse(Files.exists(gfs.getPath("/dir/file_in_directory.txt")));              // child file is deleted
+      assertFalse(Files.exists(gfs.getPath("/dir")));                                    // directory is deleted
     }
   }
 

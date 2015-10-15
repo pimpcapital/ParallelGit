@@ -31,7 +31,7 @@ public class CacheUtilsCreateTest extends AbstractParallelGitTest {
   public void createCacheFromTag_theResultCacheShouldContainTheFilesInTheTaggedCommit() throws IOException {
     writeToCache("/file1.txt");
     writeToCache("/file2.txt");
-    AnyObjectId tagId = TagUtils.tagCommit(commit(someCommitMessage(), null), "test_tag", repo).getObjectId();
+    AnyObjectId tagId = TagUtils.tagCommit("test_tag", commit(someCommitMessage(), null), repo).getObjectId();
     DirCache cache = CacheUtils.forRevision(tagId, repo);
     Assert.assertNotNull(CacheUtils.getEntry("/file1.txt", cache));
     Assert.assertNotNull(CacheUtils.getEntry("/file2.txt", cache));
@@ -41,7 +41,7 @@ public class CacheUtilsCreateTest extends AbstractParallelGitTest {
   public void createCacheFromTagRef_theResultCacheShouldContainTheFilesInTheTaggedCommit() throws IOException {
     writeToCache("/file1.txt");
     writeToCache("/file2.txt");
-    Ref tagRef = TagUtils.tagCommit(commit(someCommitMessage(), null), "test_tag", repo);
+    Ref tagRef = TagUtils.tagCommit("test_tag", commit(someCommitMessage(), null), repo);
     DirCache cache = CacheUtils.forRevision(tagRef, repo);
     Assert.assertNotNull(CacheUtils.getEntry("/file1.txt", cache));
     Assert.assertNotNull(CacheUtils.getEntry("/file2.txt", cache));

@@ -16,31 +16,31 @@ public class CreateDirectoryTest extends AbstractParallelGitTest {
 
   @Before
   public void prepareExample() throws IOException {
-    initMemoryRepository(true);
+    initRepository();
     writeSomeFileToCache();
     commitToBranch("my_branch");
   }
 
   @Test
   public void createDirectory() throws IOException {
-    try(GitFileSystem gfs = GitFileSystemBuilder.forRevision("my_branch", repo)) {        // open git file system
-      Path dir = gfs.getPath("/new_dir");                                                 // convert string to nio path
-      Files.createDirectory(dir);                                                         // create directory
+    try(GitFileSystem gfs = GitFileSystemBuilder.forRevision("my_branch", repo)) {       // open git file system
+      Path dir = gfs.getPath("/new_dir");                                                // convert string to nio path
+      Files.createDirectory(dir);                                                        // create directory
 
       // check
-      assertTrue(Files.exists(dir));                                                      // the directory exists
+      assertTrue(Files.exists(dir));                                                     // the directory exists
     }
   }
 
   @Test
   public void createDirectories() throws IOException {
-    try(GitFileSystem gfs = GitFileSystemBuilder.forRevision("my_branch", repo)) {        // open git file system
-      Path dir = gfs.getPath("/dir1/dir2");                                               // convert string to nio path
-      Files.createDirectories(dir);                                                       // create directories
+    try(GitFileSystem gfs = GitFileSystemBuilder.forRevision("my_branch", repo)) {       // open git file system
+      Path dir = gfs.getPath("/dir1/dir2");                                              // convert string to nio path
+      Files.createDirectories(dir);                                                      // create directories
 
       // check
-      assertTrue(Files.exists(gfs.getPath("/dir1/dir2")));                                // the child directory exists
-      assertTrue(Files.exists(gfs.getPath("/dir1")));                                     // the parent directory exists
+      assertTrue(Files.exists(gfs.getPath("/dir1/dir2")));                               // the child directory exists
+      assertTrue(Files.exists(gfs.getPath("/dir1")));                                    // the parent directory exists
     }
   }
 

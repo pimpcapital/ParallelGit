@@ -22,40 +22,40 @@ public class CommitChangesTest extends AbstractParallelGitTest {
 
   @Before
   public void prepareExample() throws IOException {
-    initMemoryRepository(true);
+    initRepository();
     commitToBranch("my_branch");
   }
 
   @Test
   public void commitChanges() throws IOException {
     RevCommit commit;
-    try(GitFileSystem gfs = GitFileSystemBuilder.forRevision("my_branch", repo)) {        // open git file system
-      Path file = gfs.getPath("/my_file.txt");                                            // convert string to nio path
-      Files.write(file, "my text data".getBytes());                                       // write file
-      commit = Requests.commit(gfs).message("my commit message").execute();               // commit changes
+    try(GitFileSystem gfs = GitFileSystemBuilder.forRevision("my_branch", repo)) {       // open git file system
+      Path file = gfs.getPath("/my_file.txt");                                           // convert string to nio path
+      Files.write(file, "my text data".getBytes());                                      // write file
+      commit = Requests.commit(gfs).message("my commit message").execute();              // commit changes
     }
 
     // check
-    assertNotNull(commit);                                                                // new commit is created
-    assertTrue(GitFileUtils.exists("/my_file.txt", commit, repo));                        // the file exists in the commit
-    assertEquals("my text data",                                                          // the data is correct
+    assertNotNull(commit);                                                               // new commit is created
+    assertTrue(GitFileUtils.exists("/my_file.txt", commit, repo));                       // the file exists in the commit
+    assertEquals("my text data",                                                         // the data is correct
                   new String(GitFileUtils.readFile("/my_file.txt", commit, repo)));
   }
 
   @Test
   public void persistBlobs() throws IOException {
     AnyObjectId tree;
-    try(GitFileSystem gfs = GitFileSystemBuilder.forRevision("my_branch", repo)) {        // open git file system
-      Path file = gfs.getPath("/my_file.txt");                                            // convert string to nio path
-      Files.write(file, "my text data".getBytes());                                       // write file
-      tree = Requests.persist(gfs).execute();                                             // persist changes and create a tree
+    try(GitFileSystem gfs = GitFileSystemBuilder.forRevision("my_branch", repo)) {       // open git file system
+      Path file = gfs.getPath("/my_file.txt");                                           // convert string to nio path
+      Files.write(file, "my text data".getBytes());                                      // write file
+      tree = Requests.persist(gfs).execute();                                            // persist changes and create a tree
     }
 
     // check
-    assertTrue(TreeUtils.exists("/my_file.txt", tree, repo));                             // the file exists in the tree
-    AnyObjectId blobId = TreeUtils.getObjectId("/my_file.txt", tree, repo);               // get the blob of the file
-    assertNotNull(blobId);                                                                // the blob of the file is found
-    assertEquals("my text data", new String(ObjectUtils.readObject(blobId, repo)));       // the data is correct
+    assertTrue(TreeUtils.exists("/my_file.txt", tree, repo));                            // the file exists in the tree
+    AnyObjectId blobId = TreeUtils.getObjectId("/my_file.txt", tree, repo);              // get the blob of the file
+    assertNotNull(blobId);                                                               // the blob of the file is found
+    assertEquals("my text data", new String(ObjectUtils.readObject(blobId, repo)));      // the data is correct
   }
 
 }

@@ -140,6 +140,14 @@ public final class CacheUtils {
     return cache.getEntry(TreeUtils.normalizeTreePath(path));
   }
 
+  public static void updateFileBlob(@Nonnull String path, @Nonnull AnyObjectId blob, @Nonnull DirCache cache) {
+    ensureEntry(path, cache).setObjectId(blob);
+  }
+
+  public static void updateFileMode(@Nonnull String path, @Nonnull FileMode mode, @Nonnull DirCache cache) {
+    ensureEntry(path, cache).setFileMode(mode);
+  }
+
   public static int findEntry(@Nonnull String path, @Nonnull DirCache cache) {
     return cache.findEntry(TreeUtils.normalizeTreePath(path));
   }
@@ -149,19 +157,13 @@ public final class CacheUtils {
   }
 
   @Nonnull
-  public static AnyObjectId getBlobId(@Nonnull String path, @Nonnull DirCache cache) throws NoSuchCacheEntryException {
-    DirCacheEntry entry = getEntry(path, cache);
-    if(entry == null)
-      throw new NoSuchCacheEntryException("/" + TreeUtils.normalizeTreePath(path));
-    return entry.getObjectId();
+  public static AnyObjectId getBlob(@Nonnull String path, @Nonnull DirCache cache) throws NoSuchCacheEntryException {
+    return ensureEntry(path, cache).getObjectId();
   }
 
   @Nonnull
   public static FileMode getFileMode(@Nonnull String path, @Nonnull DirCache cache) throws NoSuchCacheEntryException {
-    DirCacheEntry entry = getEntry(path, cache);
-    if(entry == null)
-      throw new NoSuchCacheEntryException("/" + TreeUtils.normalizeTreePath(path));
-    return entry.getFileMode();
+    return ensureEntry(path, cache).getFileMode();
   }
 
 
@@ -227,6 +229,14 @@ public final class CacheUtils {
       inserter.flush();
       return tree;
     }
+  }
+
+  @Nonnull
+  private static DirCacheEntry ensureEntry(@Nonnull String path, @Nonnull DirCache cache) {
+    DirCacheEntry entry = getEntry(path, cache);
+    if(entry == null)
+      throw new NoSuchCacheEntryException("/" + TreeUtils.normalizeTreePath(path));
+    return entry;
   }
 
 }

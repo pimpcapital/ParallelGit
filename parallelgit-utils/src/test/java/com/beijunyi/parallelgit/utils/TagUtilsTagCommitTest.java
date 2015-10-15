@@ -29,19 +29,10 @@ public class TagUtilsTagCommitTest extends AbstractParallelGitTest {
   @Test(expected = TagAlreadyExistsException.class)
   public void tagHeadCommitWithExistingTagName_shouldThrowRefUpdateRejectedException() throws IOException {
     writeSomeFileToCache();
-    TagUtils.tagCommit(commit(null), "test_tag", repo);
+    TagUtils.tagCommit("test_tag", commit(null), repo);
     writeSomeFileToCache();
     RepositoryUtils.detachRepositoryHead(repo, commit(null));
     TagUtils.tagHeadCommit("test_tag", repo);
   }
-
-  @Test
-  public void tagHeadCommitWithMessage_theResultTagShouldHaveTheInputMessage() throws IOException {
-    writeSomeFileToCache();
-    RepositoryUtils.detachRepositoryHead(repo, commit(null));
-    Ref tagRef = TagUtils.tagHeadCommit("test_tag", "test_message", repo);
-    Assert.assertEquals("test_message", TagUtils.getTag(tagRef, repo).getFullMessage());
-  }
-
 
 }

@@ -28,53 +28,40 @@ public final class TagUtils {
   }
 
   @Nonnull
-  public static Ref createTag(@Nonnull AnyObjectId tagId, @Nonnull String name, @Nonnull Repository repo) throws IOException {
-    String refName = RefUtils.ensureTagRefName(name);
-    if(tagExists(name, repo))
-      throw new TagAlreadyExistsException(refName);
-    RefUpdate update = repo.updateRef(refName);
-    update.setNewObjectId(tagId);
-    update.setRefLogMessage("tagged " + name, false);
-    RefUpdateValidator.validate(update.update());
-    return repo.getRef(refName);
-  }
-
-  @Nonnull
-  public static Ref tagCommit(@Nonnull AnyObjectId commitId, @Nonnull String name, @Nullable String message, @Nullable PersonIdent tagger, @Nonnull Repository repo) throws IOException {
+  public static Ref tagCommit(@Nonnull String name, @Nonnull AnyObjectId commit, @Nullable String message, @Nullable PersonIdent tagger, @Nonnull Repository repo) throws IOException {
     TagBuilder builder = new TagBuilder();
     builder.setTag(name);
     builder.setMessage(message);
     builder.setTagger(tagger);
-    builder.setObjectId(commitId, Constants.OBJ_COMMIT);
+    builder.setObjectId(commit, Constants.OBJ_COMMIT);
     AnyObjectId tag;
     try(ObjectInserter inserter = repo.newObjectInserter()) {
       tag = inserter.insert(builder);
       inserter.flush();
     }
-    return createTag(tag, name, repo);
+    return linkTag(name, tag, repo);
   }
 
   @Nonnull
-  public static Ref tagCommit(@Nonnull AnyObjectId commitId, @Nonnull String name, @Nullable String message, @Nonnull Repository repo) throws IOException {
-    return tagCommit(commitId, name, message, new PersonIdent(repo), repo);
+  public static Ref tagCommit(@Nonnull String name, @Nonnull AnyObjectId commit, @Nullable String message, @Nonnull Repository repo) throws IOException {
+    return tagCommit(name, commit, message, new PersonIdent(repo), repo);
   }
 
   @Nonnull
-  public static Ref tagCommit(@Nonnull AnyObjectId commitId, @Nonnull String name, @Nonnull Repository repo) throws IOException {
-    return tagCommit(commitId, name, null, repo);
+  public static Ref tagCommit(@Nonnull String name, @Nonnull AnyObjectId commit, @Nonnull Repository repo) throws IOException {
+    return tagCommit(name, commit, null, repo);
   }
 
   @Nonnull
-  public static Ref tagHeadCommit(@Nonnull String name, @Nullable String message, @Nonnull Repository repo) throws IOException {
-    if(repo.isBare())
-      throw new IllegalArgumentException("Bare repository does not have head commit");
-    AnyObjectId headCommit = repo.resolve(Constants.HEAD);
-    return tagCommit(headCommit, name, message, repo);
+  public static Ref tagCommit(@Nonnull String name, @Nonnull String revision, @Nonnull Repository repo) throws IOException {
+    return tagCommit(name, repo.resolve(revision), repo);
   }
 
   @Nonnull
   public static Ref tagHeadCommit(@Nonnull String name, @Nonnull Repository repo) throws IOException {
-    return tagHeadCommit(name, null, repo);
+    if(repo.isBare())
+      throw new IllegalArgumentException("Bare repository does not have head commit");
+    return tagCommit(name, Constants.HEAD, repo);
   }
 
   @Nonnull
@@ -100,6 +87,18 @@ public final class TagUtils {
   public static RevTag getTag(@Nonnull String tagName, @Nonnull Repository repo) throws IOException {
     Ref tagRef = repo.getRef(RefUtils.ensureTagRefName(tagName));
     return tagRef != null ? getTag(tagRef, repo) : null;
+  }
+
+  @Nonnull
+  private static Ref linkTag(@Nonnull String name, @Nonnull AnyObjectId tag, @Nonnull Repository repo) throws IOException {
+    String refName = RefUtils.ensureTagRefName(name);
+    if(tagExists(name, repo))
+      throw new TagAlreadyExistsException(refName);
+    RefUpdate update = repo.updateRef(refName);
+    update.setNewObjectId(tag);
+    update.setRefLogMessage("tagged " + name, false);
+    RefUpdateValidator.validate(update.update());
+    return repo.getRef(refName);
   }
 
 }

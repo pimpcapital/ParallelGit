@@ -70,7 +70,7 @@ public class BranchUtilsCreateBranchRefLogTest extends AbstractParallelGitTest {
   @Test
   public void createBranchFromTagRef_theHeadOfTheNewBranchShouldEqualToTheTaggedTag() throws IOException {
     writeSomeFileToCache();
-    TagUtils.tagCommit(commitToMaster(), "source_tag", repo);
+    TagUtils.tagCommit("source_tag", commitToMaster(), repo);
     BranchUtils.createBranch("test_branch", repo.getRef("source_tag"), repo);
     ReflogEntry lastRefLog = RefUtils.getLastRefLog("test_branch", repo);
     assert lastRefLog != null;
@@ -80,7 +80,7 @@ public class BranchUtilsCreateBranchRefLogTest extends AbstractParallelGitTest {
   @Test
   public void createBranchFromTagName_theHeadOfTheNewBranchShouldEqualToTheTaggedTag() throws IOException {
     writeSomeFileToCache();
-    TagUtils.tagCommit(commitToMaster(), "source_tag", repo);
+    TagUtils.tagCommit("source_tag", commitToMaster(), repo);
     BranchUtils.createBranch("test_branch", "source_tag", repo);
     ReflogEntry lastRefLog = RefUtils.getLastRefLog("test_branch", repo);
     assert lastRefLog != null;
@@ -90,7 +90,7 @@ public class BranchUtilsCreateBranchRefLogTest extends AbstractParallelGitTest {
   @Test
   public void createBranchFromTag_theHeadOfTheNewBranchShouldEqualToTheTaggedTag() throws IOException {
     writeSomeFileToCache();
-    TagUtils.tagCommit(commitToMaster(), "source_tag", repo);
+    TagUtils.tagCommit("source_tag", commitToMaster(), repo);
     BranchUtils.createBranch("test_branch", repo.resolve("source_tag"), repo);
     ReflogEntry lastRefLog = RefUtils.getLastRefLog("test_branch", repo);
     assert lastRefLog != null;

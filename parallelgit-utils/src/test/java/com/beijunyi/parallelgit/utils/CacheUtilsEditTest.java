@@ -51,7 +51,7 @@ public class CacheUtilsEditTest extends AbstractParallelGitTest {
   public void addFile_theAddedFileShouldHaveTheSpecifiedObjectId() {
     AnyObjectId expected = someObjectId();
     CacheUtils.addFile("/test_file.txt", expected, cache);
-    Assert.assertEquals(expected, CacheUtils.getBlobId("/test_file.txt", cache));
+    Assert.assertEquals(expected, CacheUtils.getBlob("/test_file.txt", cache));
   }
 
   @Test
@@ -152,6 +152,23 @@ public class CacheUtilsEditTest extends AbstractParallelGitTest {
     Assert.assertEquals(2, cache.getEntryCount());
     Assert.assertNotNull(cache.getEntry("a/c5.txt"));
     Assert.assertNotNull(cache.getEntry("a/c6.txt"));
+  }
+
+  @Test
+  public void updateFileBlob_theEntryBlobShouldEqualToTheInputBlobAfterTheOperation() throws IOException {
+    writeToCache("/test_file.txt");
+
+    AnyObjectId expected = someObjectId();
+    CacheUtils.updateFileBlob("/test_file.txt", expected, cache);
+    Assert.assertEquals(expected, CacheUtils.getBlob("/test_file.txt", cache));
+  }
+
+  @Test
+  public void updateFileMode_theEntryFileModeShouldEqualToTheInputFileModeAfterTheOperation() throws IOException {
+    writeToCache("/test_file.txt");
+
+    CacheUtils.updateFileMode("/test_file.txt", FileMode.EXECUTABLE_FILE, cache);
+    Assert.assertEquals(FileMode.EXECUTABLE_FILE, CacheUtils.getFileMode("/test_file.txt", cache));
   }
 
 }

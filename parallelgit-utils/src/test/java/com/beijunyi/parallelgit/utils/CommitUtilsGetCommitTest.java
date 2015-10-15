@@ -27,7 +27,7 @@ public class CommitUtilsGetCommitTest extends AbstractParallelGitTest {
   public void getCommitFromTagId_theResultShouldEqualToTheTaggedCommit() throws IOException {
     writeSomeFileToCache();
     AnyObjectId commitId = commitToMaster();
-    AnyObjectId tagId = TagUtils.tagCommit(commitId, "test_tag", repo).getObjectId();
+    AnyObjectId tagId = TagUtils.tagCommit("test_tag", commitId, repo).getObjectId();
     Assert.assertEquals(commitId, CommitUtils.getCommit(tagId, repo));
   }
 
@@ -35,7 +35,7 @@ public class CommitUtilsGetCommitTest extends AbstractParallelGitTest {
   public void getCommitFromTagRef_theResultShouldEqualToTheTaggedCommit() throws IOException {
     writeSomeFileToCache();
     AnyObjectId commitId = commitToMaster();
-    Ref tagRef = TagUtils.tagCommit(commitId, "test_tag", repo);
+    Ref tagRef = TagUtils.tagCommit("test_tag", commitId, repo);
     Assert.assertEquals(commitId, CommitUtils.getCommit(tagRef, repo));
   }
 

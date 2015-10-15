@@ -31,7 +31,7 @@ public class ParallelCacheCommandTest extends AbstractParallelGitTest {
     DirCache cache = ParallelCacheCommand.prepare(repo)
                        .baseCommit(commitId)
                        .call();
-    Assert.assertEquals(expectedFileBlob, CacheUtils.getBlobId("/expected_file.txt", cache));
+    Assert.assertEquals(expectedFileBlob, CacheUtils.getBlob("/expected_file.txt", cache));
   }
 
   @Test
@@ -41,7 +41,7 @@ public class ParallelCacheCommandTest extends AbstractParallelGitTest {
     DirCache cache = ParallelCacheCommand.prepare(repo)
                        .baseCommit(commitIdStr)
                        .call();
-    Assert.assertEquals(expectedFileBlob, CacheUtils.getBlobId("/expected_file.txt", cache));
+    Assert.assertEquals(expectedFileBlob, CacheUtils.getBlob("/expected_file.txt", cache));
   }
 
   @Test
@@ -51,7 +51,7 @@ public class ParallelCacheCommandTest extends AbstractParallelGitTest {
     DirCache cache = ParallelCacheCommand.prepare(repo)
                        .baseTree(treeId)
                        .call();
-    Assert.assertEquals(expectedFileBlob, CacheUtils.getBlobId("/expected_file.txt", cache));
+    Assert.assertEquals(expectedFileBlob, CacheUtils.getBlob("/expected_file.txt", cache));
   }
 
   @Test
@@ -61,7 +61,7 @@ public class ParallelCacheCommandTest extends AbstractParallelGitTest {
     DirCache cache = ParallelCacheCommand.prepare(repo)
                        .baseTree(treeIdStr)
                        .call();
-    Assert.assertEquals(expectedFileBlob, CacheUtils.getBlobId("/expected_file.txt", cache));
+    Assert.assertEquals(expectedFileBlob, CacheUtils.getBlob("/expected_file.txt", cache));
   }
 
   @Test
@@ -79,7 +79,7 @@ public class ParallelCacheCommandTest extends AbstractParallelGitTest {
     DirCache cache = ParallelCacheCommand.prepare()
                        .addFile("/expected_file.txt", blobId)
                        .call();
-    Assert.assertEquals(blobId, CacheUtils.getBlobId("/expected_file.txt", cache));
+    Assert.assertEquals(blobId, CacheUtils.getBlob("/expected_file.txt", cache));
   }
 
   @Test
@@ -121,8 +121,8 @@ public class ParallelCacheCommandTest extends AbstractParallelGitTest {
     DirCache cache = ParallelCacheCommand.prepare(repo)
                        .addDirectory("/dir", treeWithTwoChildren)
                        .call();
-    Assert.assertEquals(blob1, CacheUtils.getBlobId("/dir/child1.txt", cache));
-    Assert.assertEquals(blob2, CacheUtils.getBlobId("/dir/child2.txt", cache));
+    Assert.assertEquals(blob1, CacheUtils.getBlob("/dir/child1.txt", cache));
+    Assert.assertEquals(blob2, CacheUtils.getBlob("/dir/child2.txt", cache));
   }
 
   @Test
@@ -227,7 +227,7 @@ public class ParallelCacheCommandTest extends AbstractParallelGitTest {
                        .baseCommit(commitId)
                        .updateFile("/file.txt", newBlobId, newFileMode)
                        .call();
-    Assert.assertEquals(newBlobId, CacheUtils.getBlobId("/file.txt", cache));
+    Assert.assertEquals(newBlobId, CacheUtils.getBlob("/file.txt", cache));
     Assert.assertEquals(newFileMode, CacheUtils.getFileMode("/file.txt", cache));
   }
 
@@ -241,7 +241,7 @@ public class ParallelCacheCommandTest extends AbstractParallelGitTest {
                        .baseCommit(commitId)
                        .updateFile("/file.txt", newBlobId)
                        .call();
-    Assert.assertEquals(newBlobId, CacheUtils.getBlobId("/file.txt", cache));
+    Assert.assertEquals(newBlobId, CacheUtils.getBlob("/file.txt", cache));
   }
 
   @Test
@@ -278,7 +278,7 @@ public class ParallelCacheCommandTest extends AbstractParallelGitTest {
                        .baseCommit(commitId)
                        .updateFile("/file.txt", FileMode.EXECUTABLE_FILE)
                        .call();
-    Assert.assertEquals(blobId, CacheUtils.getBlobId("/file.txt", cache));
+    Assert.assertEquals(blobId, CacheUtils.getBlob("/file.txt", cache));
   }
 
   @Test(expected = IllegalArgumentException.class)

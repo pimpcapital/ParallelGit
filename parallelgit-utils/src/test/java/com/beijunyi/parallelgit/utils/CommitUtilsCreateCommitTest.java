@@ -23,14 +23,14 @@ public class CommitUtilsCreateCommitTest extends AbstractParallelGitTest {
   public void createCommitFromTree_theResultCommitRootTreeShouldBeTheSpecifiedTree() throws IOException {
     writeSomeFileToCache();
     AnyObjectId treeId = CacheUtils.writeTree(cache, repo);
-    RevCommit commit = CommitUtils.createCommit(someCommitMessage(), treeId, somePersonIdent(), null, repo);
+    RevCommit commit = CommitUtils.createCommit(someCommitMessage(), treeId, null, repo);
     Assert.assertEquals(treeId, commit.getTree());
   }
 
   @Test
   public void createCommitFromCache_theResultCommitShouldHaveTheSameFilesAsInTheCache() throws IOException {
     writeFilesToCache("file1.txt", "file2.txt");
-    RevCommit commit = CommitUtils.createCommit(someCommitMessage(), cache, somePersonIdent(), null, repo);
+    RevCommit commit = CommitUtils.createCommit(someCommitMessage(), cache, null, repo);
     assertCacheEquals(cache, CacheUtils.forRevision(commit, repo));
   }
 
@@ -38,7 +38,7 @@ public class CommitUtilsCreateCommitTest extends AbstractParallelGitTest {
   public void createCommit_theResultCommitShouldHaveTheInputMessage() throws IOException {
     writeSomeFileToCache();
     String expectedMessage = "test message";
-    RevCommit commit = CommitUtils.createCommit(expectedMessage, cache, somePersonIdent(), null, repo);
+    RevCommit commit = CommitUtils.createCommit(expectedMessage, cache, null, repo);
     Assert.assertEquals(expectedMessage, commit.getFullMessage());
   }
 

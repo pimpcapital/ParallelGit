@@ -19,14 +19,14 @@ public class TagUtilsGetTagTest extends AbstractParallelGitTest {
   @Test
   public void getTagWhenTagExists_theResultShouldBeNotNull() throws IOException {
     writeSomeFileToCache();
-    TagUtils.tagCommit(commitToMaster(), "test_tag", repo);
+    TagUtils.tagCommit("test_tag", commitToMaster(), repo);
     Assert.assertNotNull(TagUtils.getTag("test_tag", repo));
   }
 
   @Test
   public void getTag_theResultTagObjectShouldHaveTheTagName() throws IOException {
     writeSomeFileToCache();
-    TagUtils.tagCommit(commitToMaster(), "test_tag", repo);
+    TagUtils.tagCommit("test_tag", commitToMaster(), repo);
     RevTag tag = TagUtils.getTag("test_tag", repo);
     assert tag != null;
     Assert.assertEquals("test_tag",tag.getTagName());
@@ -35,7 +35,7 @@ public class TagUtilsGetTagTest extends AbstractParallelGitTest {
   @Test
   public void getTag_theResultTagObjectShouldHaveTheTagMessage() throws IOException {
     writeSomeFileToCache();
-    TagUtils.tagCommit(commitToMaster(), "test_tag", "test message", repo);
+    TagUtils.tagCommit("test_tag", commitToMaster(), "test message", repo);
     RevTag tag = TagUtils.getTag("test_tag", repo);
     assert tag != null;
     Assert.assertEquals("test message", tag.getFullMessage());
@@ -45,7 +45,7 @@ public class TagUtilsGetTagTest extends AbstractParallelGitTest {
   public void getTag_theResultTagObjectShouldHaveTheTagger() throws IOException {
     writeSomeFileToCache();
     PersonIdent tagger = new PersonIdent("tagger", "tagger@email.com");
-    TagUtils.tagCommit(commitToMaster(), "test_tag", "test message", tagger, repo);
+    TagUtils.tagCommit("test_tag", commitToMaster(), "test message", tagger, repo);
     RevTag tag = TagUtils.getTag("test_tag", repo);
     assert tag != null;
     Assert.assertEquals(tagger, tag.getTaggerIdent());
