@@ -1,6 +1,5 @@
 package examples;
 
-import java.io.File;
 import java.io.IOException;
 
 import com.beijunyi.parallelgit.AbstractParallelGitTest;
@@ -19,7 +18,7 @@ public class OpenRepositoryTest extends AbstractParallelGitTest {
   }
 
   @Test
-  public void openBareRepository() throws IOException {
+  public void autoDetectAndOpenRepository() throws IOException {
     RepositoryUtils.createRepository(repoDir);
 
     Repository repo = RepositoryUtils.openRepository(repoDir);
@@ -28,18 +27,6 @@ public class OpenRepositoryTest extends AbstractParallelGitTest {
     assertTrue(repo.isBare());
     assertEquals(repoDir, repo.getDirectory());
     // repo.getWorkTree(); -> NoWorkTreeException
-  }
-
-  @Test
-  public void createNonBareRepository() throws IOException {
-    RepositoryUtils.createRepository(repoDir, false);
-
-    Repository repo = RepositoryUtils.openRepository(repoDir);
-
-    // check
-    assertFalse(repo.isBare());
-    assertEquals(repoDir, repo.getWorkTree());
-    assertEquals(new File(repoDir, ".git"), repo.getDirectory());
   }
 
 }

@@ -23,11 +23,11 @@ pre {
 }
 
 #fork-ribbon {
-  position: absolute;
+  position: fixed;
   top: 0;
   right: 0;
   border: 0;
-  z-index: 1000;
+  z-index: 1040;
 }
 
 .navbar {
@@ -57,6 +57,10 @@ pre {
 .navbar-nav > li > a > i {
   display: block;
   font-size: 40px;
+}
+
+.navbar-fixed-top+.container {
+  margin-top: 100px;
 }
 
 .nav-tabs > li {
@@ -165,6 +169,25 @@ a.btn-xs i.fa {
   font-weight: 500;
   background-color: #485563;
   text-shadow: 1px 1px #2b3e50;
+}
+
+.sticky {
+  position: fixed;
+}
+
+.sidebar {
+  margin-top: 40px;
+  background-color: #485563;
+}
+
+.sidebar a {
+  cursor: pointer;
+  border-left: #485563 solid 5px;
+  user-select: none;
+}
+
+.sidebar a:hover {
+  border-left: #bf5a16 solid 5px;
 }
 
 .dimmed {

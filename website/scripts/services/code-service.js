@@ -28,14 +28,22 @@ app.service('CodeService', function($http, $q) {
 
   function loadCode(url) {
     var deferred = $q.defer();
-    if(cache[url] == null) {
+    var code = cache[url];
+    if(code == null) {
+      code = cache[url] = {queue: []};
       $http.get(url)
         .success(function(source) {
-          cache[url] = source.split('\n');
-          deferred.resolve(cache[url]);
+          code.data = source.split('\n');
+          angular.forEach(code.queue, function(request) {
+            request.resolve(code.data);
+          });
+          code.queue = null;
         });
+    }
+    if(code.queue != null) {
+      code.queue.push(deferred);
     } else
-      deferred.resolve(cache[url]);
+      deferred.resolve(code.data);
     return deferred.promise;
   }
 

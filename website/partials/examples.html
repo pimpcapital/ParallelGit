@@ -1,23 +1,26 @@
 <div class="row">
+  <div></div>
   <div class="col-md-2">
-    <ul class="nav nav-pills nav-stacked">
-      <li>
-        <a>Example 1</a>
-      </li>
-      <li>
-        <a>Example 2</a>
-      </li>
-    </ul>
+    <div class="sticky sidebar">
+      <ul class="nav nav-pills nav-stacked">
+        <li ng-repeat="category in examples">
+          <a ng-click="gotoAnchor(category.anchor)">{{category.name}}</a>
+        </li>
+      </ul>
+    </div>
   </div>
   <div class="col-md-10">
     <div ng-repeat="category in examples">
-      <div class="page-header">
+      <div class="page-header" id="{{category.anchor}}">
         <h3>{{category.name}}</h3>
       </div>
       <div ng-repeat="example in category.examples">
         <h4>{{example.name}}</h4>
-        <source-loader url="example.url" method="example.method"></source-loader>
+        <source-loader url="category.url" method="example.method"></source-loader>
+        <br/>
       </div>
+      <br/>
+      <br/>
     </div>
   </div>
 </div>

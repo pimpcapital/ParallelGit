@@ -21,7 +21,7 @@ public class CommitChangesTest extends AbstractParallelGitTest {
   }
 
   @Test
-  public void commitChanges() throws IOException {
+  public void commitCachedChanges() throws IOException {
     AnyObjectId head = repo.resolve("my_branch");                                        // get the head commit of "my_branch"
     DirCache cache = CacheUtils.forRevision(head, repo);                                 // load the commit into cache
 
