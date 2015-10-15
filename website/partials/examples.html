@@ -12,7 +12,7 @@
   <div class="col-md-10">
     <div ng-repeat="category in examples">
       <div class="page-header" id="{{category.anchor}}">
-        <h3>{{category.name}}</h3>
+        <h3>{{category.name}} <a target="_blank" ng-href="{{category.url}}" title="View Full Source Code"><i class="fa fa-github highlight fa-2x"></i></a></h3>
       </div>
       <div ng-repeat="example in category.examples">
         <h4>{{example.name}}</h4>
