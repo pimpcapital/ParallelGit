@@ -19,7 +19,7 @@ public class RepositoryUtilsSetDefaultUserTest extends AbstractParallelGitTest {
   public void setDefaultUser_newPersonIdentInstanceShouldHaveTheSpecifiedUserNameAndEmail() throws IOException {
     String name = "test_user";
     String email = "test@user.com";
-    RepositoryUtils.setDefaultUser(name, email, repo);
+    RepositoryUtils.setDefaultCommitter(name, email, repo);
     PersonIdent actual = new PersonIdent(repo);
     Assert.assertEquals(name, actual.getName());
     Assert.assertEquals(email, actual.getEmailAddress());

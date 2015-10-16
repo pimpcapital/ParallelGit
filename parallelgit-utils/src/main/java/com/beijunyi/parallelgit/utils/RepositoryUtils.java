@@ -41,7 +41,7 @@ public final class RepositoryUtils {
     return openRepository(dir, !new File(dir, Constants.DOT_GIT).exists());
   }
 
-  public static void setDefaultUser(@Nonnull String name, @Nonnull String email, @Nonnull Repository repo) throws IOException {
+  public static void setDefaultCommitter(@Nonnull String name, @Nonnull String email, @Nonnull Repository repo) throws IOException {
     StoredConfig config = repo.getConfig();
     config.setString("user", null, "name", name);
     config.setString("user", null, "email", email);
