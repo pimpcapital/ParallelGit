@@ -14,6 +14,10 @@ svg {
 }
 
 pre {
+  background-color: #bf5a16;
+  border: 3px #C48E6A solid;
+  color: #ebebeb;
+  font-size: 13px;
   padding: 3px;
 }
 
@@ -97,13 +101,6 @@ pre {
 
 .table {
   margin-bottom: 0;
-}
-
-pre {
-  background-color: #bf5a16;
-  border: 3px #C48E6A solid;
-  color: #ebebeb;
-  font-size: 13px
 }
 
 a.btn-xs {
