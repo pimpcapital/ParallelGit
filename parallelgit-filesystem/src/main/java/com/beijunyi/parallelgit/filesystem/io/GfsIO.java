@@ -297,38 +297,50 @@ public final class GfsIO {
     return gfs.saveBlob(bytes);
   }
 
-  @Nonnull
-  private static AnyObjectId persistDirectory(@Nonnull DirectoryNode dir, @Nonnull GitFileSystem gfs) throws IOException {
+  @Nullable
+  private static AnyObjectId persistDirectory(@Nonnull DirectoryNode dir, boolean allowEmpty, @Nonnull GitFileSystem gfs) throws IOException {
     Map<String, Node> children = dir.getChildren();
-    if(children == null)
-      throw new IllegalStateException();
+    int count = 0;
     TreeFormatter formatter = new TreeFormatter();
-    for(Map.Entry<String, Node> child : new TreeMap<>(children).entrySet()) {
-      String name = child.getKey();
-      Node node = child.getValue();
-      formatter.append(name, node.getType().toFileMode(), persistNode(node, gfs));
+    if(children != null) {
+      for(Map.Entry<String, Node> child : new TreeMap<>(children).entrySet()) {
+        String name = child.getKey();
+        Node node = child.getValue();
+        AnyObjectId nodeObject = persistNode(node, gfs);
+        if(nodeObject != null) {
+          formatter.append(name, node.getType().toFileMode(), nodeObject);
+          count++;
+        }
+      }
     }
-    return gfs.saveTree(formatter);
+    return (allowEmpty || count != 0) ? gfs.saveTree(formatter) : null;
   }
 
-  @Nonnull
+  @Nullable
   private static AnyObjectId persistNode(@Nonnull Node node, @Nonnull GitFileSystem gfs) throws IOException {
     if(!node.isDirty())
       return node.getObject();
-    AnyObjectId objectId;
+    AnyObjectId nodeObject;
     if(node instanceof FileNode)
-      objectId = persistFile((FileNode) node, gfs);
+      nodeObject = persistFile((FileNode) node, gfs);
     else if(node instanceof DirectoryNode)
-      objectId = persistDirectory((DirectoryNode) node, gfs);
+      nodeObject = persistDirectory((DirectoryNode) node, false, gfs);
     else
       throw new IllegalStateException();
-    node.markClean(objectId);
-    return objectId;
+    if(nodeObject != null)
+      node.markClean(nodeObject);
+    return nodeObject;
   }
 
   @Nonnull
-  public static AnyObjectId persist(@Nonnull GitPath path) throws IOException {
-    return persistNode(getNode(path), path.getFileSystem());
+  public static AnyObjectId persistRoot(@Nonnull GitFileSystem gfs) throws IOException {
+    DirectoryNode root = gfs.getFileStore().getRoot();
+    if(root.isDirty()) {
+      AnyObjectId ret = persistDirectory(root, true, gfs);
+      assert ret != null;
+      root.markClean(ret);
+    }
+    return root.getObject();
   }
 
 }
