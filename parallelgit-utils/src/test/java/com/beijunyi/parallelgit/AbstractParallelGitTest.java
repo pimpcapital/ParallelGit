@@ -65,6 +65,20 @@ public abstract class AbstractParallelGitTest {
   }
 
   @Nonnull
+  protected AnyObjectId updateFile(@Nonnull String path, @Nonnull byte[] content) throws IOException {
+    AnyObjectId blobId = ObjectUtils.insertBlob(content, repo);
+    DirCacheEntry entry = CacheUtils.getEntry(path, cache);
+    assert entry != null;
+    entry.setObjectId(blobId);
+    return blobId;
+  }
+
+  @Nonnull
+  protected AnyObjectId updateFile(@Nonnull String path, @Nonnull String content) throws IOException {
+    return updateFile(path, Constants.encode(content));
+  }
+
+  @Nonnull
   protected AnyObjectId someObjectId() {
     return ObjectUtils.calculateBlobId(UUID.randomUUID().toString().getBytes());
   }

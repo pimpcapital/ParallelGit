@@ -53,7 +53,7 @@ public class CommitUtilsGetCommitHistoryTest extends AbstractParallelGitTest {
   public void getCommitHistoryWhenSkipIsNotZeroAndLimitIsIntegerMax_shouldReturnTailCommits() throws IOException {
     String branch = "orphan_branch";
     writeSomeFileToCache();
-    RevCommit commit1 =commitToBranch(branch);
+    RevCommit commit1 = commitToBranch(branch);
     writeSomeFileToCache();
     RevCommit commit2 = commitToBranch(branch);
     writeSomeFileToCache();
@@ -63,6 +63,23 @@ public class CommitUtilsGetCommitHistoryTest extends AbstractParallelGitTest {
 
     List<RevCommit> expected = Arrays.asList(commit3, commit2, commit1);
     List<RevCommit> actual = CommitUtils.getCommitHistory(commit4, 1, Integer.MAX_VALUE, repo.newObjectReader());
+    Assert.assertEquals(expected, actual);
+  }
+
+  @Test
+  public void getFileChangeCommits_shouldReturnTheCommitsWhereTheSpecifiedFileIsChanged() throws IOException {
+    String branch = "orphan_branch";
+    writeSomeFileToCache();
+    /*RevCommit commit1 = */commitToBranch(branch);
+    writeToCache("/test_file.txt", "some text data");
+    RevCommit commit2 = commitToBranch(branch);
+    updateFile("/test_file.txt", "some other text data");
+    RevCommit commit3 = commitToBranch(branch);
+    writeSomeFileToCache();
+    RevCommit commit4 = commitToBranch(branch);
+
+    List<RevCommit> expected = Arrays.asList(commit3, commit2);
+    List<RevCommit> actual = CommitUtils.getFileChangeCommits("/test_file.txt", commit4, repo);
     Assert.assertEquals(expected, actual);
   }
 
