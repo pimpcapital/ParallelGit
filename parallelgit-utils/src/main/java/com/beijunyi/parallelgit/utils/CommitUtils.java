@@ -51,18 +51,6 @@ public final class CommitUtils {
   }
 
   @Nonnull
-  public static List<RevCommit> getCommitHistory(@Nonnull RevCommit start, int skip, int limit, @Nullable TreeFilter filter, @Nonnull ObjectReader reader) throws IOException {
-    List<RevCommit> commits;
-    try(RevWalk rw = new RevWalk(reader)) {
-      rw.markStart(start);
-      if(filter != null)
-        rw.setTreeFilter(filter);
-      commits = toCommitList(rw, skip, limit);
-    }
-    return commits;
-  }
-
-  @Nonnull
   public static List<RevCommit> getCommitHistory(@Nonnull RevCommit start, int skip, int limit, @Nonnull ObjectReader reader) throws IOException {
     return getCommitHistory(start, skip, limit, null, reader);
   }
@@ -165,6 +153,18 @@ public final class CommitUtils {
   @Nonnull
   private static List<AnyObjectId> toParentList(@Nullable AnyObjectId parent) {
     return parent != null ? Collections.singletonList(parent) : Collections.<AnyObjectId>emptyList();
+  }
+
+  @Nonnull
+  private static List<RevCommit> getCommitHistory(@Nonnull RevCommit start, int skip, int limit, @Nullable TreeFilter filter, @Nonnull ObjectReader reader) throws IOException {
+    List<RevCommit> commits;
+    try(RevWalk rw = new RevWalk(reader)) {
+      rw.markStart(start);
+      if(filter != null)
+        rw.setTreeFilter(filter);
+      commits = toCommitList(rw, skip, limit);
+    }
+    return commits;
   }
 
   @Nonnull

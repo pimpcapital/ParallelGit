@@ -59,12 +59,12 @@ public final class GitFileUtils {
 
   public static boolean isSymbolicLink(@Nonnull String file, @Nonnull AnyObjectId commit, @Nonnull Repository repo) throws IOException {
     try(ObjectReader reader = repo.newObjectReader()) {
-      return isFile(file, commit, reader);
+      return isSymbolicLink(file, commit, reader);
     }
   }
 
   public static boolean isSymbolicLink(@Nonnull String file, @Nonnull String commit, @Nonnull Repository repo) throws IOException {
-    return isFile(file, repo.resolve(commit), repo);
+    return isSymbolicLink(file, repo.resolve(commit), repo);
   }
 
   @Nonnull
