@@ -67,9 +67,7 @@ public abstract class AbstractParallelGitTest {
   @Nonnull
   protected AnyObjectId updateFile(@Nonnull String path, @Nonnull byte[] content) throws IOException {
     AnyObjectId blobId = ObjectUtils.insertBlob(content, repo);
-    DirCacheEntry entry = CacheUtils.getEntry(path, cache);
-    assert entry != null;
-    entry.setObjectId(blobId);
+    CacheUtils.updateFileBlob(path, blobId, cache);
     return blobId;
   }
 

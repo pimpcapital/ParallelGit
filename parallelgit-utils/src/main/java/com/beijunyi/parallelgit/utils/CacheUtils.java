@@ -141,22 +141,22 @@ public final class CacheUtils {
     return cache.getEntry(TreeUtils.normalizeTreePath(path));
   }
 
-  public static void updateFileBlob(@Nonnull String path, @Nonnull AnyObjectId blob, @Nonnull DirCacheEditor editor) {
-    editor.add(new CacheEntryUpdate(path).setNewBlob(blob));
+  public static void updateFile(@Nonnull CacheEntryUpdate update, @Nonnull DirCacheEditor editor) {
+    editor.add(update);
   }
 
-  public static void updateFileBlob(@Nonnull String path, @Nonnull AnyObjectId blob, @Nonnull DirCache cache) {
+  public static void updateFile(@Nonnull CacheEntryUpdate update, @Nonnull DirCache cache) {
     DirCacheEditor editor = cache.editor();
-    updateFileBlob(path, blob, editor);
+    updateFile(update, editor);
     editor.finish();
   }
 
-  public static void updateFileMode(@Nonnull String path, @Nonnull FileMode mode, @Nonnull DirCacheEditor editor) {
-    editor.add(new CacheEntryUpdate(path).setNewFileMode(mode));
+  public static void updateFileBlob(@Nonnull String path, @Nonnull AnyObjectId blob, @Nonnull DirCache cache) {
+    updateFile(new CacheEntryUpdate(path).setNewBlob(blob), cache);
   }
 
   public static void updateFileMode(@Nonnull String path, @Nonnull FileMode mode, @Nonnull DirCache cache) {
-    ensureEntry(path, cache).setFileMode(mode);
+    updateFile(new CacheEntryUpdate(path).setNewFileMode(mode), cache);
   }
 
   public static int findEntry(@Nonnull String path, @Nonnull DirCache cache) {

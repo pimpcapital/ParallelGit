@@ -3,6 +3,7 @@ package com.beijunyi.parallelgit.utils.io;
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 
+import com.beijunyi.parallelgit.utils.TreeUtils;
 import org.eclipse.jgit.dircache.DirCacheEditor;
 import org.eclipse.jgit.dircache.DirCacheEntry;
 import org.eclipse.jgit.lib.AnyObjectId;
@@ -14,7 +15,7 @@ public class CacheEntryUpdate extends DirCacheEditor.PathEdit {
   private FileMode newFileMode;
 
   public CacheEntryUpdate(@Nonnull String entryPath) {
-    super(entryPath);
+    super(TreeUtils.normalizeTreePath(entryPath));
   }
 
   @Nonnull
