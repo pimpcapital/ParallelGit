@@ -7,6 +7,9 @@ ParallelGit is an open source library built upon [JGit](https://eclipse.org/jgit
 [![Coverage Status](https://coveralls.io/repos/beijunyi/ParallelGit/badge.svg?branch=master&service=github)](https://coveralls.io/github/beijunyi/ParallelGit?branch=master)
 [![Maven Central](https://maven-badges.herokuapp.com/maven-central/com.beijunyi/parallelgit/badge.svg)](https://maven-badges.herokuapp.com/maven-central/com.beijunyi/parallelgit)
 
+Find more examples and the latest news from our [official site](https://beijunyi.github.io/ParallelGit)!
+
+
 ParallelGit Utils
 -----------------
 
