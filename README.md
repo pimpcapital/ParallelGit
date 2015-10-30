@@ -51,7 +51,7 @@ public void printFile(String filename, Repository repo) {
 ParallelGit FileSystem
 ----------------------
 
-A Java 7 [nio filesystem](http://docs.oracle.com/javase/7/docs/api/java/nio/file/FileSystem.html) implementation to provide the most native way to interact with a Git repository.
+A Java 7 [nio file system](http://docs.oracle.com/javase/7/docs/api/java/nio/file/FileSystem.html) implementation to provide the most native way to interact with a Git repository.
 
 ```xml
 <dependency>
