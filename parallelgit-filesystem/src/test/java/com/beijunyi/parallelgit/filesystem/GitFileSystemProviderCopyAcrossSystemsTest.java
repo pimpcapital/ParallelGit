@@ -56,6 +56,19 @@ public class GitFileSystemProviderCopyAcrossSystemsTest extends AbstractGitFileS
   }
 
   @Test
+  public void copyFileToAnotherSystem_theTargetFileSystemShouldBecomeDirty() throws IOException {
+    initRepository();
+    writeToCache("/source.txt");
+    commitToMaster();
+    initGitFileSystem();
+
+    GitPath source = gfs.getPath("/source.txt");
+    GitPath target = targetGfs.getPath("/target.txt");
+    provider.copy(source, target);
+    assertTrue(targetGfs.isDirty());
+  }
+
+  @Test
   public void copyDirectoryToAnotherSystem_theTargetDirectoryShouldExist() throws IOException {
     initRepository();
     writeToCache("/source/file.txt");
@@ -98,6 +111,19 @@ public class GitFileSystemProviderCopyAcrossSystemsTest extends AbstractGitFileS
     provider.copy(source, target);
     assertArrayEquals(expectedData1, Files.readAllBytes(target.resolve("file1.txt")));
     assertArrayEquals(expectedData2, Files.readAllBytes(target.resolve("file2.txt")));
+  }
+
+  @Test
+  public void copyDirectoryToAnotherSystem_theTargetFileSystemShouldBecomeDirty() throws IOException {
+    initRepository();
+    writeToCache("/source/file.txt");
+    commitToMaster();
+    initGitFileSystem();
+
+    GitPath source = gfs.getPath("/source");
+    GitPath target = targetGfs.getPath("/target");
+    provider.copy(source, target);
+    assertTrue(targetGfs.isDirty());
   }
 
 }

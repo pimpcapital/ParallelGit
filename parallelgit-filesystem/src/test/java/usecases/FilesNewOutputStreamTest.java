@@ -5,20 +5,53 @@ import java.io.OutputStream;
 import java.nio.file.Files;
 
 import com.beijunyi.parallelgit.filesystem.AbstractGitFileSystemTest;
+import com.beijunyi.parallelgit.filesystem.GitPath;
 import org.junit.Test;
 
-import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.*;
 
 public class FilesNewOutputStreamTest extends AbstractGitFileSystemTest {
 
   @Test
-  public void newOutputStreamOnFile_shouldBeNotNull() throws IOException {
+  public void openNewOutputStream_theResultShouldBeNotNull() throws IOException {
     initRepository();
-    writeToCache("/file.txt");
+    writeToCache("/test_file.txt");
     commitToMaster();
     initGitFileSystem();
-    try(OutputStream outputStream = Files.newOutputStream(gfs.getPath("/file.txt"))) {
-      assertNotNull(outputStream);
+
+    try(OutputStream stream = Files.newOutputStream(gfs.getPath("/test_file.txt"))) {
+      assertNotNull(stream);
     }
   }
+
+  @Test
+  public void openNewOutputStreamWhenFileDoesNotExist_shouldCreateNewFile() throws IOException {
+    initGitFileSystem();
+    GitPath file = gfs.getPath("/test_file.txt");
+    Files.newOutputStream(file);
+    assertTrue(Files.exists(file));
+  }
+
+  @Test
+  public void openNewOutputStreamWhenFileDoesNotExist_theNewFileIsEmptyBeforeStreamCloses() throws IOException {
+    initGitFileSystem();
+    GitPath file = gfs.getPath("/test_file.txt");
+    try(OutputStream stream = Files.newOutputStream(file)) {
+      stream.write("some text data".getBytes());
+      assertEquals(0, Files.size(file));
+    }
+  }
+
+  @Test
+  public void openNewOutputStreamWhenFileDoesNotExist_theNewFileHasTheOutputDataAfterStreamCloses() throws IOException {
+    initGitFileSystem();
+
+    byte[] expected = "test data".getBytes();
+    GitPath file = gfs.getPath("/test_file.txt");
+    try(OutputStream stream = Files.newOutputStream(file)) {
+      stream.write(expected);
+    }
+    assertArrayEquals(expected, Files.readAllBytes(file));
+  }
+
 }

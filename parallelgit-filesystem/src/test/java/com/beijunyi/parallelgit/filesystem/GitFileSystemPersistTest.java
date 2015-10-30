@@ -3,6 +3,7 @@ package com.beijunyi.parallelgit.filesystem;
 import java.io.IOException;
 import java.nio.file.Files;
 
+import com.beijunyi.parallelgit.utils.TreeUtils;
 import org.eclipse.jgit.lib.AnyObjectId;
 import org.eclipse.jgit.treewalk.TreeWalk;
 import org.junit.Test;
@@ -29,9 +30,17 @@ public class GitFileSystemPersistTest extends PreSetupGitFileSystemTest {
     byte[] expectedContent = "some text content".getBytes();
     Files.write(gfs.getPath("/some_file.txt"), expectedContent);
     AnyObjectId result = gfs.persist();
-    try(TreeWalk tw = TreeWalk.forPath(repo, "some_file.txt", result)) {
+    try(TreeWalk tw = TreeUtils.forPath("/some_file.txt", result, repo)) {
+      assert tw != null;
       assertArrayEquals(expectedContent, repo.open(tw.getObjectId(0)).getBytes());
     }
+  }
+
+  @Test
+  public void persistChanges_theFileSystemShouldBecomeClean() throws IOException {
+    Files.write(gfs.getPath("/some_file.txt"), "some text content".getBytes());
+    gfs.persist();
+    assertFalse(gfs.isDirty());
   }
 
 }

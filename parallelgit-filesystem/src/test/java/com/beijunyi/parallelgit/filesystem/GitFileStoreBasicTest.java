@@ -1,6 +1,7 @@
 package com.beijunyi.parallelgit.filesystem;
 
 import java.io.IOException;
+import java.nio.file.attribute.FileStoreAttributeView;
 
 import org.junit.Test;
 
@@ -21,6 +22,11 @@ public class GitFileStoreBasicTest extends PreSetupGitFileSystemTest {
   @Test
   public void testIsReadOnly_shouldReturnFalse() throws IOException {
     assertFalse(store.isReadOnly());
+  }
+
+  @Test
+  public void getFileStoreAttributeView_shouldReturnNull() {
+    assertNull(store.getFileStoreAttributeView(FileStoreAttributeView.class));
   }
 
 }

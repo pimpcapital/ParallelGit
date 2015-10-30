@@ -124,7 +124,8 @@ public final class CommitRequest extends GitFileSystemRequest<RevCommit> {
     if(!allowEmpty && !amend && tree.equals(commit.getTree()))
       return null;
     RevCommit resultCommit = CommitUtils.createCommit(message, tree, author, committer, parents, repository);
-    updateRef(resultCommit);
+    if(branchRef != null)
+      updateRef(resultCommit);
     updateFileSystem(resultCommit);
     return resultCommit;
   }

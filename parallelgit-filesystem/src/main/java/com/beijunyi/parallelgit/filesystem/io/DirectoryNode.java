@@ -5,19 +5,18 @@ import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 
 import org.eclipse.jgit.lib.AnyObjectId;
-import org.eclipse.jgit.lib.ObjectId;
 
 public class DirectoryNode extends Node {
 
   protected Map<String, Node> children;
 
-  protected DirectoryNode(@Nonnull AnyObjectId object, @Nullable DirectoryNode parent) {
+  protected DirectoryNode(@Nullable AnyObjectId object, @Nullable DirectoryNode parent) {
     super(NodeType.DIRECTORY, object, parent);
   }
 
   protected DirectoryNode(@Nullable DirectoryNode parent) {
-    this(ObjectId.zeroId(), parent);
-    dirty = true;
+    this(null, parent);
+    dirty = false;
   }
 
   @Nonnull
@@ -37,13 +36,20 @@ public class DirectoryNode extends Node {
 
   @Nonnull
   public static DirectoryNode emptyRoot() {
-    return new DirectoryNode(null);
+    DirectoryNode ret = new DirectoryNode(null);
+    ret.setDirty(true);
+    return ret;
   }
-
 
   @Nullable
   public Map<String, Node> getChildren() {
     return children;
+  }
+
+  public boolean isEmpty() {
+    if(children != null)
+      return children.isEmpty();
+    return object == null;
   }
 
   public void setChildren(@Nullable Map<String, Node> children) {
@@ -71,16 +77,18 @@ public class DirectoryNode extends Node {
     if(!replace && children.containsKey(name))
       return false;
     children.put(name, child);
-    markDirty();
+    if(child.isDirty() || !child.isDirectory() || !((DirectoryNode) child).isEmpty())
+      markDirty();
     return true;
   }
 
   public synchronized boolean removeChild(@Nonnull String name) {
-    if(children.remove(name) != null) {
+    Node removed = children.remove(name);
+    if(removed == null)
+      return false;
+    if(!removed.isDirectory() || !((DirectoryNode) removed).isEmpty())
       markDirty();
-      return true;
-    }
-    return false;
+    return true;
   }
 
 }

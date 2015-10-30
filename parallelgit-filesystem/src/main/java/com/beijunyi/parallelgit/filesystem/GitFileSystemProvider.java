@@ -170,7 +170,7 @@ public class GitFileSystemProvider extends FileSystemProvider {
     try {
       return GfsIO.getFileAttributeView(((GitPath)path).toRealPath(), type);
     } catch(IOException e) {
-      throw new IllegalStateException(e);
+      throw new RuntimeException(e);
     }
   }
 

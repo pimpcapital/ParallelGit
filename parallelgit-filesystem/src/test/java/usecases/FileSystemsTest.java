@@ -49,7 +49,7 @@ public class FileSystemsTest extends AbstractParallelGitTest {
     URI uri = GitUriBuilder.prepare()
                 .repository(repoDir)
                 .build();
-    FileSystem fs = FileSystems.newFileSystem(uri, GitParams.emptyMap().setRevision(head));
+    FileSystem fs = FileSystems.newFileSystem(uri, GitParams.emptyMap().setCommit(head));
     assertEquals(head, ((GitFileSystem)fs).getCommit());
   }
 

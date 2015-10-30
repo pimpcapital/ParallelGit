@@ -38,7 +38,7 @@ public class TreeUtilsNodeTypeTest extends AbstractParallelGitTest {
   }
 
   @Test
-  public void testIsFileOrSymbolicLinkOnNonExistentFile_shouldReturnFalse() throws IOException {
+  public void testIsFileOrSymbolicLinkWhenFileDoesNotExist_shouldReturnFalse() throws IOException {
     writeSomeFileToCache();
     AnyObjectId rootTree = commitToMaster().getTree();
     Assert.assertFalse(TreeUtils.isFileOrSymbolicLink("/non_existent_file.txt", rootTree, repo));
@@ -59,7 +59,7 @@ public class TreeUtilsNodeTypeTest extends AbstractParallelGitTest {
   }
 
   @Test
-  public void testIsDirectoryOnNonExistentDirectory_shouldReturnFalse() throws IOException {
+  public void testIsDirectoryWhenDirectoryDoesNotExist_shouldReturnFalse() throws IOException {
     writeSomeFileToCache();
     AnyObjectId rootTree = commitToMaster().getTree();
     Assert.assertFalse(TreeUtils.isDirectory("/non_existent_directory", rootTree, repo));
@@ -80,7 +80,7 @@ public class TreeUtilsNodeTypeTest extends AbstractParallelGitTest {
   }
 
   @Test
-  public void testIsRegularFileOnNonExistentFile_shouldReturnFalse() throws IOException {
+  public void testIsRegularFileWhenFileDoesNotExist_shouldReturnFalse() throws IOException {
     writeSomeFileToCache();
     AnyObjectId rootTree = commitToMaster().getTree();
     Assert.assertFalse(TreeUtils.isRegularFile("/non_existent_file.txt", rootTree, repo));
@@ -101,7 +101,7 @@ public class TreeUtilsNodeTypeTest extends AbstractParallelGitTest {
   }
 
   @Test
-  public void testIsExecutableFileOnNonExistentFile_shouldReturnFalse() throws IOException {
+  public void testIsExecutableFileWhenFileDoesNotExist_shouldReturnFalse() throws IOException {
     writeSomeFileToCache();
     AnyObjectId rootTree = commitToMaster().getTree();
     Assert.assertFalse(TreeUtils.isExecutableFile("/non_existent_file.txt", rootTree, repo));
@@ -136,7 +136,7 @@ public class TreeUtilsNodeTypeTest extends AbstractParallelGitTest {
   }
 
   @Test
-  public void testIsRegularOrExecutableFileOnNonExistentFile_shouldReturnFalse() throws IOException {
+  public void testIsRegularOrExecutableFileWhenFileDoesNotExist_shouldReturnFalse() throws IOException {
     writeSomeFileToCache();
     AnyObjectId rootTree = commitToMaster().getTree();
     Assert.assertFalse(TreeUtils.isRegularOrExecutableFile("/non_existent_file.txt", rootTree, repo));
@@ -157,7 +157,7 @@ public class TreeUtilsNodeTypeTest extends AbstractParallelGitTest {
   }
 
   @Test
-  public void testIsSymbolicLinkOnNonExistentLink_shouldReturnFalse() throws IOException {
+  public void testIsSymbolicLinkWhenFileDoesNotExist_shouldReturnFalse() throws IOException {
     writeSomeFileToCache();
     AnyObjectId rootTree = commitToMaster().getTree();
     Assert.assertFalse(TreeUtils.isSymbolicLink("/non_existent_file.txt", rootTree, repo));

@@ -7,6 +7,7 @@ import java.nio.file.attribute.FileStoreAttributeView;
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 
+import com.beijunyi.parallelgit.filesystem.exceptions.NoTreeException;
 import com.beijunyi.parallelgit.filesystem.io.DirectoryNode;
 import com.beijunyi.parallelgit.filesystem.io.GfsFileAttributeView;
 import com.beijunyi.parallelgit.filesystem.io.GfsIO;
@@ -96,7 +97,10 @@ public class GitFileStore extends FileStore {
 
   @Nonnull
   public AnyObjectId getTree() {
-    return root.getObject();
+    AnyObjectId rootObject = root.getObject();
+    if(rootObject == null)
+      throw new NoTreeException();
+    return rootObject;
   }
 
   public boolean isDirty() {

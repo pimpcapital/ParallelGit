@@ -7,7 +7,7 @@ import java.nio.file.Path;
 
 import org.junit.Test;
 
-import static org.junit.Assert.assertTrue;
+import static org.junit.Assert.*;
 
 public class GitFileSystemProviderCreateDirectoryTest extends AbstractGitFileSystemTest {
 
@@ -27,6 +27,14 @@ public class GitFileSystemProviderCreateDirectoryTest extends AbstractGitFileSys
     Path childFile = dir.resolve("file.txt");
     Files.write(childFile, "some text data".getBytes());
     assertTrue(Files.exists(childFile));
+  }
+
+  @Test
+  public void createEmptyDirectory_theFileSystemShouldStayClean() throws IOException {
+    initGitFileSystem();
+    GitPath dir = gfs.getPath("/empty_dir");
+    provider.createDirectory(dir);
+    assertFalse(gfs.isDirty());
   }
 
   @Test(expected = FileAlreadyExistsException.class)

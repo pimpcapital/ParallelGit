@@ -10,6 +10,7 @@ import javax.annotation.Nullable;
 
 import com.beijunyi.parallelgit.filesystem.GitFileSystem;
 import com.beijunyi.parallelgit.filesystem.GitFileSystemProvider;
+import com.beijunyi.parallelgit.filesystem.exceptions.NoRepositoryException;
 import com.beijunyi.parallelgit.utils.BranchUtils;
 import com.beijunyi.parallelgit.utils.CommitUtils;
 import com.beijunyi.parallelgit.utils.RefUtils;
@@ -177,20 +178,8 @@ public class GitFileSystemBuilder {
              .create(params.getCreate())
              .bare(params.getBare())
              .branch(params.getBranch())
-             .commit(params.getRevision())
+             .commit(params.getCommit())
              .tree(params.getTree());
-  }
-
-  private void errorNoRepositories() {
-    throw new IllegalArgumentException("No repository provided");
-  }
-
-  private void errorUnsupportedLocation(@Nonnull String dir) {
-    throw new UnsupportedOperationException(dir + " is not a valid location");
-  }
-
-  private void errorUnsupportedRepository(@Nonnull String dir) {
-    throw new UnsupportedOperationException(dir + " is not a valid repository");
   }
 
   private void prepareProvider() {
@@ -205,18 +194,14 @@ public class GitFileSystemBuilder {
       if(create != null && create)
         repository.create(bare == null || bare);
     }
-    if(!repository.getObjectDatabase().exists())
-      errorUnsupportedRepository(repository.getDirectory().getAbsolutePath());
   }
 
   private void prepareRepoDir() {
     if(repoDir == null) {
       if(repoDirPath == null)
-        errorNoRepositories();
+        throw new NoRepositoryException();
       repoDir = new File(repoDirPath);
     }
-    if(!repoDir.isDirectory())
-      errorUnsupportedLocation(repoDir.getAbsolutePath());
     useDotGit();
   }
 

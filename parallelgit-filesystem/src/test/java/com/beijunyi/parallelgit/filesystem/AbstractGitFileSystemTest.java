@@ -19,7 +19,11 @@ public abstract class AbstractGitFileSystemTest extends AbstractParallelGitTest 
   protected GitPath root;
 
   protected void writeToGfs(@Nonnull String path, @Nonnull byte[] data) throws IOException {
-    Files.write(gfs.getPath(path), data);
+    GitPath file = gfs.getPath(path);
+    GitPath parent = file.getParent();
+    if(parent != null)
+      Files.createDirectories(file.getParent());
+    Files.write(file, data);
   }
 
   protected void writeToGfs(@Nonnull String path, @Nonnull String content) throws IOException {

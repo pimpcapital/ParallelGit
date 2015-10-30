@@ -71,7 +71,7 @@ public class GitFileSystemProviderNewFileSystemTest extends AbstractGitFileSyste
     URI uri = GitUriBuilder.prepare()
                 .repository(repoDir)
                 .build();
-    try(GitFileSystem gfs = provider.newFileSystem(uri, Collections.singletonMap(GitParams.REVISION_KEY, commit))) {
+    try(GitFileSystem gfs = provider.newFileSystem(uri, Collections.singletonMap(GitParams.COMMIT_KEY, commit))) {
       assertNull(gfs.getBranch());
 
       RevCommit baseCommit = gfs.getCommit();

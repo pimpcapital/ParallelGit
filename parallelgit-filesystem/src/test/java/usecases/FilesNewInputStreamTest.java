@@ -17,8 +17,8 @@ public class FilesNewInputStreamTest extends AbstractGitFileSystemTest {
     writeToCache("/file.txt");
     commitToMaster();
     initGitFileSystem();
-    try(InputStream inputStream = Files.newInputStream(gfs.getPath("/file.txt"))) {
-      assertNotNull(inputStream);
+    try(InputStream stream = Files.newInputStream(gfs.getPath("/file.txt"))) {
+      assertNotNull(stream);
     }
   }
 }

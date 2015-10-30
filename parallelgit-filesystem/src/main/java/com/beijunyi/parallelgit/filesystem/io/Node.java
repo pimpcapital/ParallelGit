@@ -13,7 +13,7 @@ public abstract class Node {
   protected volatile AnyObjectId object;
   protected volatile boolean dirty = false;
 
-  protected Node(@Nonnull NodeType type, @Nonnull AnyObjectId object, @Nullable DirectoryNode parent) {
+  protected Node(@Nonnull NodeType type, @Nullable AnyObjectId object, @Nullable DirectoryNode parent) {
     this.type = type;
     this.object = object;
     this.parent = parent;
@@ -27,10 +27,14 @@ public abstract class Node {
   }
 
   @Nonnull
-  public static Node ofSameType(@Nonnull Node node, @Nonnull DirectoryNode parent) {
+  public static Node cloneNode(@Nonnull Node node, @Nonnull DirectoryNode parent) {
+    Node ret;
     if(node instanceof DirectoryNode)
-      return DirectoryNode.newDirectory(parent);
-    return FileNode.newFile(node.isExecutableFile(), parent);
+      ret = DirectoryNode.newDirectory(parent);
+    else
+      ret = FileNode.newFile(node.isExecutableFile(), parent);
+    ret.setDirty(true);
+    return ret;
   }
 
   @Nonnull
@@ -63,7 +67,7 @@ public abstract class Node {
     return parent;
   }
 
-  @Nonnull
+  @Nullable
   public AnyObjectId getObject() {
     return object;
   }

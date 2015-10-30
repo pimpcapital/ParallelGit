@@ -7,31 +7,31 @@ import static org.junit.Assert.assertEquals;
 public class GitParamsTest {
 
   @Test
-  public void createParam() {
+  public void setCreate_theResultParamsShouldContainTheInputCreateOption() {
     GitParams params = GitParams.emptyMap().setCreate(true);
     assertEquals(true, params.getCreate());
   }
 
   @Test
-  public void bareParam() {
+  public void setBare_theResultParamsShouldContainTheInputBareOption() {
     GitParams params = GitParams.emptyMap().setBare(true);
     assertEquals(true, params.getBare());
   }
 
   @Test
-  public void branchParam() {
+  public void setBranch_theResultParamsShouldContainTheInputBranch() {
     GitParams params = GitParams.emptyMap().setBranch("test_branch");
     assertEquals("test_branch", params.getBranch());
   }
 
   @Test
-  public void revisionParam() {
-    GitParams params = GitParams.emptyMap().setRevision("test_revision");
-    assertEquals("test_revision", params.getRevision());
+  public void setCommit_theResultParamsShouldContainTheInputCommit() {
+    GitParams params = GitParams.emptyMap().setCommit("test_commit");
+    assertEquals("test_commit", params.getCommit());
   }
 
   @Test
-  public void treeParam() {
+  public void setTree_theResultParamsShouldContainTheInputTree() {
     GitParams params = GitParams.emptyMap().setTree("test_tree");
     assertEquals("test_tree", params.getTree());
   }

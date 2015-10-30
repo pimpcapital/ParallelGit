@@ -50,7 +50,7 @@ public class GitFileSystemProviderCopyTest extends AbstractGitFileSystemTest {
   }
 
   @Test
-  public void copyFile_theSourceFileShouldHaveTheSameData() throws IOException {
+  public void copyFile_theSourceFileDataShouldRemainTheSame() throws IOException {
     initRepository();
     byte[] expectedData = "expected data".getBytes();
     writeToCache("/source.txt", expectedData);
@@ -61,6 +61,19 @@ public class GitFileSystemProviderCopyTest extends AbstractGitFileSystemTest {
     GitPath target = gfs.getPath("/target.txt");
     provider.copy(source, target);
     assertArrayEquals(expectedData, Files.readAllBytes(source));
+  }
+
+  @Test
+  public void copyFile_theFileSystemShouldBecomeDirty() throws IOException {
+    initRepository();
+    writeToCache("/source.txt");
+    commitToMaster();
+    initGitFileSystem();
+
+    GitPath source = gfs.getPath("/source.txt");
+    GitPath target = gfs.getPath("/target.txt");
+    provider.copy(source, target);
+    assertTrue(gfs.isDirty());
   }
 
 
@@ -226,6 +239,19 @@ public class GitFileSystemProviderCopyTest extends AbstractGitFileSystemTest {
     provider.copy(source, target);
     assertArrayEquals(expectedData1, Files.readAllBytes(target.resolve("file1.txt")));
     assertArrayEquals(expectedData2, Files.readAllBytes(target.resolve("file2.txt")));
+  }
+
+  @Test
+  public void copyDirectory_theFileSystemShouldBecomeDirty() throws IOException {
+    initRepository();
+    writeToCache("/source/file.txt");
+    commitToMaster();
+    initGitFileSystem();
+
+    GitPath source = gfs.getPath("/source");
+    GitPath target = gfs.getPath("/target");
+    provider.copy(source, target);
+    assertTrue(gfs.isDirty());
   }
 
 }
