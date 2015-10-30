@@ -7,8 +7,9 @@ import java.util.Arrays;
 import javax.annotation.Nonnull;
 
 import com.beijunyi.parallelgit.filesystem.AbstractGitFileSystemTest;
-import org.junit.Assert;
 import org.junit.Test;
+
+import static org.junit.Assert.assertEquals;
 
 public class FilesSizeTest extends AbstractGitFileSystemTest {
 
@@ -25,7 +26,7 @@ public class FilesSizeTest extends AbstractGitFileSystemTest {
     writeToCache("/dir/file.txt");
     commitToMaster();
     initGitFileSystem();
-    Assert.assertEquals(0, Files.size(gfs.getPath("/dir")));
+    assertEquals(0, Files.size(gfs.getPath("/dir")));
   }
 
   @Test
@@ -34,7 +35,7 @@ public class FilesSizeTest extends AbstractGitFileSystemTest {
     writeToCache("/file.txt", bytesOfSize(15));
     commitToMaster();
     initGitFileSystem();
-    Assert.assertEquals(15, Files.size(gfs.getPath("/file.txt")));
+    assertEquals(15, Files.size(gfs.getPath("/file.txt")));
   }
 
   @Test(expected = NoSuchFileException.class)

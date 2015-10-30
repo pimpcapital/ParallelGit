@@ -4,9 +4,10 @@ import java.io.IOException;
 import java.nio.file.Files;
 
 import com.beijunyi.parallelgit.filesystem.AbstractGitFileSystemTest;
-import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
+
+import static org.junit.Assert.*;
 
 public class FilesIsReadableTest extends AbstractGitFileSystemTest {
 
@@ -20,22 +21,22 @@ public class FilesIsReadableTest extends AbstractGitFileSystemTest {
 
   @Test
   public void fileIsReadable() {
-    Assert.assertTrue(Files.isReadable(gfs.getPath("/dir/file.txt")));
+    assertTrue(Files.isReadable(gfs.getPath("/dir/file.txt")));
   }
 
   @Test
   public void directoryIsReadable() {
-    Assert.assertTrue(Files.isReadable(gfs.getPath("/dir")));
+    assertTrue(Files.isReadable(gfs.getPath("/dir")));
   }
 
   @Test
   public void rootIsReadable() {
-    Assert.assertTrue(Files.isReadable(gfs.getPath("/")));
+    assertTrue(Files.isReadable(gfs.getPath("/")));
   }
 
   @Test
   public void nonExistentFileIsReadable() {
-    Assert.assertFalse(Files.isReadable(gfs.getPath("/non_existent_file.txt")));
+    assertFalse(Files.isReadable(gfs.getPath("/non_existent_file.txt")));
   }
 
 }

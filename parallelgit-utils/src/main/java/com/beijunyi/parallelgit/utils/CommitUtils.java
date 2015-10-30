@@ -1,6 +1,7 @@
 package com.beijunyi.parallelgit.utils;
 
 import java.io.IOException;
+import java.nio.file.NoSuchFileException;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
@@ -11,6 +12,9 @@ import org.eclipse.jgit.dircache.DirCache;
 import org.eclipse.jgit.lib.*;
 import org.eclipse.jgit.revwalk.RevCommit;
 import org.eclipse.jgit.revwalk.RevWalk;
+import org.eclipse.jgit.treewalk.filter.AndTreeFilter;
+import org.eclipse.jgit.treewalk.filter.PathFilterGroup;
+import org.eclipse.jgit.treewalk.filter.TreeFilter;
 
 public final class CommitUtils {
 
@@ -47,20 +51,53 @@ public final class CommitUtils {
   }
 
   @Nonnull
+  public static List<RevCommit> getCommitHistory(@Nonnull RevCommit start, int skip, int limit, @Nonnull ObjectReader reader) throws IOException {
+    return getCommitHistory(start, skip, limit, null, reader);
+  }
+
+  @Nonnull
   public static List<RevCommit> getCommitHistory(@Nonnull RevCommit start, @Nonnull ObjectReader reader) throws IOException {
-    try(RevWalk rw = new RevWalk(reader)) {
-      rw.markStart(start);
-      List<RevCommit> commits = new ArrayList<>();
-      for(RevCommit commit : rw)
-        commits.add(commit);
-      return commits;
-    }
+    return getCommitHistory(start, 0, Integer.MAX_VALUE, reader);
   }
 
   @Nonnull
   public static List<RevCommit> getCommitHistory(@Nonnull RevCommit start, @Nonnull Repository repo) throws IOException {
     try(ObjectReader reader = repo.newObjectReader()) {
       return getCommitHistory(start, reader);
+    }
+  }
+
+  @Nonnull
+  public static List<RevCommit> getFileChangeCommits(@Nonnull String file, @Nonnull RevCommit start, int skip, int limit, @Nonnull ObjectReader reader) throws IOException {
+    file = TreeUtils.normalizeTreePath(file);
+    TreeFilter filter = AndTreeFilter.create(PathFilterGroup.createFromStrings(file), TreeFilter.ANY_DIFF);
+    return getCommitHistory(start, skip, limit, filter, reader);
+  }
+
+  @Nonnull
+  public static List<RevCommit> getFileChangeCommits(@Nonnull String file, @Nonnull RevCommit start, @Nonnull ObjectReader reader) throws IOException {
+    return getFileChangeCommits(file, start, 0, Integer.MAX_VALUE, reader);
+  }
+
+  @Nonnull
+  public static List<RevCommit> getFileChangeCommits(@Nonnull String file, @Nonnull RevCommit start, @Nonnull Repository repo) throws IOException {
+    try(ObjectReader reader = repo.newObjectReader()) {
+      return getFileChangeCommits(file, start, reader);
+    }
+  }
+
+  @Nonnull
+  public static RevCommit getFileLastChangeCommit(@Nonnull String file, @Nonnull RevCommit start, @Nonnull ObjectReader reader) throws IOException {
+    List<RevCommit> commits = getFileChangeCommits(file, start, 0, 1, reader);
+    if(commits.isEmpty())
+      throw new NoSuchFileException(file);
+    return commits.get(0);
+  }
+
+  @Nonnull
+  public static RevCommit getFileLastChangeCommit(@Nonnull String file, @Nonnull RevCommit start, @Nonnull Repository repo) throws IOException {
+    try(ObjectReader reader = repo.newObjectReader()) {
+      return getFileLastChangeCommit(file, start, reader);
     }
   }
 
@@ -116,6 +153,32 @@ public final class CommitUtils {
   @Nonnull
   private static List<AnyObjectId> toParentList(@Nullable AnyObjectId parent) {
     return parent != null ? Collections.singletonList(parent) : Collections.<AnyObjectId>emptyList();
+  }
+
+  @Nonnull
+  private static List<RevCommit> getCommitHistory(@Nonnull RevCommit start, int skip, int limit, @Nullable TreeFilter filter, @Nonnull ObjectReader reader) throws IOException {
+    List<RevCommit> commits;
+    try(RevWalk rw = new RevWalk(reader)) {
+      rw.markStart(start);
+      if(filter != null)
+        rw.setTreeFilter(filter);
+      commits = toCommitList(rw, skip, limit);
+    }
+    return commits;
+  }
+
+  @Nonnull
+  private static List<RevCommit> toCommitList(@Nonnull RevWalk rw, int skip, int limit) {
+    List<RevCommit> commits = new ArrayList<>();
+    long max = (long) limit + skip;
+    long count = 0;
+    for(RevCommit commit : rw) {
+      if(count >= skip && count < max)
+        commits.add(commit);
+      if(count++ >= max)
+        break;
+    }
+    return commits;
   }
 
 }

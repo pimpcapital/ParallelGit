@@ -13,7 +13,7 @@ public class CommitUtilsGetCommitTest extends AbstractParallelGitTest {
 
   @Before
   public void setUp() throws IOException {
-    initMemoryRepository(true);
+    initRepository();
   }
 
   @Test

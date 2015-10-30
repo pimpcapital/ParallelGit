@@ -3,8 +3,8 @@ package com.beijunyi.parallelgit.commands.cache;
 import java.io.IOException;
 import javax.annotation.Nonnull;
 
-import org.eclipse.jgit.dircache.DirCache;
-import org.eclipse.jgit.dircache.DirCacheEntry;
+import com.beijunyi.parallelgit.utils.CacheUtils;
+import com.beijunyi.parallelgit.utils.io.CacheEntryUpdate;
 import org.eclipse.jgit.lib.AnyObjectId;
 import org.eclipse.jgit.lib.FileMode;
 
@@ -27,13 +27,11 @@ public class UpdateEntry extends CacheEditor {
 
   @Override
   public void edit(@Nonnull CacheStateProvider provider) throws IOException {
-    DirCache cache = provider.getCurrentCache();
-    DirCacheEntry entry = cache.getEntry(path);
-    if(entry == null)
-      throw new IllegalArgumentException("entry not found: " + path);
+    CacheEntryUpdate update = new CacheEntryUpdate(path);
     if(blobId != null)
-      entry.setObjectId(blobId);
+      update.setNewBlob(blobId);
     if(mode != null)
-      entry.setFileMode(mode);
+      update.setNewFileMode(mode);
+    CacheUtils.updateFile(update, provider.getEditor());
   }
 }

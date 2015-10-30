@@ -4,16 +4,17 @@ import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 
-import org.junit.Assert;
 import org.junit.Test;
+
+import static org.junit.Assert.*;
 
 public class GitPathTypeTest extends AbstractGitFileSystemTest {
 
   @Test
   public void rootPathTypeTest() throws IOException {
     initGitFileSystem();
-    Assert.assertTrue(Files.isDirectory(root));
-    Assert.assertFalse(Files.isRegularFile(root));
+    assertTrue(Files.isDirectory(root));
+    assertFalse(Files.isRegularFile(root));
   }
 
   @Test
@@ -24,8 +25,8 @@ public class GitPathTypeTest extends AbstractGitFileSystemTest {
     commitToMaster();
     initGitFileSystem();
     Path path = root.resolve(file);
-    Assert.assertFalse(Files.isDirectory(path));
-    Assert.assertTrue(Files.isRegularFile(path));
+    assertFalse(Files.isDirectory(path));
+    assertTrue(Files.isRegularFile(path));
   }
 
   @Test
@@ -36,15 +37,15 @@ public class GitPathTypeTest extends AbstractGitFileSystemTest {
     commitToMaster();
     initGitFileSystem();
     Path path = root.resolve(dir);
-    Assert.assertTrue(Files.isDirectory(path));
-    Assert.assertFalse(Files.isRegularFile(path));
+    assertTrue(Files.isDirectory(path));
+    assertFalse(Files.isRegularFile(path));
   }
 
   @Test
   public void nonExistentPathTypeTest() throws IOException {
     initGitFileSystem();
     GitPath path = root.resolve("non_existent.txt");
-    Assert.assertFalse(Files.isDirectory(path));
-    Assert.assertFalse(Files.isRegularFile(path));
+    assertFalse(Files.isDirectory(path));
+    assertFalse(Files.isRegularFile(path));
   }
 }

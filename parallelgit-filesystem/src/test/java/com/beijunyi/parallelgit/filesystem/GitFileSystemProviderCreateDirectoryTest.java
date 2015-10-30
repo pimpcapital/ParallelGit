@@ -2,19 +2,43 @@ package com.beijunyi.parallelgit.filesystem;
 
 import java.io.IOException;
 import java.nio.file.FileAlreadyExistsException;
+import java.nio.file.Files;
+import java.nio.file.Path;
 
 import org.junit.Test;
+
+import static org.junit.Assert.*;
 
 public class GitFileSystemProviderCreateDirectoryTest extends AbstractGitFileSystemTest {
 
   @Test
-  public void createNewDirectoryTest() throws IOException {
+  public void createNewDirectory_theSpecifiedDirectoryShouldExistAfterTheOperation() throws IOException {
     initGitFileSystem();
-    provider.createDirectory(gfs.getPath("/a"));
+    Path dir = gfs.getPath("/dir");
+    provider.createDirectory(dir);
+    assertTrue(Files.isDirectory(dir));
+  }
+
+  @Test
+  public void createNewDirectoryAndCreateChildFile_theChildFileShouldExistAfterTheOperation() throws IOException {
+    initGitFileSystem();
+    Path dir = gfs.getPath("/dir");
+    provider.createDirectory(dir);
+    Path childFile = dir.resolve("file.txt");
+    Files.write(childFile, "some text data".getBytes());
+    assertTrue(Files.exists(childFile));
+  }
+
+  @Test
+  public void createEmptyDirectory_theFileSystemShouldStayClean() throws IOException {
+    initGitFileSystem();
+    GitPath dir = gfs.getPath("/empty_dir");
+    provider.createDirectory(dir);
+    assertFalse(gfs.isDirty());
   }
 
   @Test(expected = FileAlreadyExistsException.class)
-  public void createExistingDirectoryTest() throws IOException {
+  public void createNewDirectoryWhenDirectoryExists_shouldThrowFileAlreadyExistsException() throws IOException {
     initRepository();
     writeToCache("/a/b.txt");
     commitToMaster();
@@ -23,7 +47,7 @@ public class GitFileSystemProviderCreateDirectoryTest extends AbstractGitFileSys
   }
 
   @Test(expected = FileAlreadyExistsException.class)
-  public void createDirectoryWithSameNameOfExistingFileTest() throws IOException {
+  public void createNewDirectoryWhenFileExists_shouldThrowFileAlreadyExistsException() throws IOException {
     initRepository();
     writeToCache("/a");
     commitToMaster();
@@ -32,7 +56,7 @@ public class GitFileSystemProviderCreateDirectoryTest extends AbstractGitFileSys
   }
 
   @Test(expected = FileAlreadyExistsException.class)
-  public void createDirectoryWithRootPathTest() throws IOException {
+  public void createRootDirectory_shouldThrowFileAlreadyExistsException() throws IOException {
     initGitFileSystem();
     provider.createDirectory(gfs.getPath("/"));
   }

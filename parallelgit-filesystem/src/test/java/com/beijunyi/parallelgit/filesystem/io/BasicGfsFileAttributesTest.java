@@ -6,8 +6,9 @@ import java.nio.file.attribute.FileTime;
 
 import com.beijunyi.parallelgit.filesystem.AbstractGitFileSystemTest;
 import org.eclipse.jgit.lib.FileMode;
-import org.junit.Assert;
 import org.junit.Test;
+
+import static org.junit.Assert.*;
 
 public class BasicGfsFileAttributesTest extends AbstractGitFileSystemTest {
 
@@ -20,7 +21,7 @@ public class BasicGfsFileAttributesTest extends AbstractGitFileSystemTest {
     initGitFileSystem();
 
     BasicFileAttributes attributes = provider.readAttributes(gfs.getPath("/file.txt"), BasicFileAttributes.class);
-    Assert.assertEquals(13L, attributes.size());
+    assertEquals(13L, attributes.size());
   }
 
   @Test
@@ -31,7 +32,7 @@ public class BasicGfsFileAttributesTest extends AbstractGitFileSystemTest {
     initGitFileSystem();
 
     BasicFileAttributes attributes = provider.readAttributes(gfs.getPath("/dir"), BasicFileAttributes.class);
-    Assert.assertEquals(0L, attributes.size());
+    assertEquals(0L, attributes.size());
   }
 
   @Test
@@ -42,7 +43,7 @@ public class BasicGfsFileAttributesTest extends AbstractGitFileSystemTest {
     initGitFileSystem();
 
     BasicFileAttributes attributes = provider.readAttributes(gfs.getPath("/file.txt"), BasicFileAttributes.class);
-    Assert.assertEquals(FileTime.fromMillis(0), attributes.creationTime());
+    assertEquals(FileTime.fromMillis(0), attributes.creationTime());
   }
 
   @Test
@@ -53,7 +54,7 @@ public class BasicGfsFileAttributesTest extends AbstractGitFileSystemTest {
     initGitFileSystem();
 
     BasicFileAttributes attributes = provider.readAttributes(gfs.getPath("/file.txt"), BasicFileAttributes.class);
-    Assert.assertEquals(FileTime.fromMillis(0), attributes.lastAccessTime());
+    assertEquals(FileTime.fromMillis(0), attributes.lastAccessTime());
   }
 
   @Test
@@ -64,7 +65,7 @@ public class BasicGfsFileAttributesTest extends AbstractGitFileSystemTest {
     initGitFileSystem();
 
     BasicFileAttributes attributes = provider.readAttributes(gfs.getPath("/file.txt"), BasicFileAttributes.class);
-    Assert.assertEquals(FileTime.fromMillis(0), attributes.lastModifiedTime());
+    assertEquals(FileTime.fromMillis(0), attributes.lastModifiedTime());
   }
 
   @Test
@@ -75,7 +76,7 @@ public class BasicGfsFileAttributesTest extends AbstractGitFileSystemTest {
     initGitFileSystem();
 
     BasicFileAttributes attributes = provider.readAttributes(gfs.getPath("/file.txt"), BasicFileAttributes.class);
-    Assert.assertNull(attributes.fileKey());
+    assertNull(attributes.fileKey());
   }
 
   @Test
@@ -86,7 +87,7 @@ public class BasicGfsFileAttributesTest extends AbstractGitFileSystemTest {
     initGitFileSystem();
 
     BasicFileAttributes attributes = provider.readAttributes(gfs.getPath("/file.txt"), BasicFileAttributes.class);
-    Assert.assertEquals(false, attributes.isDirectory());
+    assertEquals(false, attributes.isDirectory());
   }
 
   @Test
@@ -97,7 +98,7 @@ public class BasicGfsFileAttributesTest extends AbstractGitFileSystemTest {
     initGitFileSystem();
 
     BasicFileAttributes attributes = provider.readAttributes(gfs.getPath("/dir"), BasicFileAttributes.class);
-    Assert.assertEquals(true, attributes.isDirectory());
+    assertEquals(true, attributes.isDirectory());
   }
 
   @Test
@@ -108,7 +109,7 @@ public class BasicGfsFileAttributesTest extends AbstractGitFileSystemTest {
     initGitFileSystem();
 
     BasicFileAttributes attributes = provider.readAttributes(gfs.getPath("/file.txt"), BasicFileAttributes.class);
-    Assert.assertEquals(true, attributes.isRegularFile());
+    assertEquals(true, attributes.isRegularFile());
   }
 
   @Test
@@ -119,7 +120,7 @@ public class BasicGfsFileAttributesTest extends AbstractGitFileSystemTest {
     initGitFileSystem();
 
     BasicFileAttributes attributes = provider.readAttributes(gfs.getPath("/file.txt"), BasicFileAttributes.class);
-    Assert.assertEquals(true, attributes.isRegularFile());
+    assertEquals(true, attributes.isRegularFile());
   }
 
   @Test
@@ -130,7 +131,7 @@ public class BasicGfsFileAttributesTest extends AbstractGitFileSystemTest {
     initGitFileSystem();
 
     BasicFileAttributes attributes = provider.readAttributes(gfs.getPath("/dir"), BasicFileAttributes.class);
-    Assert.assertEquals(false, attributes.isRegularFile());
+    assertEquals(false, attributes.isRegularFile());
   }
 
   @Test
@@ -141,7 +142,7 @@ public class BasicGfsFileAttributesTest extends AbstractGitFileSystemTest {
     initGitFileSystem();
 
     BasicFileAttributes attributes = provider.readAttributes(gfs.getPath("/file.txt"), BasicFileAttributes.class);
-    Assert.assertEquals(false, attributes.isSymbolicLink());
+    assertEquals(false, attributes.isSymbolicLink());
   }
 
   @Test
@@ -152,7 +153,7 @@ public class BasicGfsFileAttributesTest extends AbstractGitFileSystemTest {
     initGitFileSystem();
 
     BasicFileAttributes attributes = provider.readAttributes(gfs.getPath("/file.txt"), BasicFileAttributes.class);
-    Assert.assertEquals(true, attributes.isSymbolicLink());
+    assertEquals(true, attributes.isSymbolicLink());
   }
 
   @Test
@@ -163,7 +164,7 @@ public class BasicGfsFileAttributesTest extends AbstractGitFileSystemTest {
     initGitFileSystem();
 
     BasicFileAttributes attributes = provider.readAttributes(gfs.getPath("/file.txt"), BasicFileAttributes.class);
-    Assert.assertEquals(false, attributes.isOther());
+    assertEquals(false, attributes.isOther());
   }
   
 }

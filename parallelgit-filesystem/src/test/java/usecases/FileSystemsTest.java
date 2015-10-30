@@ -11,9 +11,10 @@ import com.beijunyi.parallelgit.filesystem.utils.GitParams;
 import com.beijunyi.parallelgit.filesystem.utils.GitUriBuilder;
 import org.eclipse.jgit.lib.AnyObjectId;
 import org.eclipse.jgit.revwalk.RevCommit;
-import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
+
+import static org.junit.Assert.*;
 
 public class FileSystemsTest extends AbstractParallelGitTest {
 
@@ -30,8 +31,8 @@ public class FileSystemsTest extends AbstractParallelGitTest {
                 .repository(repoDir)
                 .build();
     FileSystem fs = FileSystems.newFileSystem(uri, GitParams.emptyMap());
-    Assert.assertTrue(fs instanceof GitFileSystem);
-    Assert.assertEquals(repoDir, ((GitFileSystem) fs).getRepository().getDirectory());
+    assertTrue(fs instanceof GitFileSystem);
+    assertEquals(repoDir, ((GitFileSystem)fs).getRepository().getDirectory());
   }
 
   @Test
@@ -40,7 +41,7 @@ public class FileSystemsTest extends AbstractParallelGitTest {
                 .repository(repoDir)
                 .build();
     FileSystem fs = FileSystems.newFileSystem(uri, GitParams.emptyMap().setBranch("test_branch"));
-    Assert.assertEquals("test_branch", ((GitFileSystem)fs).getBranch());
+    assertEquals("test_branch", ((GitFileSystem)fs).getBranch());
   }
 
   @Test
@@ -48,8 +49,8 @@ public class FileSystemsTest extends AbstractParallelGitTest {
     URI uri = GitUriBuilder.prepare()
                 .repository(repoDir)
                 .build();
-    FileSystem fs = FileSystems.newFileSystem(uri, GitParams.emptyMap().setRevision(head));
-    Assert.assertEquals(head, ((GitFileSystem)fs).getCommit());
+    FileSystem fs = FileSystems.newFileSystem(uri, GitParams.emptyMap().setCommit(head));
+    assertEquals(head, ((GitFileSystem)fs).getCommit());
   }
 
   @Test
@@ -59,15 +60,15 @@ public class FileSystemsTest extends AbstractParallelGitTest {
                 .build();
     AnyObjectId treeId = head.getTree();
     FileSystem fs = FileSystems.newFileSystem(uri, GitParams.emptyMap().setTree(treeId));
-    Assert.assertEquals(treeId, ((GitFileSystem)fs).getTree());
+    assertEquals(treeId, ((GitFileSystem)fs).getTree());
   }
 
 
   @Test
   public void newFileSystemFromPath() throws IOException {
     FileSystem fs = FileSystems.newFileSystem(repoDir.toPath(), null);
-    Assert.assertTrue(fs instanceof GitFileSystem);
-    Assert.assertEquals(repoDir, ((GitFileSystem) fs).getRepository().getDirectory());
+    assertTrue(fs instanceof GitFileSystem);
+    assertEquals(repoDir, ((GitFileSystem)fs).getRepository().getDirectory());
   }
 
 }

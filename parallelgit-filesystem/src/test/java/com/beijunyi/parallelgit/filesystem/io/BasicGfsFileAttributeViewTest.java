@@ -8,8 +8,9 @@ import javax.annotation.Nullable;
 
 import com.beijunyi.parallelgit.filesystem.AbstractGitFileSystemTest;
 import org.eclipse.jgit.lib.FileMode;
-import org.junit.Assert;
 import org.junit.Test;
+
+import static org.junit.Assert.*;
 
 public class BasicGfsFileAttributeViewTest extends AbstractGitFileSystemTest {
 
@@ -21,8 +22,8 @@ public class BasicGfsFileAttributeViewTest extends AbstractGitFileSystemTest {
     initGitFileSystem();
 
     GfsFileAttributeView.Basic view = provider.getFileAttributeView(gfs.getPath("/file.txt"), GfsFileAttributeView.Basic.class);
-    Assert.assertNotNull(view);
-    Assert.assertEquals("basic", view.name());
+    assertNotNull(view);
+    assertEquals("basic", view.name());
   }
 
   @Test
@@ -33,8 +34,8 @@ public class BasicGfsFileAttributeViewTest extends AbstractGitFileSystemTest {
     initGitFileSystem();
 
     GfsFileAttributeView.Basic view = provider.getFileAttributeView(gfs.getPath("/file.txt"), GfsFileAttributeView.Basic.class);
-    Assert.assertNotNull(view);
-    Assert.assertNotNull(view.readAttributes());
+    assertNotNull(view);
+    assertNotNull(view.readAttributes());
   }
 
   @Nullable
@@ -51,8 +52,8 @@ public class BasicGfsFileAttributeViewTest extends AbstractGitFileSystemTest {
     initGitFileSystem();
 
     GfsFileAttributeView.Basic view = provider.getFileAttributeView(gfs.getPath("/file.txt"), GfsFileAttributeView.Basic.class);
-    Assert.assertNotNull(view);
-    Assert.assertEquals(13L, readAttribute(view, GfsFileAttributeView.Basic.SIZE_NAME));
+    assertNotNull(view);
+    assertEquals(13L, readAttribute(view, GfsFileAttributeView.Basic.SIZE_NAME));
   }
 
   @Test
@@ -63,8 +64,8 @@ public class BasicGfsFileAttributeViewTest extends AbstractGitFileSystemTest {
     initGitFileSystem();
 
     GfsFileAttributeView.Basic view = provider.getFileAttributeView(gfs.getPath("/dir"), GfsFileAttributeView.Basic.class);
-    Assert.assertNotNull(view);
-    Assert.assertEquals(0L, readAttribute(view, GfsFileAttributeView.Basic.SIZE_NAME));
+    assertNotNull(view);
+    assertEquals(0L, readAttribute(view, GfsFileAttributeView.Basic.SIZE_NAME));
   }
 
   @Test
@@ -75,8 +76,8 @@ public class BasicGfsFileAttributeViewTest extends AbstractGitFileSystemTest {
     initGitFileSystem();
 
     GfsFileAttributeView.Basic view = provider.getFileAttributeView(gfs.getPath("/file.txt"), GfsFileAttributeView.Basic.class);
-    Assert.assertNotNull(view);
-    Assert.assertEquals(FileTime.fromMillis(0), readAttribute(view, GfsFileAttributeView.Basic.CREATION_TIME_NAME));
+    assertNotNull(view);
+    assertEquals(FileTime.fromMillis(0), readAttribute(view, GfsFileAttributeView.Basic.CREATION_TIME_NAME));
   }
 
   @Test
@@ -87,8 +88,8 @@ public class BasicGfsFileAttributeViewTest extends AbstractGitFileSystemTest {
     initGitFileSystem();
 
     GfsFileAttributeView.Basic view = provider.getFileAttributeView(gfs.getPath("/file.txt"), GfsFileAttributeView.Basic.class);
-    Assert.assertNotNull(view);
-    Assert.assertEquals(FileTime.fromMillis(0), readAttribute(view, GfsFileAttributeView.Basic.LAST_ACCESS_TIME_NAME));
+    assertNotNull(view);
+    assertEquals(FileTime.fromMillis(0), readAttribute(view, GfsFileAttributeView.Basic.LAST_ACCESS_TIME_NAME));
   }
 
   @Test
@@ -99,8 +100,8 @@ public class BasicGfsFileAttributeViewTest extends AbstractGitFileSystemTest {
     initGitFileSystem();
 
     GfsFileAttributeView.Basic view = provider.getFileAttributeView(gfs.getPath("/file.txt"), GfsFileAttributeView.Basic.class);
-    Assert.assertNotNull(view);
-    Assert.assertEquals(FileTime.fromMillis(0), readAttribute(view, GfsFileAttributeView.Basic.LAST_MODIFIED_TIME_NAME));
+    assertNotNull(view);
+    assertEquals(FileTime.fromMillis(0), readAttribute(view, GfsFileAttributeView.Basic.LAST_MODIFIED_TIME_NAME));
   }
 
   @Test
@@ -111,8 +112,8 @@ public class BasicGfsFileAttributeViewTest extends AbstractGitFileSystemTest {
     initGitFileSystem();
 
     GfsFileAttributeView.Basic view = provider.getFileAttributeView(gfs.getPath("/file.txt"), GfsFileAttributeView.Basic.class);
-    Assert.assertNotNull(view);
-    Assert.assertNull(readAttribute(view, GfsFileAttributeView.Basic.FILE_KEY_NAME));
+    assertNotNull(view);
+    assertNull(readAttribute(view, GfsFileAttributeView.Basic.FILE_KEY_NAME));
   }
 
   @Test
@@ -123,8 +124,8 @@ public class BasicGfsFileAttributeViewTest extends AbstractGitFileSystemTest {
     initGitFileSystem();
 
     GfsFileAttributeView.Basic view = provider.getFileAttributeView(gfs.getPath("/file.txt"), GfsFileAttributeView.Basic.class);
-    Assert.assertNotNull(view);
-    Assert.assertEquals(false, readAttribute(view, GfsFileAttributeView.Basic.IS_DIRECTORY_NAME));
+    assertNotNull(view);
+    assertEquals(false, readAttribute(view, GfsFileAttributeView.Basic.IS_DIRECTORY_NAME));
   }
 
   @Test
@@ -135,8 +136,8 @@ public class BasicGfsFileAttributeViewTest extends AbstractGitFileSystemTest {
     initGitFileSystem();
 
     GfsFileAttributeView.Basic view = provider.getFileAttributeView(gfs.getPath("/dir"), GfsFileAttributeView.Basic.class);
-    Assert.assertNotNull(view);
-    Assert.assertEquals(true, readAttribute(view, GfsFileAttributeView.Basic.IS_DIRECTORY_NAME));
+    assertNotNull(view);
+    assertEquals(true, readAttribute(view, GfsFileAttributeView.Basic.IS_DIRECTORY_NAME));
   }
 
   @Test
@@ -147,8 +148,8 @@ public class BasicGfsFileAttributeViewTest extends AbstractGitFileSystemTest {
     initGitFileSystem();
 
     GfsFileAttributeView.Basic view = provider.getFileAttributeView(gfs.getPath("/file.txt"), GfsFileAttributeView.Basic.class);
-    Assert.assertNotNull(view);
-    Assert.assertEquals(true, readAttribute(view, GfsFileAttributeView.Basic.IS_REGULAR_FILE_NAME));
+    assertNotNull(view);
+    assertEquals(true, readAttribute(view, GfsFileAttributeView.Basic.IS_REGULAR_FILE_NAME));
   }
 
   @Test
@@ -159,8 +160,8 @@ public class BasicGfsFileAttributeViewTest extends AbstractGitFileSystemTest {
     initGitFileSystem();
 
     GfsFileAttributeView.Basic view = provider.getFileAttributeView(gfs.getPath("/file.txt"), GfsFileAttributeView.Basic.class);
-    Assert.assertNotNull(view);
-    Assert.assertEquals(true, readAttribute(view, GfsFileAttributeView.Basic.IS_REGULAR_FILE_NAME));
+    assertNotNull(view);
+    assertEquals(true, readAttribute(view, GfsFileAttributeView.Basic.IS_REGULAR_FILE_NAME));
   }
 
   @Test
@@ -171,8 +172,8 @@ public class BasicGfsFileAttributeViewTest extends AbstractGitFileSystemTest {
     initGitFileSystem();
 
     GfsFileAttributeView.Basic view = provider.getFileAttributeView(gfs.getPath("/dir"), GfsFileAttributeView.Basic.class);
-    Assert.assertNotNull(view);
-    Assert.assertEquals(false, readAttribute(view, GfsFileAttributeView.Basic.IS_REGULAR_FILE_NAME));
+    assertNotNull(view);
+    assertEquals(false, readAttribute(view, GfsFileAttributeView.Basic.IS_REGULAR_FILE_NAME));
   }
 
   @Test
@@ -183,8 +184,8 @@ public class BasicGfsFileAttributeViewTest extends AbstractGitFileSystemTest {
     initGitFileSystem();
 
     GfsFileAttributeView.Basic view = provider.getFileAttributeView(gfs.getPath("/file.txt"), GfsFileAttributeView.Basic.class);
-    Assert.assertNotNull(view);
-    Assert.assertEquals(false, readAttribute(view, GfsFileAttributeView.Basic.IS_SYMBOLIC_LINK_NAME));
+    assertNotNull(view);
+    assertEquals(false, readAttribute(view, GfsFileAttributeView.Basic.IS_SYMBOLIC_LINK_NAME));
   }
 
   @Test
@@ -195,8 +196,8 @@ public class BasicGfsFileAttributeViewTest extends AbstractGitFileSystemTest {
     initGitFileSystem();
 
     GfsFileAttributeView.Basic view = provider.getFileAttributeView(gfs.getPath("/file.txt"), GfsFileAttributeView.Basic.class);
-    Assert.assertNotNull(view);
-    Assert.assertEquals(true, readAttribute(view, GfsFileAttributeView.Basic.IS_SYMBOLIC_LINK_NAME));
+    assertNotNull(view);
+    assertEquals(true, readAttribute(view, GfsFileAttributeView.Basic.IS_SYMBOLIC_LINK_NAME));
   }
 
   @Test
@@ -207,8 +208,8 @@ public class BasicGfsFileAttributeViewTest extends AbstractGitFileSystemTest {
     initGitFileSystem();
 
     GfsFileAttributeView.Basic view = provider.getFileAttributeView(gfs.getPath("/file.txt"), GfsFileAttributeView.Basic.class);
-    Assert.assertNotNull(view);
-    Assert.assertEquals(false, readAttribute(view, GfsFileAttributeView.Basic.IS_OTHER_NAME));
+    assertNotNull(view);
+    assertEquals(false, readAttribute(view, GfsFileAttributeView.Basic.IS_OTHER_NAME));
   }
 
   @Test(expected = UnsupportedOperationException.class)
@@ -219,7 +220,7 @@ public class BasicGfsFileAttributeViewTest extends AbstractGitFileSystemTest {
     initGitFileSystem();
 
     GfsFileAttributeView.Basic view = provider.getFileAttributeView(gfs.getPath("/file.txt"), GfsFileAttributeView.Basic.class);
-    Assert.assertNotNull(view);
+    assertNotNull(view);
     readAttribute(view, "nonBasicAttribute");
   }
 
@@ -231,7 +232,7 @@ public class BasicGfsFileAttributeViewTest extends AbstractGitFileSystemTest {
     initGitFileSystem();
 
     GfsFileAttributeView.Basic view = provider.getFileAttributeView(gfs.getPath("/file.txt"), GfsFileAttributeView.Basic.class);
-    Assert.assertNotNull(view);
+    assertNotNull(view);
     FileTime now = FileTime.fromMillis(System.currentTimeMillis());
     view.setTimes(now, now, now);
   }

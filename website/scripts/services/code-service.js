@@ -53,14 +53,15 @@ app.service('CodeService', function($http, $q) {
     angular.forEach(lines, function(line, num) {
       if(method == null) {
         var trimmed = line.trim();
-        if(trimmed == '@Before' || trimmed == '@Test') {
+        if(trimmed == '@Test') {
           method = {
             start: num,
-            lines: [line]
+            lines: [trimmed]
           };
           openBrackets = 0;
         }
       } else if(method != null) {
+        line = line.substring(2);
         method.lines.push(line);
         if(method.name == null) {
           method.name = METHOD_PATTERN.exec(line)[1];

@@ -6,19 +6,20 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Set;
 
-import org.junit.Assert;
 import org.junit.Test;
+
+import static org.junit.Assert.*;
 
 public class GitFileSystemBasicTest extends PreSetupGitFileSystemTest {
 
   @Test
   public void testIsReadOnly_shouldReturnFalse() {
-    Assert.assertFalse(gfs.isReadOnly());
+    assertFalse(gfs.isReadOnly());
   }
 
   @Test
   public void getSeparator_shouldReturnForwardSlash() {
-    Assert.assertEquals("/" , gfs.getSeparator());
+    assertEquals("/", gfs.getSeparator());
   }
 
   @Test
@@ -26,7 +27,7 @@ public class GitFileSystemBasicTest extends PreSetupGitFileSystemTest {
     Collection<Path> roots = new ArrayList<>();
     for(Path root : gfs.getRootDirectories())
       roots.add(root);
-    Assert.assertEquals(1, roots.size());
+    assertEquals(1, roots.size());
   }
 
   @Test
@@ -34,7 +35,7 @@ public class GitFileSystemBasicTest extends PreSetupGitFileSystemTest {
     Collection<Path> roots = new ArrayList<>();
     for(Path root : gfs.getRootDirectories())
       roots.add(root);
-    Assert.assertTrue(roots.contains(gfs.getRootPath()));
+    assertTrue(roots.contains(gfs.getRootPath()));
   }
 
   @Test
@@ -42,7 +43,7 @@ public class GitFileSystemBasicTest extends PreSetupGitFileSystemTest {
     Collection<FileStore> stores = new ArrayList<>();
     for(FileStore root : gfs.getFileStores())
       stores.add(root);
-    Assert.assertEquals(1, stores.size());
+    assertEquals(1, stores.size());
   }
 
   @Test
@@ -50,19 +51,19 @@ public class GitFileSystemBasicTest extends PreSetupGitFileSystemTest {
     Collection<FileStore> stores = new ArrayList<>();
     for(FileStore root : gfs.getFileStores())
       stores.add(root);
-    Assert.assertTrue(stores.contains(gfs.getFileStore()));
+    assertTrue(stores.contains(gfs.getFileStore()));
   }
 
   @Test
   public void getSupportedFileAttributeViews_shouldContainBasic() {
     Set<String> views = gfs.supportedFileAttributeViews();
-    Assert.assertTrue(views.contains("basic"));
+    assertTrue(views.contains("basic"));
   }
 
   @Test
   public void getSupportedFileAttributeViews_shouldContainPosix() {
     Set<String> views = gfs.supportedFileAttributeViews();
-    Assert.assertTrue(views.contains("posix"));
+    assertTrue(views.contains("posix"));
   }
 
   @Test(expected = UnsupportedOperationException.class)

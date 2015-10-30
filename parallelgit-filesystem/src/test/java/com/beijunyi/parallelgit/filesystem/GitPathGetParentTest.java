@@ -2,9 +2,10 @@ package com.beijunyi.parallelgit.filesystem;
 
 import java.io.IOException;
 
-import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
+
+import static org.junit.Assert.*;
 
 public class GitPathGetParentTest extends AbstractGitFileSystemTest {
 
@@ -16,7 +17,7 @@ public class GitPathGetParentTest extends AbstractGitFileSystemTest {
   @Test
   public void absolutePathRootLevelFileGetParentTest() {
     GitPath path = gfs.getPath("/a");
-    Assert.assertEquals(root, path.getParent());
+    assertEquals(root, path.getParent());
   }
 
   @Test
@@ -24,13 +25,13 @@ public class GitPathGetParentTest extends AbstractGitFileSystemTest {
     GitPath a = gfs.getPath("/a");
     GitPath b = gfs.getPath("/a/b");
     GitPath bParent = b.getParent();
-    Assert.assertEquals(a, bParent);
+    assertEquals(a, bParent);
   }
 
   @Test
   public void rootGetParentTest() {
     GitPath root = gfs.getPath("/");
-    Assert.assertNull(root.getParent());
+    assertNull(root.getParent());
   }
 
   @Test
@@ -38,19 +39,19 @@ public class GitPathGetParentTest extends AbstractGitFileSystemTest {
     GitPath a = gfs.getPath("a");
     GitPath b = gfs.getPath("a/b");
     GitPath bParent = b.getParent();
-    Assert.assertEquals(a, bParent);
+    assertEquals(a, bParent);
   }
 
   @Test
   public void singleNameRelativePathGetParentTest() {
     GitPath a = gfs.getPath("a");
-    Assert.assertNull(a.getParent());
+    assertNull(a.getParent());
   }
 
   @Test
   public void emptyPathGetParentTest() {
     GitPath empty = gfs.getPath("");
-    Assert.assertNull(empty.getParent());
+    assertNull(empty.getParent());
   }
 
 }

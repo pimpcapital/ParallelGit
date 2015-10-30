@@ -2,15 +2,16 @@ package com.beijunyi.parallelgit.filesystem;
 
 import java.nio.file.Files;
 
-import org.junit.Assert;
 import org.junit.Test;
+
+import static org.junit.Assert.*;
 
 public class GitFileSystemProviderExistTest extends AbstractGitFileSystemTest {
 
   @Test
   public void rootExistsTest() throws Exception {
     initGitFileSystem();
-    Assert.assertTrue(Files.exists(root));
+    assertTrue(Files.exists(root));
   }
 
   @Test
@@ -24,11 +25,11 @@ public class GitFileSystemProviderExistTest extends AbstractGitFileSystemTest {
     initGitFileSystem();
 
     GitPath aTxtPath = root.resolve(aTxt);
-    Assert.assertTrue(Files.exists(aTxtPath));
+    assertTrue(Files.exists(aTxtPath));
     GitPath bTxtPath = root.resolve(bTxt);
-    Assert.assertTrue(Files.exists(bTxtPath));
+    assertTrue(Files.exists(bTxtPath));
     GitPath nonExistentPath = root.resolve("non_existent.txt");
-    Assert.assertFalse(Files.exists(nonExistentPath));
+    assertFalse(Files.exists(nonExistentPath));
   }
 
   @Test
@@ -38,9 +39,9 @@ public class GitFileSystemProviderExistTest extends AbstractGitFileSystemTest {
     writeToCache("b/dir1/file2.txt");
     commitToMaster();
     initGitFileSystem();
-    Assert.assertTrue(Files.exists(root.resolve("a")));
-    Assert.assertTrue(Files.exists(root.resolve("b")));
-    Assert.assertTrue(Files.exists(root.resolve("b/dir1")));
+    assertTrue(Files.exists(root.resolve("a")));
+    assertTrue(Files.exists(root.resolve("b")));
+    assertTrue(Files.exists(root.resolve("b/dir1")));
   }
 
 }

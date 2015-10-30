@@ -1,38 +1,39 @@
 package com.beijunyi.parallelgit.filesystem.utils;
 
-import org.junit.Assert;
 import org.junit.Test;
+
+import static org.junit.Assert.assertEquals;
 
 public class GitParamsTest {
 
   @Test
-  public void createParam() {
+  public void setCreate_theResultParamsShouldContainTheInputCreateOption() {
     GitParams params = GitParams.emptyMap().setCreate(true);
-    Assert.assertEquals(true, params.getCreate());
+    assertEquals(true, params.getCreate());
   }
 
   @Test
-  public void bareParam() {
+  public void setBare_theResultParamsShouldContainTheInputBareOption() {
     GitParams params = GitParams.emptyMap().setBare(true);
-    Assert.assertEquals(true, params.getBare());
+    assertEquals(true, params.getBare());
   }
 
   @Test
-  public void branchParam() {
+  public void setBranch_theResultParamsShouldContainTheInputBranch() {
     GitParams params = GitParams.emptyMap().setBranch("test_branch");
-    Assert.assertEquals("test_branch", params.getBranch());
+    assertEquals("test_branch", params.getBranch());
   }
 
   @Test
-  public void revisionParam() {
-    GitParams params = GitParams.emptyMap().setRevision("test_revision");
-    Assert.assertEquals("test_revision", params.getRevision());
+  public void setCommit_theResultParamsShouldContainTheInputCommit() {
+    GitParams params = GitParams.emptyMap().setCommit("test_commit");
+    assertEquals("test_commit", params.getCommit());
   }
 
   @Test
-  public void treeParam() {
+  public void setTree_theResultParamsShouldContainTheInputTree() {
     GitParams params = GitParams.emptyMap().setTree("test_tree");
-    Assert.assertEquals("test_tree", params.getTree());
+    assertEquals("test_tree", params.getTree());
   }
 
 }

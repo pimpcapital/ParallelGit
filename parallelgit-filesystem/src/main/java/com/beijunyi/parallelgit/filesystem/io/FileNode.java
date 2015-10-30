@@ -4,19 +4,18 @@ import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 
 import org.eclipse.jgit.lib.AnyObjectId;
-import org.eclipse.jgit.lib.ObjectId;
 
 public class FileNode extends Node {
 
   private byte[] bytes;
   private long size = -1;
 
-  private FileNode(@Nonnull NodeType type, @Nonnull AnyObjectId object, @Nonnull DirectoryNode parent) {
+  private FileNode(@Nonnull NodeType type, @Nullable AnyObjectId object, @Nonnull DirectoryNode parent) {
     super(type, object, parent);
   }
 
   private FileNode(@Nonnull NodeType type, @Nonnull DirectoryNode parent) {
-    this(type, ObjectId.zeroId(), parent);
+    this(type, null, parent);
     dirty = true;
   }
 

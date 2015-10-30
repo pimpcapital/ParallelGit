@@ -7,8 +7,9 @@ import java.util.Collection;
 
 import com.beijunyi.parallelgit.filesystem.AbstractGitFileSystemTest;
 import org.eclipse.jgit.lib.FileMode;
-import org.junit.Assert;
 import org.junit.Test;
+
+import static org.junit.Assert.*;
 
 public class PosixGfsFileAttributesTest extends AbstractGitFileSystemTest {
 
@@ -20,7 +21,7 @@ public class PosixGfsFileAttributesTest extends AbstractGitFileSystemTest {
     initGitFileSystem();
 
     PosixFileAttributes attributes = provider.readAttributes(gfs.getPath("/file.txt"), PosixFileAttributes.class);
-    Assert.assertNotNull(attributes.permissions());
+    assertNotNull(attributes.permissions());
   }
 
   @Test
@@ -32,7 +33,7 @@ public class PosixGfsFileAttributesTest extends AbstractGitFileSystemTest {
 
     PosixFileAttributes attributes = provider.readAttributes(gfs.getPath("/file.txt"), PosixFileAttributes.class);
     Collection permissions = (Collection) attributes.permissions();
-    Assert.assertTrue(permissions.contains(PosixFilePermission.OWNER_READ));
+    assertTrue(permissions.contains(PosixFilePermission.OWNER_READ));
   }
 
   @Test
@@ -44,7 +45,7 @@ public class PosixGfsFileAttributesTest extends AbstractGitFileSystemTest {
 
     PosixFileAttributes attributes = provider.readAttributes(gfs.getPath("/file.txt"), PosixFileAttributes.class);
     Collection permissions = (Collection) attributes.permissions();
-    Assert.assertTrue(permissions.contains(PosixFilePermission.OWNER_WRITE));
+    assertTrue(permissions.contains(PosixFilePermission.OWNER_WRITE));
   }
 
   @Test
@@ -56,7 +57,7 @@ public class PosixGfsFileAttributesTest extends AbstractGitFileSystemTest {
 
     PosixFileAttributes attributes = provider.readAttributes(gfs.getPath("/file.txt"), PosixFileAttributes.class);
     Collection permissions = (Collection) attributes.permissions();
-    Assert.assertFalse(permissions.contains(PosixFilePermission.OWNER_EXECUTE));
+    assertFalse(permissions.contains(PosixFilePermission.OWNER_EXECUTE));
   }
   
   
@@ -70,7 +71,7 @@ public class PosixGfsFileAttributesTest extends AbstractGitFileSystemTest {
 
     PosixFileAttributes attributes = provider.readAttributes(gfs.getPath("/file.txt"), PosixFileAttributes.class);
     Collection permissions = (Collection) attributes.permissions();
-    Assert.assertTrue(permissions.contains(PosixFilePermission.OWNER_EXECUTE));
+    assertTrue(permissions.contains(PosixFilePermission.OWNER_EXECUTE));
   }
 
   @Test
@@ -81,7 +82,7 @@ public class PosixGfsFileAttributesTest extends AbstractGitFileSystemTest {
     initGitFileSystem();
 
     PosixFileAttributes attributes = provider.readAttributes(gfs.getPath("/file.txt"), PosixFileAttributes.class);
-    Assert.assertNull(attributes.owner());
+    assertNull(attributes.owner());
   }
 
   @Test
@@ -92,7 +93,7 @@ public class PosixGfsFileAttributesTest extends AbstractGitFileSystemTest {
     initGitFileSystem();
 
     PosixFileAttributes attributes = provider.readAttributes(gfs.getPath("/file.txt"), PosixFileAttributes.class);
-    Assert.assertNull(attributes.group());
+    assertNull(attributes.group());
   }
 
 }

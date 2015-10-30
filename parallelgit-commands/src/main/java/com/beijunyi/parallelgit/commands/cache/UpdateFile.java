@@ -3,8 +3,10 @@ package com.beijunyi.parallelgit.commands.cache;
 import java.io.IOException;
 import javax.annotation.Nonnull;
 
+import com.beijunyi.parallelgit.utils.CacheUtils;
+import com.beijunyi.parallelgit.utils.exceptions.NoSuchCacheEntryException;
+import com.beijunyi.parallelgit.utils.io.CacheEntryUpdate;
 import org.eclipse.jgit.dircache.DirCache;
-import org.eclipse.jgit.dircache.DirCacheEntry;
 import org.eclipse.jgit.lib.AnyObjectId;
 import org.eclipse.jgit.lib.Constants;
 
@@ -20,25 +22,27 @@ public class UpdateFile extends CacheFileEditor {
     this.create = create;
   }
 
-  private void updateEntry(@Nonnull DirCacheEntry entry, @Nonnull CacheStateProvider provider) throws IOException {
+  private void updateEntry(@Nonnull CacheStateProvider provider) throws IOException {
     AnyObjectId blobId = provider.getInserter().insert(Constants.OBJ_BLOB, bytes);
+    CacheEntryUpdate update = new CacheEntryUpdate(path);
     if(mode != null)
-      entry.setFileMode(mode);
-    entry.setObjectId(blobId);
+      update.setNewFileMode(mode);
+    update.setNewBlob(blobId);
+    CacheUtils.updateFile(update, provider.getEditor());
   }
 
   @Override
   public void edit(@Nonnull CacheStateProvider provider) throws IOException {
     DirCache cache = provider.getCurrentCache();
-    DirCacheEntry entry = cache.getEntry(path);
-    if(entry == null && !create)
-      throw new IllegalArgumentException("Entry not found: " + path);
+    boolean exists = CacheUtils.entryExists(path, cache);
+    if(!exists && !create)
+      throw new NoSuchCacheEntryException(path);
     prepareFileMode();
     prepareBytes();
-    if(entry == null)
+    if(!exists)
       createEntry(provider);
     else
-      updateEntry(entry, provider);
+      updateEntry(provider);
   }
 
 }

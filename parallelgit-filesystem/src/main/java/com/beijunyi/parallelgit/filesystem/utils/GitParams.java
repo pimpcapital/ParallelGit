@@ -12,7 +12,7 @@ public class GitParams extends HashMap<String, String> {
   public final static String CREATE_KEY = "create";
   public final static String BARE_KEY = "bare";
   public final static String BRANCH_KEY = "branch";
-  public final static String REVISION_KEY = "revision";
+  public final static String COMMIT_KEY = "commit";
   public final static String TREE_KEY = "tree";
 
   @Nonnull
@@ -37,8 +37,6 @@ public class GitParams extends HashMap<String, String> {
   public GitParams setCreate(@Nullable String create) {
     if(create != null)
       put(CREATE_KEY, create);
-    else
-      remove(CREATE_KEY);
     return this;
   }
 
@@ -57,8 +55,6 @@ public class GitParams extends HashMap<String, String> {
   public GitParams setBare(@Nullable String bare) {
     if(bare != null)
       put(BARE_KEY, bare);
-    else
-      remove(BARE_KEY);
     return this;
   }
 
@@ -77,8 +73,6 @@ public class GitParams extends HashMap<String, String> {
   public GitParams setBranch(@Nullable String branch) {
     if(branch != null)
       put(BRANCH_KEY, branch);
-    else
-      remove(BRANCH_KEY);
     return this;
   }
 
@@ -88,30 +82,26 @@ public class GitParams extends HashMap<String, String> {
   }
 
   @Nonnull
-  public GitParams setRevision(@Nullable String revision) {
-    if(revision != null)
-      put(REVISION_KEY, revision);
-    else
-      remove(REVISION_KEY);
+  public GitParams setCommit(@Nullable String commit) {
+    if(commit != null)
+      put(COMMIT_KEY, commit);
     return this;
   }
 
   @Nonnull
-  public GitParams setRevision(@Nullable AnyObjectId revision) {
-    return setRevision(revision != null ? revision.getName() : null);
+  public GitParams setCommit(@Nullable AnyObjectId commit) {
+    return setCommit(commit != null ? commit.getName() : null);
   }
 
   @Nullable
-  public String getRevision() {
-    return get(REVISION_KEY);
+  public String getCommit() {
+    return get(COMMIT_KEY);
   }
 
   @Nonnull
   public GitParams setTree(@Nullable String tree) {
     if(tree != null)
       put(TREE_KEY, tree);
-    else
-      remove(TREE_KEY);
     return this;
   }
 

@@ -3,8 +3,9 @@ package com.beijunyi.parallelgit.filesystem;
 import java.io.IOException;
 import java.nio.file.NotDirectoryException;
 
-import org.junit.Assert;
 import org.junit.Test;
+
+import static org.junit.Assert.assertNotNull;
 
 public class GitFileSystemProviderDirectoryStreamTest extends AbstractGitFileSystemTest {
 
@@ -14,7 +15,7 @@ public class GitFileSystemProviderDirectoryStreamTest extends AbstractGitFileSys
    writeToCache("/dir/file.txt");
    commitToMaster();
    initGitFileSystem();
-   Assert.assertNotNull(provider.newDirectoryStream(gfs.getPath("/dir"), null));
+   assertNotNull(provider.newDirectoryStream(gfs.getPath("/dir"), null));
  }
 
   @Test(expected = NotDirectoryException.class)

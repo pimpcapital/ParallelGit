@@ -6,9 +6,10 @@ import java.nio.file.StandardOpenOption;
 import java.util.Collections;
 
 import com.beijunyi.parallelgit.filesystem.AbstractGitFileSystemTest;
-import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
+
+import static org.junit.Assert.*;
 
 public class GfsSeekableByteChannelTest extends AbstractGitFileSystemTest {
 
@@ -27,56 +28,56 @@ public class GfsSeekableByteChannelTest extends AbstractGitFileSystemTest {
   @Test
   public void testsIsOpenOnNewChannel_shouldReturnTrue() throws IOException {
     try(GfsSeekableByteChannel channel = new GfsSeekableByteChannel(file, gfs, Collections.<OpenOption>singleton(StandardOpenOption.READ))) {
-      Assert.assertTrue(channel.isOpen());
+      assertTrue(channel.isOpen());
     }
   }
 
   @Test
   public void positionOfNewChannel_shouldReturnZero() throws IOException {
     try(GfsSeekableByteChannel channel = new GfsSeekableByteChannel(file, gfs, Collections.<OpenOption>singleton(StandardOpenOption.READ))) {
-      Assert.assertEquals(0, channel.position());
+      assertEquals(0, channel.position());
     }
   }
 
   @Test
   public void testsIsReadableOnChannelOpenedWithReadOption_shouldReturnTrue() throws IOException {
     try(GfsSeekableByteChannel channel = new GfsSeekableByteChannel(file, gfs, Collections.<OpenOption>singleton(StandardOpenOption.READ))) {
-      Assert.assertTrue(channel.isReadable());
+      assertTrue(channel.isReadable());
     }
   }
 
   @Test
   public void testsIsReadableOnChannelOpenedWithoutReadOption_shouldReturnFalse() throws IOException {
     try(GfsSeekableByteChannel channel = new GfsSeekableByteChannel(file, gfs, Collections.<OpenOption>singleton(StandardOpenOption.WRITE))) {
-      Assert.assertFalse(channel.isReadable());
+      assertFalse(channel.isReadable());
     }
   }
 
   @Test
   public void testsIsWritableOnChannelOpenedWithWriteOption_shouldReturnTrue() throws IOException {
     try(GfsSeekableByteChannel channel = new GfsSeekableByteChannel(file, gfs, Collections.<OpenOption>singleton(StandardOpenOption.WRITE))) {
-      Assert.assertTrue(channel.isWritable());
+      assertTrue(channel.isWritable());
     }
   }
 
   @Test
   public void testsIsWritableOnChannelOpenedWithoutReadOption_shouldReturnFalse() throws IOException {
     try(GfsSeekableByteChannel channel = new GfsSeekableByteChannel(file, gfs, Collections.<OpenOption>singleton(StandardOpenOption.READ))) {
-      Assert.assertFalse(channel.isWritable());
+      assertFalse(channel.isWritable());
     }
   }
 
   @Test
   public void getBytesOfNewChannel_shouldReturnTheSameDataAsTheInput() throws IOException {
     try(GfsSeekableByteChannel channel = new GfsSeekableByteChannel(file, gfs, Collections.<OpenOption>singleton(StandardOpenOption.READ))) {
-      Assert.assertArrayEquals(FILE_DATA, channel.getBytes());
+      assertArrayEquals(FILE_DATA, channel.getBytes());
     }
   }
 
   @Test
   public void sizeOfNewChannel_shouldReturnTheLengthOfTheInputByteArray() throws IOException {
     try(GfsSeekableByteChannel channel = new GfsSeekableByteChannel(file, gfs, Collections.<OpenOption>singleton(StandardOpenOption.READ))) {
-      Assert.assertEquals(FILE_DATA.length, channel.size());
+      assertEquals(FILE_DATA.length, channel.size());
     }
   }
 

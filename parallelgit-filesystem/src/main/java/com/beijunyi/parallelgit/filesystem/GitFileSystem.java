@@ -245,7 +245,7 @@ public class GitFileSystem extends FileSystem {
 
   @Nonnull
   public AnyObjectId persist() throws IOException {
-    AnyObjectId result = GfsIO.persist(rootPath);
+    AnyObjectId result = GfsIO.persistRoot(this);
     inserter().flush();
     return result;
   }

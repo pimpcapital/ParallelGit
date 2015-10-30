@@ -4,8 +4,9 @@ import java.io.IOException;
 import java.net.URI;
 
 import com.beijunyi.parallelgit.filesystem.utils.GitUriBuilder;
-import org.junit.Assert;
 import org.junit.Test;
+
+import static org.junit.Assert.*;
 
 public class GitFileSystemProviderGetFileSystemTest extends PreSetupGitFileSystemTest {
 
@@ -13,7 +14,7 @@ public class GitFileSystemProviderGetFileSystemTest extends PreSetupGitFileSyste
   public void getFileSystemForUri_theResultShouldBeTheCorrespondingFileSystem() throws IOException {
     URI uri = root.toUri();
     GitFileSystem result = provider.getFileSystem(uri);
-    Assert.assertEquals(gfs, result);
+    assertEquals(gfs, result);
   }
 
   @Test
@@ -21,7 +22,7 @@ public class GitFileSystemProviderGetFileSystemTest extends PreSetupGitFileSyste
     URI uri = GitUriBuilder.fromFileSystem(gfs)
                 .sid("some_invalid_sid")
                 .build();
-    Assert.assertNull(provider.getFileSystem(uri));
+    assertNull(provider.getFileSystem(uri));
   }
 
   @Test
@@ -29,6 +30,6 @@ public class GitFileSystemProviderGetFileSystemTest extends PreSetupGitFileSyste
     URI uri = GitUriBuilder.fromFileSystem(gfs)
                 .sid(null)
                 .build();
-    Assert.assertNull(provider.getFileSystem(uri));
+    assertNull(provider.getFileSystem(uri));
   }
 }

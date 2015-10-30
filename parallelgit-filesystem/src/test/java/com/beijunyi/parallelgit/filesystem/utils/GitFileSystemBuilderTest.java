@@ -6,11 +6,12 @@ import java.nio.file.Path;
 
 import com.beijunyi.parallelgit.AbstractParallelGitTest;
 import com.beijunyi.parallelgit.filesystem.GitFileSystem;
+import com.beijunyi.parallelgit.filesystem.exceptions.NoRepositoryException;
 import org.eclipse.jgit.lib.AnyObjectId;
-import org.eclipse.jgit.revwalk.RevCommit;
-import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
+
+import static org.junit.Assert.assertEquals;
 
 public class GitFileSystemBuilderTest extends AbstractParallelGitTest {
 
@@ -20,29 +21,13 @@ public class GitFileSystemBuilderTest extends AbstractParallelGitTest {
   }
 
   @Test
-  public void buildFileSystemForBranch_fileSystemBranchShouldBeTheInputBranch() throws IOException {
-    writeSomeFileToCache();
-    commitToBranch("test_branch");
-    GitFileSystem gfs = GitFileSystemBuilder.forRevision("test_branch", repo);
-    Assert.assertEquals("test_branch", gfs.getBranch());
-  }
-
-  @Test
-  public void buildFileSystemForCommit_fileSystemCommitShouldBeTheInputCommit() throws IOException {
-    writeSomeFileToCache();
-    RevCommit commit = commit(null);
-    GitFileSystem gfs = GitFileSystemBuilder.forRevision(commit.getName(), repo);
-    Assert.assertEquals(commit, gfs.getCommit());
-  }
-
-  @Test
   public void buildFromUri() throws IOException {
     URI uri = GitUriBuilder.prepare()
                 .repository(repo)
                 .build();
     GitFileSystem gfs = GitFileSystemBuilder.fromUri(uri, GitParams.emptyMap())
                           .build();
-    Assert.assertEquals(repo.getDirectory(), gfs.getRepository().getDirectory());
+    assertEquals(repo.getDirectory(), gfs.getRepository().getDirectory());
   }
 
   @Test
@@ -50,7 +35,7 @@ public class GitFileSystemBuilderTest extends AbstractParallelGitTest {
     Path path = repoDir.toPath();
     GitFileSystem gfs = GitFileSystemBuilder.fromPath(path, GitParams.emptyMap())
                           .build();
-    Assert.assertEquals(repo.getDirectory(), gfs.getRepository().getDirectory());
+    assertEquals(repo.getDirectory(), gfs.getRepository().getDirectory());
   }
 
   @Test
@@ -58,7 +43,7 @@ public class GitFileSystemBuilderTest extends AbstractParallelGitTest {
     GitFileSystem gfs = GitFileSystemBuilder.prepare()
                           .repository(repo)
                           .build();
-    Assert.assertEquals(repo.getDirectory(), gfs.getRepository().getDirectory());
+    assertEquals(repo.getDirectory(), gfs.getRepository().getDirectory());
   }
 
   @Test
@@ -66,7 +51,7 @@ public class GitFileSystemBuilderTest extends AbstractParallelGitTest {
     GitFileSystem gfs = GitFileSystemBuilder.prepare()
                           .repository(repo.getDirectory())
                           .build();
-    Assert.assertEquals(repo.getDirectory(), gfs.getRepository().getDirectory());
+    assertEquals(repo.getDirectory(), gfs.getRepository().getDirectory());
   }
 
   @Test
@@ -74,7 +59,7 @@ public class GitFileSystemBuilderTest extends AbstractParallelGitTest {
     GitFileSystem gfs = GitFileSystemBuilder.prepare()
                           .repository(repo.getDirectory().getAbsolutePath())
                           .build();
-    Assert.assertEquals(repo.getDirectory(), gfs.getRepository().getDirectory());
+    assertEquals(repo.getDirectory(), gfs.getRepository().getDirectory());
   }
 
   @Test
@@ -82,7 +67,7 @@ public class GitFileSystemBuilderTest extends AbstractParallelGitTest {
     GitFileSystem gfs = GitFileSystemBuilder.prepare()
                           .repository(repo.getWorkTree())
                           .build();
-    Assert.assertEquals(repo.getDirectory(), gfs.getRepository().getDirectory());
+    assertEquals(repo.getDirectory(), gfs.getRepository().getDirectory());
   }
 
   @Test
@@ -90,7 +75,7 @@ public class GitFileSystemBuilderTest extends AbstractParallelGitTest {
     GitFileSystem gfs = GitFileSystemBuilder.prepare()
                           .repository(repo.getWorkTree().getAbsolutePath())
                           .build();
-    Assert.assertEquals(repo.getDirectory(), gfs.getRepository().getDirectory());
+    assertEquals(repo.getDirectory(), gfs.getRepository().getDirectory());
   }
 
   @Test
@@ -99,7 +84,7 @@ public class GitFileSystemBuilderTest extends AbstractParallelGitTest {
                           .repository(repo)
                           .branch("test_branch")
                           .build();
-    Assert.assertEquals("test_branch", gfs.getBranch());
+    assertEquals("test_branch", gfs.getBranch());
   }
 
   @Test
@@ -110,7 +95,7 @@ public class GitFileSystemBuilderTest extends AbstractParallelGitTest {
                           .repository(repo)
                           .commit(commit)
                           .build();
-    Assert.assertEquals(commit, gfs.getCommit());
+    assertEquals(commit, gfs.getCommit());
   }
 
   @Test
@@ -121,7 +106,7 @@ public class GitFileSystemBuilderTest extends AbstractParallelGitTest {
                           .repository(repo)
                           .commit(commit.getName())
                           .build();
-    Assert.assertEquals(commit, gfs.getCommit());
+    assertEquals(commit, gfs.getCommit());
   }
 
   @Test
@@ -132,7 +117,7 @@ public class GitFileSystemBuilderTest extends AbstractParallelGitTest {
                           .repository(repo)
                           .tree(tree)
                           .build();
-    Assert.assertEquals(tree, gfs.getTree());
+    assertEquals(tree, gfs.getTree());
   }
 
   @Test
@@ -143,6 +128,11 @@ public class GitFileSystemBuilderTest extends AbstractParallelGitTest {
                           .repository(repo)
                           .tree(tree.getName())
                           .build();
-    Assert.assertEquals(tree, gfs.getTree());
+    assertEquals(tree, gfs.getTree());
+  }
+
+  @Test(expected = NoRepositoryException.class)
+  public void buildWithoutRepository_shouldThrowNoRepositoryException() throws IOException {
+    GitFileSystemBuilder.prepare().build();
   }
 }

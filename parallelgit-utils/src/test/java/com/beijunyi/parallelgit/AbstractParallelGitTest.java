@@ -17,12 +17,18 @@ import org.eclipse.jgit.revwalk.RevCommit;
 import org.eclipse.jgit.util.FileUtils;
 import org.junit.After;
 import org.junit.Assert;
+import org.junit.Before;
 
 public abstract class AbstractParallelGitTest {
 
   protected File repoDir;
   protected Repository repo;
   protected DirCache cache;
+
+  @Before
+  public void setUpCache() {
+    cache = DirCache.newInCore();
+  }
 
   @After
   public void closeRepository() throws IOException {
@@ -34,7 +40,7 @@ public abstract class AbstractParallelGitTest {
 
   @Nonnull
   protected AnyObjectId writeToCache(@Nonnull String path, @Nonnull byte[] content, @Nonnull FileMode mode) throws IOException {
-    AnyObjectId blobId = ObjectUtils.insertBlob(content, repo);
+    AnyObjectId blobId = repo != null ? ObjectUtils.insertBlob(content, repo) : ObjectUtils.calculateBlobId(content);
     CacheUtils.addFile(path, mode, blobId, cache);
     return blobId;
   }
@@ -62,6 +68,18 @@ public abstract class AbstractParallelGitTest {
   protected void writeFilesToCache(@Nonnull String... paths) throws IOException {
     for(String path : paths)
       writeToCache(path);
+  }
+
+  @Nonnull
+  protected AnyObjectId updateFile(@Nonnull String path, @Nonnull byte[] content) throws IOException {
+    AnyObjectId blobId = ObjectUtils.insertBlob(content, repo);
+    CacheUtils.updateFileBlob(path, blobId, cache);
+    return blobId;
+  }
+
+  @Nonnull
+  protected AnyObjectId updateFile(@Nonnull String path, @Nonnull String content) throws IOException {
+    return updateFile(path, Constants.encode(content));
   }
 
   @Nonnull
@@ -155,7 +173,6 @@ public abstract class AbstractParallelGitTest {
     if(!memory)
       initRepositoryDir();
     repo = memory ? new TestRepository(bare) : RepositoryUtils.createRepository(repoDir, bare);
-    cache = DirCache.newInCore();
     return initContent();
   }
 

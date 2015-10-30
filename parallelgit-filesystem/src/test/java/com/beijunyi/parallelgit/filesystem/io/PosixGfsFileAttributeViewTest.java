@@ -11,10 +11,10 @@ import javax.annotation.Nonnull;
 
 import com.beijunyi.parallelgit.filesystem.AbstractGitFileSystemTest;
 import org.eclipse.jgit.lib.FileMode;
-import org.junit.Assert;
 import org.junit.Test;
 
 import static com.beijunyi.parallelgit.filesystem.io.BasicGfsFileAttributeViewTest.readAttribute;
+import static org.junit.Assert.*;
 
 public class PosixGfsFileAttributeViewTest extends AbstractGitFileSystemTest {
 
@@ -26,8 +26,8 @@ public class PosixGfsFileAttributeViewTest extends AbstractGitFileSystemTest {
     initGitFileSystem();
 
     GfsFileAttributeView.Posix view = provider.getFileAttributeView(gfs.getPath("/file.txt"), GfsFileAttributeView.Posix.class);
-    Assert.assertNotNull(view);
-    Assert.assertEquals("posix", view.name());
+    assertNotNull(view);
+    assertEquals("posix", view.name());
   }
 
   @Test
@@ -38,8 +38,8 @@ public class PosixGfsFileAttributeViewTest extends AbstractGitFileSystemTest {
     initGitFileSystem();
 
     GfsFileAttributeView.Posix view = provider.getFileAttributeView(gfs.getPath("/file.txt"), GfsFileAttributeView.Posix.class);
-    Assert.assertNotNull(view);
-    Assert.assertNotNull(view.readAttributes());
+    assertNotNull(view);
+    assertNotNull(view.readAttributes());
   }
 
   @Test
@@ -50,8 +50,8 @@ public class PosixGfsFileAttributeViewTest extends AbstractGitFileSystemTest {
     initGitFileSystem();
 
     GfsFileAttributeView.Posix view = provider.getFileAttributeView(gfs.getPath("/file.txt"), GfsFileAttributeView.Posix.class);
-    Assert.assertNotNull(view);
-    Assert.assertNull(view.getOwner());
+    assertNotNull(view);
+    assertNull(view.getOwner());
   }
 
   @Test(expected = UnsupportedOperationException.class)
@@ -62,7 +62,7 @@ public class PosixGfsFileAttributeViewTest extends AbstractGitFileSystemTest {
     initGitFileSystem();
 
     GfsFileAttributeView.Posix view = provider.getFileAttributeView(gfs.getPath("/file.txt"), GfsFileAttributeView.Posix.class);
-    Assert.assertNotNull(view);
+    assertNotNull(view);
     view.setOwner(new UserPrincipal() {
       @Nonnull
       @Override
@@ -80,7 +80,7 @@ public class PosixGfsFileAttributeViewTest extends AbstractGitFileSystemTest {
     initGitFileSystem();
 
     GfsFileAttributeView.Posix view = provider.getFileAttributeView(gfs.getPath("/file.txt"), GfsFileAttributeView.Posix.class);
-    Assert.assertNotNull(view);
+    assertNotNull(view);
     view.setGroup(new GroupPrincipal() {
       @Nonnull
       @Override
@@ -99,8 +99,8 @@ public class PosixGfsFileAttributeViewTest extends AbstractGitFileSystemTest {
     initGitFileSystem();
 
     GfsFileAttributeView.Posix view = provider.getFileAttributeView(gfs.getPath("/file.txt"), GfsFileAttributeView.Posix.class);
-    Assert.assertNotNull(view);
-    Assert.assertNotNull(readAttribute(view, GfsFileAttributeView.Posix.PERMISSIONS_NAME));
+    assertNotNull(view);
+    assertNotNull(readAttribute(view, GfsFileAttributeView.Posix.PERMISSIONS_NAME));
   }
 
   @Test
@@ -111,10 +111,10 @@ public class PosixGfsFileAttributeViewTest extends AbstractGitFileSystemTest {
     initGitFileSystem();
 
     GfsFileAttributeView.Posix view = provider.getFileAttributeView(gfs.getPath("/file.txt"), GfsFileAttributeView.Posix.class);
-    Assert.assertNotNull(view);
+    assertNotNull(view);
     Collection permissions = (Collection) readAttribute(view, GfsFileAttributeView.Posix.PERMISSIONS_NAME);
-    Assert.assertNotNull(permissions);
-    Assert.assertTrue(permissions.contains(PosixFilePermission.OWNER_READ));
+    assertNotNull(permissions);
+    assertTrue(permissions.contains(PosixFilePermission.OWNER_READ));
   }
 
   @Test
@@ -125,10 +125,10 @@ public class PosixGfsFileAttributeViewTest extends AbstractGitFileSystemTest {
     initGitFileSystem();
 
     GfsFileAttributeView.Posix view = provider.getFileAttributeView(gfs.getPath("/file.txt"), GfsFileAttributeView.Posix.class);
-    Assert.assertNotNull(view);
+    assertNotNull(view);
     Collection permissions = (Collection) readAttribute(view, GfsFileAttributeView.Posix.PERMISSIONS_NAME);
-    Assert.assertNotNull(permissions);
-    Assert.assertTrue(permissions.contains(PosixFilePermission.OWNER_WRITE));
+    assertNotNull(permissions);
+    assertTrue(permissions.contains(PosixFilePermission.OWNER_WRITE));
   }
 
   @Test
@@ -139,10 +139,10 @@ public class PosixGfsFileAttributeViewTest extends AbstractGitFileSystemTest {
     initGitFileSystem();
 
     GfsFileAttributeView.Posix view = provider.getFileAttributeView(gfs.getPath("/file.txt"), GfsFileAttributeView.Posix.class);
-    Assert.assertNotNull(view);
+    assertNotNull(view);
     Collection permissions = (Collection) readAttribute(view, GfsFileAttributeView.Posix.PERMISSIONS_NAME);
-    Assert.assertNotNull(permissions);
-    Assert.assertFalse(permissions.contains(PosixFilePermission.OWNER_EXECUTE));
+    assertNotNull(permissions);
+    assertFalse(permissions.contains(PosixFilePermission.OWNER_EXECUTE));
   }
   
   
@@ -155,10 +155,10 @@ public class PosixGfsFileAttributeViewTest extends AbstractGitFileSystemTest {
     initGitFileSystem();
 
     GfsFileAttributeView.Posix view = provider.getFileAttributeView(gfs.getPath("/file.txt"), GfsFileAttributeView.Posix.class);
-    Assert.assertNotNull(view);
+    assertNotNull(view);
     Collection permissions = (Collection) readAttribute(view, GfsFileAttributeView.Posix.PERMISSIONS_NAME);
-    Assert.assertNotNull(permissions);
-    Assert.assertTrue(permissions.contains(PosixFilePermission.OWNER_EXECUTE));
+    assertNotNull(permissions);
+    assertTrue(permissions.contains(PosixFilePermission.OWNER_EXECUTE));
   }
 
   @Test
@@ -169,7 +169,7 @@ public class PosixGfsFileAttributeViewTest extends AbstractGitFileSystemTest {
     initGitFileSystem();
 
     GfsFileAttributeView.Posix view = provider.getFileAttributeView(gfs.getPath("/file.txt"), GfsFileAttributeView.Posix.class);
-    Assert.assertNotNull(view);
+    assertNotNull(view);
     view.setPermissions(new HashSet<>(Arrays.asList(PosixFilePermission.OWNER_READ,
                                                      PosixFilePermission.OWNER_WRITE,
                                                      PosixFilePermission.OWNER_EXECUTE)));
@@ -183,8 +183,8 @@ public class PosixGfsFileAttributeViewTest extends AbstractGitFileSystemTest {
     initGitFileSystem();
 
     GfsFileAttributeView.Posix view = provider.getFileAttributeView(gfs.getPath("/file.txt"), GfsFileAttributeView.Posix.class);
-    Assert.assertNotNull(view);
-    Assert.assertNull(readAttribute(view, GfsFileAttributeView.Posix.OWNER_NAME));
+    assertNotNull(view);
+    assertNull(readAttribute(view, GfsFileAttributeView.Posix.OWNER_NAME));
   }
 
   @Test
@@ -195,8 +195,8 @@ public class PosixGfsFileAttributeViewTest extends AbstractGitFileSystemTest {
     initGitFileSystem();
 
     GfsFileAttributeView.Posix view = provider.getFileAttributeView(gfs.getPath("/file.txt"), GfsFileAttributeView.Posix.class);
-    Assert.assertNotNull(view);
-    Assert.assertNull(readAttribute(view, GfsFileAttributeView.Posix.GROUP_NAME));
+    assertNotNull(view);
+    assertNull(readAttribute(view, GfsFileAttributeView.Posix.GROUP_NAME));
   }
 
   @Test(expected = UnsupportedOperationException.class)
@@ -207,7 +207,7 @@ public class PosixGfsFileAttributeViewTest extends AbstractGitFileSystemTest {
     initGitFileSystem();
 
     GfsFileAttributeView.Posix view = provider.getFileAttributeView(gfs.getPath("/file.txt"), GfsFileAttributeView.Posix.class);
-    Assert.assertNotNull(view);
+    assertNotNull(view);
     readAttribute(view, "nonPosixAttribute");
   }
 

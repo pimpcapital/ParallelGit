@@ -35,6 +35,13 @@ public final class TreeUtils {
     return TreeWalk.forPath(reader, normalizeTreePath(path), treeId);
   }
 
+  @Nullable
+  public static TreeWalk forPath(@Nonnull String path, @Nonnull AnyObjectId treeId, @Nonnull Repository repo) throws IOException {
+    try(ObjectReader reader = repo.newObjectReader()) {
+      return forPath(path, treeId, reader);
+    }
+  }
+
   public static boolean exists(@Nonnull String path, @Nonnull AnyObjectId treeId, @Nonnull ObjectReader reader) throws IOException {
     return forPath(path, treeId, reader) != null;
   }

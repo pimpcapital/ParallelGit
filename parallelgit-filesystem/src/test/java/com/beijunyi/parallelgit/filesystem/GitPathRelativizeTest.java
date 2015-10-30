@@ -2,9 +2,10 @@ package com.beijunyi.parallelgit.filesystem;
 
 import java.io.IOException;
 
-import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
+
+import static org.junit.Assert.assertEquals;
 
 public class GitPathRelativizeTest extends AbstractGitFileSystemTest {
 
@@ -18,7 +19,7 @@ public class GitPathRelativizeTest extends AbstractGitFileSystemTest {
     GitPath path = gfs.getPath("/a/b/c");
     GitPath parent = gfs.getPath("/a/b");
     GitPath result = path.relativize(parent);
-    Assert.assertEquals("..", result.toString());
+    assertEquals("..", result.toString());
   }
 
   @Test
@@ -26,7 +27,7 @@ public class GitPathRelativizeTest extends AbstractGitFileSystemTest {
     GitPath path = gfs.getPath("/a/b/c");
     GitPath parent = gfs.getPath("/a");
     GitPath result = path.relativize(parent);
-    Assert.assertEquals("../..", result.toString());
+    assertEquals("../..", result.toString());
   }
 
   @Test
@@ -34,7 +35,7 @@ public class GitPathRelativizeTest extends AbstractGitFileSystemTest {
     GitPath path = gfs.getPath("/a/b");
     GitPath child = gfs.getPath("/a/b/c");
     GitPath result = path.relativize(child);
-    Assert.assertEquals("c", result.toString());
+    assertEquals("c", result.toString());
   }
 
   @Test
@@ -42,7 +43,7 @@ public class GitPathRelativizeTest extends AbstractGitFileSystemTest {
     GitPath path = gfs.getPath("/a");
     GitPath child = gfs.getPath("/a/b/c");
     GitPath result = path.relativize(child);
-    Assert.assertEquals("b/c", result.toString());
+    assertEquals("b/c", result.toString());
   }
 
   @Test
@@ -50,7 +51,7 @@ public class GitPathRelativizeTest extends AbstractGitFileSystemTest {
     GitPath path = gfs.getPath("/a/b/c");
     GitPath sibling = gfs.getPath("/a/b/d");
     GitPath result = path.relativize(sibling);
-    Assert.assertEquals("../d", result.toString());
+    assertEquals("../d", result.toString());
   }
 
   @Test
@@ -58,7 +59,7 @@ public class GitPathRelativizeTest extends AbstractGitFileSystemTest {
     GitPath path = gfs.getPath("/a/b/c");
     GitPath samePath = gfs.getPath("/a/b/c");
     GitPath result = path.relativize(samePath);
-    Assert.assertEquals("", result.toString());
+    assertEquals("", result.toString());
   }
 
   @Test(expected = IllegalArgumentException.class)
@@ -80,7 +81,7 @@ public class GitPathRelativizeTest extends AbstractGitFileSystemTest {
     GitPath path = gfs.getPath("/");
     GitPath absolutePath = gfs.getPath("/a/b/c");
     GitPath result = path.relativize(absolutePath);
-    Assert.assertEquals("a/b/c", result.toString());
+    assertEquals("a/b/c", result.toString());
   }
 
   @Test
@@ -88,7 +89,7 @@ public class GitPathRelativizeTest extends AbstractGitFileSystemTest {
     GitPath path = gfs.getPath("/");
     GitPath rootPath = gfs.getPath("/");
     GitPath result = path.relativize(rootPath);
-    Assert.assertEquals("", result.toString());
+    assertEquals("", result.toString());
   }
 
   @Test(expected = IllegalArgumentException.class)
@@ -96,7 +97,7 @@ public class GitPathRelativizeTest extends AbstractGitFileSystemTest {
     GitPath path = gfs.getPath("/");
     GitPath relativePath = gfs.getPath("a/b/c");
     GitPath result = path.relativize(relativePath);
-    Assert.assertEquals(relativePath.toString(), result.toString());
+    assertEquals(relativePath.toString(), result.toString());
   }
 
   @Test
@@ -104,7 +105,7 @@ public class GitPathRelativizeTest extends AbstractGitFileSystemTest {
     GitPath path = gfs.getPath("a/b/c");
     GitPath parent = gfs.getPath("a/b");
     GitPath result = path.relativize(parent);
-    Assert.assertEquals("..", result.toString());
+    assertEquals("..", result.toString());
   }
 
   @Test
@@ -112,7 +113,7 @@ public class GitPathRelativizeTest extends AbstractGitFileSystemTest {
     GitPath path = gfs.getPath("a/b/c");
     GitPath parent = gfs.getPath("a");
     GitPath result = path.relativize(parent);
-    Assert.assertEquals("../..", result.toString());
+    assertEquals("../..", result.toString());
   }
 
   @Test
@@ -120,7 +121,7 @@ public class GitPathRelativizeTest extends AbstractGitFileSystemTest {
     GitPath path = gfs.getPath("a/b");
     GitPath child = gfs.getPath("a/b/c");
     GitPath result = path.relativize(child);
-    Assert.assertEquals("c", result.toString());
+    assertEquals("c", result.toString());
   }
 
   @Test
@@ -128,7 +129,7 @@ public class GitPathRelativizeTest extends AbstractGitFileSystemTest {
     GitPath path = gfs.getPath("a");
     GitPath child = gfs.getPath("a/b/c");
     GitPath result = path.relativize(child);
-    Assert.assertEquals("b/c", result.toString());
+    assertEquals("b/c", result.toString());
   }
 
   @Test
@@ -136,7 +137,7 @@ public class GitPathRelativizeTest extends AbstractGitFileSystemTest {
     GitPath path = gfs.getPath("/a/b/c");
     GitPath sibling = gfs.getPath("/a/b/d");
     GitPath result = path.relativize(sibling);
-    Assert.assertEquals("../d", result.toString());
+    assertEquals("../d", result.toString());
   }
 
   @Test
@@ -144,7 +145,7 @@ public class GitPathRelativizeTest extends AbstractGitFileSystemTest {
     GitPath path = gfs.getPath("a/b/c");
     GitPath samePath = gfs.getPath("a/b/c");
     GitPath result = path.relativize(samePath);
-    Assert.assertEquals("", result.toString());
+    assertEquals("", result.toString());
   }
 
   @Test
@@ -152,7 +153,7 @@ public class GitPathRelativizeTest extends AbstractGitFileSystemTest {
     GitPath path = gfs.getPath("a/b/c");
     GitPath emptyPath = gfs.getPath("");
     GitPath result = path.relativize(emptyPath);
-    Assert.assertEquals("../../..", result.toString());
+    assertEquals("../../..", result.toString());
   }
 
   @Test(expected = IllegalArgumentException.class)
@@ -167,7 +168,7 @@ public class GitPathRelativizeTest extends AbstractGitFileSystemTest {
     GitPath path = gfs.getPath("");
     GitPath absolutePath = gfs.getPath("/a/b/c");
     GitPath result = path.relativize(absolutePath);
-    Assert.assertEquals(absolutePath.toString(), result.toString());
+    assertEquals(absolutePath.toString(), result.toString());
   }
 
   @Test
@@ -175,7 +176,7 @@ public class GitPathRelativizeTest extends AbstractGitFileSystemTest {
     GitPath path = gfs.getPath("");
     GitPath relativePath = gfs.getPath("a/b/c");
     GitPath result = path.relativize(relativePath);
-    Assert.assertEquals(relativePath.toString(), result.toString());
+    assertEquals(relativePath.toString(), result.toString());
   }
 
   @Test
@@ -183,7 +184,7 @@ public class GitPathRelativizeTest extends AbstractGitFileSystemTest {
     GitPath path = gfs.getPath("");
     GitPath emptyPath = gfs.getPath("");
     GitPath result = path.relativize(emptyPath);
-    Assert.assertEquals(emptyPath.toString(), result.toString());
+    assertEquals(emptyPath.toString(), result.toString());
   }
 
 }

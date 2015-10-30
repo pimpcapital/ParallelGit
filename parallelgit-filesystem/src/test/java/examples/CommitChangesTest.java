@@ -48,7 +48,7 @@ public class CommitChangesTest extends AbstractParallelGitTest {
     try(GitFileSystem gfs = GitFileSystemBuilder.forRevision("my_branch", repo)) {       // open git file system
       Path file = gfs.getPath("/my_file.txt");                                           // convert string to nio path
       Files.write(file, "my text data".getBytes());                                      // write file
-      tree = Requests.persist(gfs).execute();                                            // persist changes and create a tree
+      tree = Requests.persist(gfs).execute();                                            // persistRoot changes and create a tree
     }
 
     // check

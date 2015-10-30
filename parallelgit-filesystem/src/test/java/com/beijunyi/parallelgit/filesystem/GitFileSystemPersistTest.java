@@ -3,24 +3,26 @@ package com.beijunyi.parallelgit.filesystem;
 import java.io.IOException;
 import java.nio.file.Files;
 
+import com.beijunyi.parallelgit.utils.TreeUtils;
 import org.eclipse.jgit.lib.AnyObjectId;
 import org.eclipse.jgit.treewalk.TreeWalk;
-import org.junit.Assert;
 import org.junit.Test;
+
+import static org.junit.Assert.*;
 
 public class GitFileSystemPersistTest extends PreSetupGitFileSystemTest {
 
   @Test
   public void persistWhenNoChangeIsMade_theResultShouldEqualToThePreviousTree() throws IOException {
     AnyObjectId previousTree = gfs.getTree();
-    Assert.assertEquals(previousTree, gfs.persist());
+    assertEquals(previousTree, gfs.persist());
   }
 
   @Test
   public void persistAfterChangeIsMade_theResultShouldNotEqualToThePreviousTree() throws IOException {
     AnyObjectId previousTree = gfs.getTree();
     Files.write(gfs.getPath("/some_file.txt"), "some text content".getBytes());
-    Assert.assertNotEquals(previousTree, gfs.persist());
+    assertNotEquals(previousTree, gfs.persist());
   }
 
   @Test
@@ -28,9 +30,17 @@ public class GitFileSystemPersistTest extends PreSetupGitFileSystemTest {
     byte[] expectedContent = "some text content".getBytes();
     Files.write(gfs.getPath("/some_file.txt"), expectedContent);
     AnyObjectId result = gfs.persist();
-    try(TreeWalk tw = TreeWalk.forPath(repo, "some_file.txt", result)) {
-      Assert.assertArrayEquals(expectedContent, repo.open(tw.getObjectId(0)).getBytes());
+    try(TreeWalk tw = TreeUtils.forPath("/some_file.txt", result, repo)) {
+      assert tw != null;
+      assertArrayEquals(expectedContent, repo.open(tw.getObjectId(0)).getBytes());
     }
+  }
+
+  @Test
+  public void persistChanges_theFileSystemShouldBecomeClean() throws IOException {
+    Files.write(gfs.getPath("/some_file.txt"), "some text content".getBytes());
+    gfs.persist();
+    assertFalse(gfs.isDirty());
   }
 
 }

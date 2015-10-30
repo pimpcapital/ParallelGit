@@ -8,8 +8,9 @@ import java.nio.file.NoSuchFileException;
 import com.beijunyi.parallelgit.filesystem.AbstractGitFileSystemTest;
 import com.beijunyi.parallelgit.filesystem.GitPath;
 import org.eclipse.jgit.lib.Constants;
-import org.junit.Assert;
 import org.junit.Test;
+
+import static org.junit.Assert.assertArrayEquals;
 
 public class FilesReadAllBytesTest extends AbstractGitFileSystemTest {
 
@@ -21,7 +22,7 @@ public class FilesReadAllBytesTest extends AbstractGitFileSystemTest {
     commitToMaster();
     initGitFileSystem();
     GitPath path = gfs.getPath("/file.txt");
-    Assert.assertArrayEquals(data, Files.readAllBytes(path));
+    assertArrayEquals(data, Files.readAllBytes(path));
   }
 
   @Test(expected = NoSuchFileException.class)

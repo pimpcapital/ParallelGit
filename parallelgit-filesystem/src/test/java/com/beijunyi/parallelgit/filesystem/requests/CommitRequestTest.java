@@ -6,8 +6,9 @@ import com.beijunyi.parallelgit.filesystem.PreSetupGitFileSystemTest;
 import com.beijunyi.parallelgit.utils.CommitUtils;
 import org.eclipse.jgit.lib.PersonIdent;
 import org.eclipse.jgit.revwalk.RevCommit;
-import org.junit.Assert;
 import org.junit.Test;
+
+import static org.junit.Assert.*;
 
 public class CommitRequestTest extends PreSetupGitFileSystemTest {
 
@@ -17,14 +18,14 @@ public class CommitRequestTest extends PreSetupGitFileSystemTest {
     RevCommit commit = Requests.commit(gfs)
                          .execute();
     assert gfs.getBranch() != null;
-    Assert.assertEquals(repo.resolve(gfs.getBranch()), commit);
+    assertEquals(repo.resolve(gfs.getBranch()), commit);
   }
 
   @Test
   public void commitNoChange_shouldReturnNull() throws IOException {
     RevCommit commit = Requests.commit(gfs)
                          .execute();
-    Assert.assertNull(commit);
+    assertNull(commit);
   }
 
   @Test
@@ -32,7 +33,7 @@ public class CommitRequestTest extends PreSetupGitFileSystemTest {
     RevCommit commit = Requests.commit(gfs)
                          .allowEmpty(true)
                          .execute();
-    Assert.assertNotNull(commit);
+    assertNotNull(commit);
   }
 
   @Test
@@ -41,7 +42,7 @@ public class CommitRequestTest extends PreSetupGitFileSystemTest {
                          .allowEmpty(true)
                          .execute();
     assert commit != null;
-    Assert.assertEquals(CommitUtils.getCommit(commit.getParent(0), repo).getTree(), commit.getTree());
+    assertEquals(CommitUtils.getCommit(commit.getParent(0), repo).getTree(), commit.getTree());
   }
 
   @Test
@@ -51,7 +52,7 @@ public class CommitRequestTest extends PreSetupGitFileSystemTest {
                          .message("test_message")
                          .execute();
     assert commit != null;
-    Assert.assertEquals("test_message", commit.getFullMessage());
+    assertEquals("test_message", commit.getFullMessage());
   }
 
   @Test
@@ -62,7 +63,7 @@ public class CommitRequestTest extends PreSetupGitFileSystemTest {
                          .author(author)
                          .execute();
     assert commit != null;
-    Assert.assertEquals(author, commit.getAuthorIdent());
+    assertEquals(author, commit.getAuthorIdent());
   }
 
   @Test
@@ -73,7 +74,7 @@ public class CommitRequestTest extends PreSetupGitFileSystemTest {
                          .committer(committer)
                          .execute();
     assert commit != null;
-    Assert.assertEquals(committer, commit.getCommitterIdent());
+    assertEquals(committer, commit.getCommitterIdent());
   }
 
   @Test
@@ -84,7 +85,7 @@ public class CommitRequestTest extends PreSetupGitFileSystemTest {
                          .committer(committer)
                          .execute();
     assert commit != null;
-    Assert.assertEquals(committer, commit.getAuthorIdent());
+    assertEquals(committer, commit.getAuthorIdent());
   }
 
   @Test
@@ -97,7 +98,7 @@ public class CommitRequestTest extends PreSetupGitFileSystemTest {
                          .author(author)
                          .execute();
     assert commit != null;
-    Assert.assertEquals(author, commit.getAuthorIdent());
+    assertEquals(author, commit.getAuthorIdent());
   }
 
   @Test
@@ -109,7 +110,7 @@ public class CommitRequestTest extends PreSetupGitFileSystemTest {
                          .amend(true)
                          .execute();
     assert commit != null;
-    Assert.assertArrayEquals(parents, commit.getParents());
+    assertArrayEquals(parents, commit.getParents());
   }
 
   @Test
@@ -119,7 +120,7 @@ public class CommitRequestTest extends PreSetupGitFileSystemTest {
                          .amend(true)
                          .execute();
     assert gfs.getBranch() != null;
-    Assert.assertEquals(repo.resolve(gfs.getBranch()), commit);
+    assertEquals(repo.resolve(gfs.getBranch()), commit);
   }
 
   @Test
@@ -129,7 +130,7 @@ public class CommitRequestTest extends PreSetupGitFileSystemTest {
                          .amend(true)
                          .execute();
     assert commit != null;
-    Assert.assertEquals("test_message", commit.getFullMessage());
+    assertEquals("test_message", commit.getFullMessage());
   }
 
   @Test
@@ -140,7 +141,7 @@ public class CommitRequestTest extends PreSetupGitFileSystemTest {
                          .amend(true)
                          .execute();
     assert commit != null;
-    Assert.assertEquals(author, commit.getAuthorIdent());
+    assertEquals(author, commit.getAuthorIdent());
   }
 
   @Test
@@ -151,7 +152,7 @@ public class CommitRequestTest extends PreSetupGitFileSystemTest {
                          .amend(true)
                          .execute();
     assert commit != null;
-    Assert.assertEquals(committer, commit.getCommitterIdent());
+    assertEquals(committer, commit.getCommitterIdent());
   }
 
 }

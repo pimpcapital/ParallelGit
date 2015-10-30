@@ -4,8 +4,9 @@ import java.io.IOException;
 
 import com.beijunyi.parallelgit.filesystem.PreSetupGitFileSystemTest;
 import org.eclipse.jgit.lib.AnyObjectId;
-import org.junit.Assert;
 import org.junit.Test;
+
+import static org.junit.Assert.assertEquals;
 
 public class PersistRequestTest extends PreSetupGitFileSystemTest {
 
@@ -14,7 +15,7 @@ public class PersistRequestTest extends PreSetupGitFileSystemTest {
     writeSomeFileToGfs();
     AnyObjectId treeId = Requests.persist(gfs)
                            .execute();
-    Assert.assertEquals(treeId, gfs.getTree());
+    assertEquals(treeId, gfs.getTree());
   }
 
 }

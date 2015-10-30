@@ -1,7 +1,8 @@
 package com.beijunyi.parallelgit.filesystem;
 
-import org.junit.Assert;
 import org.junit.Test;
+
+import static org.junit.Assert.assertEquals;
 
 public class GitPathToAbsolutePathTest extends PreSetupGitFileSystemTest {
 
@@ -9,27 +10,27 @@ public class GitPathToAbsolutePathTest extends PreSetupGitFileSystemTest {
   public void absolutePathToAbsolutePathTest() {
     GitPath path = gfs.getPath("/a/b");
     GitPath result = path.toAbsolutePath();
-    Assert.assertEquals("/a/b", result.toString());
+    assertEquals("/a/b", result.toString());
   }
 
   @Test
   public void rootPathToAbsolutePathTest() {
     GitPath path = gfs.getPath("/");
     GitPath result = path.toAbsolutePath();
-    Assert.assertEquals("/", result.toString());
+    assertEquals("/", result.toString());
   }
 
   @Test
   public void relativePathToAbsolutePathTest() {
     GitPath path = gfs.getPath("a/b");
     GitPath result = path.toAbsolutePath();
-    Assert.assertEquals("/a/b", result.toString());
+    assertEquals("/a/b", result.toString());
   }
 
   @Test
   public void emptyPathToAbsolutePathTest() {
     GitPath path = gfs.getPath("");
     GitPath result = path.toAbsolutePath();
-    Assert.assertEquals("/", result.toString());
+    assertEquals("/", result.toString());
   }
 }

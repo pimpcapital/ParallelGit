@@ -4,11 +4,12 @@ import java.io.IOException;
 
 import com.beijunyi.parallelgit.AbstractParallelGitTest;
 import com.beijunyi.parallelgit.filesystem.GitFileSystem;
-import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
 
-public class GitFileSystemBuilderCreateTest extends AbstractParallelGitTest {
+import static org.junit.Assert.assertEquals;
+
+public class GitFileSystemBuilderCreateNewRepositoryTest extends AbstractParallelGitTest {
 
   @Before
   public void setupRepository() throws IOException {
@@ -21,7 +22,7 @@ public class GitFileSystemBuilderCreateTest extends AbstractParallelGitTest {
                           .repository(repoDir)
                           .create()
                           .build();
-    Assert.assertEquals(repoDir, gfs.getRepository().getDirectory());
+    assertEquals(repoDir, gfs.getRepository().getDirectory());
   }
 
   @Test
@@ -31,7 +32,7 @@ public class GitFileSystemBuilderCreateTest extends AbstractParallelGitTest {
                           .create()
                           .bare()
                           .build();
-    Assert.assertEquals(repoDir, gfs.getRepository().getDirectory());
+    assertEquals(repoDir, gfs.getRepository().getDirectory());
   }
 
   @Test
@@ -41,7 +42,7 @@ public class GitFileSystemBuilderCreateTest extends AbstractParallelGitTest {
                           .create()
                           .bare(false)
                           .build();
-    Assert.assertEquals(repoDir, gfs.getRepository().getWorkTree());
+    assertEquals(repoDir, gfs.getRepository().getWorkTree());
   }
 
 }

@@ -4,9 +4,10 @@ import java.io.IOException;
 import java.nio.file.Files;
 
 import com.beijunyi.parallelgit.filesystem.AbstractGitFileSystemTest;
-import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
+
+import static org.junit.Assert.assertFalse;
 
 public class FilesIsExecutableTest extends AbstractGitFileSystemTest {
 
@@ -20,22 +21,22 @@ public class FilesIsExecutableTest extends AbstractGitFileSystemTest {
 
   @Test
   public void fileIsExecutable() {
-    Assert.assertFalse(Files.isExecutable(gfs.getPath("/dir/file.txt")));
+    assertFalse(Files.isExecutable(gfs.getPath("/dir/file.txt")));
   }
 
   @Test
   public void directoryIsExecutable() {
-    Assert.assertFalse(Files.isExecutable(gfs.getPath("/dir")));
+    assertFalse(Files.isExecutable(gfs.getPath("/dir")));
   }
 
   @Test
   public void rootIsExecutable() {
-    Assert.assertFalse(Files.isExecutable(gfs.getPath("/")));
+    assertFalse(Files.isExecutable(gfs.getPath("/")));
   }
 
   @Test
   public void nonExistentFileIsExecutable() {
-    Assert.assertFalse(Files.isExecutable(gfs.getPath("/non_existent_file.txt")));
+    assertFalse(Files.isExecutable(gfs.getPath("/non_existent_file.txt")));
   }
 
 }

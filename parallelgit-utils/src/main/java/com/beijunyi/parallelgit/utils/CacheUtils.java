@@ -8,6 +8,7 @@ import javax.annotation.Nullable;
 import com.beijunyi.parallelgit.utils.exceptions.NoSuchCacheDirectoryException;
 import com.beijunyi.parallelgit.utils.exceptions.NoSuchCacheEntryException;
 import com.beijunyi.parallelgit.utils.exceptions.NoSuchRevisionException;
+import com.beijunyi.parallelgit.utils.io.CacheEntryUpdate;
 import com.beijunyi.parallelgit.utils.io.CacheIterator;
 import com.beijunyi.parallelgit.utils.io.CacheNode;
 import org.eclipse.jgit.dircache.*;
@@ -140,12 +141,22 @@ public final class CacheUtils {
     return cache.getEntry(TreeUtils.normalizeTreePath(path));
   }
 
+  public static void updateFile(@Nonnull CacheEntryUpdate update, @Nonnull DirCacheEditor editor) {
+    editor.add(update);
+  }
+
+  public static void updateFile(@Nonnull CacheEntryUpdate update, @Nonnull DirCache cache) {
+    DirCacheEditor editor = cache.editor();
+    updateFile(update, editor);
+    editor.finish();
+  }
+
   public static void updateFileBlob(@Nonnull String path, @Nonnull AnyObjectId blob, @Nonnull DirCache cache) {
-    ensureEntry(path, cache).setObjectId(blob);
+    updateFile(new CacheEntryUpdate(path).setNewBlob(blob), cache);
   }
 
   public static void updateFileMode(@Nonnull String path, @Nonnull FileMode mode, @Nonnull DirCache cache) {
-    ensureEntry(path, cache).setFileMode(mode);
+    updateFile(new CacheEntryUpdate(path).setNewFileMode(mode), cache);
   }
 
   public static int findEntry(@Nonnull String path, @Nonnull DirCache cache) {

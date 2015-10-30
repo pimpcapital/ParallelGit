@@ -5,9 +5,10 @@ import java.nio.file.Path;
 import java.util.Iterator;
 import java.util.NoSuchElementException;
 
-import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
+
+import static org.junit.Assert.*;
 
 public class GitPathIteratorTest extends AbstractGitFileSystemTest {
 
@@ -20,40 +21,40 @@ public class GitPathIteratorTest extends AbstractGitFileSystemTest {
   public void absolutePathIteratorTest() {
     GitPath path = gfs.getPath("/a/b/c");
     Iterator<Path> it = path.iterator();
-    Assert.assertTrue(it.hasNext());
-    Assert.assertEquals("a", it.next().toString());
-    Assert.assertTrue(it.hasNext());
-    Assert.assertEquals("b", it.next().toString());
-    Assert.assertTrue(it.hasNext());
-    Assert.assertEquals("c", it.next().toString());
-    Assert.assertFalse(it.hasNext());
+    assertTrue(it.hasNext());
+    assertEquals("a", it.next().toString());
+    assertTrue(it.hasNext());
+    assertEquals("b", it.next().toString());
+    assertTrue(it.hasNext());
+    assertEquals("c", it.next().toString());
+    assertFalse(it.hasNext());
   }
 
   @Test
   public void rootPathIteratorTest() {
     GitPath path = gfs.getPath("/");
     Iterator<Path> it = path.iterator();
-    Assert.assertFalse(it.hasNext());
+    assertFalse(it.hasNext());
   }
 
   @Test
   public void relativePathIteratorTest() {
     GitPath path = gfs.getPath("a/b/c");
     Iterator<Path> it = path.iterator();
-    Assert.assertTrue(it.hasNext());
-    Assert.assertEquals("a", it.next().toString());
-    Assert.assertTrue(it.hasNext());
-    Assert.assertEquals("b", it.next().toString());
-    Assert.assertTrue(it.hasNext());
-    Assert.assertEquals("c", it.next().toString());
-    Assert.assertFalse(it.hasNext());
+    assertTrue(it.hasNext());
+    assertEquals("a", it.next().toString());
+    assertTrue(it.hasNext());
+    assertEquals("b", it.next().toString());
+    assertTrue(it.hasNext());
+    assertEquals("c", it.next().toString());
+    assertFalse(it.hasNext());
   }
 
   @Test
   public void emptyPathIteratorTest() {
     GitPath path = gfs.getPath("");
     Iterator<Path> it = path.iterator();
-    Assert.assertFalse(it.hasNext());
+    assertFalse(it.hasNext());
   }
 
   @Test(expected = NoSuchElementException.class)

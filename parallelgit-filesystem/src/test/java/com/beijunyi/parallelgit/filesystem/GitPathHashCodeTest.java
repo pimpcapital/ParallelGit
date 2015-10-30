@@ -3,9 +3,10 @@ package com.beijunyi.parallelgit.filesystem;
 import java.io.IOException;
 
 import com.beijunyi.parallelgit.filesystem.utils.GitFileSystemBuilder;
-import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
+
+import static org.junit.Assert.*;
 
 public class GitPathHashCodeTest extends AbstractGitFileSystemTest {
 
@@ -18,26 +19,26 @@ public class GitPathHashCodeTest extends AbstractGitFileSystemTest {
   public void hashCodesFromSameAbsolutePath() {
     GitPath p1 = gfs.getPath("/a/b/c");
     GitPath p2 = gfs.getPath("/a/b/c");
-    Assert.assertEquals(p1.hashCode(), p2.hashCode());
+    assertEquals(p1.hashCode(), p2.hashCode());
   }
 
   @Test
   public void hashCodesFromSameRelativePath() {
     GitPath p1 = gfs.getPath("a/b/c");
     GitPath p2 = gfs.getPath("a/b/c");
-    Assert.assertEquals(p1.hashCode(), p2.hashCode());
+    assertEquals(p1.hashCode(), p2.hashCode());
   }
 
   @Test
   public void hashCodesFromDifferentPaths() {
     GitPath path = gfs.getPath("/a/b/c");
     int hashCode = path.hashCode();
-    Assert.assertNotEquals(hashCode, gfs.getPath("a/b/c").hashCode());
-    Assert.assertNotEquals(hashCode, gfs.getPath("/a/b").hashCode());
-    Assert.assertNotEquals(hashCode, gfs.getPath("/a/b/c/d").hashCode());
-    Assert.assertNotEquals(hashCode, gfs.getPath("abc").hashCode());
-    Assert.assertNotEquals(hashCode, gfs.getPath("/").hashCode());
-    Assert.assertNotEquals(hashCode, gfs.getPath("").hashCode());
+    assertNotEquals(hashCode, gfs.getPath("a/b/c").hashCode());
+    assertNotEquals(hashCode, gfs.getPath("/a/b").hashCode());
+    assertNotEquals(hashCode, gfs.getPath("/a/b/c/d").hashCode());
+    assertNotEquals(hashCode, gfs.getPath("abc").hashCode());
+    assertNotEquals(hashCode, gfs.getPath("/").hashCode());
+    assertNotEquals(hashCode, gfs.getPath("").hashCode());
   }
 
   @Test
@@ -47,7 +48,7 @@ public class GitPathHashCodeTest extends AbstractGitFileSystemTest {
                             .build()) {
       GitPath p1 = gfs.getPath("/a/b/c");
       GitPath p2 = otherGfs.getPath("/a/b/c");
-      Assert.assertNotEquals(p1.hashCode(), p2.hashCode());
+      assertNotEquals(p1.hashCode(), p2.hashCode());
     }
 
   }

@@ -58,7 +58,7 @@
     <maven-source-plugin.version>2.4</maven-source-plugin.version>
     <maven-gpg-plugin.version>1.6</maven-gpg-plugin.version>
     <nexus-staging-maven-plugin.version>1.6.5</nexus-staging-maven-plugin.version>
-    <jgit.version>4.0.1.201506240215-r</jgit.version>
+    <jgit.version>4.1.0.201509280440-r</jgit.version>
     <junit.version>4.11</junit.version>
   </properties>
 
