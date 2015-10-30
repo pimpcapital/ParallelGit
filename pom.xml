@@ -42,9 +42,9 @@
 
   <properties>
     <maven-compiler-plugin.version>3.3</maven-compiler-plugin.version>
+    <maven-site-plugin.version>3.4</maven-site-plugin.version>
     <javac.src.version>1.7</javac.src.version>
     <javac.target.version>1.7</javac.target.version>
-    <maven.javadoc.skip>true</maven.javadoc.skip>
     <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
 
     <maven-surefire-plugin.version>2.18.1</maven-surefire-plugin.version>
@@ -152,6 +152,7 @@
       <plugin>
         <groupId>org.apache.maven.plugins</groupId>
         <artifactId>maven-site-plugin</artifactId>
+        <version>${maven-site-plugin.version}</version>
         <configuration>
           <skip>true</skip>
         </configuration>
