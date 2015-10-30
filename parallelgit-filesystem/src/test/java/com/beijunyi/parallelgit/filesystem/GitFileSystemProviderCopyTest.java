@@ -3,8 +3,9 @@ package com.beijunyi.parallelgit.filesystem;
 import java.io.IOException;
 import java.nio.file.*;
 
-import org.junit.Assert;
 import org.junit.Test;
+
+import static org.junit.Assert.*;
 
 public class GitFileSystemProviderCopyTest extends AbstractGitFileSystemTest {
 
@@ -18,7 +19,7 @@ public class GitFileSystemProviderCopyTest extends AbstractGitFileSystemTest {
     GitPath source = gfs.getPath("/source.txt");
     GitPath target = gfs.getPath("/target.txt");
     provider.copy(source, target);
-    Assert.assertTrue(Files.exists(target));
+    assertTrue(Files.exists(target));
   }
 
   @Test
@@ -31,7 +32,7 @@ public class GitFileSystemProviderCopyTest extends AbstractGitFileSystemTest {
     GitPath source = gfs.getPath("/source.txt");
     GitPath target = gfs.getPath("/target.txt");
     provider.copy(source, target);
-    Assert.assertTrue(Files.isRegularFile(target));
+    assertTrue(Files.isRegularFile(target));
   }
 
   @Test
@@ -45,7 +46,7 @@ public class GitFileSystemProviderCopyTest extends AbstractGitFileSystemTest {
     GitPath source = gfs.getPath("/source.txt");
     GitPath target = gfs.getPath("/target.txt");
     provider.copy(source, target);
-    Assert.assertArrayEquals(expectedData, Files.readAllBytes(target));
+    assertArrayEquals(expectedData, Files.readAllBytes(target));
   }
 
   @Test
@@ -59,7 +60,7 @@ public class GitFileSystemProviderCopyTest extends AbstractGitFileSystemTest {
     GitPath source = gfs.getPath("/source.txt");
     GitPath target = gfs.getPath("/target.txt");
     provider.copy(source, target);
-    Assert.assertArrayEquals(expectedData, Files.readAllBytes(source));
+    assertArrayEquals(expectedData, Files.readAllBytes(source));
   }
 
 
@@ -88,7 +89,7 @@ public class GitFileSystemProviderCopyTest extends AbstractGitFileSystemTest {
     GitPath source = gfs.getPath("/source.txt");
     GitPath target = gfs.getPath("/target.txt");
     provider.copy(source, target, StandardCopyOption.REPLACE_EXISTING);
-    Assert.assertArrayEquals(expectedData, Files.readAllBytes(target));
+    assertArrayEquals(expectedData, Files.readAllBytes(target));
   }
 
   @Test
@@ -101,7 +102,7 @@ public class GitFileSystemProviderCopyTest extends AbstractGitFileSystemTest {
 
     GitPath source = gfs.getPath("/source.txt");
     provider.copy(source, source);
-    Assert.assertArrayEquals(expectedData, Files.readAllBytes(source));
+    assertArrayEquals(expectedData, Files.readAllBytes(source));
   }
 
   @Test(expected = NoSuchFileException.class)
@@ -136,7 +137,7 @@ public class GitFileSystemProviderCopyTest extends AbstractGitFileSystemTest {
     GitPath source = gfs.getPath("/source.txt");
     GitPath target = gfs.getPath("/target");
     provider.copy(source, target, StandardCopyOption.REPLACE_EXISTING);
-    Assert.assertTrue(Files.isRegularFile(target));
+    assertTrue(Files.isRegularFile(target));
   }
 
   @Test
@@ -151,7 +152,7 @@ public class GitFileSystemProviderCopyTest extends AbstractGitFileSystemTest {
     GitPath source = gfs.getPath("/source.txt");
     GitPath target = gfs.getPath("/target");
     provider.copy(source, target, StandardCopyOption.REPLACE_EXISTING);
-    Assert.assertArrayEquals(expectedData, Files.readAllBytes(target));
+    assertArrayEquals(expectedData, Files.readAllBytes(target));
   }
 
   @Test
@@ -164,7 +165,7 @@ public class GitFileSystemProviderCopyTest extends AbstractGitFileSystemTest {
     GitPath source = gfs.getPath("/source");
     GitPath target = gfs.getPath("/target");
     provider.copy(source, target);
-    Assert.assertTrue(Files.exists(target));
+    assertTrue(Files.exists(target));
   }
 
   @Test
@@ -177,7 +178,7 @@ public class GitFileSystemProviderCopyTest extends AbstractGitFileSystemTest {
     GitPath source = gfs.getPath("/source");
     GitPath target = gfs.getPath("/target");
     provider.copy(source, target);
-    Assert.assertTrue(Files.isDirectory(target));
+    assertTrue(Files.isDirectory(target));
   }
 
   @Test
@@ -191,8 +192,8 @@ public class GitFileSystemProviderCopyTest extends AbstractGitFileSystemTest {
     GitPath source = gfs.getPath("/source");
     GitPath target = gfs.getPath("/target");
     provider.copy(source, target);
-    Assert.assertTrue(Files.exists(target.resolve("file1.txt")));
-    Assert.assertTrue(Files.exists(target.resolve("file2.txt")));
+    assertTrue(Files.exists(target.resolve("file1.txt")));
+    assertTrue(Files.exists(target.resolve("file2.txt")));
   }
 
   @Test
@@ -206,8 +207,8 @@ public class GitFileSystemProviderCopyTest extends AbstractGitFileSystemTest {
     GitPath source = gfs.getPath("/source");
     GitPath target = gfs.getPath("/target");
     provider.copy(source, target);
-    Assert.assertTrue(Files.exists(source.resolve("file1.txt")));
-    Assert.assertTrue(Files.exists(source.resolve("file2.txt")));
+    assertTrue(Files.exists(source.resolve("file1.txt")));
+    assertTrue(Files.exists(source.resolve("file2.txt")));
   }
 
   @Test
@@ -223,8 +224,8 @@ public class GitFileSystemProviderCopyTest extends AbstractGitFileSystemTest {
     GitPath source = gfs.getPath("/source");
     GitPath target = gfs.getPath("/target");
     provider.copy(source, target);
-    Assert.assertArrayEquals(expectedData1, Files.readAllBytes(target.resolve("file1.txt")));
-    Assert.assertArrayEquals(expectedData2, Files.readAllBytes(target.resolve("file2.txt")));
+    assertArrayEquals(expectedData1, Files.readAllBytes(target.resolve("file1.txt")));
+    assertArrayEquals(expectedData2, Files.readAllBytes(target.resolve("file2.txt")));
   }
 
 }

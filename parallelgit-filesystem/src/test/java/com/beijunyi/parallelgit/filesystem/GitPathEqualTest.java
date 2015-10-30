@@ -3,9 +3,10 @@ package com.beijunyi.parallelgit.filesystem;
 import java.io.IOException;
 
 import com.beijunyi.parallelgit.filesystem.utils.GitFileSystemBuilder;
-import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
+
+import static org.junit.Assert.*;
 
 public class GitPathEqualTest extends AbstractGitFileSystemTest {
 
@@ -18,25 +19,25 @@ public class GitPathEqualTest extends AbstractGitFileSystemTest {
   public void hashCodeOfAbsolutePathTest() {
     GitPath p1 = gfs.getPath("/a/b/c");
     GitPath p2 = gfs.getPath("/a/b/c");
-    Assert.assertTrue(p1.equals(p2));
+    assertTrue(p1.equals(p2));
   }
 
   @Test
   public void hashCodeOfRelativePathTest() {
     GitPath p1 = gfs.getPath("a/b/c");
     GitPath p2 = gfs.getPath("a/b/c");
-    Assert.assertTrue(p1.equals(p2));
+    assertTrue(p1.equals(p2));
   }
 
   @Test
   public void hashCodesFromDifferentPathsTest() {
     GitPath path = gfs.getPath("/a/b/c");
-    Assert.assertFalse(path.equals(gfs.getPath("a/b/c")));
-    Assert.assertFalse(path.equals(gfs.getPath("/a/b")));
-    Assert.assertFalse(path.equals(gfs.getPath("/a/b/c/d")));
-    Assert.assertFalse(path.equals(gfs.getPath("abc")));
-    Assert.assertFalse(path.equals(gfs.getPath("/")));
-    Assert.assertFalse(path.equals(gfs.getPath("")));
+    assertFalse(path.equals(gfs.getPath("a/b/c")));
+    assertFalse(path.equals(gfs.getPath("/a/b")));
+    assertFalse(path.equals(gfs.getPath("/a/b/c/d")));
+    assertFalse(path.equals(gfs.getPath("abc")));
+    assertFalse(path.equals(gfs.getPath("/")));
+    assertFalse(path.equals(gfs.getPath("")));
   }
 
   @Test
@@ -46,7 +47,7 @@ public class GitPathEqualTest extends AbstractGitFileSystemTest {
                             .build();
     GitPath p1 = gfs.getPath("/a/b/c");
     GitPath p2 = other.getPath("/a/b/c");
-    Assert.assertFalse(p1.equals(p2));
+    assertFalse(p1.equals(p2));
   }
 
 }

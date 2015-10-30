@@ -8,8 +8,9 @@ import java.util.Map;
 import javax.annotation.Nullable;
 
 import com.beijunyi.parallelgit.filesystem.io.GfsFileAttributes;
-import org.junit.Assert;
 import org.junit.Test;
+
+import static org.junit.Assert.assertTrue;
 
 public class GitFileSystemProviderReadAttributesTest extends PreSetupGitFileSystemTest {
 
@@ -17,24 +18,24 @@ public class GitFileSystemProviderReadAttributesTest extends PreSetupGitFileSyst
   public void readBasicAttributes_theResultShouldContainSpecifiedAttributes() throws IOException {
     writeToGfs("/file.txt");
     Map<String, Object> attributeMap = provider.readAttributes(gfs.getPath("/file.txt"), "basic:size,isRegularFile");
-    Assert.assertTrue(attributeMap.containsKey("size"));
-    Assert.assertTrue(attributeMap.containsKey("isRegularFile"));
+    assertTrue(attributeMap.containsKey("size"));
+    assertTrue(attributeMap.containsKey("isRegularFile"));
   }
 
   @Test
   public void readBasicAttributesWithoutViewType_theResultShouldContainSpecifiedAttributes() throws IOException {
     writeToGfs("/file.txt");
     Map<String, Object> attributeMap = provider.readAttributes(gfs.getPath("/file.txt"), "size,isRegularFile");
-    Assert.assertTrue(attributeMap.containsKey("size"));
-    Assert.assertTrue(attributeMap.containsKey("isRegularFile"));
+    assertTrue(attributeMap.containsKey("size"));
+    assertTrue(attributeMap.containsKey("isRegularFile"));
   }
 
   @Test
   public void readPosixAttributes_theResultShouldContainSpecifiedAttributes() throws IOException {
     writeToGfs("/file.txt");
     Map<String, Object> attributeMap = provider.readAttributes(gfs.getPath("/file.txt"), "posix:permissions,owner");
-    Assert.assertTrue(attributeMap.containsKey("permissions"));
-    Assert.assertTrue(attributeMap.containsKey("owner"));
+    assertTrue(attributeMap.containsKey("permissions"));
+    assertTrue(attributeMap.containsKey("owner"));
   }
 
   @Test(expected = NoSuchFileException.class)

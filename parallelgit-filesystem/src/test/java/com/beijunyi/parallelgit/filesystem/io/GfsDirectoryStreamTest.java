@@ -6,8 +6,9 @@ import java.util.Iterator;
 import java.util.NoSuchElementException;
 
 import com.beijunyi.parallelgit.filesystem.AbstractGitFileSystemTest;
-import org.junit.Assert;
 import org.junit.Test;
+
+import static org.junit.Assert.*;
 
 public class GfsDirectoryStreamTest extends AbstractGitFileSystemTest {
 
@@ -24,10 +25,10 @@ public class GfsDirectoryStreamTest extends AbstractGitFileSystemTest {
       String[] filesInA = new String[] {"/a/b.txt", "/a/c", "/a/d", "/a/e.txt"};
       Iterator<Path> dsIt = ds.iterator();
       for(String file : filesInA) {
-        Assert.assertTrue(dsIt.hasNext());
-        Assert.assertEquals(file, dsIt.next().toString());
+        assertTrue(dsIt.hasNext());
+        assertEquals(file, dsIt.next().toString());
       }
-      Assert.assertFalse(dsIt.hasNext());
+      assertFalse(dsIt.hasNext());
     }
   }
 

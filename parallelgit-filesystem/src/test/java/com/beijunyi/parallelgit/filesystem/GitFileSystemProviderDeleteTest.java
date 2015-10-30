@@ -4,8 +4,9 @@ import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.NoSuchFileException;
 
-import org.junit.Assert;
 import org.junit.Test;
+
+import static org.junit.Assert.assertFalse;
 
 public class GitFileSystemProviderDeleteTest extends AbstractGitFileSystemTest {
 
@@ -18,7 +19,7 @@ public class GitFileSystemProviderDeleteTest extends AbstractGitFileSystemTest {
 
     GitPath path = gfs.getPath("/file.txt");
     provider.delete(path);
-    Assert.assertFalse(Files.exists(path));
+    assertFalse(Files.exists(path));
   }
 
   @Test
@@ -32,7 +33,7 @@ public class GitFileSystemProviderDeleteTest extends AbstractGitFileSystemTest {
     provider.delete(file);
     GitPath dir = gfs.getPath("/dir");
     provider.delete(dir);
-    Assert.assertFalse(Files.exists(dir));
+    assertFalse(Files.exists(dir));
   }
 
   @Test
@@ -44,7 +45,7 @@ public class GitFileSystemProviderDeleteTest extends AbstractGitFileSystemTest {
 
     GitPath dir = gfs.getPath("/dir");
     provider.delete(dir);
-    Assert.assertFalse(Files.exists(dir));
+    assertFalse(Files.exists(dir));
   }
 
   @Test(expected = NoSuchFileException.class)

@@ -11,6 +11,8 @@ import org.eclipse.jgit.revwalk.RevCommit;
 import org.junit.Before;
 import org.junit.Test;
 
+import static org.junit.Assert.*;
+
 public class CommitEmptyDirectoryTest extends AbstractGitFileSystemTest {
 
   @Before
@@ -25,7 +27,7 @@ public class CommitEmptyDirectoryTest extends AbstractGitFileSystemTest {
     Files.createDirectory(dir);
     RevCommit commit = Requests.commit(gfs).execute();
     assert commit != null;
-    GitFileUtils.exists("/empty_dir", commit, repo);
+    assertFalse(GitFileUtils.exists("/empty_dir", commit, repo));
   }
 
   @Test
@@ -35,7 +37,16 @@ public class CommitEmptyDirectoryTest extends AbstractGitFileSystemTest {
     Files.createDirectories(dir);
     RevCommit commit = Requests.commit(gfs).execute();
     assert commit != null;
-    GitFileUtils.exists("/empty1", commit, repo);
+    assertFalse(GitFileUtils.exists("/empty1", commit, repo));
+  }
+
+  @Test
+  public void commitEmptyDirectory_theEmptyDirectoryShouldExistInTheFileSystemAfterTheOperation() throws IOException {
+    writeSomeFileToGfs();
+    Path dir = gfs.getPath("/empty_dir");
+    Files.createDirectory(dir);
+    Requests.commit(gfs).execute();
+    assertTrue(Files.exists(dir));
   }
 
 }

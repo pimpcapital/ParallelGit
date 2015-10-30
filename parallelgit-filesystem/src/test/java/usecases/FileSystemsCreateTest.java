@@ -9,9 +9,10 @@ import com.beijunyi.parallelgit.AbstractParallelGitTest;
 import com.beijunyi.parallelgit.filesystem.GitFileSystem;
 import com.beijunyi.parallelgit.filesystem.utils.GitParams;
 import com.beijunyi.parallelgit.filesystem.utils.GitUriBuilder;
-import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
+
+import static org.junit.Assert.*;
 
 public class FileSystemsCreateTest extends AbstractParallelGitTest {
 
@@ -26,7 +27,7 @@ public class FileSystemsCreateTest extends AbstractParallelGitTest {
                 .repository(repoDir)
                 .build();
     FileSystem fs = FileSystems.newFileSystem(uri, GitParams.emptyMap().setCreate(true));
-    Assert.assertTrue(fs instanceof GitFileSystem);
+    assertTrue(fs instanceof GitFileSystem);
   }
 
   @Test(expected = IllegalStateException.class)
@@ -44,7 +45,7 @@ public class FileSystemsCreateTest extends AbstractParallelGitTest {
                 .repository(repoDir)
                 .build();
     FileSystem fs = FileSystems.newFileSystem(uri, GitParams.emptyMap().setCreate(true).setBare(true));
-    Assert.assertEquals(repoDir, ((GitFileSystem) fs).getRepository().getDirectory());
+    assertEquals(repoDir, ((GitFileSystem)fs).getRepository().getDirectory());
   }
 
   @Test
@@ -53,7 +54,7 @@ public class FileSystemsCreateTest extends AbstractParallelGitTest {
                 .repository(repoDir)
                 .build();
     FileSystem fs = FileSystems.newFileSystem(uri, GitParams.emptyMap().setCreate(true).setBare(false));
-    Assert.assertEquals(repoDir, ((GitFileSystem) fs).getRepository().getWorkTree());
+    assertEquals(repoDir, ((GitFileSystem)fs).getRepository().getWorkTree());
   }
 
 }

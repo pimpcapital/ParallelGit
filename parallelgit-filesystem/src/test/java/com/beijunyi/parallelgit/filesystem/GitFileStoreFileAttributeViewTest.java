@@ -4,26 +4,27 @@ import java.io.IOException;
 import java.nio.file.attribute.BasicFileAttributeView;
 import java.nio.file.attribute.PosixFileAttributeView;
 
-import org.junit.Assert;
 import org.junit.Test;
+
+import static org.junit.Assert.*;
 
 public class GitFileStoreFileAttributeViewTest extends PreSetupGitFileSystemTest {
 
   @Test
   public void supportsBasicFileAttributeView_shouldReturnTrue() {
-    Assert.assertTrue(store.supportsFileAttributeView(BasicFileAttributeView.class));
-    Assert.assertTrue(store.supportsFileAttributeView("basic"));
+    assertTrue(store.supportsFileAttributeView(BasicFileAttributeView.class));
+    assertTrue(store.supportsFileAttributeView("basic"));
   }
 
   @Test
   public void supportsPosixFileAttributeView_shouldReturnTrue() {
-    Assert.assertTrue(store.supportsFileAttributeView(PosixFileAttributeView.class));
-    Assert.assertTrue(store.supportsFileAttributeView("posix"));
+    assertTrue(store.supportsFileAttributeView(PosixFileAttributeView.class));
+    assertTrue(store.supportsFileAttributeView("posix"));
   }
 
   @Test
   public void supportsUnsupportedFileAttributeView_shouldReturnFalse() {
-    Assert.assertFalse(store.supportsFileAttributeView("unsupported_view"));
+    assertFalse(store.supportsFileAttributeView("unsupported_view"));
   }
 
   @Test(expected = UnsupportedOperationException.class)

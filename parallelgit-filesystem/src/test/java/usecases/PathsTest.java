@@ -8,9 +8,10 @@ import java.nio.file.Paths;
 
 import com.beijunyi.parallelgit.filesystem.AbstractGitFileSystemTest;
 import com.beijunyi.parallelgit.filesystem.utils.GitUriBuilder;
-import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
+
+import static org.junit.Assert.assertEquals;
 
 public class PathsTest extends AbstractGitFileSystemTest {
 
@@ -21,13 +22,13 @@ public class PathsTest extends AbstractGitFileSystemTest {
 
   @Test
   public void getRootFromUri() {
-    Assert.assertEquals(root, Paths.get(root.toUri()));
+    assertEquals(root, Paths.get(root.toUri()));
   }
 
   @Test
   public void getArbitraryFileFromUri() {
     Path expected = gfs.getPath("/test_file.txt");
-    Assert.assertEquals(expected, Paths.get(expected.toUri()));
+    assertEquals(expected, Paths.get(expected.toUri()));
   }
 
   @Test(expected = FileSystemNotFoundException.class)

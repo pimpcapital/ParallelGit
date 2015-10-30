@@ -5,8 +5,9 @@ import java.nio.file.FileAlreadyExistsException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 
-import org.junit.Assert;
 import org.junit.Test;
+
+import static org.junit.Assert.assertTrue;
 
 public class GitFileSystemProviderCreateDirectoryTest extends AbstractGitFileSystemTest {
 
@@ -15,7 +16,7 @@ public class GitFileSystemProviderCreateDirectoryTest extends AbstractGitFileSys
     initGitFileSystem();
     Path dir = gfs.getPath("/dir");
     provider.createDirectory(dir);
-    Assert.assertTrue(Files.isDirectory(dir));
+    assertTrue(Files.isDirectory(dir));
   }
 
   @Test
@@ -25,7 +26,7 @@ public class GitFileSystemProviderCreateDirectoryTest extends AbstractGitFileSys
     provider.createDirectory(dir);
     Path childFile = dir.resolve("file.txt");
     Files.write(childFile, "some text data".getBytes());
-    Assert.assertTrue(Files.exists(childFile));
+    assertTrue(Files.exists(childFile));
   }
 
   @Test(expected = FileAlreadyExistsException.class)

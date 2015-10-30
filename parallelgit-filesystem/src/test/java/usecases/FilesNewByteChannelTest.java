@@ -8,9 +8,10 @@ import java.nio.file.StandardOpenOption;
 
 import com.beijunyi.parallelgit.filesystem.AbstractGitFileSystemTest;
 import com.beijunyi.parallelgit.filesystem.GitPath;
-import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
+
+import static org.junit.Assert.*;
 
 public class FilesNewByteChannelTest extends AbstractGitFileSystemTest {
 
@@ -30,8 +31,8 @@ public class FilesNewByteChannelTest extends AbstractGitFileSystemTest {
   public void gitByteChannelReadTest() throws IOException {
     try(SeekableByteChannel channel = Files.newByteChannel(file, StandardOpenOption.READ)) {
       ByteBuffer buf = ByteBuffer.allocate(ORIGINAL_TEXT_BYTES.length);
-      Assert.assertEquals(ORIGINAL_TEXT_BYTES.length, channel.read(buf));
-      Assert.assertArrayEquals(ORIGINAL_TEXT_BYTES, buf.array());
+      assertEquals(ORIGINAL_TEXT_BYTES.length, channel.read(buf));
+      assertArrayEquals(ORIGINAL_TEXT_BYTES, buf.array());
     }
   }
 
@@ -40,10 +41,10 @@ public class FilesNewByteChannelTest extends AbstractGitFileSystemTest {
     try(SeekableByteChannel channel = Files.newByteChannel(file, StandardOpenOption.READ)) {
       int size = ORIGINAL_TEXT_BYTES.length / 2;
       ByteBuffer buf = ByteBuffer.allocate(size);
-      Assert.assertEquals(size, channel.read(buf));
+      assertEquals(size, channel.read(buf));
       byte[] subArrayOfOriginal = new byte[size];
       System.arraycopy(ORIGINAL_TEXT_BYTES, 0, subArrayOfOriginal, 0, size);
-      Assert.assertArrayEquals(subArrayOfOriginal, buf.array());
+      assertArrayEquals(subArrayOfOriginal, buf.array());
     }
   }
 
@@ -52,10 +53,10 @@ public class FilesNewByteChannelTest extends AbstractGitFileSystemTest {
     try(SeekableByteChannel channel = Files.newByteChannel(file, StandardOpenOption.READ)) {
       int size = ORIGINAL_TEXT_BYTES.length * 2;
       ByteBuffer buf = ByteBuffer.allocate(size);
-      Assert.assertEquals(ORIGINAL_TEXT_BYTES.length, channel.read(buf));
+      assertEquals(ORIGINAL_TEXT_BYTES.length, channel.read(buf));
       byte[] subArrayOfResult = new byte[ORIGINAL_TEXT_BYTES.length];
       System.arraycopy(buf.array(), 0, subArrayOfResult, 0, ORIGINAL_TEXT_BYTES.length);
-      Assert.assertArrayEquals(ORIGINAL_TEXT_BYTES, subArrayOfResult);
+      assertArrayEquals(ORIGINAL_TEXT_BYTES, subArrayOfResult);
     }
   }
 
@@ -66,12 +67,12 @@ public class FilesNewByteChannelTest extends AbstractGitFileSystemTest {
     try(SeekableByteChannel channel = Files.newByteChannel(file, StandardOpenOption.WRITE)) {
       ByteBuffer buf = ByteBuffer.wrap(data);
       channel.position(overwritePos);
-      Assert.assertEquals(data.length, channel.write(buf));
+      assertEquals(data.length, channel.write(buf));
     }
     byte[] expect = new byte[ORIGINAL_TEXT_BYTES.length];
     System.arraycopy(ORIGINAL_TEXT_BYTES, 0, expect, 0, ORIGINAL_TEXT_BYTES.length);
     System.arraycopy(data, 0, expect, overwritePos, data.length);
-    Assert.assertArrayEquals(expect, Files.readAllBytes(file));
+    assertArrayEquals(expect, Files.readAllBytes(file));
   }
 
   @Test
@@ -79,13 +80,13 @@ public class FilesNewByteChannelTest extends AbstractGitFileSystemTest {
     byte[] data = "test".getBytes();
     try(SeekableByteChannel channel = Files.newByteChannel(file, StandardOpenOption.WRITE)) {
       ByteBuffer buf = ByteBuffer.wrap(data);
-      Assert.assertEquals(data.length, channel.write(buf));
+      assertEquals(data.length, channel.write(buf));
     }
     byte[] expect = new byte[ORIGINAL_TEXT_BYTES.length];
     System.arraycopy(data, 0, expect, 0, data.length);
     System.arraycopy(ORIGINAL_TEXT_BYTES, data.length, expect, data.length, ORIGINAL_TEXT_BYTES.length - data.length);
     byte[] actual = Files.readAllBytes(file);
-    Assert.assertArrayEquals(expect, actual);
+    assertArrayEquals(expect, actual);
   }
 
   @Test
@@ -93,9 +94,9 @@ public class FilesNewByteChannelTest extends AbstractGitFileSystemTest {
     byte[] data = "this is a big data array that will completely overwrite".getBytes();
     try(SeekableByteChannel channel = Files.newByteChannel(file, StandardOpenOption.WRITE)) {
       ByteBuffer buf = ByteBuffer.wrap(data);
-      Assert.assertEquals(data.length, channel.write(buf));
+      assertEquals(data.length, channel.write(buf));
     }
-    Assert.assertArrayEquals(data, Files.readAllBytes(file));
+    assertArrayEquals(data, Files.readAllBytes(file));
   }
 
   @Test
@@ -106,11 +107,11 @@ public class FilesNewByteChannelTest extends AbstractGitFileSystemTest {
     try(SeekableByteChannel channel = Files.newByteChannel(file, StandardOpenOption.WRITE)) {
       channel.position(pos);
       channel.truncate(truncatePos);
-      Assert.assertEquals(truncatePos, channel.size());
-      Assert.assertEquals(pos, channel.position());
+      assertEquals(truncatePos, channel.size());
+      assertEquals(pos, channel.position());
       System.arraycopy(ORIGINAL_TEXT_BYTES, 0, expect, 0, truncatePos);
     }
-    Assert.assertArrayEquals(expect, Files.readAllBytes(file));
+    assertArrayEquals(expect, Files.readAllBytes(file));
   }
 
   @Test
@@ -121,11 +122,11 @@ public class FilesNewByteChannelTest extends AbstractGitFileSystemTest {
     try(SeekableByteChannel channel = Files.newByteChannel(file, StandardOpenOption.WRITE)) {
       channel.position(pos);
       channel.truncate(truncatePos);
-      Assert.assertEquals(truncatePos, channel.size());
-      Assert.assertEquals(truncatePos, channel.position());
+      assertEquals(truncatePos, channel.size());
+      assertEquals(truncatePos, channel.position());
       System.arraycopy(ORIGINAL_TEXT_BYTES, 0, expect, 0, truncatePos);
     }
-    Assert.assertArrayEquals(expect, Files.readAllBytes(file));
+    assertArrayEquals(expect, Files.readAllBytes(file));
   }
 
   @Test(expected = NonReadableChannelException.class)

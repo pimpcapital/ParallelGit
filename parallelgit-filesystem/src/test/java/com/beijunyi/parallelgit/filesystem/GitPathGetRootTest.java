@@ -2,9 +2,10 @@ package com.beijunyi.parallelgit.filesystem;
 
 import java.io.IOException;
 
-import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
+
+import static org.junit.Assert.assertEquals;
 
 public class GitPathGetRootTest extends AbstractGitFileSystemTest {
 
@@ -16,25 +17,25 @@ public class GitPathGetRootTest extends AbstractGitFileSystemTest {
   @Test
   public void absolutePathGetRootTest() {
     GitPath a = gfs.getPath("/a");
-    Assert.assertEquals(gfs.getRootPath(), a.getRoot());
+    assertEquals(gfs.getRootPath(), a.getRoot());
   }
 
   @Test
   public void relativePathGetRootTest() {
     GitPath a = gfs.getPath("a");
-    Assert.assertEquals(gfs.getRootPath(), a.getRoot());
+    assertEquals(gfs.getRootPath(), a.getRoot());
   }
 
   @Test
   public void rootPathGetRootTest() {
     GitPath a = gfs.getPath("/");
-    Assert.assertEquals(gfs.getRootPath(), a.getRoot());
+    assertEquals(gfs.getRootPath(), a.getRoot());
   }
 
   @Test
   public void emptyPathGetRootTest() {
     GitPath a = gfs.getPath("");
-    Assert.assertEquals(gfs.getRootPath(), a.getRoot());
+    assertEquals(gfs.getRootPath(), a.getRoot());
   }
 
 

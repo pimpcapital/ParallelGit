@@ -4,9 +4,10 @@ import java.io.IOException;
 import java.net.URI;
 
 import com.beijunyi.parallelgit.filesystem.utils.GitUriBuilder;
-import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
+
+import static org.junit.Assert.assertEquals;
 
 public class GitFileSystemProviderGetPathTest extends AbstractGitFileSystemTest {
 
@@ -21,7 +22,7 @@ public class GitFileSystemProviderGetPathTest extends AbstractGitFileSystemTest 
                 .file("/some_file.txt")
                 .build();
     GitPath path = provider.getPath(uri);
-    Assert.assertEquals(gfs.getPath("/some_file.txt"), path);
+    assertEquals(gfs.getPath("/some_file.txt"), path);
   }
 
   @Test
@@ -30,7 +31,7 @@ public class GitFileSystemProviderGetPathTest extends AbstractGitFileSystemTest 
                 .file("/")
                 .build();
     GitPath path = provider.getPath(uri);
-    Assert.assertEquals(gfs.getRootPath(), path);
+    assertEquals(gfs.getRootPath(), path);
   }
 
 }

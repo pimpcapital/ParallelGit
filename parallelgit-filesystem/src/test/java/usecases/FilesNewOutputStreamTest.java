@@ -5,8 +5,9 @@ import java.io.OutputStream;
 import java.nio.file.Files;
 
 import com.beijunyi.parallelgit.filesystem.AbstractGitFileSystemTest;
-import org.junit.Assert;
 import org.junit.Test;
+
+import static org.junit.Assert.assertNotNull;
 
 public class FilesNewOutputStreamTest extends AbstractGitFileSystemTest {
 
@@ -17,7 +18,7 @@ public class FilesNewOutputStreamTest extends AbstractGitFileSystemTest {
     commitToMaster();
     initGitFileSystem();
     try(OutputStream outputStream = Files.newOutputStream(gfs.getPath("/file.txt"))) {
-      Assert.assertNotNull(outputStream);
+      assertNotNull(outputStream);
     }
   }
 }

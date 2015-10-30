@@ -6,8 +6,9 @@ import java.nio.file.attribute.FileAttributeView;
 import java.nio.file.attribute.PosixFileAttributeView;
 import javax.annotation.Nonnull;
 
-import org.junit.Assert;
 import org.junit.Test;
+
+import static org.junit.Assert.*;
 
 public class GitFileSystemProviderGetAttributeViewTest extends AbstractGitFileSystemTest {
 
@@ -17,13 +18,13 @@ public class GitFileSystemProviderGetAttributeViewTest extends AbstractGitFileSy
     writeToCache("/file.txt");
     commitToMaster();
     initGitFileSystem();
-    Assert.assertNotNull(provider.getFileAttributeView(gfs.getPath("/file.txt"), FileAttributeView.class));
+    assertNotNull(provider.getFileAttributeView(gfs.getPath("/file.txt"), FileAttributeView.class));
   }
 
   @Test
   public void getFileAttributeViewFromNonExistentFile_shouldBeNotNull() throws IOException {
     initGitFileSystem();
-    Assert.assertNull(provider.getFileAttributeView(gfs.getPath("/non_existent_file.txt"), FileAttributeView.class));
+    assertNull(provider.getFileAttributeView(gfs.getPath("/non_existent_file.txt"), FileAttributeView.class));
   }
 
   @Test
@@ -32,7 +33,7 @@ public class GitFileSystemProviderGetAttributeViewTest extends AbstractGitFileSy
     writeToCache("/file.txt");
     commitToMaster();
     initGitFileSystem();
-    Assert.assertNotNull(provider.getFileAttributeView(gfs.getPath("/file.txt"), BasicFileAttributeView.class));
+    assertNotNull(provider.getFileAttributeView(gfs.getPath("/file.txt"), BasicFileAttributeView.class));
   }
 
   @Test
@@ -41,7 +42,7 @@ public class GitFileSystemProviderGetAttributeViewTest extends AbstractGitFileSy
     writeToCache("/file.txt");
     commitToMaster();
     initGitFileSystem();
-    Assert.assertNotNull(provider.getFileAttributeView(gfs.getPath("/file.txt"), PosixFileAttributeView.class));
+    assertNotNull(provider.getFileAttributeView(gfs.getPath("/file.txt"), PosixFileAttributeView.class));
   }
 
   @Test(expected = UnsupportedOperationException.class)
@@ -50,7 +51,7 @@ public class GitFileSystemProviderGetAttributeViewTest extends AbstractGitFileSy
     writeToCache("/file.txt");
     commitToMaster();
     initGitFileSystem();
-    Assert.assertNotNull(provider.getFileAttributeView(gfs.getPath("/file.txt"), new FileAttributeView() {
+    assertNotNull(provider.getFileAttributeView(gfs.getPath("/file.txt"), new FileAttributeView() {
       @Nonnull
       @Override
       public String name() {

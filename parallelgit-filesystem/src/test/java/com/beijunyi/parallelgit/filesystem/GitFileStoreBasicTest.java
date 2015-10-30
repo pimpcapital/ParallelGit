@@ -2,24 +2,25 @@ package com.beijunyi.parallelgit.filesystem;
 
 import java.io.IOException;
 
-import org.junit.Assert;
 import org.junit.Test;
+
+import static org.junit.Assert.*;
 
 public class GitFileStoreBasicTest extends PreSetupGitFileSystemTest {
 
   @Test
   public void getName_shouldReturnTheFileSystemSessionId() {
-    Assert.assertEquals(gfs.getSessionId(), store.name());
+    assertEquals(gfs.getSessionId(), store.name());
   }
 
   @Test
   public void getType_shouldReturnGitfs() throws IOException {
-    Assert.assertEquals("gitfs", store.type());
+    assertEquals("gitfs", store.type());
   }
 
   @Test
   public void testIsReadOnly_shouldReturnFalse() throws IOException {
-    Assert.assertFalse(store.isReadOnly());
+    assertFalse(store.isReadOnly());
   }
 
 }

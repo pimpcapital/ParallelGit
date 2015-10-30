@@ -5,7 +5,11 @@ import java.nio.file.Files;
 
 import com.beijunyi.parallelgit.filesystem.utils.GitFileSystemBuilder;
 import org.eclipse.jgit.lib.Repository;
-import org.junit.*;
+import org.junit.After;
+import org.junit.Before;
+import org.junit.Test;
+
+import static org.junit.Assert.*;
 
 public class GitFileSystemProviderCopyAcrossSystemsTest extends AbstractGitFileSystemTest {
 
@@ -34,7 +38,7 @@ public class GitFileSystemProviderCopyAcrossSystemsTest extends AbstractGitFileS
     GitPath source = gfs.getPath("/source.txt");
     GitPath target = targetGfs.getPath("/target.txt");
     provider.copy(source, target);
-    Assert.assertTrue(Files.exists(target));
+    assertTrue(Files.exists(target));
   }
 
   @Test
@@ -48,7 +52,7 @@ public class GitFileSystemProviderCopyAcrossSystemsTest extends AbstractGitFileS
     GitPath source = gfs.getPath("/source.txt");
     GitPath target = targetGfs.getPath("/target.txt");
     provider.copy(source, target);
-    Assert.assertArrayEquals(expectedData, Files.readAllBytes(target));
+    assertArrayEquals(expectedData, Files.readAllBytes(target));
   }
 
   @Test
@@ -61,7 +65,7 @@ public class GitFileSystemProviderCopyAcrossSystemsTest extends AbstractGitFileS
     GitPath source = gfs.getPath("/source");
     GitPath target = targetGfs.getPath("/target");
     provider.copy(source, target);
-    Assert.assertTrue(Files.exists(target));
+    assertTrue(Files.exists(target));
   }
 
   @Test
@@ -75,8 +79,8 @@ public class GitFileSystemProviderCopyAcrossSystemsTest extends AbstractGitFileS
     GitPath source = gfs.getPath("/source");
     GitPath target = targetGfs.getPath("/target");
     provider.copy(source, target);
-    Assert.assertTrue(Files.exists(target.resolve("file1.txt")));
-    Assert.assertTrue(Files.exists(target.resolve("file2.txt")));
+    assertTrue(Files.exists(target.resolve("file1.txt")));
+    assertTrue(Files.exists(target.resolve("file2.txt")));
   }
 
   @Test
@@ -92,8 +96,8 @@ public class GitFileSystemProviderCopyAcrossSystemsTest extends AbstractGitFileS
     GitPath source = gfs.getPath("/source");
     GitPath target = targetGfs.getPath("/target");
     provider.copy(source, target);
-    Assert.assertArrayEquals(expectedData1, Files.readAllBytes(target.resolve("file1.txt")));
-    Assert.assertArrayEquals(expectedData2, Files.readAllBytes(target.resolve("file2.txt")));
+    assertArrayEquals(expectedData1, Files.readAllBytes(target.resolve("file1.txt")));
+    assertArrayEquals(expectedData2, Files.readAllBytes(target.resolve("file2.txt")));
   }
 
 }

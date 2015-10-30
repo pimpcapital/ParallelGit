@@ -8,8 +8,9 @@ import java.nio.file.Path;
 import com.beijunyi.parallelgit.filesystem.AbstractGitFileSystemTest;
 import com.beijunyi.parallelgit.filesystem.GitPath;
 import org.eclipse.jgit.lib.Constants;
-import org.junit.Assert;
 import org.junit.Test;
+
+import static org.junit.Assert.*;
 
 public class FilesWriteTest extends AbstractGitFileSystemTest {
 
@@ -22,7 +23,7 @@ public class FilesWriteTest extends AbstractGitFileSystemTest {
     byte[] data = Constants.encode("some plain text data");
     Path file = gfs.getPath("/file.txt");
     Files.write(file, data);
-    Assert.assertArrayEquals(data, Files.readAllBytes(file));
+    assertArrayEquals(data, Files.readAllBytes(file));
   }
 
   @Test
@@ -30,7 +31,7 @@ public class FilesWriteTest extends AbstractGitFileSystemTest {
     initGitFileSystem();
     GitPath file = gfs.getPath("/file.txt");
     Files.write(file, Constants.encode("some plain text data"));
-    Assert.assertTrue(Files.exists(file));
+    assertTrue(Files.exists(file));
   }
 
   @Test(expected = AccessDeniedException.class)

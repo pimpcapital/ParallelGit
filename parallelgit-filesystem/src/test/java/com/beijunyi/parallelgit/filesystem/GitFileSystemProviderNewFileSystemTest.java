@@ -10,8 +10,9 @@ import org.eclipse.jgit.lib.AnyObjectId;
 import org.eclipse.jgit.lib.Repository;
 import org.eclipse.jgit.revwalk.RevCommit;
 import org.eclipse.jgit.revwalk.RevTree;
-import org.junit.Assert;
 import org.junit.Test;
+
+import static org.junit.Assert.*;
 
 public class GitFileSystemProviderNewFileSystemTest extends AbstractGitFileSystemTest {
 
@@ -23,8 +24,8 @@ public class GitFileSystemProviderNewFileSystemTest extends AbstractGitFileSyste
                 .build();
     try(GitFileSystem gfs = provider.newFileSystem(uri, Collections.<String, Object>emptyMap())) {
       Repository repo = gfs.getRepository();
-      Assert.assertFalse(repo.isBare());
-      Assert.assertEquals(repoDir, gfs.getRepository().getWorkTree());
+      assertFalse(repo.isBare());
+      assertEquals(repoDir, gfs.getRepository().getWorkTree());
     }
   }
 
@@ -36,8 +37,8 @@ public class GitFileSystemProviderNewFileSystemTest extends AbstractGitFileSyste
                 .build();
     try(GitFileSystem gfs = provider.newFileSystem(uri, Collections.<String, Object>emptyMap())) {
       Repository repo = gfs.getRepository();
-      Assert.assertTrue(repo.isBare());
-      Assert.assertEquals(repoDir, repo.getDirectory());
+      assertTrue(repo.isBare());
+      assertEquals(repoDir, repo.getDirectory());
     }
   }
 
@@ -50,15 +51,15 @@ public class GitFileSystemProviderNewFileSystemTest extends AbstractGitFileSyste
                 .repository(repoDir)
                 .build();
     try(GitFileSystem gfs = provider.newFileSystem(uri, Collections.singletonMap(GitParams.BRANCH_KEY, "test_branch"))) {
-      Assert.assertEquals("test_branch", gfs.getBranch());
+      assertEquals("test_branch", gfs.getBranch());
 
       RevCommit baseCommit = gfs.getCommit();
-      Assert.assertNotNull(baseCommit);
-      Assert.assertEquals(commit, baseCommit);
+      assertNotNull(baseCommit);
+      assertEquals(commit, baseCommit);
 
       AnyObjectId baseTree = gfs.getTree();
-      Assert.assertNotNull(baseTree);
-      Assert.assertEquals(commit.getTree(), baseTree);
+      assertNotNull(baseTree);
+      assertEquals(commit.getTree(), baseTree);
     }
   }
 
@@ -66,20 +67,20 @@ public class GitFileSystemProviderNewFileSystemTest extends AbstractGitFileSyste
   public void openWithRevision() throws IOException {
     initFileRepository(true);
     writeToCache("some_file");
-    RevCommit commit = commitToMaster(), repo;
+    RevCommit commit = commitToMaster();
     URI uri = GitUriBuilder.prepare()
                 .repository(repoDir)
                 .build();
     try(GitFileSystem gfs = provider.newFileSystem(uri, Collections.singletonMap(GitParams.REVISION_KEY, commit))) {
-      Assert.assertNull(gfs.getBranch());
+      assertNull(gfs.getBranch());
 
       RevCommit baseCommit = gfs.getCommit();
-      Assert.assertNotNull(baseCommit);
-      Assert.assertEquals(commit, baseCommit);
+      assertNotNull(baseCommit);
+      assertEquals(commit, baseCommit);
 
       AnyObjectId baseTree = gfs.getTree();
-      Assert.assertNotNull(baseTree);
-      Assert.assertEquals(commit.getTree(), baseTree);
+      assertNotNull(baseTree);
+      assertEquals(commit.getTree(), baseTree);
     }
   }
 
@@ -92,13 +93,13 @@ public class GitFileSystemProviderNewFileSystemTest extends AbstractGitFileSyste
                 .repository(repoDir)
                 .build();
     try (GitFileSystem gfs = provider.newFileSystem(uri, Collections.singletonMap(GitParams.TREE_KEY, tree))) {
-      Assert.assertNull(gfs.getBranch());
+      assertNull(gfs.getBranch());
 
-      Assert.assertNull(gfs.getCommit());
+      assertNull(gfs.getCommit());
 
       AnyObjectId baseTree = gfs.getTree();
-      Assert.assertNotNull(baseTree);
-      Assert.assertEquals(tree, baseTree);
+      assertNotNull(baseTree);
+      assertEquals(tree, baseTree);
     }
   }
 
