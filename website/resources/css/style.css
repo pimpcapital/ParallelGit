@@ -14,11 +14,19 @@ svg {
 }
 
 pre {
-  background-color: #bf5a16;
-  border: 3px #C48E6A solid;
+  border: 3px #bf5a16 solid;
   color: #ebebeb;
   font-size: 13px;
-  padding: 3px;
+  padding: 0;
+}
+
+img {
+  border: 3px #bf5a16 solid;
+  background: #9BA7B3;
+}
+
+a[ng-click] {
+  cursor: pointer;
 }
 
 ::selection {
@@ -32,6 +40,7 @@ pre {
   right: 0;
   border: 0;
   z-index: 1040;
+  background: transparent;
 }
 
 .navbar {
