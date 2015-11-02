@@ -165,6 +165,10 @@ a.btn-xs i.fa {
   color: #bf5a16;
 }
 
+.label-highlight {
+  background-color: #bf5a16;
+}
+
 .footer {
   position: absolute;
   bottom: 0;
@@ -179,20 +183,24 @@ a.btn-xs i.fa {
 
 .sticky {
   position: fixed;
+  margin-top: 40px;
 }
 
 .sidebar {
-  margin-top: 40px;
   background-color: #485563;
+  margin-top: 5px;
+  margin-bottom: 20px;
 }
 
-.sidebar a {
+.sidebar .nav > li > a {
   cursor: pointer;
   border-left: #485563 solid 5px;
   user-select: none;
+  padding: 5px 10px;
+  font-size: 13px;
 }
 
-.sidebar a:hover {
+.sidebar .nav > li > a:hover {
   border-left: #bf5a16 solid 5px;
 }
 

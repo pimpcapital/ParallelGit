@@ -68,7 +68,7 @@ public class CopyFileTest extends AbstractParallelGitTest {
   }
 
   @Test
-  public void copyDirectoryToAnotherGitFileSystem() throws IOException {
+  public void copyDirectoryToAnotherFileSystem() throws IOException {
     Repository otherRepo = new TestRepository();                                          // set up the other repository
 
     try(GitFileSystem gfs = GitFileSystemBuilder.forRevision("my_branch", repo);          // open source git file system
