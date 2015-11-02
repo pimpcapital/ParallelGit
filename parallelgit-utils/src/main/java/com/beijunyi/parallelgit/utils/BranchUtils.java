@@ -2,6 +2,7 @@ package com.beijunyi.parallelgit.utils;
 
 import java.io.IOException;
 import java.util.List;
+import java.util.Map;
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 
@@ -18,6 +19,11 @@ public final class BranchUtils {
     if(head == null)
       throw new NoSuchBranchException(branchRef);
     return CommitUtils.getCommitHistory(head, repo);
+  }
+
+  @Nonnull
+  public static Map<String, Ref> getBranches(@Nonnull Repository repo) throws IOException {
+    return repo.getRefDatabase().getRefs(Constants.R_HEADS);
   }
 
   public static boolean branchExists(@Nonnull String name, @Nonnull Repository repo) throws IOException {
