@@ -32,13 +32,13 @@ public class OpenRepositoryTest extends AbstractParallelGitTest {
 
   @Test
   public void autoDetectAndOpenNonBareRepository() throws IOException {
-    RepositoryUtils.createRepository(repoDir);                                 // prepare a non-bare repository
+    RepositoryUtils.createRepository(repoDir, false);                          // prepare a non-bare repository
 
     Repository repo = RepositoryUtils.openRepository(repoDir);                 // open the repository
 
     // check
     assertEquals(repoDir, repo.getWorkTree());                                 // the worktree equals repoDir
-    assertEquals(new File(repoDir, DOT_GIT), repo.getWorkTree());              // the directory equals repoDir/.git
+    assertEquals(new File(repoDir, DOT_GIT), repo.getDirectory());             // the directory equals repoDir/.git
   }
 
 }
