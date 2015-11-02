@@ -19,12 +19,12 @@ public class ChangeRepositorySettingsTest extends AbstractParallelGitTest {
 
   @Test
   public void changeDefaultCommitter() throws IOException {
-    RepositoryUtils.setDefaultCommitter("example", "example@email.com", repo);
+    RepositoryUtils.setDefaultCommitter("example", "example@email.com", repo); // set default committer
 
     // check
-    PersonIdent defaultCommitter = new PersonIdent(repo);
-    assertEquals("example", defaultCommitter.getName());
-    assertEquals("example@email.com", defaultCommitter.getEmailAddress());
+    PersonIdent defaultCommitter = new PersonIdent(repo);                      // create a new PersonIdent
+    assertEquals("example", defaultCommitter.getName());                       // the name equals input name
+    assertEquals("example@email.com", defaultCommitter.getEmailAddress());     // the email equals input email
   }
 
 }

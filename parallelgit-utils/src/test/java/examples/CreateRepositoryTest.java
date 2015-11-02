@@ -9,6 +9,7 @@ import org.eclipse.jgit.lib.Repository;
 import org.junit.Before;
 import org.junit.Test;
 
+import static org.eclipse.jgit.lib.Constants.DOT_GIT;
 import static org.junit.Assert.*;
 
 public class CreateRepositoryTest extends AbstractParallelGitTest {
@@ -20,22 +21,22 @@ public class CreateRepositoryTest extends AbstractParallelGitTest {
 
   @Test
   public void createBareRepository() throws IOException {
-    Repository repo = RepositoryUtils.createRepository(repoDir);
+    Repository repo = RepositoryUtils.createRepository(repoDir);               // create a bare repository
 
     // check
-    assertTrue(repo.isBare());
-    assertEquals(repoDir, repo.getDirectory());
+    assertTrue(repo.isBare());                                                 // the repository is bare
+    assertEquals(repoDir, repo.getDirectory());                                // the directory equals repoDir
     // repo.getWorkTree(); -> NoWorkTreeException
   }
 
   @Test
   public void createNonBareRepository() throws IOException {
-    Repository repo = RepositoryUtils.createRepository(repoDir, false);
+    Repository repo = RepositoryUtils.createRepository(repoDir, false);         // create a non-bare repository
 
     // check
-    assertFalse(repo.isBare());
-    assertEquals(repoDir, repo.getWorkTree());
-    assertEquals(new File(repoDir, ".git"), repo.getDirectory());
+    assertFalse(repo.isBare());                                                 // the repository is not bare
+    assertEquals(repoDir, repo.getWorkTree());                                  // the wortree equals repoDir
+    assertEquals(new File(repoDir, DOT_GIT), repo.getDirectory());              // the directory equals repoDir/.git
   }
 
 }

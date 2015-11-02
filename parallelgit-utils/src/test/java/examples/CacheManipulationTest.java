@@ -22,40 +22,40 @@ public class CacheManipulationTest extends AbstractParallelGitTest {
 
   @Test
   public void insertFile() throws IOException {
-    DirCache cache = DirCache.newInCore();
+    DirCache cache = DirCache.newInCore();                                     // create a new cache
 
-    byte[] fileContent = "This is an example".getBytes();
-    AnyObjectId fileBlob = ObjectUtils.insertBlob(fileContent, repo);
-    CacheUtils.addFile("/my_file.txt", fileBlob, cache);
+    byte[] fileContent = "This is an example".getBytes();                      // prepare data
+    AnyObjectId fileBlob = ObjectUtils.insertBlob(fileContent, repo);          // insert blob and get the blob id
+    CacheUtils.addFile("/my_file.txt", fileBlob, cache);                       // create a new file with this blob
 
     //check
-    assertTrue(CacheUtils.entryExists("/my_file.txt", cache));                           // the file exists
-    assertEquals(fileBlob, CacheUtils.getBlob("/my_file.txt", cache));                   // the blob is correct
+    assertTrue(CacheUtils.entryExists("/my_file.txt", cache));                 // the file exists
+    assertEquals(fileBlob, CacheUtils.getBlob("/my_file.txt", cache));         // the blob is correct
   }
 
   @Test
   public void deleteFile() throws IOException {
-    DirCache cache = DirCache.newInCore();                                               // create a new cache
-    CacheUtils.addFile("/my_file.txt", someObjectId(), cache);                           // prepare "my_file.txt"
+    DirCache cache = DirCache.newInCore();                                     // create a new cache
+    CacheUtils.addFile("/my_file.txt", someObjectId(), cache);                 // prepare "my_file.txt"
 
-    CacheUtils.deleteFile("/my_file.txt", cache);                                        // delete the file
+    CacheUtils.deleteFile("/my_file.txt", cache);                              // delete the file
 
     //check
-    assertFalse(CacheUtils.entryExists("/my_file.txt", cache));                          // the file does not exist
+    assertFalse(CacheUtils.entryExists("/my_file.txt", cache));                // the file does not exist
   }
 
   @Test
   public void updateFile() throws IOException {
-    DirCache cache = DirCache.newInCore();
-    CacheUtils.addFile("/my_file.txt", someObjectId(), cache);                           // prepare "my_file.txt"
+    DirCache cache = DirCache.newInCore();                                     // create a new cache
+    CacheUtils.addFile("/my_file.txt", someObjectId(), cache);                 // prepare "my_file.txt"
 
-    byte[] fileContent = "This is an example".getBytes();
-    AnyObjectId fileBlob = ObjectUtils.insertBlob(fileContent, repo);
-    CacheUtils.updateFileBlob("/my_file.txt", fileBlob, cache);
+    byte[] fileContent = "This is an example".getBytes();                      // prepare data
+    AnyObjectId fileBlob = ObjectUtils.insertBlob(fileContent, repo);          // insert blob and get the blob id
+    CacheUtils.updateFileBlob("/my_file.txt", fileBlob, cache);                // create a new file with this blob
 
     //check
-    assertTrue(CacheUtils.entryExists("/my_file.txt", cache));                           // the file exists
-    assertEquals(fileBlob, CacheUtils.getBlob("/my_file.txt", cache));                   // the blob is correct
+    assertTrue(CacheUtils.entryExists("/my_file.txt", cache));                 // the file exists
+    assertEquals(fileBlob, CacheUtils.getBlob("/my_file.txt", cache));         // the blob is correct
   }
 
 }
