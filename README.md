@@ -66,20 +66,20 @@ Examples
 
 GitFileSystem fully supports the Java JDK 7 nio API. You can access your in-memory worktree the same way as you access a normal directory in your hard drive.
 
-###Create GitFileSystem
+#####Create GitFileSystem
 ```java
 File myRepo = new File("/home/repo");
 GitFileSystem gfs = GitFileSystemBuilder.forRevision("master", myRepo));
 }
 ```
 
-###Close GitFileSystem
+#####Close GitFileSystem
 ```java
 GitFileSystem gfs = ...;
 gfs.close();
 ```
 
-###Read file
+#####Read file
 ```java
 GitFileSystem gfs = ...;
 Path file = gfs.getPath("/myFile.txt");
@@ -92,7 +92,7 @@ Path file = gfs.getPath("/myFile.txt");
 InputStream input = Files.newInputStream(file);
 ```
 
-###Write file
+#####Write file
 ```java
 GitFileSystem gfs = ...;
 Path file = gfs.getPath("/myFile.txt");
@@ -106,7 +106,7 @@ Path file = gfs.getPath("/myFile.txt");
 InputStream output = Files.newOutputStream(file);
 ```
 
-###Copy file
+#####Copy file
 ```java
 GitFileSystem gfs = ...;
 Path source = gfs.getPath("/source.txt");
@@ -114,7 +114,7 @@ Path target = gfs.getPath("/target.txt");
 Files.write(source, target);
 ```
  
-###Move/Rename file
+#####Move/Rename file
 ```java
 GitFileSystem gfs = ...;
 Path source = gfs.getPath("/source.txt");
@@ -122,14 +122,14 @@ Path target = gfs.getPath("/target.txt");
 Files.move(source, target);
 ```
 
-###Delete file
+#####Delete file
 ```java
 GitFileSystem gfs = ...;
 Path file = gfs.getPath("/myFile.txt");
 Files.delete(file);
 ```
 
-###Create directory
+#####Create directory
 ```java
 GitFileSystem gfs = ...;
 Path myDir = gfs.getPath("/myDirectory");
@@ -142,7 +142,7 @@ Path myDir = gfs.getPath("/dir1/dir2/dir3");
 Files.createDirectories(myDir);
 ```
 
-###Iterate directory
+#####Iterate directory
 ```java
 GitFileSystem gfs = ...;
 Path myDir = gfs.getPath("/myDirectory");
@@ -152,7 +152,7 @@ for(Path child : dirStream) {
 }
 ```
 
-###Commit changes
+#####Commit changes
 ```java
 GitFileSystem gfs = ...;
 RevCommit commit = Requests.commit(gfs)
