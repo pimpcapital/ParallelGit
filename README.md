@@ -17,7 +17,7 @@ The common usage of Git follows this pattern.
 
 Checkout -> Make changes to the worktree -> Commit changes
 
-The standard way of modifying a repository is by changing its worktree and creating a commit. This is quite convenient for common users since a worktree is just a normal directory in your hard drive and you can use all the OS built-in file system facilities to access the contents in the directory. When you create a commit, files and directories are automatically converted into blobs and trees and persisted in the secret dot git directory.
+The standard way of modifying a repository is by changing its worktree and creating a commit. This is quite convenient for common users since a worktree is just a normal directory in your hard drive and you can use all the OS built-in file system facilities to access the contents in the directory. When you create a commit, files and directories are automatically converted into blobs and trees and persisted in the [secret dot git directory](https://git-scm.com/book/en/v1/Git-Internals).
 
 Everything is smooth and easy until you try to use Git in a server role application. A normal repository only has one worktree, and one worktree only has one state (checked out revision). When two users want to use one repository, the second user must wait for the first user to exit before he can safely enter and access the repository. The worktree becomes a scarce resource which all users fight for. The hard drive becomes a major performance bottleneck as the system has to perform a checkout every time a new user enters the repository.
 
