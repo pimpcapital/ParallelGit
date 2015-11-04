@@ -19,7 +19,7 @@ Checkout a branch &#8594; Make changes to the working directory &#8594; Commit c
 
 The standard way of modifying a repository is by changing its [working directory](https://git-scm.com/book/en/v2/Getting-Started-Git-Basics) and creating a commit. This is quite convenient for common users since a working directory is just a normal directory in your hard drive and you can use all the OS built-in file system facilities to access the contents in the directory. When you create a commit, files and directories are automatically converted into blobs and trees, which are then persisted in the [secret dot git directory](https://git-scm.com/book/en/v1/Git-Internals).
 
-Everything is smooth and easy until you try to use Git in a server role application. A repository (by default) only has one working directory, and one working directory only has one state (checked out revision). When two users want to use one repository, the second user must wait for the first user to exit before he can safely enter and access the repository. The working directory becomes a scarce resource which all users fight for. The hard drive becomes a major performance bottleneck as the system has to perform a checkout every time a user enters the repository.
+Everything is smooth and easy until you try to use Git in a server role application. A repository (by default) only has one working directory, and one working directory only has one state (checked out revision). When two users want to use one repository, the second user must wait for the first user to exit before he can safely use the repository. The working directory becomes a scarce resource which all users fight for. The hard drive becomes a major performance bottleneck as the system has to perform a force checkout every time a user enters the repository.
 
 
 The goals
@@ -64,7 +64,7 @@ Gradle:
 Examples
 --------
 
-GitFileSystem fully supports the Java JDK 7 nio API. You can access your in-memory worktree the same way as you access a normal directory in your hard drive.
+GitFileSystem fully supports the Java JDK 7 nio API. You can access your in-memory working directory the same way as you access a normal directory in your hard drive.
 
 #####Create GitFileSystem
 ```java
