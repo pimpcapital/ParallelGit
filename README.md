@@ -70,7 +70,6 @@ GitFileSystem fully supports the Java JDK 7 nio API. You can access your in-memo
 ```java
 File myRepo = new File("/home/repo");
 GitFileSystem gfs = GitFileSystemBuilder.forRevision("master", myRepo));
-}
 ```
 
 #####Close GitFileSystem
