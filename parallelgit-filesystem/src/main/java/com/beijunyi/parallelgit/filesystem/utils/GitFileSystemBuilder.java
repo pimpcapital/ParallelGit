@@ -59,6 +59,14 @@ public class GitFileSystemBuilder {
   }
 
   @Nonnull
+  public static GitFileSystem forRevision(@Nonnull String revision, @Nonnull String repoDir) throws IOException {
+    return prepare()
+             .repository(repoDir)
+             .revision(revision)
+             .build();
+  }
+
+  @Nonnull
   public static GitFileSystemBuilder fromUri(@Nonnull URI uri, @Nonnull Map<String, ?> properties) {
     return prepare()
              .repository(GitUriUtils.getRepository(uri))
