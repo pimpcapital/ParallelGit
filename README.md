@@ -15,11 +15,11 @@ The problems
 
 The common usage of Git follows this pattern.
 
-Checkout -> Make changes to the worktree -> Commit changes
+Checkout a branch &#8594; Make changes to the working directory &#8594; Commit changes
 
-The standard way of modifying a repository is by changing its worktree and creating a commit. This is quite convenient for common users since a worktree is just a normal directory in your hard drive and you can use all the OS built-in file system facilities to access the contents in the directory. When you create a commit, files and directories are automatically converted into blobs and trees and persisted in the [secret dot git directory](https://git-scm.com/book/en/v1/Git-Internals).
+The standard way of modifying a repository is by changing its [working directory](https://git-scm.com/book/en/v2/Getting-Started-Git-Basics) and creating a commit. This is quite convenient for common users since a working directory is just a normal directory in your hard drive and you can use all the OS built-in file system facilities to access the contents in the directory. When you create a commit, files and directories are automatically converted into blobs and trees, which are then persisted in the [secret dot git directory](https://git-scm.com/book/en/v1/Git-Internals).
 
-Everything is smooth and easy until you try to use Git in a server role application. A normal repository only has one worktree, and one worktree only has one state (checked out revision). When two users want to use one repository, the second user must wait for the first user to exit before he can safely enter and access the repository. The worktree becomes a scarce resource which all users fight for. The hard drive becomes a major performance bottleneck as the system has to perform a checkout every time a new user enters the repository.
+Everything is smooth and easy until you try to use Git in a server role application. A repository (by default) only has one working directory, and one working directory only has one state (checked out revision). When two users want to use one repository, the second user must wait for the first user to exit before he can safely enter and access the repository. The working directory becomes a scarce resource which all users fight for. The hard drive becomes a major performance bottleneck as the system has to perform a checkout every time a user enters the repository.
 
 
 The goals
@@ -27,11 +27,11 @@ The goals
 
 For a Git based application to serve multiple users simultaneously it must:
 
-1. Allow multiple worktrees to exist at the same time
-2. Be able to create new worktree on demand
-3. Be able to remove worktree on demand
+1. Allow multiple working directories to exist at the same time
+2. Be able to create new working directories on demand
+3. Be able to remove working directories on demand
 
-Additionally, the creation and removal of worktree should be inexpensive.
+More importantly, the creation and removal of working directories must be inexpensive.
 
 
 The way we play
