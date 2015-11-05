@@ -22,22 +22,22 @@ public class CreateBranchTest extends AbstractParallelGitTest {
 
   @Test
   public void createBranchFromAnotherBranch() throws IOException {
-    BranchUtils.createBranch("my_branch", "master", repo);                               // create branch
+    BranchUtils.createBranch("my_branch", "master", repo);                     // create branch
 
     // check
-    assertTrue(BranchUtils.branchExists("my_branch", repo));                             // "my_branch" exists
-    assertEquals(CommitUtils.getCommit("master", repo),                                  // the heads of the two branches equal
+    assertTrue(BranchUtils.branchExists("my_branch", repo));                   // "my_branch" exists
+    assertEquals(CommitUtils.getCommit("master", repo),                        // the heads of the two branches equal
                   CommitUtils.getCommit("my_branch", repo));
   }
 
   @Test
   public void createBranchFromArbitraryCommit() throws IOException {
-    AnyObjectId commit = repo.resolve("master");                                         // get the head commit of "master"
-    BranchUtils.createBranch("my_branch", commit, repo);                                 // create branch
+    AnyObjectId commit = repo.resolve("master");                               // get the head commit of "master"
+    BranchUtils.createBranch("my_branch", commit, repo);                       // create branch
 
     // check
-    assertTrue(BranchUtils.branchExists("my_branch", repo));                             // "my_branch" exists
-    assertEquals(commit, CommitUtils.getCommit("my_branch", repo));                      // the head commit equals to the input commit
+    assertTrue(BranchUtils.branchExists("my_branch", repo));                   // "my_branch" exists
+    assertEquals(commit, CommitUtils.getCommit("my_branch", repo));            // the head commit equals to the input commit
   }
 
 }

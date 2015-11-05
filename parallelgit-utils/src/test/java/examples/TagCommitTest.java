@@ -22,22 +22,22 @@ public class TagCommitTest extends AbstractParallelGitTest {
 
   @Test
   public void tagBranchHeadCommit() throws IOException {
-    TagUtils.tagCommit("my_tag", "my_branch", repo);                                     // tag branch head
+    TagUtils.tagCommit("my_tag", "my_branch", repo);                           // tag branch head
 
     // check
-    assertTrue(TagUtils.tagExists("my_tag", repo));                                      // "my_tag" exists
-    assertEquals(CommitUtils.getCommit("my_branch", repo),                               // the tagged commit equals to the branch head
+    assertTrue(TagUtils.tagExists("my_tag", repo));                            // "my_tag" exists
+    assertEquals(CommitUtils.getCommit("my_branch", repo),                     // the tagged commit equals to the branch head
                   TagUtils.getTaggedCommit("my_tag", repo));
   }
 
   @Test
   public void tagArbitraryCommit() throws IOException {
-    AnyObjectId commit = repo.resolve("my_branch");                                      // get the head commit of "my_branch"
-    TagUtils.tagCommit("my_tag", commit, repo);                                          // tag commit
+    AnyObjectId commit = repo.resolve("my_branch");                            // get the head commit of "my_branch"
+    TagUtils.tagCommit("my_tag", commit, repo);                                // tag commit
 
     // check
-    assertTrue(TagUtils.tagExists("my_tag", repo));                                      // "my_tag" exists
-    assertEquals(commit, TagUtils.getTaggedCommit("my_tag", repo));                      // the tagged commit equals to the input commit
+    assertTrue(TagUtils.tagExists("my_tag", repo));                            // "my_tag" exists
+    assertEquals(commit, TagUtils.getTaggedCommit("my_tag", repo));            // the tagged commit equals to the input commit
   }
 
 }

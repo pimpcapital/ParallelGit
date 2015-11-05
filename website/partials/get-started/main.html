@@ -70,8 +70,32 @@
   <br/>
 
   <div class="page-header">
-    <h3>Create a repository</h3>
+    <h3>Create a new repository</h3>
   </div>
+  You have 2 options when you create a repository: <u>bare</u> vs <u>normal (non-bare)</u>:<br/>
+  A normal repository consist of a <u>working directory</u> and a hidden <u>dot git</u> directory. All the blobs and references are stored inside the <u>dot git</u> directory.<br/>
+  A bare repository does not have a working directory. All the Git data is stored in the directory where the the repository is created.<br/>
+  <br/>
+  To create a normal repository:
+  <div hljs language="java" include="'resources/code/get-started/create_normal_repository.txt'"></div>
+  <br/>
+  To create a bare repository:
+  <div hljs language="java" include="'resources/code/get-started/create_bare_repository.txt'"></div>
+  <br/>
+  <br/>
+
+  <div class="page-header">
+    <h3>Populate the repository</h3>
+  </div>
+  There are 2 ways to get stuff into a repository. The first way is through <u>GitFileSystem</u>:
+  <div hljs language="java" include="'resources/code/get-started/populate_repository_gfs.txt'"></div>
+  <br/>
+  Alternatively, you can commit changes with <u>ParallelGit Commit Command</u>:
+  <div hljs language="java" include="'resources/code/get-started/populate_repository_command.txt'"></div>
+  <br/>
+  More examples can be found <a ng-href="#/examples">here</a>.
+  <br/>
+  <br/>
 
   <div class="page-header">
     <h3>Trouble shooting</h3>
