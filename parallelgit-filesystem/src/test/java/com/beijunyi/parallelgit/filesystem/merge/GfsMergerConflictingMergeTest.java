@@ -1,6 +1,8 @@
 package com.beijunyi.parallelgit.filesystem.merge;
 
 import com.beijunyi.parallelgit.AbstractParallelGitTest;
+import org.eclipse.jgit.api.CherryPickResult;
+import org.eclipse.jgit.api.Git;
 import org.eclipse.jgit.lib.FileMode;
 import org.eclipse.jgit.revwalk.RevCommit;
 import org.junit.Before;
@@ -42,6 +44,48 @@ public class GfsMergerConflictingMergeTest extends AbstractParallelGitTest {
     writeToCache("/test_file.txt", "some text data 2");
     RevCommit theirs = commit(base);
 
+  }
+
+  @Test
+  public void mergeFileConflictingWithDirectory_() throws Exception {
+    RevCommit base = commit(null);
+
+    clearCache();
+    writeToCache("/test_file/file.txt");
+    RevCommit ours = commit(base);
+
+    clearCache();
+    writeToCache("/test_file");
+    RevCommit theirs = commit(base);
+
+    Git git = new Git(repo);
+    git.branchCreate().setName("test_branch").setStartPoint(ours).call();
+    git.checkout().setName("test_branch").call();
+
+    CherryPickResult result = git.cherryPick().include(theirs).call();
+
+    System.currentTimeMillis();
+  }
+
+  @Test
+  public void mergeDirectoryConflictingWithFile_() throws Exception {
+    RevCommit base = commit(null);
+
+    clearCache();
+    writeToCache("/test_file");
+    RevCommit ours = commit(base);
+
+    clearCache();
+    writeToCache("/test_file/file.txt");
+    RevCommit theirs = commit(base);
+
+    Git git = new Git(repo);
+    git.branchCreate().setName("test_branch").setStartPoint(ours).call();
+    git.checkout().setName("test_branch").call();
+
+    CherryPickResult result = git.cherryPick().include(theirs).call();
+
+    System.currentTimeMillis();
   }
 
 }

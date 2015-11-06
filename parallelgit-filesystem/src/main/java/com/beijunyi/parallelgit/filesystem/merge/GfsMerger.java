@@ -102,18 +102,32 @@ public class GfsMerger extends ResolveMerger {
     readTreeNodes();
     prepareDirectory();
 
-    if(oursIsNotChanged())
+    if(oursIsNotChanged()) {
       applyTheirs();
-    else if(theirsIsNotChanged())
+      return false;
+    }
+
+    if(theirsIsNotChanged()) {
       applyOurs();
-    else if(bothHaveSameBlob())
-      applyCommonBlob();
-    else if(bothHaveBlob())
+      return false;
+    }
+
+    if(bothHaveSameId()) {
+      applyCommonChanges();
+      return false;
+    }
+
+    if(bothAreBlob()) {
       mergeAndApplyBlob();
-    else {
-      //TODO: file directory conflicts
+      return false;
+    }
+
+    if(bothAreTree()) {
+      addDirectory();
       return true;
     }
+
+    handleFileDirectoryConflict();
     return false;
   }
 
@@ -140,9 +154,10 @@ public class GfsMerger extends ResolveMerger {
     return baseMode == ourMode && baseId.equals(ourId);
   }
 
-  private void applyTheirs() {
+  private boolean applyTheirs() {
     if(theirMode != FileMode.TYPE_MISSING)
       insertNode(theirMode, theirId);
+    return false;
   }
 
   private boolean theirsIsNotChanged() {
@@ -154,11 +169,11 @@ public class GfsMerger extends ResolveMerger {
       insertNode(ourMode, ourId);
   }
 
-  private boolean bothHaveSameBlob() {
+  private boolean bothHaveSameId() {
     return ourId.equals(theirId);
   }
 
-  private void applyCommonBlob() {
+  private void applyCommonChanges() {
     int mergedMode = mergeFileModes();
     if(mergedMode != FileMode.TYPE_MISSING)
       insertNode(mergedMode, ourId);
@@ -183,7 +198,7 @@ public class GfsMerger extends ResolveMerger {
     return FileMode.TYPE_MISSING;
   }
 
-  private boolean bothHaveBlob() {
+  private boolean bothAreBlob() {
     return ourMode != FileMode.TYPE_TREE && theirMode != FileMode.TYPE_TREE;
   }
 
@@ -253,6 +268,21 @@ public class GfsMerger extends ResolveMerger {
 
   private void addConflict() {
     //TODO: save conflict
+  }
+
+  private boolean bothAreTree() {
+    return ourMode == FileMode.TYPE_TREE && theirMode == FileMode.TYPE_TREE;
+  }
+
+  private void addDirectory() {
+    DirectoryNode node = DirectoryNode.newDirectory(currentDirectory);
+    addChild(node);
+    currentDirectory = node;
+  }
+
+  private void handleFileDirectoryConflict() {
+    unmergedPaths.add(path);
+    insertNode(ourMode, ourId);
   }
 
 }

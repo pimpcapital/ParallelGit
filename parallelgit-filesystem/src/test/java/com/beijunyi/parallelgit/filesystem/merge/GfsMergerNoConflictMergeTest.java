@@ -70,6 +70,24 @@ public class GfsMergerNoConflictMergeTest extends AbstractParallelGitTest {
   }
 
   @Test
+  public void whenOurCommitAndTheirCommitInsertDifferentFilesInOneDirectory_bothFilesShouldExistInTheResultTree() throws IOException {
+    AnyObjectId base = commit(null);
+
+    clearCache();
+    writeToCache("/dir/ours.txt");
+    AnyObjectId ours = commit(base);
+
+    clearCache();
+    writeToCache("/dir/theirs.txt");
+    AnyObjectId theirs = commit(base);
+
+    merger.merge(ours, theirs);
+    AnyObjectId tree = merger.getResultTreeId();
+    assertTrue(TreeUtils.exists("/dir/ours.txt", tree, repo));
+    assertTrue(TreeUtils.exists("/dir/theirs.txt", tree, repo));
+  }
+
+  @Test
   public void whenOurAndTheirHaveTheSameInsertion_theFileShouldExistInTheResultTree() throws IOException {
     AnyObjectId base = commit(null);
     byte[] bytes = "same insertion".getBytes();
@@ -85,6 +103,42 @@ public class GfsMergerNoConflictMergeTest extends AbstractParallelGitTest {
     merger.merge(ours, theirs);
     AnyObjectId tree = merger.getResultTreeId();
     assertTrue(TreeUtils.exists("/same_insertion.txt", tree, repo));
+  }
+
+  @Test
+  public void whenOursAndTheirsInsertTheSameFile_theFileShouldExistInTheResultTree() throws IOException {
+    AnyObjectId base = commit(null);
+    byte[] bytes = "same insertion".getBytes();
+
+    clearCache();
+    writeToCache("/same_insertion.txt", bytes);
+    AnyObjectId ours = commit(base);
+
+    clearCache();
+    writeToCache("/same_insertion.txt", bytes);
+    AnyObjectId theirs = commit(base);
+
+    merger.merge(ours, theirs);
+    AnyObjectId tree = merger.getResultTreeId();
+    assertTrue(TreeUtils.exists("/same_insertion.txt", tree, repo));
+  }
+
+  @Test
+  public void whenOursAndTheirsInsertTheSameDirectory_theDirectoryShouldExistInTheResultTree() throws IOException {
+    AnyObjectId base = commit(null);
+    byte[] bytes = "same insertion".getBytes();
+
+    clearCache();
+    writeToCache("/dir/same_insertion.txt", bytes);
+    AnyObjectId ours = commit(base);
+
+    clearCache();
+    writeToCache("/dir/same_insertion.txt", bytes);
+    AnyObjectId theirs = commit(base);
+
+    merger.merge(ours, theirs);
+    AnyObjectId tree = merger.getResultTreeId();
+    assertTrue(TreeUtils.exists("/dir", tree, repo));
   }
 
   @Test
