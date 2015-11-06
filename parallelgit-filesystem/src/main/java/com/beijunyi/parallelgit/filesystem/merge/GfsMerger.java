@@ -120,11 +120,11 @@ public class GfsMerger extends ResolveMerger {
     path = tw.getPathString();
     name = tw.getNameString();
     baseMode = baseTree.getEntryRawMode();
-    baseId = baseTree.getEntryObjectId();
+    baseId = baseMode != FileMode.TYPE_MISSING ? baseTree.getEntryObjectId() : ObjectId.zeroId();
     ourMode = ourTree.getEntryRawMode();
-    ourId = ourTree.getEntryObjectId();
+    ourId = ourMode != FileMode.TYPE_MISSING ? ourTree.getEntryObjectId() : ObjectId.zeroId();
     theirMode = theirTree.getEntryRawMode();
-    theirId = theirTree.getEntryObjectId();
+    theirId = theirMode != FileMode.TYPE_MISSING ? theirTree.getEntryObjectId() : ObjectId.zeroId();
   }
 
   private boolean oursIsNotChanged() {
