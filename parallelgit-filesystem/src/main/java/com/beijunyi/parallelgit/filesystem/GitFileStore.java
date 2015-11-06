@@ -10,24 +10,26 @@ import javax.annotation.Nullable;
 import com.beijunyi.parallelgit.filesystem.exceptions.NoTreeException;
 import com.beijunyi.parallelgit.filesystem.io.DirectoryNode;
 import com.beijunyi.parallelgit.filesystem.io.GfsFileAttributeView;
-import com.beijunyi.parallelgit.filesystem.io.GfsIO;
 import org.eclipse.jgit.lib.AnyObjectId;
 
 public class GitFileStore extends FileStore {
 
-  private final GitFileSystem gfs;
+  private final String name;
   private DirectoryNode root;
 
+  public GitFileStore(@Nonnull String name, @Nullable AnyObjectId rootTree) throws IOException {
+    this(name, rootTree != null ? DirectoryNode.treeRoot(rootTree) : DirectoryNode.emptyRoot());
+  }
 
-  GitFileStore(@Nonnull GitFileSystem gfs, @Nullable AnyObjectId rootTree) throws IOException {
-    this.gfs = gfs;
-    root = rootTree != null ? DirectoryNode.treeRoot(rootTree) : DirectoryNode.emptyRoot();
+  private GitFileStore(@Nonnull String name, @Nonnull DirectoryNode rootNode) {
+    this.name = name;
+    root = rootNode;
   }
 
   @Nonnull
   @Override
   public String name() {
-    return gfs.getSessionId();
+    return name;
   }
 
   @Nonnull
@@ -42,8 +44,8 @@ public class GitFileStore extends FileStore {
   }
 
   @Override
-  public long getTotalSpace() throws IOException {
-    return GfsIO.getSize(root, gfs);
+  public long getTotalSpace() {
+    return 0;
   }
 
   @Override

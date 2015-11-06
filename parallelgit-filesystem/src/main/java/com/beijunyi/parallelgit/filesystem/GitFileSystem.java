@@ -37,13 +37,17 @@ public class GitFileSystem extends FileSystem {
   private boolean closed = false;
 
   public GitFileSystem(@Nonnull GitFileSystemProvider provider, @Nonnull Repository repository, @Nullable String branch, @Nullable RevCommit commit, @Nullable AnyObjectId tree) throws IOException {
+    this(provider, repository, branch, commit, new GitFileStore(repository.getDirectory().getAbsolutePath(), tree));
+  }
+
+  private GitFileSystem(@Nonnull GitFileSystemProvider provider, @Nonnull Repository repository, @Nullable String branch, @Nullable RevCommit commit, @Nonnull GitFileStore store) throws IOException {
     this.provider = provider;
     this.repository = repository;
     this.session = UUID.randomUUID().toString();
     this.rootPath = new GitPath(this, "/");
     this.branch = branch;
     this.commit = commit;
-    store = new GitFileStore(this, tree);
+    this.store = store;
   }
 
   @Nonnull
