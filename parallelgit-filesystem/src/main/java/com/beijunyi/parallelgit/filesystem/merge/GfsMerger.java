@@ -1,20 +1,25 @@
 package com.beijunyi.parallelgit.filesystem.merge;
 
 import java.io.IOException;
+import java.util.Collections;
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 
 import com.beijunyi.parallelgit.filesystem.GitFileSystem;
 import com.beijunyi.parallelgit.filesystem.io.DirectoryNode;
+import com.beijunyi.parallelgit.filesystem.io.Node;
 import com.beijunyi.parallelgit.filesystem.utils.GitFileSystemBuilder;
-import org.eclipse.jgit.lib.AnyObjectId;
-import org.eclipse.jgit.lib.FileMode;
-import org.eclipse.jgit.lib.Repository;
+import org.eclipse.jgit.diff.RawText;
+import org.eclipse.jgit.diff.RawTextComparator;
+import org.eclipse.jgit.lib.*;
+import org.eclipse.jgit.merge.MergeResult;
 import org.eclipse.jgit.merge.ResolveMerger;
 import org.eclipse.jgit.revwalk.RevTree;
 import org.eclipse.jgit.treewalk.AbstractTreeIterator;
 import org.eclipse.jgit.treewalk.CanonicalTreeParser;
 import org.eclipse.jgit.treewalk.NameConflictTreeWalk;
+
+import static org.eclipse.jgit.lib.Constants.OBJ_BLOB;
 
 public class GfsMerger extends ResolveMerger {
 
@@ -25,8 +30,9 @@ public class GfsMerger extends ResolveMerger {
   private AbstractTreeIterator theirTree;
 
   private DirectoryNode currentDirectory;
-  private int curentDepth;
+  private int currentDepth;
 
+  private String path;
   private String name;
   private int baseMode;
   private int ourMode;
@@ -35,43 +41,46 @@ public class GfsMerger extends ResolveMerger {
   private AnyObjectId ourId;
   private AnyObjectId theirId;
 
-
   public GfsMerger(@Nonnull Repository repo) throws IOException {
     super(repo);
     implicitDirCache = false;
     gfs = GitFileSystemBuilder.prepare().repository(repo).build();
     currentDirectory = gfs.getFileStore().getRoot();
-    curentDepth = 0;
+    currentDepth = 0;
+  }
+
+  @Nonnull
+  public GitFileSystem getGfs() {
+    return gfs;
   }
 
   @Override
   protected boolean mergeTrees(@Nonnull AbstractTreeIterator base, @Nonnull RevTree head, @Nonnull RevTree merge, boolean ignoreConflicts) throws IOException {
     prepareIterators(base, head, merge);
     prepareTreeWalk();
-    return mergeTreeWalk(ignoreConflicts);
+    mergeTreeWalk();
+    return getUnmergedPaths().isEmpty();
   }
 
-  protected boolean mergeTreeWalk(boolean ignoreConflicts) throws IOException {
+  protected void mergeTreeWalk() throws IOException {
     while(tw.next()) {
-      mergeTreeNode(ignoreConflicts);
-      if(tw.isSubtree())
+      if(mergeTreeNode() && tw.isSubtree())
         tw.enterSubtree();
     }
-    return true;
   }
 
-  public boolean mergeTreeNode(boolean ignoreConflicts) {
+  public boolean mergeTreeNode() throws IOException {
     readTreeNodes();
     prepareDirectory();
 
-    if(oursHasNoChange())
+    if(oursIsNotChanged())
       applyTheirs();
-    else if(theirsHasNoChange())
+    else if(theirsIsNotChanged())
       applyOurs();
-    else if(sameBlobOnBothSides())
+    else if(bothHaveSameBlob())
       applyCommonBlob();
-    else if(neitherSideIsDirectory())
-      mergeNode();
+    else if(bothHaveBlob())
+      mergeAndApplyBlob();
     else {
       return true;
     }
@@ -107,28 +116,8 @@ public class GfsMerger extends ResolveMerger {
     return FileMode.TYPE_MISSING != mode && FileMode.TYPE_TREE != mode;
   }
 
-  private boolean idEquals(int idx1, int idx2) {
-    return tw.idEqual(idx1, idx2);
-  }
-
-  private boolean modeEquals(int idx1, int idx2) {
-    return tw.getRawMode(idx1) == tw.getRawMode(idx2);
-  }
-
-//  private int mergeFileModes() {
-//    int base = tw.getRawMode(T_BASE);
-//    int theirs = tw.getRawMode(T_THEIRS);
-//    int ours = tw.getRawMode(T_THEIRS);
-//    if (ours == theirs)
-//      return ours;
-//    if (base == ours)
-//      return theirs == FileMode.TYPE_MISSING ? ours : theirs;
-//    if (base == theirs)
-//      return ours == FileMode.TYPE_MISSING ? theirs : ours;
-//    return FileMode.TYPE_MISSING;
-//  }
-
   private void readTreeNodes() {
+    path = tw.getPathString();
     name = tw.getNameString();
     baseMode = baseTree.getEntryRawMode();
     baseId = baseTree.getEntryObjectId();
@@ -137,31 +126,23 @@ public class GfsMerger extends ResolveMerger {
     theirMode = theirTree.getEntryRawMode();
     theirId = theirTree.getEntryObjectId();
   }
-  
-  private boolean oursEqualsTheirs() {
-    return isNonTree(ourMode) && isNonTree(theirMode) && ourId.equals(theirId);
-  }
 
-  private boolean oursHasNoChange() {
+  private boolean oursIsNotChanged() {
     return baseMode == ourMode && baseId.equals(ourId);
   }
 
-  private boolean theirsHasNoChange() {
+  private boolean theirsIsNotChanged() {
     return baseMode == theirMode && baseId.equals(theirId);
   }
 
-  private boolean sameBlobOnBothSides() {
+  private boolean bothHaveSameBlob() {
     return ourId.equals(theirId);
   }
 
-  private boolean neitherSideIsDirectory() {
+  private boolean bothHaveBlob() {
     return ourMode == FileMode.TYPE_TREE || theirMode == FileMode.TYPE_TREE;
   }
-  
-  private boolean isDirectory() {
-    return tw.isSubtree();
-  }
-  
+
   private void applyTheirs() {
     if(theirMode != FileMode.TYPE_MISSING)
       addNode(name, theirMode, theirId);
@@ -173,19 +154,65 @@ public class GfsMerger extends ResolveMerger {
   }
 
   private void applyCommonBlob() {
-
+    int mergedMode = mergeFileModes();
+    if(mergedMode != FileMode.TYPE_MISSING)
+      addNode(name, mergedMode, ourId);
+    else {
+      unmergedPaths.add(path);
+      mergeResults.put(path, new MergeResult<>(Collections.<RawText>emptyList()));
+    }
   }
 
-  private void mergeNode() {
+  private int mergeFileModes() {
+    int base = tw.getRawMode(T_BASE);
+    int theirs = tw.getRawMode(T_THEIRS);
+    int ours = tw.getRawMode(T_THEIRS);
+    if (ours == theirs)
+      return ours;
+    if (base == ours)
+      return theirs == FileMode.TYPE_MISSING ? ours : theirs;
+    if (base == theirs)
+      return ours == FileMode.TYPE_MISSING ? theirs : ours;
+    return FileMode.TYPE_MISSING;
+  }
 
+  private void mergeAndApplyBlob() throws IOException {
+    if(ourMode == FileMode.TYPE_GITLINK || theirMode == FileMode.TYPE_GITLINK) {
+      unmergedPaths.add(tw.getPathString());
+    } else {
+      MergeResult<RawText> result = mergeContent();
+      if(result.containsConflicts())
+        unmergedPaths.add(path);
+      modifiedFiles.add(path);
+    }
+  }
+
+  @Nonnull
+  private MergeResult<RawText> mergeContent() throws IOException {
+    RawText baseContent = getRawText(baseId);
+    RawText ourContent = getRawText(ourId);
+    RawText theirContent = getRawText(theirId);
+    return mergeAlgorithm.merge(RawTextComparator.DEFAULT, baseContent, ourContent, theirContent);
+  }
+
+  @Nonnull
+  private RawText getRawText(@Nonnull AnyObjectId id) throws IOException {
+    if(id.equals(ObjectId.zeroId()))
+      return new RawText(new byte[0]);
+    return new RawText(reader.open(id, OBJ_BLOB).getCachedBytes());
   }
 
   private void prepareDirectory() {
-
+    int depth = tw.getDepth();
+    while(currentDepth > depth) {
+      currentDirectory = currentDirectory.getParent();
+      currentDepth--;
+    }
   }
 
   private void addNode(@Nonnull String name, int mode, @Nonnull AnyObjectId id) {
-
+    Node node = Node.forObject(id, FileMode.fromBits(mode), currentDirectory);
+    currentDirectory.addChild(name, node, false);
   }
 
   private void addConflict() {
