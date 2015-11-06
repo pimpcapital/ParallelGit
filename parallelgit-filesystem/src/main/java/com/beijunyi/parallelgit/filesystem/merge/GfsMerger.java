@@ -1,6 +1,8 @@
 package com.beijunyi.parallelgit.filesystem.merge;
 
+import java.io.ByteArrayOutputStream;
 import java.io.IOException;
+import java.util.Arrays;
 import java.util.Collections;
 import javax.annotation.Nonnull;
 
@@ -11,20 +13,19 @@ import com.beijunyi.parallelgit.filesystem.utils.GitFileSystemBuilder;
 import org.eclipse.jgit.diff.RawText;
 import org.eclipse.jgit.diff.RawTextComparator;
 import org.eclipse.jgit.lib.*;
+import org.eclipse.jgit.merge.MergeFormatter;
 import org.eclipse.jgit.merge.MergeResult;
 import org.eclipse.jgit.merge.ResolveMerger;
-import org.eclipse.jgit.revwalk.RevCommit;
 import org.eclipse.jgit.revwalk.RevTree;
 import org.eclipse.jgit.treewalk.AbstractTreeIterator;
 import org.eclipse.jgit.treewalk.CanonicalTreeParser;
 import org.eclipse.jgit.treewalk.NameConflictTreeWalk;
 
-import static org.eclipse.jgit.lib.Constants.OBJ_BLOB;
+import static org.eclipse.jgit.lib.Constants.*;
 
 public class GfsMerger extends ResolveMerger {
 
   private final GitFileSystem gfs;
-  private RevCommit resultCommit;
 
   private AbstractTreeIterator baseTree;
   private AbstractTreeIterator ourTree;
@@ -61,7 +62,9 @@ public class GfsMerger extends ResolveMerger {
     prepareTreeWalk();
     mergeTreeWalk();
     if(getUnmergedPaths().isEmpty()) {
-    }
+      resultTree = (ObjectId) gfs.persist();
+    } else
+      gfs.flush();
     return false;
   }
 
@@ -106,6 +109,7 @@ public class GfsMerger extends ResolveMerger {
     else if(bothHaveBlob())
       mergeAndApplyBlob();
     else {
+      //TODO: file directory conflicts
       return true;
     }
     return false;
@@ -136,7 +140,7 @@ public class GfsMerger extends ResolveMerger {
 
   private void applyTheirs() {
     if(theirMode != FileMode.TYPE_MISSING)
-      addNode(name, theirMode, theirId);
+      addNode(theirMode, theirId);
   }
 
   private boolean theirsIsNotChanged() {
@@ -145,7 +149,7 @@ public class GfsMerger extends ResolveMerger {
 
   private void applyOurs() {
     if(ourMode != FileMode.TYPE_MISSING)
-      addNode(name, ourMode, ourId);
+      addNode(ourMode, ourId);
   }
 
   private boolean bothHaveSameBlob() {
@@ -155,10 +159,12 @@ public class GfsMerger extends ResolveMerger {
   private void applyCommonBlob() {
     int mergedMode = mergeFileModes();
     if(mergedMode != FileMode.TYPE_MISSING)
-      addNode(name, mergedMode, ourId);
+      addNode(mergedMode, ourId);
     else {
       unmergedPaths.add(path);
       mergeResults.put(path, new MergeResult<>(Collections.<RawText>emptyList()));
+      addNode(ourMode, ourId);
+      addConflict();
     }
   }
 
@@ -182,10 +188,16 @@ public class GfsMerger extends ResolveMerger {
   private void mergeAndApplyBlob() throws IOException {
     if(ourMode == FileMode.TYPE_GITLINK || theirMode == FileMode.TYPE_GITLINK) {
       unmergedPaths.add(tw.getPathString());
+      addNode(ourMode, ourId);
+      addConflict();
     } else {
       MergeResult<RawText> result = mergeContent();
-      if(result.containsConflicts())
+      writeMergedFile(result);
+      if(result.containsConflicts()) {
         unmergedPaths.add(path);
+        mergeResults.put(path, result);
+        addConflict();
+      }
       modifiedFiles.add(path);
     }
   }
@@ -198,6 +210,27 @@ public class GfsMerger extends ResolveMerger {
     return mergeAlgorithm.merge(RawTextComparator.DEFAULT, baseContent, ourContent, theirContent);
   }
 
+  private void writeMergedFile(@Nonnull MergeResult<RawText> result) throws IOException {
+    int mergedMode = mergeFileModes();
+    FileMode mode = mergedMode == FileMode.TYPE_MISSING ? FileMode.REGULAR_FILE : FileMode.fromBits(mergedMode);
+
+    byte[] bytes;
+    try(ByteArrayOutputStream out = new ByteArrayOutputStream()) {
+      new MergeFormatter().formatMerge(out, result, Arrays.asList(commitNames), CHARACTER_ENCODING);
+      bytes = out.toByteArray();
+    }
+
+    Node node;
+    if(!result.containsConflicts())
+      node = Node.forBytes(bytes, mode, currentDirectory);
+    else {
+      AnyObjectId blob = gfs.saveBlob(bytes);
+      node = Node.forObject(blob, mode, currentDirectory);
+    }
+
+    currentDirectory.addChild(name, node, false);
+  }
+
   @Nonnull
   private RawText getRawText(@Nonnull AnyObjectId id) throws IOException {
     if(id.equals(ObjectId.zeroId()))
@@ -205,13 +238,13 @@ public class GfsMerger extends ResolveMerger {
     return new RawText(reader.open(id, OBJ_BLOB).getCachedBytes());
   }
 
-  private void addNode(@Nonnull String name, int mode, @Nonnull AnyObjectId id) {
+  private void addNode(int mode, @Nonnull AnyObjectId id) {
     Node node = Node.forObject(id, FileMode.fromBits(mode), currentDirectory);
     currentDirectory.addChild(name, node, false);
   }
 
   private void addConflict() {
-
+    //TODO: save conflict
   }
 
 }

@@ -25,6 +25,13 @@ public class FileNode extends Node {
   }
 
   @Nonnull
+  protected static FileNode forBytes(byte[] bytes, @Nonnull NodeType type, @Nonnull DirectoryNode parent) {
+    FileNode ret = new FileNode(type, parent);
+    ret.setBytes(bytes);
+    return ret;
+  }
+
+  @Nonnull
   public static FileNode newFile(boolean executable, @Nonnull DirectoryNode parent) {
     return new FileNode(executable ? NodeType.EXECUTABLE_FILE : NodeType.NON_EXECUTABLE_FILE, parent);
   }

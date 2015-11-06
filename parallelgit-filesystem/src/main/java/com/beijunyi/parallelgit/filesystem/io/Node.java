@@ -27,6 +27,11 @@ public abstract class Node {
   }
 
   @Nonnull
+  public static FileNode forBytes(@Nonnull byte[] bytes, @Nonnull FileMode mode, @Nonnull DirectoryNode parent) {
+    return FileNode.forBytes(bytes, NodeType.forFileMode(mode), parent);
+  }
+
+  @Nonnull
   public static Node cloneNode(@Nonnull Node node, @Nonnull DirectoryNode parent) {
     Node ret;
     if(node instanceof DirectoryNode)

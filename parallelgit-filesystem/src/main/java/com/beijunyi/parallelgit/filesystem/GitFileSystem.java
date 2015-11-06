@@ -247,10 +247,14 @@ public class GitFileSystem extends FileSystem {
     return inserter().insert(tf);
   }
 
+  public void flush() throws IOException {
+    inserter().flush();
+  }
+
   @Nonnull
   public AnyObjectId persist() throws IOException {
     AnyObjectId result = GfsIO.persistRoot(this);
-    inserter().flush();
+    flush();
     return result;
   }
 
