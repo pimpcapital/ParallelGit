@@ -42,7 +42,7 @@ The way we play
 ---------------
 
 ParallelGit is an in-memory file system that implements the Java JDK 7 nio interface. It enables you to create a ```GitFileSystem``` from an arbitrary revision. Contents are **lazily loaded** as
-you navigate through the file tree, hence there is no burst disk reading when you open a commit. As for writing,```GitFileSystem``` **dynamically creates and adjusts buffers** to stage the 
+you navigate through the file tree, hence there is no burst disk reading when you open a commit. As for writing, ```GitFileSystem``` **dynamically creates and adjusts buffers** to stage the 
 changes you made to the file system. When all the work is done, you can commit the changes straight from memory into your repository.
 
 
