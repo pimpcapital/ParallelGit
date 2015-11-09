@@ -79,14 +79,14 @@ GitFileSystem gfs = GitFileSystemBuilder.forRevision("my_branch", myRepo));
 ```
 
 #####Close GitFileSystem
-Standard *close()* method
+Standard ```close()``` method
 
 ```java
 GitFileSystem gfs = ...;
 gfs.close();
 ```
 
-Java 7 auto-close feature
+Java JDK 7 [try-with-resources](https://docs.oracle.com/javase/tutorial/essential/exceptions/tryResourceClose.html) feature
 
 ```java
 try(GitFileSystem gfs = ...) {
@@ -103,7 +103,7 @@ Path file = gfs.getPath("/myFile.txt");
 byte[] bytes = Files.readAllBytes(file);
 ```
 
-Open *InputStream*
+Open ```InputStream```
 
 ```java
 GitFileSystem gfs = ...;
@@ -121,7 +121,7 @@ byte[] bytes = "my text data".getBytes();
 Files.write(file, bytes);
 ```
 
-Open *OutputStream*
+Open ```OutputStream```
 
 ```java
 GitFileSystem gfs = ...;
