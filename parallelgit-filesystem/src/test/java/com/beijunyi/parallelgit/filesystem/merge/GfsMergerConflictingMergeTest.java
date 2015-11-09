@@ -1,34 +1,54 @@
 package com.beijunyi.parallelgit.filesystem.merge;
 
+import java.io.IOException;
+import javax.annotation.Nonnull;
+
 import com.beijunyi.parallelgit.AbstractParallelGitTest;
 import org.eclipse.jgit.api.CherryPickResult;
 import org.eclipse.jgit.api.Git;
+import org.eclipse.jgit.lib.AnyObjectId;
 import org.eclipse.jgit.lib.FileMode;
 import org.eclipse.jgit.revwalk.RevCommit;
 import org.junit.Before;
 import org.junit.Test;
 
+import static org.junit.Assert.assertFalse;
+
 public class GfsMergerConflictingMergeTest extends AbstractParallelGitTest {
 
+  private GfsMerger merger;
+  private AnyObjectId ours;
+  private AnyObjectId theirs;
+
   @Before
-  public void setUp() throws Exception {
-    initFileRepository(false);
+  public void setUp() throws IOException {
+    initRepository();
+    merger = new GfsMerger(repo);
+  }
+  private void prepareFileWithConflictingModes(@Nonnull String conflictingFile) throws IOException {
+    byte[] data = "some text data".getBytes();
+    writeToCache(conflictingFile, data, FileMode.SYMLINK);
+    AnyObjectId base = commit(null);
+
+    clearCache();
+    writeToCache(conflictingFile, data, FileMode.EXECUTABLE_FILE);
+    ours = commit(base);
+
+    clearCache();
+    writeToCache(conflictingFile, data, FileMode.REGULAR_FILE);
+    theirs = commit(base);
   }
 
   @Test
-  public void mergeFileWithConflictingMode_() throws Exception {
-    byte[] data = "some text data".getBytes();
-    writeToCache("/test_file.txt", data, FileMode.REGULAR_FILE);
-    RevCommit base = commit(null);
+  public void mergeFileWithConflictingModes_shouldReturnFalse() throws IOException {
+    prepareFileWithConflictingModes("/test_file.txt");
+    assertFalse(merger.merge(ours, theirs));
+  }
 
-    clearCache();
-    writeToCache("/test_file.txt", data, FileMode.EXECUTABLE_FILE);
-    RevCommit ours = commit(base);
-
-    clearCache();
-    writeToCache("/test_file.txt", data, FileMode.SYMLINK);
-    RevCommit theirs = commit(base);
-
+  @Test
+  public void mergeFileWithConflictingModes_theConflictsShouldContainTheConflictingFile() throws IOException {
+    prepareFileWithConflictingModes("/test_file.txt");
+    assertFalse(merger.getConflicts().containsKey("/test_file.txt"));
   }
 
   @Test

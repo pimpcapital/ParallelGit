@@ -8,10 +8,13 @@ public class MergeConflict {
 
   private final int baseMode;
   private final AnyObjectId baseId;
+
   private final int ourMode;
   private final AnyObjectId ourId;
+
   private final int theirMode;
   private final AnyObjectId theirId;
+
 
   public MergeConflict(int baseMode, @Nonnull AnyObjectId baseId, int ourMode, @Nonnull AnyObjectId ourId, int theirMode, @Nonnull AnyObjectId theirId) {
     this.baseMode = baseMode;
@@ -21,4 +24,6 @@ public class MergeConflict {
     this.theirMode = theirMode;
     this.theirId = theirId;
   }
+
+
 }

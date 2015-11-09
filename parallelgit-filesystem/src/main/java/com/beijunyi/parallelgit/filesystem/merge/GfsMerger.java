@@ -2,35 +2,39 @@ package com.beijunyi.parallelgit.filesystem.merge;
 
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
-import java.util.Arrays;
-import java.util.Collections;
-import java.util.HashMap;
+import java.util.*;
 import javax.annotation.Nonnull;
+import javax.annotation.Nullable;
 
 import com.beijunyi.parallelgit.filesystem.GitFileSystem;
 import com.beijunyi.parallelgit.filesystem.io.DirectoryNode;
 import com.beijunyi.parallelgit.filesystem.io.Node;
 import com.beijunyi.parallelgit.filesystem.utils.GitFileSystemBuilder;
+import org.eclipse.jgit.diff.DiffAlgorithm;
+import org.eclipse.jgit.diff.DiffAlgorithm.SupportedAlgorithm;
 import org.eclipse.jgit.diff.RawText;
 import org.eclipse.jgit.diff.RawTextComparator;
 import org.eclipse.jgit.lib.*;
-import org.eclipse.jgit.merge.MergeFormatter;
-import org.eclipse.jgit.merge.MergeResult;
-import org.eclipse.jgit.merge.ResolveMerger;
+import org.eclipse.jgit.merge.*;
 import org.eclipse.jgit.revwalk.RevTree;
 import org.eclipse.jgit.treewalk.AbstractTreeIterator;
-import org.eclipse.jgit.treewalk.CanonicalTreeParser;
 import org.eclipse.jgit.treewalk.NameConflictTreeWalk;
+import org.eclipse.jgit.treewalk.TreeWalk;
 
+import static org.eclipse.jgit.diff.DiffAlgorithm.SupportedAlgorithm.HISTOGRAM;
+import static org.eclipse.jgit.lib.ConfigConstants.*;
 import static org.eclipse.jgit.lib.Constants.*;
 
-public class GfsMerger extends ResolveMerger {
+public class GfsMerger extends ThreeWayMerger {
 
   private final GitFileSystem gfs;
+  private final Map<String, MergeConflict> conflicts;
 
-  private AbstractTreeIterator baseTree;
-  private AbstractTreeIterator ourTree;
-  private AbstractTreeIterator theirTree;
+  private MergeAlgorithm algorithm;
+  private MergeFormatter formatter;
+  private List<String> conflictMarkers;
+  private boolean formatConflicts;
+  private TreeWalk tw;
 
   private DirectoryNode currentDirectory;
   private int currentDepth;
@@ -44,51 +48,107 @@ public class GfsMerger extends ResolveMerger {
   private AnyObjectId ourId;
   private AnyObjectId theirId;
 
+  private AnyObjectId resultTree;
+
   public GfsMerger(@Nonnull Repository repo) throws IOException {
     super(repo);
-    implicitDirCache = false;
+
+    tw = new NameConflictTreeWalk(reader);
     gfs = GitFileSystemBuilder.prepare().repository(repo).build();
+    conflicts = new HashMap<>();
+
     currentDirectory = gfs.getFileStore().getRoot();
     currentDepth = 0;
   }
 
+  @Nullable
+  public MergeAlgorithm getAlgorithm() {
+    return algorithm;
+  }
+
+  public void setAlgorithm(@Nullable MergeAlgorithm algorithm) {
+    this.algorithm = algorithm;
+  }
+
+  @Nullable
+  public MergeFormatter getFormatter() {
+    return formatter;
+  }
+
+  public void setFormatter(@Nullable MergeFormatter formatter) {
+    this.formatter = formatter;
+  }
+
+  @Nullable
+  public List<String> getConflictMarkers() {
+    return conflictMarkers;
+  }
+
+  public void setConflictMarkers(@Nullable List<String> conflictMarkers) {
+    this.conflictMarkers = conflictMarkers;
+  }
+
+  public boolean isFormatConflicts() {
+    return formatConflicts;
+  }
+
+  public void setFormatConflicts(boolean formatConflicts) {
+    this.formatConflicts = formatConflicts;
+  }
+
   @Nonnull
-  public GitFileSystem getGfs() {
+  public GitFileSystem getFileSystem() {
     return gfs;
   }
 
+  @Nonnull
+  public Map<String, MergeConflict> getConflicts() {
+    return conflicts;
+  }
+
   @Override
-  protected boolean mergeTrees(@Nonnull AbstractTreeIterator base, @Nonnull RevTree head, @Nonnull RevTree merge, boolean ignoreConflicts) throws IOException {
-    prepareIterators(base, head, merge);
-    prepareTreeWalk();
+  public ObjectId getResultTreeId() {
+    return (ObjectId) resultTree;
+  }
+
+  @Override
+  protected boolean mergeImpl() throws IOException {
+    prepareAlgorithm();
+    prepareFormatter();
+    prepareConflictMarkers();
+    prepareTreeWalk(mergeBase(), sourceTrees[0], sourceTrees[1]);
     mergeTreeWalk();
-    if(getUnmergedPaths().isEmpty()) {
-      resultTree = (ObjectId) gfs.persist();
+    if(conflicts.isEmpty()) {
+      resultTree = gfs.persist();
       return true;
     } else
       gfs.flush();
     return false;
   }
 
-  private void prepareIterators(@Nonnull AbstractTreeIterator base, @Nonnull RevTree head, @Nonnull RevTree merge) throws IOException {
-    baseTree = base;
-    ourTree = makeIterator(head);
-    theirTree = makeIterator(merge);
+  private void prepareAlgorithm() {
+    if(algorithm == null) {
+      SupportedAlgorithm diffAlg = db.getConfig().getEnum(CONFIG_DIFF_SECTION, null, CONFIG_KEY_ALGORITHM, HISTOGRAM);
+      algorithm = new MergeAlgorithm(DiffAlgorithm.getAlgorithm(diffAlg));
+    }
   }
 
-  @Nonnull
-  private AbstractTreeIterator makeIterator(@Nonnull AnyObjectId tree) throws IOException {
-    CanonicalTreeParser p = new CanonicalTreeParser();
-    p.reset(reader, tree);
-    return p;
+  private void prepareFormatter() {
+    if(formatter == null) {
+      formatter = new MergeFormatter();
+    }
   }
 
+  private void prepareConflictMarkers() {
+    if(conflictMarkers == null)
+      conflictMarkers = Arrays.asList("BASE", "OURS", "THEIRS");
+  }
 
-  private void prepareTreeWalk() throws IOException {
+  private void prepareTreeWalk(@Nonnull AbstractTreeIterator base, @Nonnull RevTree ours, @Nonnull RevTree theirs) throws IOException {
     tw = new NameConflictTreeWalk(reader);
-    tw.addTree(baseTree);
-    tw.addTree(ourTree);
-    tw.addTree(theirTree);
+    tw.addTree(base);
+    tw.addTree(ours);
+    tw.addTree(theirs);
   }
 
   private void mergeTreeWalk() throws IOException {
@@ -134,12 +194,12 @@ public class GfsMerger extends ResolveMerger {
   private void readTreeNodes() {
     path = tw.getPathString();
     name = tw.getNameString();
-    baseMode = tw.getRawMode(T_BASE);
-    baseId = tw.getObjectId(T_BASE);
-    ourMode = tw.getRawMode(T_OURS);
-    ourId = tw.getObjectId(T_OURS);
-    theirMode = tw.getRawMode(T_THEIRS);
-    theirId = tw.getObjectId(T_THEIRS);
+    baseMode = tw.getRawMode(0);
+    baseId = tw.getObjectId(0);
+    ourMode = tw.getRawMode(1);
+    ourId = tw.getObjectId(1);
+    theirMode = tw.getRawMode(2);
+    theirId = tw.getObjectId(2);
   }
 
   private void prepareDirectory() {
@@ -178,23 +238,18 @@ public class GfsMerger extends ResolveMerger {
     if(mergedMode != FileMode.TYPE_MISSING)
       insertNode(mergedMode, ourId);
     else {
-      unmergedPaths.add(path);
-      mergeResults.put(path, new MergeResult<>(Collections.<RawText>emptyList()));
       insertNode(ourMode, ourId);
       addConflict();
     }
   }
 
   private int mergeFileModes() {
-    int base = tw.getRawMode(T_BASE);
-    int theirs = tw.getRawMode(T_THEIRS);
-    int ours = tw.getRawMode(T_THEIRS);
-    if (ours == theirs)
-      return ours;
-    if (base == ours)
-      return theirs == FileMode.TYPE_MISSING ? ours : theirs;
-    if (base == theirs)
-      return ours == FileMode.TYPE_MISSING ? theirs : ours;
+    if (ourMode == theirMode)
+      return ourMode;
+    if (baseMode == ourMode)
+      return theirMode == FileMode.TYPE_MISSING ? ourMode : theirMode;
+    if (baseMode == theirMode)
+      return ourMode == FileMode.TYPE_MISSING ? theirMode : ourMode;
     return FileMode.TYPE_MISSING;
   }
 
@@ -204,18 +259,13 @@ public class GfsMerger extends ResolveMerger {
 
   private void mergeAndApplyBlob() throws IOException {
     if(ourMode == FileMode.TYPE_GITLINK || theirMode == FileMode.TYPE_GITLINK) {
-      unmergedPaths.add(tw.getPathString());
       insertNode(ourMode, ourId);
       addConflict();
     } else {
       MergeResult<RawText> result = mergeContent();
       writeMergedFile(result);
-      if(result.containsConflicts()) {
-        unmergedPaths.add(path);
-        mergeResults.put(path, result);
+      if(result.containsConflicts())
         addConflict();
-      }
-      modifiedFiles.add(path);
     }
   }
 
@@ -224,7 +274,7 @@ public class GfsMerger extends ResolveMerger {
     RawText baseContent = getRawText(baseId);
     RawText ourContent = getRawText(ourId);
     RawText theirContent = getRawText(theirId);
-    return mergeAlgorithm.merge(RawTextComparator.DEFAULT, baseContent, ourContent, theirContent);
+    return algorithm.merge(RawTextComparator.DEFAULT, baseContent, ourContent, theirContent);
   }
 
   private void writeMergedFile(@Nonnull MergeResult<RawText> result) throws IOException {
@@ -233,7 +283,7 @@ public class GfsMerger extends ResolveMerger {
 
     byte[] bytes;
     try(ByteArrayOutputStream out = new ByteArrayOutputStream()) {
-      new MergeFormatter().formatMerge(out, result, Arrays.asList(commitNames), CHARACTER_ENCODING);
+      formatter.formatMerge(out, result, conflictMarkers, CHARACTER_ENCODING);
       bytes = out.toByteArray();
     }
 
@@ -267,7 +317,7 @@ public class GfsMerger extends ResolveMerger {
   }
 
   private void addConflict() {
-    //TODO: save conflict
+    conflicts.put(path, new MergeConflict(baseMode, baseId, ourMode, ourId, theirMode, theirId));
   }
 
   private boolean bothAreTree() {
@@ -281,8 +331,8 @@ public class GfsMerger extends ResolveMerger {
   }
 
   private void handleFileDirectoryConflict() {
-    unmergedPaths.add(path);
     insertNode(ourMode, ourId);
+    addConflict();
   }
 
 }
