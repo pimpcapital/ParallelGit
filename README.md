@@ -17,19 +17,23 @@ The common usage of Git follows this pattern.
 
 Checkout a branch &#8594; Make changes to the working directory &#8594; Commit changes
 
-The standard way of modifying a repository is by changing its [working directory](https://git-scm.com/book/en/v2/Getting-Started-Git-Basics) and creating a commit. This is quite convenient for common users since a working directory is just a normal directory on your hard drive and you can use all the OS built-in file system facilities to access the contents in the directory. When you create a commit, files and directories are automatically converted into blobs and trees, which are then persisted in the [secret dot git directory](https://git-scm.com/book/en/v1/Git-Internals).
+The standard way of modifying a repository is by changing its [working directory](https://git-scm.com/book/en/v2/Getting-Started-Git-Basics) and creating a commit. This is quite convenient for common
+users since a working directory is just a normal directory on your hard drive and you can use all the OS built-in file system facilities to access the contents inside the directory. When you create a
+commit, files and directories are automatically converted into blobs and trees, which are then persisted in the [secret dot git directory](https://git-scm.com/book/en/v1/Git-Internals).
 
-Everything is smooth and easy until you try to use Git in a server role application. A repository (by default) only has one working directory, and one working directory only has one state (checked out revision). When two users want to use one repository, the second user must wait for the first user to exit before he can safely use the repository. The working directory becomes a scarce resource which all users fight for. The hard drive becomes a major performance bottleneck as the system has to perform a [force checkout](https://git-scm.com/docs/git-checkout) every time a user enters the repository.
+Everything is smooth and easy until you try to use Git in a server role application. A repository (by default) only has one working directory, and one working directory only has one state (checked out
+revision). When two users want to use one repository, the second user must wait for the first user to exit before he can safely use the repository. The working directory becomes a scarce resource
+which all users fight for. The hard drive becomes a major performance bottleneck as the system has to perform a [force checkout](https://git-scm.com/docs/git-checkout) every time a user enters the repository.
 
 
 The goals
 ---------
 
-For a Git based application to serve multiple users simultaneously it must:
+For a Git based application to serve multiple users simultaneously it must be able to :
 
-1. Allow **multiple working directories** to exist at the same time
-2. Be able to **create** new working directories **on demand**
-3. Be able to **remove** working directories **on demand**
+1. host **multiple working directories** at the same time
+2. **create** new working directories **on demand**
+3. **remove** working directories **on demand**
 
 More importantly, the creation and removal of working directories must be **inexpensive**.
 
@@ -37,7 +41,9 @@ More importantly, the creation and removal of working directories must be **inex
 The way we play
 ---------------
 
-ParallelGit is an in-memory file system that implements Java JDK 7 nio interface. It enables you to create a GitFileSystem from an arbitrary revision. GitFileSystem stages your changes in memory instead of in your hard drive. When all the work is done, you can commit the changes straight from memory into your repository.
+ParallelGit is an in-memory file system implements the Java JDK 7 nio interface. It enables you to create a ```GitFileSystem``` from an arbitrary revision. Contents are **lazily loaded** as you 
+navigate through the file tree, hence there is no burst disk reading when you open a commit. ```GitFileSystem``` dynamically creates and adjust buffers to stage the changes you made to the file 
+system. When all the work is done, you can commit the changes straight from memory into your repository.
 
 
 Get started
