@@ -15,7 +15,7 @@ The problems
 
 The common usage of Git follows this pattern.
 
-Checkout a branch &#8594; Make changes to the working directory &#8594; Commit changes
+**Checkout a branch &#8594; Make changes to the working directory &#8594; Commit changes**
 
 The standard way of modifying a repository is by changing its [working directory](https://git-scm.com/book/en/v2/Getting-Started-Git-Basics) and creating a commit. This is quite convenient for common
 users since a working directory is just a normal directory on your hard drive and you can use all the OS built-in file system facilities to access the contents inside the directory. When you create a
@@ -42,8 +42,8 @@ The way we play
 ---------------
 
 ParallelGit is an in-memory file system that implements the Java JDK 7 nio interface. It enables you to create a ```GitFileSystem``` from an arbitrary revision. Contents are **lazily loaded** as
-you navigate through the file tree, hence there is no burst disk reading when you open a commit. As for writing,```GitFileSystem``` dynamically creates and adjusts buffers to stage the changes you
-made to the file system. When all the work is done, you can commit the changes straight from memory into your repository.
+you navigate through the file tree, hence there is no burst disk reading when you open a commit. As for writing,```GitFileSystem``` **dynamically creates and adjusts buffers** to stage the 
+changes you made to the file system. When all the work is done, you can commit the changes straight from memory into your repository.
 
 
 Get started
