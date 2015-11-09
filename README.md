@@ -7,7 +7,7 @@ ParallelGit is a high performance [Java JDK 7 nio](https://docs.oracle.com/javas
 [![Coverage Status](https://coveralls.io/repos/beijunyi/ParallelGit/badge.svg?branch=master&service=github)](https://coveralls.io/github/beijunyi/ParallelGit?branch=master)
 [![Maven Central](https://maven-badges.herokuapp.com/maven-central/com.beijunyi/parallelgit/badge.svg)](https://maven-badges.herokuapp.com/maven-central/com.beijunyi/parallelgit)
 
-For more examples and the latest news, please visit from our [official site](https://beijunyi.github.io/ParallelGit)!
+For more examples and the latest news, please visit our [official site](https://beijunyi.github.io/ParallelGit)! (in progress)
 
 
 The problems
