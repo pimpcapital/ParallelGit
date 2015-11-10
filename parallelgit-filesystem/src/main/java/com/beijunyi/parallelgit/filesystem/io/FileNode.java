@@ -63,4 +63,10 @@ public class FileNode extends Node {
     markDirty();
   }
 
+  @Override
+  public void markDeleted() {
+    super.markDeleted();
+    bytes = null;
+    size = -1;
+  }
 }

@@ -8,10 +8,11 @@ import org.eclipse.jgit.lib.FileMode;
 
 public abstract class Node {
 
-  protected NodeType type;
   protected final DirectoryNode parent;
+  protected volatile NodeType type;
   protected volatile AnyObjectId object;
   protected volatile boolean dirty = false;
+  protected volatile boolean deleted = false;
 
   protected Node(@Nonnull NodeType type, @Nullable AnyObjectId object, @Nullable DirectoryNode parent) {
     this.type = type;
@@ -77,7 +78,7 @@ public abstract class Node {
     return object;
   }
 
-  public void setObject(@Nonnull AnyObjectId object) {
+  public void setObject(@Nullable AnyObjectId object) {
     this.object = object;
   }
 
@@ -90,7 +91,7 @@ public abstract class Node {
   }
 
   public void markDirty() {
-    if(!isDirty()) {
+    if(!deleted && !isDirty()) {
       setDirty(true);
       DirectoryNode parent = getParent();
       if(parent != null)
@@ -98,9 +99,15 @@ public abstract class Node {
     }
   }
 
-  public void markClean(@Nonnull AnyObjectId object) {
-    setObject(object);
-    setDirty(false);
+  public void markClean(@Nullable AnyObjectId object) {
+    if(!deleted) {
+      setObject(object);
+      setDirty(false);
+    }
+  }
+
+  public void markDeleted() {
+    deleted = true;
   }
 
 }

@@ -39,7 +39,6 @@ public class ChangeDeletedFileTest extends AbstractParallelGitTest {
       assert node != null;
       assertFalse(node.isDirty());
     }
-
   }
 
 }

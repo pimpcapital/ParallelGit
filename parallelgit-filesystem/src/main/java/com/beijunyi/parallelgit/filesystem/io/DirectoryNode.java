@@ -46,14 +46,14 @@ public class DirectoryNode extends Node {
     return children;
   }
 
+  public void setChildren(@Nullable Map<String, Node> children) {
+    this.children = children;
+  }
+
   public boolean isEmpty() {
     if(children != null)
       return children.isEmpty();
     return object == null;
-  }
-
-  public void setChildren(@Nullable Map<String, Node> children) {
-    this.children = children;
   }
 
   public void loadChildren(@Nonnull Map<String, Node> children) {
@@ -86,9 +86,20 @@ public class DirectoryNode extends Node {
     Node removed = children.remove(name);
     if(removed == null)
       return false;
+    removed.markDeleted();
     if(!removed.isDirectory() || !((DirectoryNode) removed).isEmpty())
       markDirty();
     return true;
+  }
+
+  @Override
+  public void markDeleted() {
+    super.markDeleted();
+    if(children != null) {
+      for(Node child : children.values())
+        child.markDeleted();
+      children = null;
+    }
   }
 
 }

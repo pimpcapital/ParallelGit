@@ -320,8 +320,7 @@ public final class GfsIO {
       nodeObject = persistDirectory((DirectoryNode) node, isRoot, gfs);
     else
       throw new IllegalStateException();
-    if(nodeObject != null)
-      node.markClean(nodeObject);
+    node.markClean(nodeObject);
     return nodeObject;
   }
 
