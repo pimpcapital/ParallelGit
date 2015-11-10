@@ -24,7 +24,7 @@ public class DeleteFileTest extends AbstractParallelGitTest {
 
   @Test
   public void deleteFile() throws IOException {
-    try(GitFileSystem gfs = GitFileSystems.forRevision("my_branch", repo)) {       // open git file system
+    try(GitFileSystem gfs = GitFileSystems.forRevision("my_branch", repo)) {             // open git file system
       Path exampleFile = gfs.getPath("/example.txt");                                    // convert string to nio path
       Files.delete(exampleFile);                                                         // delete file
 
@@ -35,7 +35,7 @@ public class DeleteFileTest extends AbstractParallelGitTest {
 
   @Test
   public void deleteDirectory() throws IOException {
-    try(GitFileSystem gfs = GitFileSystems.forRevision("my_branch", repo)) {       // open git file system
+    try(GitFileSystem gfs = GitFileSystems.forRevision("my_branch", repo)) {             // open git file system
       Path dir = gfs.getPath("/dir");                                                    // convert string to nio path
       Files.delete(dir);                                                                 // delete directory
 

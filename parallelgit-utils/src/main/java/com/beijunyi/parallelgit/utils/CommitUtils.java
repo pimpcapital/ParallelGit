@@ -101,6 +101,18 @@ public final class CommitUtils {
     }
   }
 
+  public static boolean isMergedInto(@Nonnull RevCommit base, @Nonnull RevCommit target, @Nonnull ObjectReader reader) throws IOException {
+    try(RevWalk rw = new RevWalk(reader)) {
+      return rw.isMergedInto(base, target);
+    }
+  }
+
+  public static boolean isMergedInto(@Nonnull RevCommit base, @Nonnull RevCommit target, @Nonnull Repository repo) throws IOException {
+    try(ObjectReader reader = repo.newObjectReader()) {
+      return isMergedInto(base, target, reader);
+    }
+  }
+
   @Nonnull
   public static RevCommit createCommit(@Nonnull String message, @Nonnull AnyObjectId treeId, @Nonnull PersonIdent author, @Nonnull PersonIdent committer, @Nonnull List<AnyObjectId> parents, @Nonnull Repository repo) throws IOException {
     try(ObjectInserter inserter = repo.newObjectInserter()) {

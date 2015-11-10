@@ -68,6 +68,22 @@ public final class CommitRequest extends GitFileSystemRequest<RevCommit> {
     return this;
   }
 
+  @Nullable
+  @Override
+  protected RevCommit doExecute() throws IOException {
+    prepareCommitter();
+    prepareAuthor();
+    prepareParents();
+    AnyObjectId tree = gfs.persist();
+    if(!allowEmpty && !amend && tree.equals(commit.getTree()))
+      return null;
+    RevCommit resultCommit = CommitUtils.createCommit(message, tree, author, committer, parents, repo);
+    if(branchRef != null)
+      updateRef(resultCommit);
+    updateFileSystem(resultCommit);
+    return resultCommit;
+  }
+
   @Nonnull
   private RevCommit amendedCommit() {
     if(commit == null)
@@ -77,7 +93,7 @@ public final class CommitRequest extends GitFileSystemRequest<RevCommit> {
 
   private void prepareCommitter() {
     if(committer == null)
-      committer = new PersonIdent(repository);
+      committer = new PersonIdent(repo);
   }
 
   private void prepareAuthor() {
@@ -103,30 +119,14 @@ public final class CommitRequest extends GitFileSystemRequest<RevCommit> {
 
   private void updateRef(@Nonnull AnyObjectId head) throws IOException {
     if(amend)
-      BranchUtils.amendCommit(branchRef, head, repository);
+      BranchUtils.amendCommit(branchRef, head, repo);
     else if(commit != null)
-      BranchUtils.newCommit(branchRef, head, repository);
+      BranchUtils.newCommit(branchRef, head, repo);
     else
-      BranchUtils.initBranch(branchRef, head, repository);
+      BranchUtils.initBranch(branchRef, head, repo);
   }
 
   private void updateFileSystem(@Nonnull RevCommit head) {
     gfs.setCommit(head);
-  }
-
-  @Nullable
-  @Override
-  public RevCommit doExecute() throws IOException {
-    prepareCommitter();
-    prepareAuthor();
-    prepareParents();
-    AnyObjectId tree = gfs.persist();
-    if(!allowEmpty && !amend && tree.equals(commit.getTree()))
-      return null;
-    RevCommit resultCommit = CommitUtils.createCommit(message, tree, author, committer, parents, repository);
-    if(branchRef != null)
-      updateRef(resultCommit);
-    updateFileSystem(resultCommit);
-    return resultCommit;
   }
 }

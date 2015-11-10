@@ -15,7 +15,7 @@ import org.eclipse.jgit.lib.AnyObjectId;
 public class GitFileStore extends FileStore {
 
   private final String name;
-  private DirectoryNode root;
+  private final DirectoryNode root;
 
   public GitFileStore(@Nonnull String name, @Nullable AnyObjectId rootTree) throws IOException {
     this(name, rootTree != null ? DirectoryNode.treeRoot(rootTree) : DirectoryNode.emptyRoot());

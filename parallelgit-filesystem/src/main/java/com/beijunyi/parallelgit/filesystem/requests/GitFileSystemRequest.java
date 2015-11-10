@@ -6,24 +6,19 @@ import javax.annotation.Nullable;
 
 import com.beijunyi.parallelgit.filesystem.GitFileSystem;
 import org.eclipse.jgit.lib.Repository;
+import org.eclipse.jgit.revwalk.RevWalk;
 
 public abstract class GitFileSystemRequest<Result> {
 
   protected final GitFileSystem gfs;
-  protected final Repository repository;
+  protected final Repository repo;
   protected volatile boolean executed = false;
+
+  private RevWalk revWalk;
 
   protected GitFileSystemRequest(@Nonnull GitFileSystem gfs) {
     this.gfs = gfs;
-    this.repository = gfs.getRepository();
-  }
-
-  @Nullable
-  protected abstract Result doExecute() throws IOException;
-
-  private void checkExecuted() {
-    if(executed)
-      throw new IllegalStateException("Request already executed");
+    this.repo = gfs.getRepository();
   }
 
   @Nullable
@@ -34,6 +29,14 @@ public abstract class GitFileSystemRequest<Result> {
       executed = true;
       return doExecute();
     }
+  }
+
+  @Nullable
+  protected abstract Result doExecute() throws IOException;
+
+  private void checkExecuted() {
+    if(executed)
+      throw new IllegalStateException("Request already executed");
   }
 
 }

@@ -13,8 +13,7 @@ public class PersistRequestTest extends PreSetupGitFileSystemTest {
   @Test
   public void persistFileChanges() throws IOException {
     writeSomeFileToGfs();
-    AnyObjectId treeId = Requests.persist(gfs)
-                           .execute();
+    AnyObjectId treeId = Requests.persist(gfs).execute();
     assertEquals(treeId, gfs.getTree());
   }
 

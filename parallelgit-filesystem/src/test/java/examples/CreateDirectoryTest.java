@@ -23,7 +23,7 @@ public class CreateDirectoryTest extends AbstractParallelGitTest {
 
   @Test
   public void createDirectory() throws IOException {
-    try(GitFileSystem gfs = GitFileSystems.forRevision("my_branch", repo)) {       // open git file system
+    try(GitFileSystem gfs = GitFileSystems.forRevision("my_branch", repo)) {             // open git file system
       Path dir = gfs.getPath("/new_dir");                                                // convert string to nio path
       Files.createDirectory(dir);                                                        // create directory
 
@@ -34,7 +34,7 @@ public class CreateDirectoryTest extends AbstractParallelGitTest {
 
   @Test
   public void createDirectories() throws IOException {
-    try(GitFileSystem gfs = GitFileSystems.forRevision("my_branch", repo)) {       // open git file system
+    try(GitFileSystem gfs = GitFileSystems.forRevision("my_branch", repo)) {             // open git file system
       Path dir = gfs.getPath("/dir1/dir2");                                              // convert string to nio path
       Files.createDirectories(dir);                                                      // create directories
 

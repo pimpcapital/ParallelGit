@@ -84,10 +84,10 @@ public final class GfsIO {
   }
 
   @Nonnull
-  private static byte[] readBlobObject(@Nullable AnyObjectId blobObjectId, @Nonnull GitFileSystem gfs) throws IOException {
-    if(blobObjectId == null)
+  private static byte[] readBlobObject(@Nullable AnyObjectId blobId, @Nonnull GitFileSystem gfs) throws IOException {
+    if(blobId == null)
       return new byte[0];
-    return gfs.loadObject(blobObjectId);
+    return gfs.loadObject(blobId);
   }
 
   @Nonnull
@@ -105,10 +105,10 @@ public final class GfsIO {
     return bytes;
   }
 
-  private static long readBlobSize(@Nullable AnyObjectId blobObjectId, @Nonnull GitFileSystem gfs) throws IOException {
-    if(blobObjectId == null)
+  private static long readBlobSize(@Nullable AnyObjectId blobId, @Nonnull GitFileSystem gfs) throws IOException {
+    if(blobId == null)
       return 0;
-    return gfs.getBlobSize(blobObjectId);
+    return gfs.getBlobSize(blobId);
   }
 
   private static long loadFileSize(@Nonnull FileNode file, @Nonnull GitFileSystem gfs) throws IOException {
@@ -118,10 +118,10 @@ public final class GfsIO {
   }
 
   @Nonnull
-  private static Map<String, Node> readTreeObject(@Nullable AnyObjectId treeObjectId, @Nonnull GitFileSystem gfs, @Nonnull DirectoryNode parent) throws IOException {
+  private static Map<String, Node> readTreeObject(@Nullable AnyObjectId treeId, @Nonnull GitFileSystem gfs, @Nonnull DirectoryNode parent) throws IOException {
     Map<String, Node> children = new HashMap<>();
-    if(treeObjectId != null) {
-      byte[] treeData = gfs.loadObject(treeObjectId);
+    if(treeId != null) {
+      byte[] treeData = gfs.loadObject(treeId);
       CanonicalTreeParser treeParser = new CanonicalTreeParser();
       treeParser.reset(treeData);
       while(!treeParser.eof()) {
@@ -331,6 +331,11 @@ public final class GfsIO {
     AnyObjectId ret = persistNode(root, true, gfs);
     assert ret != null;
     return ret;
+  }
+
+  public static void resetObjectId(@Nonnull GitPath path, @Nonnull AnyObjectId objectId) throws IOException {
+    Node node = getNode(path);
+    // TODO: reset object id and mark dirty
   }
 
 }

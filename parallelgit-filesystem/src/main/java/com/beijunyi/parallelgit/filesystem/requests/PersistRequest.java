@@ -23,12 +23,4 @@ public final class PersistRequest extends GitFileSystemRequest<AnyObjectId> {
     return gfs.persist();
   }
 
-  @Nonnull
-  @Override
-  public AnyObjectId execute() throws IOException {
-    AnyObjectId ret = super.execute();
-    assert ret != null;
-    return ret;
-  }
-
 }

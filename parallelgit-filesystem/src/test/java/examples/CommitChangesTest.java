@@ -29,7 +29,7 @@ public class CommitChangesTest extends AbstractParallelGitTest {
   @Test
   public void commitChanges() throws IOException {
     RevCommit commit;
-    try(GitFileSystem gfs = GitFileSystems.forRevision("my_branch", repo)) {       // open git file system
+    try(GitFileSystem gfs = GitFileSystems.forRevision("my_branch", repo)) {             // open git file system
       Path file = gfs.getPath("/my_file.txt");                                           // convert string to nio path
       Files.write(file, "my text data".getBytes());                                      // write file
       commit = Requests.commit(gfs).message("my commit message").execute();              // commit changes
@@ -45,10 +45,11 @@ public class CommitChangesTest extends AbstractParallelGitTest {
   @Test
   public void persistBlobs() throws IOException {
     AnyObjectId tree;
-    try(GitFileSystem gfs = GitFileSystems.forRevision("my_branch", repo)) {       // open git file system
+    try(GitFileSystem gfs = GitFileSystems.forRevision("my_branch", repo)) {             // open git file system
       Path file = gfs.getPath("/my_file.txt");                                           // convert string to nio path
       Files.write(file, "my text data".getBytes());                                      // write file
       tree = Requests.persist(gfs).execute();                                            // persistRoot changes and create a tree
+      assert tree != null;
     }
 
     // check

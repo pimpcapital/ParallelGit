@@ -258,7 +258,6 @@ public class GitFileSystem extends FileSystem {
     return result;
   }
 
-
   @Nonnull
   public Repository getRepository() {
     return repository;
