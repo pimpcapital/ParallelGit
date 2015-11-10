@@ -64,8 +64,7 @@ public class FileNode extends Node {
   }
 
   @Override
-  public void markDeleted() {
-    super.markDeleted();
+  protected void release() {
     bytes = null;
     size = -1;
   }

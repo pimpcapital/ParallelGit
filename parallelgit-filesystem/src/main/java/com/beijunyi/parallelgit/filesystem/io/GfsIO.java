@@ -5,6 +5,8 @@ import java.nio.file.*;
 import java.nio.file.attribute.FileAttribute;
 import java.nio.file.attribute.FileAttributeView;
 import java.util.*;
+import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.ConcurrentMap;
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 
@@ -118,8 +120,8 @@ public final class GfsIO {
   }
 
   @Nonnull
-  private static Map<String, Node> readTreeObject(@Nullable AnyObjectId treeId, @Nonnull GitFileSystem gfs, @Nonnull DirectoryNode parent) throws IOException {
-    Map<String, Node> children = new HashMap<>();
+  private static ConcurrentMap<String, Node> readTreeObject(@Nullable AnyObjectId treeId, @Nonnull GitFileSystem gfs, @Nonnull DirectoryNode parent) throws IOException {
+    ConcurrentMap<String, Node> children = new ConcurrentHashMap<>();
     if(treeId != null) {
       byte[] treeData = gfs.loadObject(treeId);
       CanonicalTreeParser treeParser = new CanonicalTreeParser();
@@ -134,7 +136,7 @@ public final class GfsIO {
 
   @Nonnull
   private static Map<String, Node> loadChildren(@Nonnull DirectoryNode dir, @Nonnull GitFileSystem gfs) throws IOException {
-    Map<String, Node> children = readTreeObject(dir.getObject(), gfs, dir);
+    ConcurrentMap<String, Node> children = readTreeObject(dir.getObject(), gfs, dir);
     dir.loadChildren(children);
     return children;
   }
@@ -211,10 +213,10 @@ public final class GfsIO {
   }
 
   private static void copyDirectory(@Nonnull DirectoryNode source, @Nonnull GitFileSystem sourceFs, @Nonnull DirectoryNode target, @Nonnull GitFileSystem targetFs) throws IOException {
-    Map<String, Node> children = source.getChildren();
+    ConcurrentMap<String, Node> children = source.getChildren();
     if(children == null)
       children = readTreeObject(source.getObject(), sourceFs, source);
-    Map<String, Node> clonedChildren = new HashMap<>();
+    ConcurrentMap<String, Node> clonedChildren = new ConcurrentHashMap<>();
     for(Map.Entry<String, Node> child : children.entrySet()) {
       Node clonedChild = Node.cloneNode(child.getValue(), target);
       clonedChildren.put(child.getKey(), clonedChild);
@@ -332,9 +334,9 @@ public final class GfsIO {
     return ret;
   }
 
-  public static void resetObjectId(@Nonnull GitPath path, @Nonnull AnyObjectId objectId) throws IOException {
+  public static void resetObject(@Nonnull GitPath path, @Nonnull AnyObjectId objectId) throws IOException {
     Node node = getNode(path);
-    // TODO: reset object id and mark dirty
+    node.reset(objectId);
   }
 
 }

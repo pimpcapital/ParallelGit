@@ -1,6 +1,6 @@
 package com.beijunyi.parallelgit.filesystem.io;
 
-import java.util.Map;
+import java.util.concurrent.ConcurrentMap;
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 
@@ -8,7 +8,7 @@ import org.eclipse.jgit.lib.AnyObjectId;
 
 public class DirectoryNode extends Node {
 
-  protected Map<String, Node> children;
+  protected ConcurrentMap<String, Node> children;
 
   protected DirectoryNode(@Nullable AnyObjectId object, @Nullable DirectoryNode parent) {
     super(NodeType.DIRECTORY, object, parent);
@@ -42,11 +42,11 @@ public class DirectoryNode extends Node {
   }
 
   @Nullable
-  public Map<String, Node> getChildren() {
+  public ConcurrentMap<String, Node> getChildren() {
     return children;
   }
 
-  public void setChildren(@Nullable Map<String, Node> children) {
+  public void setChildren(@Nullable ConcurrentMap<String, Node> children) {
     this.children = children;
   }
 
@@ -56,7 +56,7 @@ public class DirectoryNode extends Node {
     return object == null;
   }
 
-  public void loadChildren(@Nonnull Map<String, Node> children) {
+  public void loadChildren(@Nonnull ConcurrentMap<String, Node> children) {
     setChildren(children);
   }
 
@@ -93,13 +93,11 @@ public class DirectoryNode extends Node {
   }
 
   @Override
-  public void markDeleted() {
-    super.markDeleted();
+  protected void release() {
     if(children != null) {
       for(Node child : children.values())
         child.markDeleted();
       children = null;
     }
   }
-
 }

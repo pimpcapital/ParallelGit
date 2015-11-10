@@ -90,6 +90,22 @@ public abstract class Node {
     this.dirty = dirty;
   }
 
+  public boolean isDeleted() {
+    return deleted;
+  }
+
+  public void setDeleted(boolean deleted) {
+    this.deleted = deleted;
+  }
+
+  public void reset(@Nonnull AnyObjectId objectId) {
+    release();
+    if(object == null || object.equals(objectId)) {
+      setObject(objectId);
+      markDirty();
+    }
+  }
+
   public void markDirty() {
     if(!deleted && !isDirty()) {
       setDirty(true);
@@ -107,7 +123,10 @@ public abstract class Node {
   }
 
   public void markDeleted() {
-    deleted = true;
+    setDeleted(true);
+    release();
   }
+
+  protected abstract void release();
 
 }
