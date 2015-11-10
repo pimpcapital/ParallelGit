@@ -7,7 +7,7 @@ import java.nio.file.Path;
 import com.beijunyi.parallelgit.AbstractParallelGitTest;
 import com.beijunyi.parallelgit.filesystem.GitFileSystem;
 import com.beijunyi.parallelgit.filesystem.requests.Requests;
-import com.beijunyi.parallelgit.filesystem.utils.GitFileSystemBuilder;
+import com.beijunyi.parallelgit.filesystem.utils.GitFileSystems;
 import com.beijunyi.parallelgit.utils.GitFileUtils;
 import com.beijunyi.parallelgit.utils.ObjectUtils;
 import com.beijunyi.parallelgit.utils.TreeUtils;
@@ -29,7 +29,7 @@ public class CommitChangesTest extends AbstractParallelGitTest {
   @Test
   public void commitChanges() throws IOException {
     RevCommit commit;
-    try(GitFileSystem gfs = GitFileSystemBuilder.forRevision("my_branch", repo)) {       // open git file system
+    try(GitFileSystem gfs = GitFileSystems.forRevision("my_branch", repo)) {       // open git file system
       Path file = gfs.getPath("/my_file.txt");                                           // convert string to nio path
       Files.write(file, "my text data".getBytes());                                      // write file
       commit = Requests.commit(gfs).message("my commit message").execute();              // commit changes
@@ -45,7 +45,7 @@ public class CommitChangesTest extends AbstractParallelGitTest {
   @Test
   public void persistBlobs() throws IOException {
     AnyObjectId tree;
-    try(GitFileSystem gfs = GitFileSystemBuilder.forRevision("my_branch", repo)) {       // open git file system
+    try(GitFileSystem gfs = GitFileSystems.forRevision("my_branch", repo)) {       // open git file system
       Path file = gfs.getPath("/my_file.txt");                                           // convert string to nio path
       Files.write(file, "my text data".getBytes());                                      // write file
       tree = Requests.persist(gfs).execute();                                            // persistRoot changes and create a tree

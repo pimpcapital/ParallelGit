@@ -20,7 +20,7 @@ import org.eclipse.jgit.lib.Constants;
 import org.eclipse.jgit.lib.Repository;
 import org.eclipse.jgit.revwalk.RevCommit;
 
-public class GitFileSystemBuilder {
+public class GitFileSystems {
 
   private GitFileSystemProvider provider;
   private Repository repository;
@@ -38,8 +38,8 @@ public class GitFileSystemBuilder {
   private String treeIdStr;
 
   @Nonnull
-  public static GitFileSystemBuilder prepare() {
-    return new GitFileSystemBuilder();
+  public static GitFileSystems prepare() {
+    return new GitFileSystems();
   }
 
   @Nonnull
@@ -67,103 +67,103 @@ public class GitFileSystemBuilder {
   }
 
   @Nonnull
-  public static GitFileSystemBuilder fromUri(@Nonnull URI uri, @Nonnull Map<String, ?> properties) {
+  public static GitFileSystems fromUri(@Nonnull URI uri, @Nonnull Map<String, ?> properties) {
     return prepare()
              .repository(GitUriUtils.getRepository(uri))
              .readAllParams(GitParams.getParams(properties));
   }
 
   @Nonnull
-  public static GitFileSystemBuilder fromPath(@Nonnull Path path, @Nonnull Map<String, ?> properties) {
+  public static GitFileSystems fromPath(@Nonnull Path path, @Nonnull Map<String, ?> properties) {
     return prepare()
              .repository(path.toFile())
              .readAllParams(GitParams.getParams(properties));
   }
 
   @Nonnull
-  public GitFileSystemBuilder provider(@Nullable GitFileSystemProvider provider) {
+  public GitFileSystems provider(@Nullable GitFileSystemProvider provider) {
     this.provider = provider;
     return this;
   }
 
   @Nonnull
-  public GitFileSystemBuilder repository(@Nullable Repository repository) {
+  public GitFileSystems repository(@Nullable Repository repository) {
     this.repository = repository;
     return this;
   }
 
   @Nonnull
-  public GitFileSystemBuilder repository(@Nullable File repoDir) {
+  public GitFileSystems repository(@Nullable File repoDir) {
     this.repoDir = repoDir;
     return this;
   }
 
   @Nonnull
-  public GitFileSystemBuilder repository(@Nullable String repoDirPath) {
+  public GitFileSystems repository(@Nullable String repoDirPath) {
     this.repoDirPath = repoDirPath;
     return this;
   }
 
   @Nonnull
-  public GitFileSystemBuilder create(@Nullable Boolean create) {
+  public GitFileSystems create(@Nullable Boolean create) {
     this.create = create;
     return this;
   }
 
   @Nonnull
-  public GitFileSystemBuilder create() {
+  public GitFileSystems create() {
     return create(true);
   }
 
   @Nonnull
-  public GitFileSystemBuilder bare(@Nullable Boolean bare) {
+  public GitFileSystems bare(@Nullable Boolean bare) {
     this.bare = bare;
     return this;
   }
 
   @Nonnull
-  public GitFileSystemBuilder bare() {
+  public GitFileSystems bare() {
     return bare(true);
   }
 
   @Nonnull
-  public GitFileSystemBuilder branch(@Nullable String branch) {
+  public GitFileSystems branch(@Nullable String branch) {
     this.branch = branch;
     return this;
   }
 
   @Nonnull
-  public GitFileSystemBuilder commit(@Nullable RevCommit commit) {
+  public GitFileSystems commit(@Nullable RevCommit commit) {
     this.commit = commit;
     return this;
   }
 
   @Nonnull
-  public GitFileSystemBuilder commit(@Nullable AnyObjectId commitId) {
+  public GitFileSystems commit(@Nullable AnyObjectId commitId) {
     this.commitId = commitId;
     return this;
   }
 
   @Nonnull
-  public GitFileSystemBuilder commit(@Nullable String commitIdStr) {
+  public GitFileSystems commit(@Nullable String commitIdStr) {
     this.commitIdStr = commitIdStr;
     return this;
   }
 
   @Nonnull
-  public GitFileSystemBuilder revision(@Nullable String revision) {
+  public GitFileSystems revision(@Nullable String revision) {
     this.revision = revision;
     return this;
   }
 
   @Nonnull
-  public GitFileSystemBuilder tree(@Nullable AnyObjectId treeId) {
+  public GitFileSystems tree(@Nullable AnyObjectId treeId) {
     this.treeId = treeId;
     return this;
   }
 
   @Nonnull
-  public GitFileSystemBuilder tree(@Nullable String treeIdStr) {
+  public GitFileSystems tree(@Nullable String treeIdStr) {
     this.treeIdStr = treeIdStr;
     return this;
   }
@@ -181,7 +181,7 @@ public class GitFileSystemBuilder {
   }
 
   @Nonnull
-  private GitFileSystemBuilder readAllParams(@Nonnull GitParams params) {
+  private GitFileSystems readAllParams(@Nonnull GitParams params) {
     return this
              .create(params.getCreate())
              .bare(params.getBare())

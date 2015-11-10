@@ -9,7 +9,7 @@ import org.junit.Test;
 
 import static org.junit.Assert.assertEquals;
 
-public class GitFileSystemBuilderCreateNewRepositoryTest extends AbstractParallelGitTest {
+public class GitFileSystemsCreateNewRepositoryTest extends AbstractParallelGitTest {
 
   @Before
   public void setupRepository() throws IOException {
@@ -18,7 +18,7 @@ public class GitFileSystemBuilderCreateNewRepositoryTest extends AbstractParalle
 
   @Test
   public void buildWithCreateOption() throws IOException {
-    GitFileSystem gfs = GitFileSystemBuilder.prepare()
+    GitFileSystem gfs = GitFileSystems.prepare()
                           .repository(repoDir)
                           .create()
                           .build();
@@ -27,7 +27,7 @@ public class GitFileSystemBuilderCreateNewRepositoryTest extends AbstractParalle
 
   @Test
   public void buildWithCreateAndBareOption() throws IOException {
-    GitFileSystem gfs = GitFileSystemBuilder.prepare()
+    GitFileSystem gfs = GitFileSystems.prepare()
                           .repository(repoDir)
                           .create()
                           .bare()
@@ -37,7 +37,7 @@ public class GitFileSystemBuilderCreateNewRepositoryTest extends AbstractParalle
 
   @Test
   public void buildWithCreateAndBareOption_nonBare() throws IOException {
-    GitFileSystem gfs = GitFileSystemBuilder.prepare()
+    GitFileSystem gfs = GitFileSystems.prepare()
                           .repository(repoDir)
                           .create()
                           .bare(false)

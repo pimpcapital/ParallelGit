@@ -7,7 +7,7 @@ import java.nio.file.Path;
 
 import com.beijunyi.parallelgit.AbstractParallelGitTest;
 import com.beijunyi.parallelgit.filesystem.GitFileSystem;
-import com.beijunyi.parallelgit.filesystem.utils.GitFileSystemBuilder;
+import com.beijunyi.parallelgit.filesystem.utils.GitFileSystems;
 import org.junit.Before;
 import org.junit.Test;
 
@@ -24,7 +24,7 @@ public class ReadFileTest extends AbstractParallelGitTest {
 
   @Test
   public void readBytes() throws IOException {
-    try(GitFileSystem gfs = GitFileSystemBuilder.forRevision("my_branch", repo)) {       // open git file system
+    try(GitFileSystem gfs = GitFileSystems.forRevision("my_branch", repo)) {       // open git file system
       Path exampleFile = gfs.getPath("/example.txt");                                    // convert string to nio path
       String fileContent = new String(Files.readAllBytes(exampleFile));                  // read file
 
@@ -35,7 +35,7 @@ public class ReadFileTest extends AbstractParallelGitTest {
 
   @Test
   public void openInputStream() throws IOException {
-    try(GitFileSystem gfs = GitFileSystemBuilder.forRevision("my_branch", repo)) {       // open git file system
+    try(GitFileSystem gfs = GitFileSystems.forRevision("my_branch", repo)) {       // open git file system
       Path exampleFile = gfs.getPath("/example.txt");                                    // convert string to nio path
       try(InputStream inputStream = Files.newInputStream(exampleFile)) {                 // open input stream
         byte[] bytes = new byte[inputStream.available()];                                // prepare buffer

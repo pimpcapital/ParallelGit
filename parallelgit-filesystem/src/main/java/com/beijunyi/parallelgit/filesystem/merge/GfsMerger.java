@@ -9,7 +9,7 @@ import javax.annotation.Nullable;
 import com.beijunyi.parallelgit.filesystem.GitFileSystem;
 import com.beijunyi.parallelgit.filesystem.io.DirectoryNode;
 import com.beijunyi.parallelgit.filesystem.io.Node;
-import com.beijunyi.parallelgit.filesystem.utils.GitFileSystemBuilder;
+import com.beijunyi.parallelgit.filesystem.utils.GitFileSystems;
 import org.eclipse.jgit.diff.DiffAlgorithm;
 import org.eclipse.jgit.diff.DiffAlgorithm.SupportedAlgorithm;
 import org.eclipse.jgit.diff.RawText;
@@ -54,7 +54,7 @@ public class GfsMerger extends ThreeWayMerger {
     super(repo);
 
     tw = new NameConflictTreeWalk(reader);
-    gfs = GitFileSystemBuilder.prepare().repository(repo).build();
+    gfs = GitFileSystems.prepare().repository(repo).build();
     conflicts = new HashMap<>();
 
     currentDirectory = gfs.getFileStore().getRoot();

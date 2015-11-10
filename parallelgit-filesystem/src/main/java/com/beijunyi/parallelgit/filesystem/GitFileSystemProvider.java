@@ -12,7 +12,7 @@ import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 
 import com.beijunyi.parallelgit.filesystem.io.*;
-import com.beijunyi.parallelgit.filesystem.utils.GitFileSystemBuilder;
+import com.beijunyi.parallelgit.filesystem.utils.GitFileSystems;
 import com.beijunyi.parallelgit.filesystem.utils.GitUriUtils;
 
 import static java.nio.file.StandardOpenOption.*;
@@ -25,20 +25,10 @@ public class GitFileSystemProvider extends FileSystemProvider {
 
   private final Map<String, GitFileSystem> fsMap = new ConcurrentHashMap<>();
 
-  private static GitFileSystemProvider INSTANCE;
+  private static final GitFileSystemProvider INSTANCE = getInstalledProvider();
 
   @Nonnull
   public static GitFileSystemProvider getInstance() {
-    if(INSTANCE == null) {
-      for(FileSystemProvider provider : FileSystemProvider.installedProviders()) {
-        if(provider instanceof GitFileSystemProvider) {
-          INSTANCE = (GitFileSystemProvider) provider;
-          break;
-        }
-      }
-      if(INSTANCE == null)
-        throw new ProviderNotFoundException(GIT_FS_SCHEME);
-    }
     return INSTANCE;
   }
 
@@ -51,7 +41,7 @@ public class GitFileSystemProvider extends FileSystemProvider {
   @Nonnull
   @Override
   public GitFileSystem newFileSystem(@Nonnull Path path, @Nonnull Map<String, ?> properties) throws IOException {
-    return GitFileSystemBuilder
+    return GitFileSystems
              .fromPath(path, properties)
              .provider(this)
              .build();
@@ -60,7 +50,7 @@ public class GitFileSystemProvider extends FileSystemProvider {
   @Nonnull
   @Override
   public GitFileSystem newFileSystem(@Nonnull URI uri, @Nonnull Map<String, ?> properties) throws IOException {
-    return GitFileSystemBuilder
+    return GitFileSystems
              .fromUri(uri, properties)
              .provider(this)
              .build();
@@ -216,6 +206,20 @@ public class GitFileSystemProvider extends FileSystemProvider {
   @Override
   public void setAttribute(@Nullable Path path, @Nullable String attribute, @Nullable Object value, @Nullable LinkOption... options) throws UnsupportedOperationException {
     throw new UnsupportedOperationException();
+  }
+
+  @Nonnull
+  private static GitFileSystemProvider getInstalledProvider() {
+    GitFileSystemProvider ret = null;
+    for(FileSystemProvider provider : FileSystemProvider.installedProviders()) {
+      if(provider instanceof GitFileSystemProvider) {
+        ret = (GitFileSystemProvider) provider;
+        break;
+      }
+    }
+    if(ret == null)
+      ret = new GitFileSystemProvider();
+    return ret;
   }
 
 }
