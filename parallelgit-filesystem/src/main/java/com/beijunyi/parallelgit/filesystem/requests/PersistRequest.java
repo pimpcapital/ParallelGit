@@ -13,7 +13,7 @@ public final class PersistRequest extends GitFileSystemRequest<AnyObjectId> {
   }
 
   @Nonnull
-  static PersistRequest prepare(@Nonnull GitFileSystem gfs) {
+  public static PersistRequest prepare(@Nonnull GitFileSystem gfs) {
     return new PersistRequest(gfs);
   }
 

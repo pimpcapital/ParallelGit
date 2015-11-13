@@ -12,6 +12,8 @@ import org.eclipse.jgit.internal.storage.file.FileRepository;
 import org.eclipse.jgit.internal.storage.file.GC;
 import org.eclipse.jgit.lib.*;
 
+import static com.beijunyi.parallelgit.utils.RefUtils.ensureBranchRefName;
+
 public final class RepositoryUtils {
 
   @Nonnull
@@ -80,7 +82,7 @@ public final class RepositoryUtils {
       else
         attachRepositoryHead(repo, ref);
     } else
-      attachRepositoryHead(repo, RefUtils.ensureBranchRefName(name));
+      attachRepositoryHead(repo, ensureBranchRefName(name));
   }
 
   public static void garbageCollect(@Nonnull FileRepository repo) throws IOException {

@@ -12,7 +12,7 @@ import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 
 import com.beijunyi.parallelgit.filesystem.io.*;
-import com.beijunyi.parallelgit.filesystem.utils.GitFileSystems;
+import com.beijunyi.parallelgit.filesystem.utils.GitFileSystemBuilder;
 import com.beijunyi.parallelgit.filesystem.utils.GitUriUtils;
 
 import static java.nio.file.StandardOpenOption.*;
@@ -41,7 +41,7 @@ public class GitFileSystemProvider extends FileSystemProvider {
   @Nonnull
   @Override
   public GitFileSystem newFileSystem(@Nonnull Path path, @Nonnull Map<String, ?> properties) throws IOException {
-    return GitFileSystems
+    return GitFileSystemBuilder
              .fromPath(path, properties)
              .provider(this)
              .build();
@@ -50,7 +50,7 @@ public class GitFileSystemProvider extends FileSystemProvider {
   @Nonnull
   @Override
   public GitFileSystem newFileSystem(@Nonnull URI uri, @Nonnull Map<String, ?> properties) throws IOException {
-    return GitFileSystems
+    return GitFileSystemBuilder
              .fromUri(uri, properties)
              .provider(this)
              .build();

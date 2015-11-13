@@ -2,8 +2,8 @@ package usecases;
 
 import java.io.IOException;
 
+import com.beijunyi.parallelgit.filesystem.Gfs;
 import com.beijunyi.parallelgit.filesystem.PreSetupGitFileSystemTest;
-import com.beijunyi.parallelgit.filesystem.requests.Requests;
 import com.beijunyi.parallelgit.utils.GitFileUtils;
 import org.eclipse.jgit.revwalk.RevCommit;
 import org.junit.Test;
@@ -17,7 +17,7 @@ public class CommitMultipleFilesTest extends PreSetupGitFileSystemTest {
     String[] files = {"/file1.txt", "/file2.txt", "/file3.txt"};
     for(String file : files)
       writeToGfs(file);
-    RevCommit commit = Requests.commit(gfs).execute();
+    RevCommit commit = Gfs.commit(gfs).execute();
     assert commit != null;
     for(String file : files)
       assertTrue(GitFileUtils.exists(file, commit, repo));
@@ -28,7 +28,7 @@ public class CommitMultipleFilesTest extends PreSetupGitFileSystemTest {
     String[] files = {"/dir1/file11.txt", "/dir2/dir21/file211.txt", "/dir2/file22.txt", "/dir2/file23.txt"};
     for(String file : files)
       writeToGfs(file);
-    RevCommit commit = Requests.commit(gfs).execute();
+    RevCommit commit = Gfs.commit(gfs).execute();
     assert commit != null;
     for(String file : files)
       assertTrue(GitFileUtils.exists(file, commit, repo));

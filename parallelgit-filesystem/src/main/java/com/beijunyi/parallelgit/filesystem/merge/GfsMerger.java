@@ -3,18 +3,20 @@ package com.beijunyi.parallelgit.filesystem.merge;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.util.*;
+import java.util.concurrent.ConcurrentHashMap;
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 
 import com.beijunyi.parallelgit.filesystem.GitFileSystem;
 import com.beijunyi.parallelgit.filesystem.io.DirectoryNode;
 import com.beijunyi.parallelgit.filesystem.io.Node;
-import com.beijunyi.parallelgit.filesystem.utils.GitFileSystems;
 import org.eclipse.jgit.diff.DiffAlgorithm;
 import org.eclipse.jgit.diff.DiffAlgorithm.SupportedAlgorithm;
 import org.eclipse.jgit.diff.RawText;
 import org.eclipse.jgit.diff.RawTextComparator;
-import org.eclipse.jgit.lib.*;
+import org.eclipse.jgit.lib.AnyObjectId;
+import org.eclipse.jgit.lib.FileMode;
+import org.eclipse.jgit.lib.ObjectId;
 import org.eclipse.jgit.merge.*;
 import org.eclipse.jgit.revwalk.RevTree;
 import org.eclipse.jgit.treewalk.AbstractTreeIterator;
@@ -50,11 +52,11 @@ public class GfsMerger extends ThreeWayMerger {
 
   private AnyObjectId resultTree;
 
-  public GfsMerger(@Nonnull Repository repo) throws IOException {
-    super(repo);
+  public GfsMerger(@Nonnull GitFileSystem gfs) {
+    super(gfs.getRepository());
+    this.gfs = gfs;
 
     tw = new NameConflictTreeWalk(reader);
-    gfs = GitFileSystems.prepare().repository(repo).build();
     conflicts = new HashMap<>();
 
     currentDirectory = gfs.getFileStore().getRoot();
@@ -312,7 +314,7 @@ public class GfsMerger extends ThreeWayMerger {
 
   private void addChild(@Nonnull Node child) {
     if(currentDirectory.getChildren() == null)
-      currentDirectory.setChildren(new HashMap<String, Node>());
+      currentDirectory.setChildren(new ConcurrentHashMap<String, Node>());
     currentDirectory.addChild(name, child, false);
   }
 

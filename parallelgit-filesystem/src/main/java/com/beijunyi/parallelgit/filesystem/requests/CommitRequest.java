@@ -10,10 +10,11 @@ import javax.annotation.Nullable;
 import com.beijunyi.parallelgit.filesystem.GitFileSystem;
 import com.beijunyi.parallelgit.utils.BranchUtils;
 import com.beijunyi.parallelgit.utils.CommitUtils;
-import com.beijunyi.parallelgit.utils.RefUtils;
 import org.eclipse.jgit.lib.AnyObjectId;
 import org.eclipse.jgit.lib.PersonIdent;
 import org.eclipse.jgit.revwalk.RevCommit;
+
+import static com.beijunyi.parallelgit.utils.RefUtils.ensureBranchRefName;
 
 public final class CommitRequest extends GitFileSystemRequest<RevCommit> {
 
@@ -29,12 +30,12 @@ public final class CommitRequest extends GitFileSystemRequest<RevCommit> {
   private CommitRequest(@Nonnull GitFileSystem gfs) {
     super(gfs);
     String branch = gfs.getBranch();
-    branchRef = branch != null ? RefUtils.ensureBranchRefName(branch) : null;
+    branchRef = branch != null ? ensureBranchRefName(branch) : null;
     commit = gfs.getCommit();
   }
 
   @Nonnull
-  static CommitRequest prepare(@Nonnull GitFileSystem gfs) {
+  public static CommitRequest prepare(@Nonnull GitFileSystem gfs) {
     return new CommitRequest(gfs);
   }
 

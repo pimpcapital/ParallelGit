@@ -13,7 +13,7 @@ import org.junit.Test;
 
 import static org.junit.Assert.assertEquals;
 
-public class GitFileSystemsTest extends AbstractParallelGitTest {
+public class GitFileSystemBuilderTest extends AbstractParallelGitTest {
 
   @Before
   public void setupRepository() throws IOException {
@@ -25,7 +25,7 @@ public class GitFileSystemsTest extends AbstractParallelGitTest {
     URI uri = GitUriBuilder.prepare()
                 .repository(repo)
                 .build();
-    GitFileSystem gfs = GitFileSystems.fromUri(uri, GitParams.emptyMap())
+    GitFileSystem gfs = GitFileSystemBuilder.fromUri(uri, GitParams.emptyMap())
                           .build();
     assertEquals(repo.getDirectory(), gfs.getRepository().getDirectory());
   }
@@ -33,14 +33,14 @@ public class GitFileSystemsTest extends AbstractParallelGitTest {
   @Test
   public void buildFromPath() throws IOException {
     Path path = repoDir.toPath();
-    GitFileSystem gfs = GitFileSystems.fromPath(path, GitParams.emptyMap())
+    GitFileSystem gfs = GitFileSystemBuilder.fromPath(path, GitParams.emptyMap())
                           .build();
     assertEquals(repo.getDirectory(), gfs.getRepository().getDirectory());
   }
 
   @Test
   public void buildFromRepository() throws IOException {
-    GitFileSystem gfs = GitFileSystems.prepare()
+    GitFileSystem gfs = GitFileSystemBuilder.prepare()
                           .repository(repo)
                           .build();
     assertEquals(repo.getDirectory(), gfs.getRepository().getDirectory());
@@ -48,7 +48,7 @@ public class GitFileSystemsTest extends AbstractParallelGitTest {
 
   @Test
   public void buildFromRepositoryDirectory() throws IOException {
-    GitFileSystem gfs = GitFileSystems.prepare()
+    GitFileSystem gfs = GitFileSystemBuilder.prepare()
                           .repository(repo.getDirectory())
                           .build();
     assertEquals(repo.getDirectory(), gfs.getRepository().getDirectory());
@@ -56,7 +56,7 @@ public class GitFileSystemsTest extends AbstractParallelGitTest {
 
   @Test
   public void buildFromRepositoryDirectoryPath() throws IOException {
-    GitFileSystem gfs = GitFileSystems.prepare()
+    GitFileSystem gfs = GitFileSystemBuilder.prepare()
                           .repository(repo.getDirectory().getAbsolutePath())
                           .build();
     assertEquals(repo.getDirectory(), gfs.getRepository().getDirectory());
@@ -64,7 +64,7 @@ public class GitFileSystemsTest extends AbstractParallelGitTest {
 
   @Test
   public void buildFromRepositoryWorkTree() throws IOException {
-    GitFileSystem gfs = GitFileSystems.prepare()
+    GitFileSystem gfs = GitFileSystemBuilder.prepare()
                           .repository(repo.getWorkTree())
                           .build();
     assertEquals(repo.getDirectory(), gfs.getRepository().getDirectory());
@@ -72,7 +72,7 @@ public class GitFileSystemsTest extends AbstractParallelGitTest {
 
   @Test
   public void buildFromRepositoryWorkTreePath() throws IOException {
-    GitFileSystem gfs = GitFileSystems.prepare()
+    GitFileSystem gfs = GitFileSystemBuilder.prepare()
                           .repository(repo.getWorkTree().getAbsolutePath())
                           .build();
     assertEquals(repo.getDirectory(), gfs.getRepository().getDirectory());
@@ -80,7 +80,7 @@ public class GitFileSystemsTest extends AbstractParallelGitTest {
 
   @Test
   public void buildWithBranch() throws IOException {
-    GitFileSystem gfs = GitFileSystems.prepare()
+    GitFileSystem gfs = GitFileSystemBuilder.prepare()
                           .repository(repo)
                           .branch("test_branch")
                           .build();
@@ -91,7 +91,7 @@ public class GitFileSystemsTest extends AbstractParallelGitTest {
   public void buildWithRevision() throws IOException {
     writeSomeFileToCache();
     AnyObjectId commit = commitToMaster();
-    GitFileSystem gfs = GitFileSystems.prepare()
+    GitFileSystem gfs = GitFileSystemBuilder.prepare()
                           .repository(repo)
                           .commit(commit)
                           .build();
@@ -102,7 +102,7 @@ public class GitFileSystemsTest extends AbstractParallelGitTest {
   public void buildWithRevisionString() throws IOException {
     writeSomeFileToCache();
     AnyObjectId commit = commitToMaster();
-    GitFileSystem gfs = GitFileSystems.prepare()
+    GitFileSystem gfs = GitFileSystemBuilder.prepare()
                           .repository(repo)
                           .commit(commit.getName())
                           .build();
@@ -113,7 +113,7 @@ public class GitFileSystemsTest extends AbstractParallelGitTest {
   public void buildWithTree() throws IOException {
     writeSomeFileToCache();
     AnyObjectId tree = commitToMaster().getTree();
-    GitFileSystem gfs = GitFileSystems.prepare()
+    GitFileSystem gfs = GitFileSystemBuilder.prepare()
                           .repository(repo)
                           .tree(tree)
                           .build();
@@ -124,7 +124,7 @@ public class GitFileSystemsTest extends AbstractParallelGitTest {
   public void buildWithTreeString() throws IOException {
     writeSomeFileToCache();
     AnyObjectId tree = commitToMaster().getTree();
-    GitFileSystem gfs = GitFileSystems.prepare()
+    GitFileSystem gfs = GitFileSystemBuilder.prepare()
                           .repository(repo)
                           .tree(tree.getName())
                           .build();
@@ -133,6 +133,6 @@ public class GitFileSystemsTest extends AbstractParallelGitTest {
 
   @Test(expected = NoRepositoryException.class)
   public void buildWithoutRepository_shouldThrowNoRepositoryException() throws IOException {
-    GitFileSystems.prepare().build();
+    GitFileSystemBuilder.prepare().build();
   }
 }

@@ -12,6 +12,7 @@ import org.eclipse.jgit.dircache.DirCache;
 import org.eclipse.jgit.lib.*;
 import org.eclipse.jgit.revwalk.RevCommit;
 import org.eclipse.jgit.revwalk.RevWalk;
+import org.eclipse.jgit.revwalk.RevWalkUtils;
 import org.eclipse.jgit.treewalk.filter.AndTreeFilter;
 import org.eclipse.jgit.treewalk.filter.PathFilterGroup;
 import org.eclipse.jgit.treewalk.filter.TreeFilter;
@@ -110,6 +111,20 @@ public final class CommitUtils {
   public static boolean isMergedInto(@Nonnull RevCommit base, @Nonnull RevCommit target, @Nonnull Repository repo) throws IOException {
     try(ObjectReader reader = repo.newObjectReader()) {
       return isMergedInto(base, target, reader);
+    }
+  }
+
+  @Nonnull
+  public static List<RevCommit> findSquashableCommits(@Nonnull RevCommit start, @Nonnull RevCommit end, @Nonnull ObjectReader reader) throws IOException {
+    try(RevWalk rw = new RevWalk(reader)) {
+      return RevWalkUtils.find(rw, start, end);
+    }
+  }
+
+  @Nonnull
+  public static List<RevCommit> findSquashableCommits(@Nonnull RevCommit start, @Nonnull RevCommit end, @Nonnull Repository repo) throws IOException {
+    try(ObjectReader reader = repo.newObjectReader()) {
+      return findSquashableCommits(start, end, reader);
     }
   }
 

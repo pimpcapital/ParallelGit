@@ -2,6 +2,7 @@ package com.beijunyi.parallelgit.filesystem.requests;
 
 import java.io.IOException;
 
+import com.beijunyi.parallelgit.filesystem.Gfs;
 import com.beijunyi.parallelgit.filesystem.PreSetupGitFileSystemTest;
 import com.beijunyi.parallelgit.utils.CommitUtils;
 import org.eclipse.jgit.lib.PersonIdent;
@@ -15,7 +16,7 @@ public class CommitRequestTest extends PreSetupGitFileSystemTest {
   @Test
   public void commitInBranch_theResultCommitShouldBecomeTheHeadOfBranch() throws IOException {
     writeSomeFileToGfs();
-    RevCommit commit = Requests.commit(gfs)
+    RevCommit commit = Gfs.commit(gfs)
                          .execute();
     assert gfs.getBranch() != null;
     assertEquals(repo.resolve(gfs.getBranch()), commit);
@@ -23,14 +24,14 @@ public class CommitRequestTest extends PreSetupGitFileSystemTest {
 
   @Test
   public void commitNoChange_shouldReturnNull() throws IOException {
-    RevCommit commit = Requests.commit(gfs)
+    RevCommit commit = Gfs.commit(gfs)
                          .execute();
     assertNull(commit);
   }
 
   @Test
   public void commitNoChangeWithAllowEmptyOption_shouldReturnNonNull() throws IOException {
-    RevCommit commit = Requests.commit(gfs)
+    RevCommit commit = Gfs.commit(gfs)
                          .allowEmpty(true)
                          .execute();
     assertNotNull(commit);
@@ -38,7 +39,7 @@ public class CommitRequestTest extends PreSetupGitFileSystemTest {
 
   @Test
   public void commitNoChangeWithAllowEmptyOption_rootTreeOfTheResultCommitShouldBeTheSameAsParent() throws IOException {
-    RevCommit commit = Requests.commit(gfs)
+    RevCommit commit = Gfs.commit(gfs)
                          .allowEmpty(true)
                          .execute();
     assert commit != null;
@@ -48,7 +49,7 @@ public class CommitRequestTest extends PreSetupGitFileSystemTest {
   @Test
   public void commitWithMessage_theResultCommitShouldHaveTheInputMessage() throws IOException {
     writeSomeFileToGfs();
-    RevCommit commit = Requests.commit(gfs)
+    RevCommit commit = Gfs.commit(gfs)
                          .message("test_message")
                          .execute();
     assert commit != null;
@@ -59,7 +60,7 @@ public class CommitRequestTest extends PreSetupGitFileSystemTest {
   public void commitWithAuthor_theResultCommitShouldHaveTheInputAuthor() throws IOException {
     writeSomeFileToGfs();
     PersonIdent author = new PersonIdent("test_author_name", "test_author@email.com");
-    RevCommit commit = Requests.commit(gfs)
+    RevCommit commit = Gfs.commit(gfs)
                          .author(author)
                          .execute();
     assert commit != null;
@@ -70,7 +71,7 @@ public class CommitRequestTest extends PreSetupGitFileSystemTest {
   public void commitWithCommitter_theResultCommitShouldHaveTheInputCommitter() throws IOException {
     writeSomeFileToGfs();
     PersonIdent committer = new PersonIdent("test_committer_name", "test_committer@email.com");
-    RevCommit commit = Requests.commit(gfs)
+    RevCommit commit = Gfs.commit(gfs)
                          .committer(committer)
                          .execute();
     assert commit != null;
@@ -81,7 +82,7 @@ public class CommitRequestTest extends PreSetupGitFileSystemTest {
   public void commitWithCommitterOnly_theResultCommitAuthorShouldDefaultToTheInputCommitter() throws IOException {
     writeSomeFileToGfs();
     PersonIdent committer = new PersonIdent("test_committer_name", "test_committer@email.com");
-    RevCommit commit = Requests.commit(gfs)
+    RevCommit commit = Gfs.commit(gfs)
                          .committer(committer)
                          .execute();
     assert commit != null;
@@ -93,7 +94,7 @@ public class CommitRequestTest extends PreSetupGitFileSystemTest {
     writeSomeFileToGfs();
     PersonIdent author = new PersonIdent("test_author_name", "test_author@email.com");
     PersonIdent committer = new PersonIdent("test_committer_name", "test_committer@email.com");
-    RevCommit commit = Requests.commit(gfs)
+    RevCommit commit = Gfs.commit(gfs)
                          .committer(committer)
                          .author(author)
                          .execute();
@@ -106,7 +107,7 @@ public class CommitRequestTest extends PreSetupGitFileSystemTest {
     writeSomeFileToGfs();
     assert gfs.getCommit() != null;
     RevCommit[] parents = gfs.getCommit().getParents();
-    RevCommit commit = Requests.commit(gfs)
+    RevCommit commit = Gfs.commit(gfs)
                          .amend(true)
                          .execute();
     assert commit != null;
@@ -116,7 +117,7 @@ public class CommitRequestTest extends PreSetupGitFileSystemTest {
   @Test
   public void amendInBranch_theResultCommitShouldBecomeTheHeadOfBranch() throws IOException {
     writeSomeFileToGfs();
-    RevCommit commit = Requests.commit(gfs)
+    RevCommit commit = Gfs.commit(gfs)
                          .amend(true)
                          .execute();
     assert gfs.getBranch() != null;
@@ -125,7 +126,7 @@ public class CommitRequestTest extends PreSetupGitFileSystemTest {
 
   @Test
   public void amendCommitMessage_theResultCommitShouldHaveTheInputMessage() throws IOException {
-    RevCommit commit = Requests.commit(gfs)
+    RevCommit commit = Gfs.commit(gfs)
                          .message("test_message")
                          .amend(true)
                          .execute();
@@ -136,7 +137,7 @@ public class CommitRequestTest extends PreSetupGitFileSystemTest {
   @Test
   public void amendCommitAuthor_theResultCommitShouldHaveTheInputAuthor() throws IOException {
     PersonIdent author = new PersonIdent("test_author_name", "test_author@email.com");
-    RevCommit commit = Requests.commit(gfs)
+    RevCommit commit = Gfs.commit(gfs)
                          .author(author)
                          .amend(true)
                          .execute();
@@ -147,7 +148,7 @@ public class CommitRequestTest extends PreSetupGitFileSystemTest {
   @Test
   public void amendCommitCommitter_theResultCommitShouldHaveTheInputCommitter() throws IOException {
     PersonIdent committer = new PersonIdent("test_committer_name", "test_committer@email.com");
-    RevCommit commit = Requests.commit(gfs)
+    RevCommit commit = Gfs.commit(gfs)
                          .committer(committer)
                          .amend(true)
                          .execute();

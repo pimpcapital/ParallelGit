@@ -13,14 +13,15 @@ import com.beijunyi.parallelgit.filesystem.GitFileSystemProvider;
 import com.beijunyi.parallelgit.filesystem.exceptions.NoRepositoryException;
 import com.beijunyi.parallelgit.utils.BranchUtils;
 import com.beijunyi.parallelgit.utils.CommitUtils;
-import com.beijunyi.parallelgit.utils.RefUtils;
 import org.eclipse.jgit.internal.storage.file.FileRepository;
 import org.eclipse.jgit.lib.AnyObjectId;
 import org.eclipse.jgit.lib.Constants;
 import org.eclipse.jgit.lib.Repository;
 import org.eclipse.jgit.revwalk.RevCommit;
 
-public class GitFileSystems {
+import static com.beijunyi.parallelgit.utils.RefUtils.ensureBranchRefName;
+
+public class GitFileSystemBuilder {
 
   private GitFileSystemProvider provider;
   private Repository repository;
@@ -38,8 +39,8 @@ public class GitFileSystems {
   private String treeIdStr;
 
   @Nonnull
-  public static GitFileSystems prepare() {
-    return new GitFileSystems();
+  public static GitFileSystemBuilder prepare() {
+    return new GitFileSystemBuilder();
   }
 
   @Nonnull
@@ -67,103 +68,103 @@ public class GitFileSystems {
   }
 
   @Nonnull
-  public static GitFileSystems fromUri(@Nonnull URI uri, @Nonnull Map<String, ?> properties) {
+  public static GitFileSystemBuilder fromUri(@Nonnull URI uri, @Nonnull Map<String, ?> properties) {
     return prepare()
              .repository(GitUriUtils.getRepository(uri))
              .readAllParams(GitParams.getParams(properties));
   }
 
   @Nonnull
-  public static GitFileSystems fromPath(@Nonnull Path path, @Nonnull Map<String, ?> properties) {
+  public static GitFileSystemBuilder fromPath(@Nonnull Path path, @Nonnull Map<String, ?> properties) {
     return prepare()
              .repository(path.toFile())
              .readAllParams(GitParams.getParams(properties));
   }
 
   @Nonnull
-  public GitFileSystems provider(@Nullable GitFileSystemProvider provider) {
+  public GitFileSystemBuilder provider(@Nullable GitFileSystemProvider provider) {
     this.provider = provider;
     return this;
   }
 
   @Nonnull
-  public GitFileSystems repository(@Nullable Repository repository) {
+  public GitFileSystemBuilder repository(@Nullable Repository repository) {
     this.repository = repository;
     return this;
   }
 
   @Nonnull
-  public GitFileSystems repository(@Nullable File repoDir) {
+  public GitFileSystemBuilder repository(@Nullable File repoDir) {
     this.repoDir = repoDir;
     return this;
   }
 
   @Nonnull
-  public GitFileSystems repository(@Nullable String repoDirPath) {
+  public GitFileSystemBuilder repository(@Nullable String repoDirPath) {
     this.repoDirPath = repoDirPath;
     return this;
   }
 
   @Nonnull
-  public GitFileSystems create(@Nullable Boolean create) {
+  public GitFileSystemBuilder create(@Nullable Boolean create) {
     this.create = create;
     return this;
   }
 
   @Nonnull
-  public GitFileSystems create() {
+  public GitFileSystemBuilder create() {
     return create(true);
   }
 
   @Nonnull
-  public GitFileSystems bare(@Nullable Boolean bare) {
+  public GitFileSystemBuilder bare(@Nullable Boolean bare) {
     this.bare = bare;
     return this;
   }
 
   @Nonnull
-  public GitFileSystems bare() {
+  public GitFileSystemBuilder bare() {
     return bare(true);
   }
 
   @Nonnull
-  public GitFileSystems branch(@Nullable String branch) {
+  public GitFileSystemBuilder branch(@Nullable String branch) {
     this.branch = branch;
     return this;
   }
 
   @Nonnull
-  public GitFileSystems commit(@Nullable RevCommit commit) {
+  public GitFileSystemBuilder commit(@Nullable RevCommit commit) {
     this.commit = commit;
     return this;
   }
 
   @Nonnull
-  public GitFileSystems commit(@Nullable AnyObjectId commitId) {
+  public GitFileSystemBuilder commit(@Nullable AnyObjectId commitId) {
     this.commitId = commitId;
     return this;
   }
 
   @Nonnull
-  public GitFileSystems commit(@Nullable String commitIdStr) {
+  public GitFileSystemBuilder commit(@Nullable String commitIdStr) {
     this.commitIdStr = commitIdStr;
     return this;
   }
 
   @Nonnull
-  public GitFileSystems revision(@Nullable String revision) {
+  public GitFileSystemBuilder revision(@Nullable String revision) {
     this.revision = revision;
     return this;
   }
 
   @Nonnull
-  public GitFileSystems tree(@Nullable AnyObjectId treeId) {
+  public GitFileSystemBuilder tree(@Nullable AnyObjectId treeId) {
     this.treeId = treeId;
     return this;
   }
 
   @Nonnull
-  public GitFileSystems tree(@Nullable String treeIdStr) {
+  public GitFileSystemBuilder tree(@Nullable String treeIdStr) {
     this.treeIdStr = treeIdStr;
     return this;
   }
@@ -181,7 +182,7 @@ public class GitFileSystems {
   }
 
   @Nonnull
-  private GitFileSystems readAllParams(@Nonnull GitParams params) {
+  private GitFileSystemBuilder readAllParams(@Nonnull GitParams params) {
     return this
              .create(params.getCreate())
              .bare(params.getBare())
@@ -226,7 +227,7 @@ public class GitFileSystems {
     if(branch == null && revision != null && BranchUtils.branchExists(revision, repository))
       branch = revision;
     if(branch != null) {
-      branchRef = RefUtils.ensureBranchRefName(branch);
+      branchRef = ensureBranchRefName(branch);
       branch = branchRef.substring(Constants.R_HEADS.length());
     }
   }
