@@ -30,6 +30,7 @@ public class GitFileSystem extends FileSystem {
   private final GitPath rootPath;
   private String branch;
   private RevCommit commit;
+  private String message;
 
   private ObjectReader reader;
   private ObjectInserter inserter;
@@ -278,6 +279,15 @@ public class GitFileSystem extends FileSystem {
 
   public void setCommit(@Nullable RevCommit commit) {
     this.commit = commit;
+  }
+
+  @Nullable
+  public String getMessage() {
+    return message;
+  }
+
+  public void setMessage(@Nullable String message) {
+    this.message = message;
   }
 
   @Nullable

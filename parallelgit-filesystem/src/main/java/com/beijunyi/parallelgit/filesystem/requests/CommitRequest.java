@@ -92,6 +92,11 @@ public final class CommitRequest extends GitFileSystemRequest<RevCommit> {
       committer = new PersonIdent(repo);
   }
 
+  private void prepareMessage() {
+    if(message == null)
+      message = gfs.getMessage();
+  }
+
   private void prepareAuthor() {
     if(author == null) {
       if(!amend)
@@ -124,5 +129,6 @@ public final class CommitRequest extends GitFileSystemRequest<RevCommit> {
 
   private void updateFileSystem(@Nonnull RevCommit head) {
     gfs.setCommit(head);
+    gfs.setMessage(null);
   }
 }
