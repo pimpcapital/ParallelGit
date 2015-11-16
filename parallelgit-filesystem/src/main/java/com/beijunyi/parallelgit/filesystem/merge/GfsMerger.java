@@ -18,8 +18,6 @@ import org.eclipse.jgit.lib.AnyObjectId;
 import org.eclipse.jgit.lib.FileMode;
 import org.eclipse.jgit.lib.ObjectId;
 import org.eclipse.jgit.merge.*;
-import org.eclipse.jgit.revwalk.RevTree;
-import org.eclipse.jgit.treewalk.AbstractTreeIterator;
 import org.eclipse.jgit.treewalk.NameConflictTreeWalk;
 import org.eclipse.jgit.treewalk.TreeWalk;
 
@@ -118,7 +116,7 @@ public class GfsMerger extends ThreeWayMerger {
     prepareAlgorithm();
     prepareFormatter();
     prepareConflictMarkers();
-    prepareTreeWalk(mergeBase(), sourceTrees[0], sourceTrees[1]);
+    prepareTreeWalk();
     mergeTreeWalk();
     if(conflicts.isEmpty()) {
       resultTree = gfs.persist();
@@ -146,11 +144,11 @@ public class GfsMerger extends ThreeWayMerger {
       conflictMarkers = Arrays.asList("BASE", "OURS", "THEIRS");
   }
 
-  private void prepareTreeWalk(@Nonnull AbstractTreeIterator base, @Nonnull RevTree ours, @Nonnull RevTree theirs) throws IOException {
+  private void prepareTreeWalk() throws IOException {
     tw = new NameConflictTreeWalk(reader);
-    tw.addTree(base);
-    tw.addTree(ours);
-    tw.addTree(theirs);
+    tw.addTree(mergeBase());
+    tw.addTree(sourceTrees[0]);
+    tw.addTree(sourceTrees[1]);
   }
 
   private void mergeTreeWalk() throws IOException {
@@ -216,10 +214,9 @@ public class GfsMerger extends ThreeWayMerger {
     return baseMode == ourMode && baseId.equals(ourId);
   }
 
-  private boolean applyTheirs() {
+  private void applyTheirs() {
     if(theirMode != FileMode.TYPE_MISSING)
       insertNode(theirMode, theirId);
-    return false;
   }
 
   private boolean theirsIsNotChanged() {
