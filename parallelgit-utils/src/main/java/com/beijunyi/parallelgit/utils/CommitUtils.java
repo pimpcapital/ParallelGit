@@ -129,7 +129,7 @@ public final class CommitUtils {
   }
 
   @Nonnull
-  public static RevCommit createCommit(@Nonnull String message, @Nonnull AnyObjectId treeId, @Nonnull PersonIdent author, @Nonnull PersonIdent committer, @Nonnull List<AnyObjectId> parents, @Nonnull Repository repo) throws IOException {
+  public static RevCommit createCommit(@Nonnull String message, @Nonnull AnyObjectId treeId, @Nonnull PersonIdent author, @Nonnull PersonIdent committer, @Nonnull List<? extends AnyObjectId> parents, @Nonnull Repository repo) throws IOException {
     try(ObjectInserter inserter = repo.newObjectInserter()) {
       AnyObjectId commitId = insertCommit(message, treeId, author, committer, parents, inserter);
       inserter.flush();
@@ -148,7 +148,7 @@ public final class CommitUtils {
   }
 
   @Nonnull
-  public static RevCommit createCommit(@Nonnull String message, @Nonnull DirCache cache, @Nonnull PersonIdent author, @Nonnull PersonIdent committer, @Nonnull List<AnyObjectId> parents, @Nonnull Repository repo) throws IOException {
+  public static RevCommit createCommit(@Nonnull String message, @Nonnull DirCache cache, @Nonnull PersonIdent author, @Nonnull PersonIdent committer, @Nonnull List<? extends AnyObjectId> parents, @Nonnull Repository repo) throws IOException {
     try(ObjectInserter inserter = repo.newObjectInserter()) {
       AnyObjectId commitId = insertCommit(message, cache.writeTree(inserter), author, committer, parents, inserter);
       inserter.flush();
@@ -167,7 +167,7 @@ public final class CommitUtils {
   }
 
   @Nonnull
-  private static AnyObjectId insertCommit(@Nonnull String message, @Nonnull AnyObjectId treeId, @Nonnull PersonIdent author, @Nonnull PersonIdent committer, @Nonnull List<AnyObjectId> parents, @Nonnull ObjectInserter inserter) throws IOException {
+  private static AnyObjectId insertCommit(@Nonnull String message, @Nonnull AnyObjectId treeId, @Nonnull PersonIdent author, @Nonnull PersonIdent committer, @Nonnull List<? extends AnyObjectId> parents, @Nonnull ObjectInserter inserter) throws IOException {
     CommitBuilder builder = new CommitBuilder();
     builder.setCommitter(committer);
     builder.setAuthor(author);
@@ -178,7 +178,7 @@ public final class CommitUtils {
   }
 
   @Nonnull
-  private static List<AnyObjectId> toParentList(@Nullable AnyObjectId parent) {
+  private static List<? extends AnyObjectId> toParentList(@Nullable AnyObjectId parent) {
     return parent != null ? Collections.singletonList(parent) : Collections.<AnyObjectId>emptyList();
   }
 

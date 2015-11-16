@@ -4,7 +4,7 @@ import javax.annotation.Nonnull;
 
 import org.eclipse.jgit.lib.AnyObjectId;
 
-public class MergeConflict {
+public class GfsMergeConflict {
 
   private final int baseMode;
   private final AnyObjectId baseId;
@@ -16,7 +16,7 @@ public class MergeConflict {
   private final AnyObjectId theirId;
 
 
-  public MergeConflict(int baseMode, @Nonnull AnyObjectId baseId, int ourMode, @Nonnull AnyObjectId ourId, int theirMode, @Nonnull AnyObjectId theirId) {
+  public GfsMergeConflict(int baseMode, @Nonnull AnyObjectId baseId, int ourMode, @Nonnull AnyObjectId ourId, int theirMode, @Nonnull AnyObjectId theirId) {
     this.baseMode = baseMode;
     this.baseId = baseId;
     this.ourMode = ourMode;

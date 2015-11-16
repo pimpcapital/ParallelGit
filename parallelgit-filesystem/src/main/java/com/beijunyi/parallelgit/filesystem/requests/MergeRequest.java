@@ -1,6 +1,7 @@
 package com.beijunyi.parallelgit.filesystem.requests;
 
 import java.io.IOException;
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 import javax.annotation.Nonnull;
@@ -14,14 +15,21 @@ import com.beijunyi.parallelgit.filesystem.merge.GfsMerger;
 import com.beijunyi.parallelgit.utils.BranchUtils;
 import com.beijunyi.parallelgit.utils.CommitUtils;
 import com.beijunyi.parallelgit.utils.RefUtils;
+import com.beijunyi.parallelgit.utils.exceptions.NoSuchBranchException;
 import org.eclipse.jgit.lib.AnyObjectId;
+import org.eclipse.jgit.lib.PersonIdent;
 import org.eclipse.jgit.lib.Ref;
+import org.eclipse.jgit.merge.MergeMessageFormatter;
 import org.eclipse.jgit.merge.SquashMessageFormatter;
 import org.eclipse.jgit.revwalk.RevCommit;
+
+import static com.beijunyi.parallelgit.utils.RefUtils.ensureBranchRefName;
+import static java.util.Collections.singletonList;
 
 public final class MergeRequest extends GitFileSystemRequest<RevCommit> {
 
   private String branch;
+  private Ref branchRef;
   private RevCommit headCommit;
   private String target;
 
@@ -30,6 +38,7 @@ public final class MergeRequest extends GitFileSystemRequest<RevCommit> {
   private boolean squash = false;
   private boolean commit = true;
 
+  private PersonIdent committer;
   private String message;
   private GfsMerger merger;
 
@@ -62,6 +71,12 @@ public final class MergeRequest extends GitFileSystemRequest<RevCommit> {
   }
 
   @Nonnull
+  public MergeRequest committer(@Nullable PersonIdent committer) {
+    this.committer = committer;
+    return this;
+  }
+
+  @Nonnull
   public MergeRequest message(@Nullable String message) {
     this.message = message;
     return this;
@@ -79,6 +94,7 @@ public final class MergeRequest extends GitFileSystemRequest<RevCommit> {
     prepareBranchHead();
     prepareTarget();
     prepareSourceCommit();
+    prepareMessage();
     if(isUpToDate())
       return headCommit;
     if(canBeFastForwarded())
@@ -93,6 +109,10 @@ public final class MergeRequest extends GitFileSystemRequest<RevCommit> {
     branch = gfs.getBranch();
     if(branch == null)
       throw new NoBranchException();
+
+    branchRef = RefUtils.getBranchRef(branch, repo);
+    if(branchRef == null)
+      throw new NoSuchBranchException(ensureBranchRefName(branch));
 
     headCommit = gfs.getCommit();
     if(headCommit == null)
@@ -109,6 +129,16 @@ public final class MergeRequest extends GitFileSystemRequest<RevCommit> {
     targetHeadCommit = CommitUtils.getCommit(targetRef, repo);
   }
 
+  private void prepareMessage() throws IOException {
+    if(message == null) {
+      if(squash) {
+        List<RevCommit> squashedCommits = CommitUtils.findSquashableCommits(targetHeadCommit, headCommit, repo);
+        message = new SquashMessageFormatter().format(squashedCommits, branchRef);
+      } else
+        message = new MergeMessageFormatter().format(singletonList(targetRef), branchRef);
+    }
+  }
+
   private boolean isUpToDate() throws IOException {
     return CommitUtils.isMergedInto(headCommit, targetHeadCommit, repo);
   }
@@ -117,32 +147,48 @@ public final class MergeRequest extends GitFileSystemRequest<RevCommit> {
     return CommitUtils.isMergedInto(targetHeadCommit, headCommit, repo);
   }
 
-  @Nonnull
+  @Nullable
   private RevCommit fastForward() throws IOException {
     if(squash) {
-      if(message == null) {
-        List<RevCommit> squashedCommits = CommitUtils.findSquashableCommits(targetHeadCommit, headCommit, repo);
-        message = new SquashMessageFormatter().format(squashedCommits, targetRef);
-      }
-      AnyObjectId tree = gfs.persist();
-      RevCommit newCommit = CommitUtils.createCommit(message, tree, headCommit, repo);
-      BranchUtils.newCommit(branch, newCommit, repo);
-      return newCommit;
+      gfs.setMessage(message);
+      return null;
     } else {
-      BranchUtils.mergeBranch(branch, targetHeadCommit, target, "Fast-forward", repo);
+      BranchUtils.mergeBranch(branch, targetHeadCommit, targetRef, "Fast-forward", repo);
       return targetHeadCommit;
     }
   }
 
   @Nullable
   private RevCommit threeWayMerge() throws IOException {
-    merger.setConflictMarkers(Arrays.asList("BASE", "HEAD", targetRef.getName()));
+    prepareMerger();
     if(merger.merge(headCommit, targetHeadCommit)) {
-
+      if(commit && !squash) {
+        AnyObjectId treeId = merger.getResultTreeId();
+        prepareCommitter();
+        RevCommit commit = CommitUtils.createCommit(message, treeId, committer, committer, Arrays.asList(headCommit, targetHeadCommit), repo);
+        BranchUtils.mergeBranch(branch, commit, targetRef, "Merge made by recursive.", repo);
+        return commit;
+      }
     } else {
-
+      List<String> conflictingPaths = new ArrayList<>(merger.getConflicts().keySet());
+      message = new MergeMessageFormatter().formatWithConflicts(message, conflictingPaths);
     }
+    if(!squash)
+      gfs.setSourceCommit(targetHeadCommit);
+    gfs.setMessage(message);
     return null;
+  }
+
+  private void prepareMerger() {
+    if(merger == null) {
+      merger = new GfsMerger(gfs);
+      merger.setConflictMarkers(Arrays.asList("BASE", "HEAD", targetRef.getName()));
+    }
+  }
+
+  private void prepareCommitter() {
+    if(committer == null)
+      committer = new PersonIdent(repo);
   }
 
 }

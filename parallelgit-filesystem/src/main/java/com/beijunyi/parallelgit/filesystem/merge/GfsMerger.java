@@ -30,7 +30,7 @@ import static org.eclipse.jgit.lib.Constants.*;
 public class GfsMerger extends ThreeWayMerger {
 
   private final GitFileSystem gfs;
-  private final Map<String, MergeConflict> conflicts;
+  private final Map<String, GfsMergeConflict> conflicts;
 
   private MergeAlgorithm algorithm;
   private MergeFormatter formatter;
@@ -104,7 +104,7 @@ public class GfsMerger extends ThreeWayMerger {
   }
 
   @Nonnull
-  public Map<String, MergeConflict> getConflicts() {
+  public Map<String, GfsMergeConflict> getConflicts() {
     return conflicts;
   }
 
@@ -319,7 +319,7 @@ public class GfsMerger extends ThreeWayMerger {
   }
 
   private void addConflict() {
-    conflicts.put(path, new MergeConflict(baseMode, baseId, ourMode, ourId, theirMode, theirId));
+    conflicts.put(path, new GfsMergeConflict(baseMode, baseId, ourMode, ourId, theirMode, theirId));
   }
 
   private boolean bothAreTree() {

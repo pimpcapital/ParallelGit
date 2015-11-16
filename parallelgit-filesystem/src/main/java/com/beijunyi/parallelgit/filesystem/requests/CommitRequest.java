@@ -23,7 +23,7 @@ public final class CommitRequest extends GitFileSystemRequest<RevCommit> {
   private PersonIdent author;
   private PersonIdent committer;
   private String message;
-  private List<AnyObjectId> parents;
+  private List<? extends AnyObjectId> parents;
   private boolean amend = false;
   private boolean allowEmpty = false;
 
@@ -110,11 +110,11 @@ public final class CommitRequest extends GitFileSystemRequest<RevCommit> {
     if(parents == null) {
       if(!amend) {
         if(commit != null)
-          parents = Collections.<AnyObjectId>singletonList(commit);
+          parents = Collections.singletonList(commit);
         else
           parents = Collections.emptyList();
       } else
-        parents = Arrays.<AnyObjectId>asList(amendedCommit().getParents());
+        parents = Arrays.asList(amendedCommit().getParents());
     }
   }
 

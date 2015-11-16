@@ -106,8 +106,8 @@ public final class BranchUtils {
     setBranchHead(name, commitId, repo, makeRefLogMessage("cherry-pick", commitId, repo), false);
   }
 
-  public static void mergeBranch(@Nonnull String name, @Nonnull AnyObjectId commitId, @Nonnull String target, @Nonnull String details, @Nonnull Repository repo) throws IOException {
-    setBranchHead(name, commitId, repo, makeRefLogMessage("merge " + ensureBranchRefName(target), details), false);
+  public static void mergeBranch(@Nonnull String name, @Nonnull AnyObjectId commitId, @Nonnull Ref targetRef, @Nonnull String details, @Nonnull Repository repo) throws IOException {
+    setBranchHead(name, commitId, repo, makeRefLogMessage("merge " + targetRef.getName(), details), false);
   }
 
   public static void deleteBranch(@Nonnull String name, @Nonnull Repository repo) throws IOException {
