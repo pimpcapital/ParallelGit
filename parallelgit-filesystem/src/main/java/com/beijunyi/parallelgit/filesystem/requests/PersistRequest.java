@@ -8,13 +8,8 @@ import org.eclipse.jgit.lib.AnyObjectId;
 
 public final class PersistRequest extends GitFileSystemRequest<AnyObjectId> {
 
-  private PersistRequest(@Nonnull GitFileSystem gfs) {
+  public PersistRequest(@Nonnull GitFileSystem gfs) {
     super(gfs);
-  }
-
-  @Nonnull
-  public static PersistRequest prepare(@Nonnull GitFileSystem gfs) {
-    return new PersistRequest(gfs);
   }
 
   @Nonnull

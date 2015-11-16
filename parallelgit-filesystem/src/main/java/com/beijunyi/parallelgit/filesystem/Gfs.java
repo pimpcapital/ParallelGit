@@ -8,6 +8,7 @@ import java.util.Map;
 import javax.annotation.Nonnull;
 
 import com.beijunyi.parallelgit.filesystem.requests.CommitRequest;
+import com.beijunyi.parallelgit.filesystem.requests.MergeRequest;
 import com.beijunyi.parallelgit.filesystem.requests.PersistRequest;
 import com.beijunyi.parallelgit.filesystem.utils.GitFileSystemBuilder;
 import com.beijunyi.parallelgit.filesystem.utils.GitParams;
@@ -63,12 +64,17 @@ public final class Gfs {
 
   @Nonnull
   public static CommitRequest commit(@Nonnull GitFileSystem gfs) {
-    return CommitRequest.prepare(gfs);
+    return new CommitRequest(gfs);
   }
 
   @Nonnull
   public static PersistRequest persist(@Nonnull GitFileSystem gfs) {
-    return PersistRequest.prepare(gfs);
+    return new PersistRequest(gfs);
+  }
+
+  @Nonnull
+  public static MergeRequest merge(@Nonnull GitFileSystem gfs) {
+    return new MergeRequest(gfs);
   }
 
 }

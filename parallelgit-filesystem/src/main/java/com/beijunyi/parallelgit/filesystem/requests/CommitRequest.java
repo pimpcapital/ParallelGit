@@ -27,16 +27,11 @@ public final class CommitRequest extends GitFileSystemRequest<RevCommit> {
   private boolean amend = false;
   private boolean allowEmpty = false;
 
-  private CommitRequest(@Nonnull GitFileSystem gfs) {
+  public CommitRequest(@Nonnull GitFileSystem gfs) {
     super(gfs);
     String branch = gfs.getBranch();
     branchRef = branch != null ? ensureBranchRefName(branch) : null;
     commit = gfs.getCommit();
-  }
-
-  @Nonnull
-  public static CommitRequest prepare(@Nonnull GitFileSystem gfs) {
-    return new CommitRequest(gfs);
   }
 
   @Nonnull
