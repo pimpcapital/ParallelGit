@@ -5,10 +5,10 @@ import java.io.OutputStream;
 import java.nio.file.Files;
 
 import com.beijunyi.parallelgit.AbstractParallelGitTest;
+import com.beijunyi.parallelgit.filesystem.Gfs;
 import com.beijunyi.parallelgit.filesystem.GitFileSystem;
 import com.beijunyi.parallelgit.filesystem.GitPath;
 import com.beijunyi.parallelgit.filesystem.io.Node;
-import com.beijunyi.parallelgit.filesystem.utils.GitFileSystemBuilder;
 import org.eclipse.jgit.revwalk.RevCommit;
 import org.junit.Before;
 import org.junit.Test;
@@ -28,7 +28,7 @@ public class ChangeDeletedFileTest extends AbstractParallelGitTest {
     writeToCache("/dir/test_file.txt");
     RevCommit commit = commit(null);
 
-    try(GitFileSystem gfs = GitFileSystemBuilder.prepare().repository(repo).commit(commit).build()) {
+    try(GitFileSystem gfs = Gfs.newFileSystem().repository(repo).commit(commit).build()) {
       GitPath file = gfs.getPath("/dir/test_file.txt");
       OutputStream out = Files.newOutputStream(file);
       Files.delete(file);

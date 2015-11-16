@@ -2,14 +2,10 @@ package com.beijunyi.parallelgit.filesystem.utils;
 
 import java.io.File;
 import java.io.IOException;
-import java.net.URI;
-import java.nio.file.Path;
-import java.util.Map;
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 
 import com.beijunyi.parallelgit.filesystem.GitFileSystem;
-import com.beijunyi.parallelgit.filesystem.GitFileSystemProvider;
 import com.beijunyi.parallelgit.filesystem.exceptions.NoRepositoryException;
 import com.beijunyi.parallelgit.utils.BranchUtils;
 import com.beijunyi.parallelgit.utils.CommitUtils;
@@ -23,7 +19,6 @@ import static com.beijunyi.parallelgit.utils.RefUtils.ensureBranchRefName;
 
 public class GitFileSystemBuilder {
 
-  private GitFileSystemProvider provider;
   private Repository repository;
   private File repoDir;
   private String repoDirPath;
@@ -37,55 +32,6 @@ public class GitFileSystemBuilder {
   private String revision;
   private AnyObjectId treeId;
   private String treeIdStr;
-
-  @Nonnull
-  public static GitFileSystemBuilder prepare() {
-    return new GitFileSystemBuilder();
-  }
-
-  @Nonnull
-  public static GitFileSystem forRevision(@Nonnull String revision, @Nonnull Repository repo) throws IOException {
-    return prepare()
-             .repository(repo)
-             .revision(revision)
-             .build();
-  }
-
-  @Nonnull
-  public static GitFileSystem forRevision(@Nonnull String revision, @Nonnull File repoDir) throws IOException {
-    return prepare()
-             .repository(repoDir)
-             .revision(revision)
-             .build();
-  }
-
-  @Nonnull
-  public static GitFileSystem forRevision(@Nonnull String revision, @Nonnull String repoDir) throws IOException {
-    return prepare()
-             .repository(repoDir)
-             .revision(revision)
-             .build();
-  }
-
-  @Nonnull
-  public static GitFileSystemBuilder fromUri(@Nonnull URI uri, @Nonnull Map<String, ?> properties) {
-    return prepare()
-             .repository(GitUriUtils.getRepository(uri))
-             .readAllParams(GitParams.getParams(properties));
-  }
-
-  @Nonnull
-  public static GitFileSystemBuilder fromPath(@Nonnull Path path, @Nonnull Map<String, ?> properties) {
-    return prepare()
-             .repository(path.toFile())
-             .readAllParams(GitParams.getParams(properties));
-  }
-
-  @Nonnull
-  public GitFileSystemBuilder provider(@Nullable GitFileSystemProvider provider) {
-    this.provider = provider;
-    return this;
-  }
 
   @Nonnull
   public GitFileSystemBuilder repository(@Nullable Repository repository) {
@@ -171,29 +117,21 @@ public class GitFileSystemBuilder {
 
   @Nonnull
   public GitFileSystem build() throws IOException {
-    prepareProvider();
     prepareRepository();
     prepareBranch();
     prepareCommit();
     prepareTree();
-    GitFileSystem fs = new GitFileSystem(provider, repository, branch, commit, treeId);
-    provider.register(fs);
-    return fs;
+    return new GitFileSystem(repository, branch, commit, treeId);
   }
 
   @Nonnull
-  private GitFileSystemBuilder readAllParams(@Nonnull GitParams params) {
+  public GitFileSystemBuilder readParams(@Nonnull GitParams params) {
     return this
              .create(params.getCreate())
              .bare(params.getBare())
              .branch(params.getBranch())
              .commit(params.getCommit())
              .tree(params.getTree());
-  }
-
-  private void prepareProvider() {
-    if(provider == null)
-      provider = GitFileSystemProvider.getInstance();
   }
 
   private void prepareRepository() throws IOException {

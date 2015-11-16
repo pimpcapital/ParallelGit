@@ -3,6 +3,7 @@ package com.beijunyi.parallelgit.filesystem.utils;
 import java.io.IOException;
 
 import com.beijunyi.parallelgit.AbstractParallelGitTest;
+import com.beijunyi.parallelgit.filesystem.Gfs;
 import com.beijunyi.parallelgit.filesystem.GitFileSystem;
 import org.junit.Before;
 import org.junit.Test;
@@ -18,7 +19,7 @@ public class GitFileSystemBuilderCreateNewRepositoryTest extends AbstractParalle
 
   @Test
   public void buildWithCreateOption() throws IOException {
-    GitFileSystem gfs = GitFileSystemBuilder.prepare()
+    GitFileSystem gfs = Gfs.newFileSystem()
                           .repository(repoDir)
                           .create()
                           .build();
@@ -27,7 +28,7 @@ public class GitFileSystemBuilderCreateNewRepositoryTest extends AbstractParalle
 
   @Test
   public void buildWithCreateAndBareOption() throws IOException {
-    GitFileSystem gfs = GitFileSystemBuilder.prepare()
+    GitFileSystem gfs = Gfs.newFileSystem()
                           .repository(repoDir)
                           .create()
                           .bare()
@@ -37,7 +38,7 @@ public class GitFileSystemBuilderCreateNewRepositoryTest extends AbstractParalle
 
   @Test
   public void buildWithCreateAndBareOption_nonBare() throws IOException {
-    GitFileSystem gfs = GitFileSystemBuilder.prepare()
+    GitFileSystem gfs = Gfs.newFileSystem()
                           .repository(repoDir)
                           .create()
                           .bare(false)

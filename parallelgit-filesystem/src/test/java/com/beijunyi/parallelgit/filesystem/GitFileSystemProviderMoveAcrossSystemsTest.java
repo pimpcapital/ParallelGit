@@ -3,7 +3,6 @@ package com.beijunyi.parallelgit.filesystem;
 import java.io.IOException;
 import java.nio.file.Files;
 
-import com.beijunyi.parallelgit.filesystem.utils.GitFileSystemBuilder;
 import org.eclipse.jgit.lib.Repository;
 import org.junit.After;
 import org.junit.Before;
@@ -19,7 +18,7 @@ public class GitFileSystemProviderMoveAcrossSystemsTest extends AbstractGitFileS
   @Before
   public void setupTargetSystem() throws IOException {
     targetRepo = new TestRepository();
-    targetGfs = GitFileSystemBuilder.prepare().provider(provider).repository(targetRepo).build();
+    targetGfs = Gfs.newFileSystem().repository(targetRepo).build();
   }
 
   @After

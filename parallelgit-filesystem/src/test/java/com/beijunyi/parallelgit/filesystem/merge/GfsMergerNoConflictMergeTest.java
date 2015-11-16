@@ -17,7 +17,6 @@ public class GfsMergerNoConflictMergeTest extends AbstractParallelGitTest {
   @Before
   public void setUp() throws IOException {
     initRepository();
-    merger = new GfsMerger(repo);
   }
 
   @Test

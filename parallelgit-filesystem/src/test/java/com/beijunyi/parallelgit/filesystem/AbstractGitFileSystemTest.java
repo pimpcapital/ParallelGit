@@ -5,16 +5,12 @@ import java.nio.file.Files;
 import javax.annotation.Nonnull;
 
 import com.beijunyi.parallelgit.AbstractParallelGitTest;
-import com.beijunyi.parallelgit.filesystem.utils.GitFileSystemBuilder;
 import org.eclipse.jgit.lib.AnyObjectId;
 import org.eclipse.jgit.lib.Constants;
 
 public abstract class AbstractGitFileSystemTest extends AbstractParallelGitTest {
 
-  protected static final String TEST_USER_NAME = "test";
-  protected static final String TEST_USER_EMAIL = "test@email.com";
-
-  protected final GitFileSystemProvider provider = GitFileSystemProvider.getInstance();
+  protected final GitFileSystemProvider provider = GitFileSystemProvider.INSTANCE;
   protected GitFileSystem gfs;
   protected GitPath root;
 
@@ -42,7 +38,7 @@ public abstract class AbstractGitFileSystemTest extends AbstractParallelGitTest 
   protected void initGitFileSystemForBranch(@Nonnull String branch) throws IOException {
     assert repo != null;
     if(gfs == null)
-      injectGitFileSystem(GitFileSystemBuilder.prepare()
+      injectGitFileSystem(Gfs.newFileSystem()
                             .repository(repo)
                             .branch(branch)
                             .build());
@@ -51,7 +47,7 @@ public abstract class AbstractGitFileSystemTest extends AbstractParallelGitTest 
   protected void initGitFileSystemForRevision(@Nonnull AnyObjectId revisionId) throws IOException {
     assert repo != null;
     if(gfs == null)
-      injectGitFileSystem(GitFileSystemBuilder.prepare()
+      injectGitFileSystem(Gfs.newFileSystem()
                             .repository(repo)
                             .commit(revisionId)
                             .build());
@@ -60,7 +56,7 @@ public abstract class AbstractGitFileSystemTest extends AbstractParallelGitTest 
   protected void initGitFileSystemForTree(@Nonnull AnyObjectId treeId) throws IOException {
     assert repo != null;
     if(gfs == null)
-      injectGitFileSystem(GitFileSystemBuilder.prepare()
+      injectGitFileSystem(Gfs.newFileSystem()
                             .repository(repo)
                             .tree(treeId)
                             .build());

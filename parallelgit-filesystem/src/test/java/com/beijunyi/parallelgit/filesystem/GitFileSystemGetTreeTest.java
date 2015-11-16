@@ -3,7 +3,6 @@ package com.beijunyi.parallelgit.filesystem;
 import java.io.IOException;
 
 import com.beijunyi.parallelgit.AbstractParallelGitTest;
-import com.beijunyi.parallelgit.filesystem.utils.GitFileSystemBuilder;
 import org.eclipse.jgit.lib.AnyObjectId;
 import org.eclipse.jgit.revwalk.RevCommit;
 import org.junit.Before;
@@ -23,7 +22,7 @@ public class GitFileSystemGetTreeTest extends AbstractParallelGitTest {
     writeSomeFileToCache();
     RevCommit head = commitToBranch("test_branch");
 
-    GitFileSystem gfs = GitFileSystemBuilder.prepare().repository(repo).branch("test_branch").build();
+    GitFileSystem gfs = Gfs.newFileSystem().repository(repo).branch("test_branch").build();
     assertEquals(head.getTree(), gfs.getTree());
   }
 
@@ -32,7 +31,7 @@ public class GitFileSystemGetTreeTest extends AbstractParallelGitTest {
     writeSomeFileToCache();
     RevCommit commit = commit(null);
 
-    GitFileSystem gfs = GitFileSystemBuilder.prepare().repository(repo).commit(commit).build();
+    GitFileSystem gfs = Gfs.newFileSystem().repository(repo).commit(commit).build();
     assertEquals(commit.getTree(), gfs.getTree());
   }
 
@@ -41,7 +40,7 @@ public class GitFileSystemGetTreeTest extends AbstractParallelGitTest {
     writeSomeFileToCache();
     AnyObjectId tree = commit(null).getTree();
 
-    GitFileSystem gfs = GitFileSystemBuilder.prepare().repository(repo).tree(tree).build();
+    GitFileSystem gfs = Gfs.newFileSystem().repository(repo).tree(tree).build();
     assertEquals(tree, gfs.getTree());
   }
 

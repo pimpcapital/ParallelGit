@@ -23,7 +23,6 @@ public class GfsMergerConflictingMergeTest extends AbstractParallelGitTest {
   @Before
   public void setUp() throws IOException {
     initRepository();
-    merger = new GfsMerger(repo);
   }
   private void prepareFileWithConflictingModes(@Nonnull String conflictingFile) throws IOException {
     byte[] data = "some text data".getBytes();

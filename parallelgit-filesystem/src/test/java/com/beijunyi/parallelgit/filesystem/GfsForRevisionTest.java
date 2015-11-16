@@ -1,22 +1,21 @@
-package com.beijunyi.parallelgit.filesystem.utils;
+package com.beijunyi.parallelgit.filesystem;
 
 import java.io.IOException;
 
 import com.beijunyi.parallelgit.AbstractParallelGitTest;
-import com.beijunyi.parallelgit.filesystem.GitFileSystem;
 import org.eclipse.jgit.revwalk.RevCommit;
 import org.junit.Test;
 
 import static org.junit.Assert.assertEquals;
 
-public class GitFileSystemBuilderForRevisionTest extends AbstractParallelGitTest {
+public class GfsForRevisionTest extends AbstractParallelGitTest {
 
   @Test
   public void buildFileSystemForBranch_theResultFileSystemBranchShouldBeTheInputBranch() throws IOException {
     initFileRepository(true);
     writeSomeFileToCache();
     commitToBranch("test_branch");
-    GitFileSystem gfs = GitFileSystemBuilder.forRevision("test_branch", repo);
+    GitFileSystem gfs = Gfs.forRevision("test_branch", repo);
     assertEquals("test_branch", gfs.getBranch());
   }
 
@@ -25,7 +24,7 @@ public class GitFileSystemBuilderForRevisionTest extends AbstractParallelGitTest
     initFileRepository(true);
     writeSomeFileToCache();
     RevCommit commit = commit(null);
-    GitFileSystem gfs = GitFileSystemBuilder.forRevision(commit.getName(), repo);
+    GitFileSystem gfs = Gfs.forRevision(commit.getName(), repo);
     assertEquals(commit, gfs.getCommit());
   }
 
@@ -34,7 +33,7 @@ public class GitFileSystemBuilderForRevisionTest extends AbstractParallelGitTest
     initFileRepository(true);
     writeSomeFileToCache();
     commitToBranch("test_branch");
-    GitFileSystem gfs = GitFileSystemBuilder.forRevision("test_branch", repoDir);
+    GitFileSystem gfs = Gfs.forRevision("test_branch", repoDir);
     assertEquals(repoDir, gfs.getRepository().getDirectory());
   }
 
@@ -43,7 +42,7 @@ public class GitFileSystemBuilderForRevisionTest extends AbstractParallelGitTest
     initFileRepository(false);
     writeSomeFileToCache();
     commitToBranch("test_branch");
-    GitFileSystem gfs = GitFileSystemBuilder.forRevision("test_branch", repoDir);
+    GitFileSystem gfs = Gfs.forRevision("test_branch", repoDir);
     assertEquals(repoDir, gfs.getRepository().getWorkTree());
   }
 
@@ -52,7 +51,7 @@ public class GitFileSystemBuilderForRevisionTest extends AbstractParallelGitTest
     initFileRepository(true);
     writeSomeFileToCache();
     commitToBranch("test_branch");
-    GitFileSystem gfs = GitFileSystemBuilder.forRevision("test_branch", repoDir.toString());
+    GitFileSystem gfs = Gfs.forRevision("test_branch", repoDir.toString());
     assertEquals(repoDir, gfs.getRepository().getDirectory());
   }
 
@@ -61,7 +60,7 @@ public class GitFileSystemBuilderForRevisionTest extends AbstractParallelGitTest
     initFileRepository(false);
     writeSomeFileToCache();
     commitToBranch("test_branch");
-    GitFileSystem gfs = GitFileSystemBuilder.forRevision("test_branch", repoDir.toString());
+    GitFileSystem gfs = Gfs.forRevision("test_branch", repoDir.toString());
     assertEquals(repoDir, gfs.getRepository().getWorkTree());
   }
 

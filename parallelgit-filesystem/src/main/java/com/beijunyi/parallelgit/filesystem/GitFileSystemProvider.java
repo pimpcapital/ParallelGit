@@ -12,7 +12,6 @@ import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 
 import com.beijunyi.parallelgit.filesystem.io.*;
-import com.beijunyi.parallelgit.filesystem.utils.GitFileSystemBuilder;
 import com.beijunyi.parallelgit.filesystem.utils.GitUriUtils;
 
 import static java.nio.file.StandardOpenOption.*;
@@ -23,14 +22,9 @@ public class GitFileSystemProvider extends FileSystemProvider {
 
   public final static Set<OpenOption> SUPPORTED_OPEN_OPTIONS = new HashSet<>(Arrays.<OpenOption>asList(READ, SPARSE, CREATE, CREATE_NEW, WRITE, APPEND, TRUNCATE_EXISTING));
 
+  public static final GitFileSystemProvider INSTANCE = getInstalledProvider();
+
   private final Map<String, GitFileSystem> fsMap = new ConcurrentHashMap<>();
-
-  private static final GitFileSystemProvider INSTANCE = getInstalledProvider();
-
-  @Nonnull
-  public static GitFileSystemProvider getInstance() {
-    return INSTANCE;
-  }
 
   @Nonnull
   @Override
@@ -41,19 +35,13 @@ public class GitFileSystemProvider extends FileSystemProvider {
   @Nonnull
   @Override
   public GitFileSystem newFileSystem(@Nonnull Path path, @Nonnull Map<String, ?> properties) throws IOException {
-    return GitFileSystemBuilder
-             .fromPath(path, properties)
-             .provider(this)
-             .build();
+    return Gfs.fromPath(path, properties);
   }
 
   @Nonnull
   @Override
   public GitFileSystem newFileSystem(@Nonnull URI uri, @Nonnull Map<String, ?> properties) throws IOException {
-    return GitFileSystemBuilder
-             .fromUri(uri, properties)
-             .provider(this)
-             .build();
+    return Gfs.fromUri(uri, properties);
   }
 
   public void register(@Nonnull GitFileSystem gfs) {

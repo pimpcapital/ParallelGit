@@ -24,7 +24,6 @@ public class GitFileSystem extends FileSystem {
                                                              GfsFileAttributeView.Posix.POSIX_VIEW
     )));
 
-  private final GitFileSystemProvider provider;
   private final Repository repository;
   private final String session;
   private final GitFileStore store;
@@ -36,24 +35,24 @@ public class GitFileSystem extends FileSystem {
   private ObjectInserter inserter;
   private boolean closed = false;
 
-  public GitFileSystem(@Nonnull GitFileSystemProvider provider, @Nonnull Repository repository, @Nullable String branch, @Nullable RevCommit commit, @Nullable AnyObjectId tree) throws IOException {
-    this(provider, repository, branch, commit, new GitFileStore(repository.getDirectory().getAbsolutePath(), tree));
+  public GitFileSystem(@Nonnull Repository repository, @Nullable String branch, @Nullable RevCommit commit, @Nullable AnyObjectId tree) throws IOException {
+    this(repository, branch, commit, new GitFileStore(repository.getDirectory().getAbsolutePath(), tree));
   }
 
-  private GitFileSystem(@Nonnull GitFileSystemProvider provider, @Nonnull Repository repository, @Nullable String branch, @Nullable RevCommit commit, @Nonnull GitFileStore store) throws IOException {
-    this.provider = provider;
+  private GitFileSystem(@Nonnull Repository repository, @Nullable String branch, @Nullable RevCommit commit, @Nonnull GitFileStore store) throws IOException {
     this.repository = repository;
     this.session = UUID.randomUUID().toString();
     this.rootPath = new GitPath(this, "/");
     this.branch = branch;
     this.commit = commit;
     this.store = store;
+    GitFileSystemProvider.INSTANCE.register(this);
   }
 
   @Nonnull
   @Override
   public GitFileSystemProvider provider() {
-    return provider;
+    return GitFileSystemProvider.INSTANCE;
   }
 
   @Override
@@ -64,7 +63,7 @@ public class GitFileSystem extends FileSystem {
       if(reader != null)
         reader.close();
       closed = true;
-      provider.unregister(this);
+      GitFileSystemProvider.INSTANCE.unregister(this);
     }
   }
 
