@@ -155,6 +155,11 @@ public final class GfsIO {
     return children;
   }
 
+  @Nullable
+  public static Node getChild(@Nonnull String name, @Nonnull DirectoryNode dir, @Nonnull GitFileSystem gfs) throws IOException {
+    return getChildren(dir, gfs).get(name);
+  }
+
   public static long getSize(@Nonnull Node node, @Nonnull GitFileSystem gfs) throws IOException {
     long size;
     if(node instanceof FileNode) {
@@ -303,7 +308,7 @@ public final class GfsIO {
         Node node = child.getValue();
         AnyObjectId nodeObject = persistNode(node, false, gfs);
         if(nodeObject != null) {
-          formatter.append(name, node.getType().toFileMode(), nodeObject);
+          formatter.append(name, node.getMode(), nodeObject);
           count++;
         }
       }
@@ -332,11 +337,6 @@ public final class GfsIO {
     AnyObjectId ret = persistNode(root, true, gfs);
     assert ret != null;
     return ret;
-  }
-
-  public static void resetObject(@Nonnull GitPath path, @Nonnull AnyObjectId objectId) throws IOException {
-    Node node = getNode(path);
-    node.reset(objectId);
   }
 
 }

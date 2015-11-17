@@ -4,36 +4,37 @@ import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 
 import org.eclipse.jgit.lib.AnyObjectId;
+import org.eclipse.jgit.lib.FileMode;
 
 public class FileNode extends Node {
 
   private byte[] bytes;
   private long size = -1;
 
-  private FileNode(@Nonnull NodeType type, @Nullable AnyObjectId object, @Nonnull DirectoryNode parent) {
-    super(type, object, parent);
+  private FileNode(@Nonnull FileMode mode, @Nullable AnyObjectId object, @Nonnull DirectoryNode parent) {
+    super(mode, object, parent);
   }
 
-  private FileNode(@Nonnull NodeType type, @Nonnull DirectoryNode parent) {
-    this(type, null, parent);
+  private FileNode(@Nonnull FileMode mode, @Nonnull DirectoryNode parent) {
+    this(mode, null, parent);
     dirty = true;
   }
 
   @Nonnull
-  protected static FileNode forBlobObject(@Nonnull AnyObjectId object, @Nonnull NodeType type, @Nonnull DirectoryNode parent) {
-    return new FileNode(type, object, parent);
+  protected static FileNode forBlobObject(@Nonnull AnyObjectId object, @Nonnull FileMode mode, @Nonnull DirectoryNode parent) {
+    return new FileNode(mode, object, parent);
   }
 
   @Nonnull
-  protected static FileNode forBytes(byte[] bytes, @Nonnull NodeType type, @Nonnull DirectoryNode parent) {
-    FileNode ret = new FileNode(type, parent);
+  public static FileNode forBytes(@Nonnull byte[] bytes, @Nonnull FileMode mode, @Nonnull DirectoryNode parent) {
+    FileNode ret = new FileNode(mode, parent);
     ret.setBytes(bytes);
     return ret;
   }
 
   @Nonnull
   public static FileNode newFile(boolean executable, @Nonnull DirectoryNode parent) {
-    return new FileNode(executable ? NodeType.EXECUTABLE_FILE : NodeType.NON_EXECUTABLE_FILE, parent);
+    return new FileNode(executable ? FileMode.EXECUTABLE_FILE : FileMode.REGULAR_FILE, parent);
   }
 
   @Nullable

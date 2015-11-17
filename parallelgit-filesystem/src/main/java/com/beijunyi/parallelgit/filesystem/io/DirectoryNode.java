@@ -5,13 +5,14 @@ import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 
 import org.eclipse.jgit.lib.AnyObjectId;
+import org.eclipse.jgit.lib.FileMode;
 
 public class DirectoryNode extends Node {
 
   protected ConcurrentMap<String, Node> children;
 
   protected DirectoryNode(@Nullable AnyObjectId object, @Nullable DirectoryNode parent) {
-    super(NodeType.DIRECTORY, object, parent);
+    super(FileMode.TREE, object, parent);
   }
 
   protected DirectoryNode(@Nullable DirectoryNode parent) {

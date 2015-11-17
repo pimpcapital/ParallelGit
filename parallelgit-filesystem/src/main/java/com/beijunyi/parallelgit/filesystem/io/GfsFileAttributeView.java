@@ -7,6 +7,7 @@ import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 
 import com.beijunyi.parallelgit.filesystem.GitFileSystem;
+import org.eclipse.jgit.lib.FileMode;
 
 public abstract class GfsFileAttributeView implements FileAttributeView {
 
@@ -177,10 +178,10 @@ public abstract class GfsFileAttributeView implements FileAttributeView {
 
     @Override
     public void setPermissions(@Nonnull Set<PosixFilePermission> perms) throws IOException {
-      NodeType type = perms.contains(PosixFilePermission.OWNER_EXECUTE) ? NodeType.EXECUTABLE_FILE : NodeType.NON_EXECUTABLE_FILE;
-      if(!type.equals(node.getType())) {
+      FileMode type = perms.contains(PosixFilePermission.OWNER_EXECUTE) ? FileMode.EXECUTABLE_FILE : FileMode.REGULAR_FILE;
+      if(!type.equals(node.getMode())) {
         if(node.isRegularFile())
-          node.setType(type);
+          node.setMode(type);
         else
           throw new IllegalArgumentException();
       }

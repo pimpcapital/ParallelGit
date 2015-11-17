@@ -9,13 +9,13 @@ import org.eclipse.jgit.lib.FileMode;
 public abstract class Node {
 
   protected final DirectoryNode parent;
-  protected volatile NodeType type;
+  protected volatile FileMode mode;
   protected volatile AnyObjectId object;
   protected volatile boolean dirty = false;
   protected volatile boolean deleted = false;
 
-  protected Node(@Nonnull NodeType type, @Nullable AnyObjectId object, @Nullable DirectoryNode parent) {
-    this.type = type;
+  protected Node(@Nonnull FileMode mode, @Nullable AnyObjectId object, @Nullable DirectoryNode parent) {
+    this.mode = mode;
     this.object = object;
     this.parent = parent;
   }
@@ -24,12 +24,7 @@ public abstract class Node {
   public static Node forObject(@Nonnull AnyObjectId object, @Nonnull FileMode mode, @Nonnull DirectoryNode parent) {
     if(mode.equals(FileMode.TREE))
       return DirectoryNode.forTreeObject(object, parent);
-    return FileNode.forBlobObject(object, NodeType.forFileMode(mode), parent);
-  }
-
-  @Nonnull
-  public static FileNode forBytes(@Nonnull byte[] bytes, @Nonnull FileMode mode, @Nonnull DirectoryNode parent) {
-    return FileNode.forBytes(bytes, NodeType.forFileMode(mode), parent);
+    return FileNode.forBlobObject(object, mode, parent);
   }
 
   @Nonnull
@@ -44,28 +39,28 @@ public abstract class Node {
   }
 
   @Nonnull
-  public NodeType getType() {
-    return type;
+  public FileMode getMode() {
+    return mode;
   }
 
-  public void setType(@Nonnull NodeType type) {
-    this.type = type;
+  public void setMode(@Nonnull FileMode mode) {
+    this.mode = mode;
   }
 
   public boolean isRegularFile() {
-    return type.isRegularFile();
+    return mode == FileMode.REGULAR_FILE || mode == FileMode.EXECUTABLE_FILE;
   }
 
   public boolean isExecutableFile() {
-    return type == NodeType.EXECUTABLE_FILE;
+    return mode == FileMode.EXECUTABLE_FILE;
   }
 
   public boolean isSymbolicLink() {
-    return type == NodeType.SYMBOLIC_LINK;
+    return mode == FileMode.SYMLINK;
   }
 
   public boolean isDirectory() {
-    return type == NodeType.DIRECTORY;
+    return mode == FileMode.TREE;
   }
 
   @Nullable
@@ -98,10 +93,11 @@ public abstract class Node {
     this.deleted = deleted;
   }
 
-  public void reset(@Nonnull AnyObjectId objectId) {
+  public void reset(@Nonnull AnyObjectId object, @Nonnull FileMode mode) {
     release();
-    if(object == null || object.equals(objectId)) {
-      setObject(objectId);
+    if(!object.equals(this.object) || !mode.equals(this.mode)) {
+      setObject(object);
+      setMode(mode);
       markDirty();
     }
   }
