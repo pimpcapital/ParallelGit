@@ -3,12 +3,13 @@ package com.beijunyi.parallelgit.filesystem.merge;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.util.*;
-import java.util.concurrent.ConcurrentHashMap;
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 
 import com.beijunyi.parallelgit.filesystem.GitFileSystem;
-import com.beijunyi.parallelgit.filesystem.io.*;
+import com.beijunyi.parallelgit.filesystem.io.DirectoryNode;
+import com.beijunyi.parallelgit.filesystem.io.GfsIO;
+import com.beijunyi.parallelgit.filesystem.io.Node;
 import org.eclipse.jgit.diff.DiffAlgorithm;
 import org.eclipse.jgit.diff.DiffAlgorithm.SupportedAlgorithm;
 import org.eclipse.jgit.diff.RawText;
@@ -23,11 +24,12 @@ import org.eclipse.jgit.treewalk.TreeWalk;
 import static org.eclipse.jgit.diff.DiffAlgorithm.SupportedAlgorithm.HISTOGRAM;
 import static org.eclipse.jgit.lib.ConfigConstants.*;
 import static org.eclipse.jgit.lib.Constants.*;
+import static org.eclipse.jgit.lib.FileMode.*;
 
 public class GfsMerger extends ThreeWayMerger {
 
   private final GitFileSystem gfs;
-  private final Map<String, GfsMergeConflict> conflicts;
+  private final Map<String, GfsMergeConflict> conflicts = new LinkedHashMap<>();
 
   private MergeAlgorithm algorithm;
   private MergeFormatter formatter;
@@ -40,9 +42,9 @@ public class GfsMerger extends ThreeWayMerger {
 
   private String path;
   private String name;
-  private int baseMode;
-  private int ourMode;
-  private int theirMode;
+  private FileMode baseMode;
+  private FileMode ourMode;
+  private FileMode theirMode;
   private AnyObjectId baseId;
   private AnyObjectId ourId;
   private AnyObjectId theirId;
@@ -52,10 +54,7 @@ public class GfsMerger extends ThreeWayMerger {
   public GfsMerger(@Nonnull GitFileSystem gfs) {
     super(gfs.getRepository());
     this.gfs = gfs;
-
     tw = new NameConflictTreeWalk(reader);
-    conflicts = new HashMap<>();
-
     currentDirectory = gfs.getFileStore().getRoot();
     currentDepth = 0;
   }
@@ -182,7 +181,7 @@ public class GfsMerger extends ThreeWayMerger {
     }
 
     if(bothAreTree()) {
-      addDirectory();
+      enterDirectory();
       return true;
     }
 
@@ -193,11 +192,11 @@ public class GfsMerger extends ThreeWayMerger {
   private void readTreeNodes() {
     path = tw.getPathString();
     name = tw.getNameString();
-    baseMode = tw.getRawMode(0);
+    baseMode = tw.getFileMode(0);
     baseId = tw.getObjectId(0);
-    ourMode = tw.getRawMode(1);
+    ourMode = tw.getFileMode(1);
     ourId = tw.getObjectId(1);
-    theirMode = tw.getRawMode(2);
+    theirMode = tw.getFileMode(2);
     theirId = tw.getObjectId(2);
   }
 
@@ -214,8 +213,7 @@ public class GfsMerger extends ThreeWayMerger {
   }
 
   private void applyTheirs() throws IOException {
-    if(theirMode != FileMode.TYPE_MISSING)
-      updateNode(theirMode, theirId);
+    updateNode(theirId, theirMode);
   }
 
   private boolean theirsIsNotChanged() {
@@ -223,8 +221,7 @@ public class GfsMerger extends ThreeWayMerger {
   }
 
   private void applyOurs() throws IOException {
-    if(ourMode != FileMode.TYPE_MISSING)
-      updateNode(ourMode, ourId);
+    updateNode(ourId, ourMode);
   }
 
   private boolean bothHaveSameId() {
@@ -232,34 +229,32 @@ public class GfsMerger extends ThreeWayMerger {
   }
 
   private void applyCommonChanges() throws IOException {
-    int mergedMode = mergeFileModes();
-    if(mergedMode != FileMode.TYPE_MISSING)
-      updateNode(mergedMode, ourId);
-    else {
-      updateNode(ourMode, ourId);
+    FileMode mergedMode = mergeFileModes();
+    if(!mergedMode.equals(MISSING))
+      updateNode(ourId, mergedMode);
+    else
       addConflict();
-    }
   }
 
-  private int mergeFileModes() {
+  @Nonnull
+  private FileMode mergeFileModes() {
     if (ourMode == theirMode)
       return ourMode;
     if (baseMode == ourMode)
-      return theirMode == FileMode.TYPE_MISSING ? ourMode : theirMode;
+      return theirMode.equals(MISSING) ? ourMode : theirMode;
     if (baseMode == theirMode)
-      return ourMode == FileMode.TYPE_MISSING ? theirMode : ourMode;
-    return FileMode.TYPE_MISSING;
+      return ourMode.equals(MISSING) ? theirMode : ourMode;
+    return MISSING;
   }
 
   private boolean bothAreBlob() {
-    return ourMode != FileMode.TYPE_TREE && theirMode != FileMode.TYPE_TREE;
+    return !ourMode.equals(TREE) && !theirMode.equals(TREE);
   }
 
   private void mergeAndApplyBlob() throws IOException {
-    if(ourMode == FileMode.TYPE_GITLINK || theirMode == FileMode.TYPE_GITLINK) {
-      updateNode(ourMode, ourId);
+    if(ourMode.equals(GITLINK) || theirMode.equals(GITLINK))
       addConflict();
-    } else {
+    else {
       MergeResult<RawText> result = mergeContent();
       writeMergedFile(result);
       if(result.containsConflicts())
@@ -276,8 +271,8 @@ public class GfsMerger extends ThreeWayMerger {
   }
 
   private void writeMergedFile(@Nonnull MergeResult<RawText> result) throws IOException {
-    int mergedMode = mergeFileModes();
-    FileMode mode = mergedMode == FileMode.TYPE_MISSING ? FileMode.REGULAR_FILE : FileMode.fromBits(mergedMode);
+    FileMode mergedMode = mergeFileModes();
+    FileMode mode = mergedMode.equals(MISSING) ? REGULAR_FILE : mergedMode;
 
     byte[] bytes;
     try(ByteArrayOutputStream out = new ByteArrayOutputStream()) {
@@ -285,15 +280,10 @@ public class GfsMerger extends ThreeWayMerger {
       bytes = out.toByteArray();
     }
 
-    Node node;
     if(!result.containsConflicts())
-      node = FileNode.forBytes(bytes, mode, currentDirectory);
-    else {
-      AnyObjectId blob = gfs.saveBlob(bytes);
-      node = Node.forObject(blob, mode, currentDirectory);
-    }
-
-    addChild(node);
+      GfsIO.addChildFile(name, mode, bytes, currentDirectory, gfs);
+    else
+      GfsIO.addChild(name, mode, gfs.saveBlob(bytes), currentDirectory, gfs);
   }
 
   @Nonnull
@@ -303,22 +293,15 @@ public class GfsMerger extends ThreeWayMerger {
     return new RawText(reader.open(id, OBJ_BLOB).getCachedBytes());
   }
 
-  private void updateNode(int rawMode, @Nonnull AnyObjectId id) throws IOException {
-    if(rawMode != FileMode.TYPE_MISSING) {
+  private void updateNode(@Nonnull AnyObjectId id, @Nonnull FileMode mode) throws IOException {
+    if(ourMode.equals(MISSING)) {
       Node node = GfsIO.getChild(name, currentDirectory, gfs);
-      FileMode mode = FileMode.fromBits(rawMode);
       if(node != null)
         node.reset(id, mode);
       else
-        currentDirectory.addChild(name, Node.forObject(id, mode, currentDirectory), false);
+        GfsIO.addChild(name, mode, id, currentDirectory, gfs);
     } else
-      currentDirectory.removeChild(name);
-  }
-
-  private void addChild(@Nonnull Node child) {
-    if(currentDirectory.getChildren() == null)
-      currentDirectory.setChildren(new ConcurrentHashMap<String, Node>());
-    currentDirectory.addChild(name, child, false);
+      GfsIO.removeChild(name, currentDirectory, gfs);
   }
 
   private void addConflict() {
@@ -326,17 +309,17 @@ public class GfsMerger extends ThreeWayMerger {
   }
 
   private boolean bothAreTree() {
-    return ourMode == FileMode.TYPE_TREE && theirMode == FileMode.TYPE_TREE;
+    return ourMode.equals(TREE) && theirMode.equals(TREE);
   }
 
-  private void addDirectory() {
+  private void enterDirectory() {
     DirectoryNode node = DirectoryNode.newDirectory(currentDirectory);
-    addChild(node);
+    //todo:
     currentDirectory = node;
   }
 
   private void handleFileDirectoryConflict() throws IOException {
-    updateNode(ourMode, ourId);
+    updateNode(ourId, ourMode);
     addConflict();
   }
 

@@ -6,6 +6,8 @@ import javax.annotation.Nullable;
 import org.eclipse.jgit.lib.AnyObjectId;
 import org.eclipse.jgit.lib.FileMode;
 
+import static org.eclipse.jgit.lib.FileMode.*;
+
 public abstract class Node {
 
   protected final DirectoryNode parent;
@@ -22,7 +24,7 @@ public abstract class Node {
 
   @Nonnull
   public static Node forObject(@Nonnull AnyObjectId object, @Nonnull FileMode mode, @Nonnull DirectoryNode parent) {
-    if(mode.equals(FileMode.TREE))
+    if(mode.equals(TREE))
       return DirectoryNode.forTreeObject(object, parent);
     return FileNode.forBlobObject(object, mode, parent);
   }
@@ -48,19 +50,19 @@ public abstract class Node {
   }
 
   public boolean isRegularFile() {
-    return mode == FileMode.REGULAR_FILE || mode == FileMode.EXECUTABLE_FILE;
+    return mode.equals(REGULAR_FILE) || mode.equals(EXECUTABLE_FILE);
   }
 
   public boolean isExecutableFile() {
-    return mode == FileMode.EXECUTABLE_FILE;
+    return mode.equals(EXECUTABLE_FILE);
   }
 
   public boolean isSymbolicLink() {
-    return mode == FileMode.SYMLINK;
+    return mode.equals(FileMode.SYMLINK);
   }
 
   public boolean isDirectory() {
-    return mode == FileMode.TREE;
+    return mode.equals(TREE);
   }
 
   @Nullable
@@ -94,6 +96,8 @@ public abstract class Node {
   }
 
   public void reset(@Nonnull AnyObjectId object, @Nonnull FileMode mode) {
+    if((this.mode.equals(TREE) || mode.equals(TREE)) && !this.mode.equals(mode))
+      throw new IllegalStateException();
     release();
     if(!object.equals(this.object) || !mode.equals(this.mode)) {
       setObject(object);

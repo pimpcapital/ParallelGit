@@ -14,6 +14,7 @@ import com.beijunyi.parallelgit.filesystem.GitFileSystem;
 import com.beijunyi.parallelgit.filesystem.GitPath;
 import com.beijunyi.parallelgit.filesystem.utils.FileAttributeReader;
 import org.eclipse.jgit.lib.AnyObjectId;
+import org.eclipse.jgit.lib.FileMode;
 import org.eclipse.jgit.lib.TreeFormatter;
 import org.eclipse.jgit.treewalk.CanonicalTreeParser;
 
@@ -158,6 +159,18 @@ public final class GfsIO {
   @Nullable
   public static Node getChild(@Nonnull String name, @Nonnull DirectoryNode dir, @Nonnull GitFileSystem gfs) throws IOException {
     return getChildren(dir, gfs).get(name);
+  }
+
+  public static boolean addChild(@Nonnull String name, @Nonnull FileMode mode, @Nonnull AnyObjectId id, @Nonnull DirectoryNode dir, @Nonnull GitFileSystem gfs) throws IOException {
+    return prepareDirectory(dir, gfs).addChild(name, Node.forObject(id, mode, dir), false);
+  }
+
+  public static boolean addChildFile(@Nonnull String name, @Nonnull FileMode mode, @Nonnull byte[] bytes, @Nonnull DirectoryNode dir, @Nonnull GitFileSystem gfs) throws IOException {
+    return prepareDirectory(dir, gfs).addChild(name, FileNode.forBytes(bytes, mode, dir), false);
+  }
+
+  public static boolean removeChild(@Nonnull String name, @Nonnull DirectoryNode dir, @Nonnull GitFileSystem gfs) throws IOException {
+    return prepareDirectory(dir, gfs).removeChild(name);
   }
 
   public static long getSize(@Nonnull Node node, @Nonnull GitFileSystem gfs) throws IOException {
