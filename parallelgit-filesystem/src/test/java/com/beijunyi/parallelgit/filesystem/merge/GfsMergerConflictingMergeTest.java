@@ -10,10 +10,12 @@ import org.eclipse.jgit.lib.AnyObjectId;
 import org.eclipse.jgit.lib.FileMode;
 import org.eclipse.jgit.revwalk.RevCommit;
 import org.junit.Before;
+import org.junit.Ignore;
 import org.junit.Test;
 
 import static org.junit.Assert.assertFalse;
 
+@Ignore
 public class GfsMergerConflictingMergeTest extends AbstractParallelGitTest {
 
   private GfsMerger merger;

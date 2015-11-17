@@ -6,10 +6,12 @@ import com.beijunyi.parallelgit.AbstractParallelGitTest;
 import com.beijunyi.parallelgit.utils.TreeUtils;
 import org.eclipse.jgit.lib.AnyObjectId;
 import org.junit.Before;
+import org.junit.Ignore;
 import org.junit.Test;
 
 import static org.junit.Assert.*;
 
+@Ignore
 public class GfsMergerNoConflictMergeTest extends AbstractParallelGitTest {
 
   private GfsMerger merger;

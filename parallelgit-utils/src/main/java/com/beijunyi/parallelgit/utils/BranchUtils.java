@@ -95,7 +95,7 @@ public final class BranchUtils {
   }
 
   public static void amendCommit(@Nonnull String name, @Nonnull AnyObjectId commitId, @Nonnull Repository repo) throws IOException {
-    setBranchHead(name, commitId, repo, makeRefLogMessage("commit (amend)", commitId, repo), false);
+    setBranchHead(name, commitId, repo, makeRefLogMessage("commit (amend)", commitId, repo), true);
   }
 
   public static void initBranch(@Nonnull String name, @Nonnull AnyObjectId commitId, @Nonnull Repository repo) throws IOException {

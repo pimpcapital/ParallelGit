@@ -39,16 +39,12 @@ public class GitFileSystem extends FileSystem {
   private boolean closed = false;
 
   public GitFileSystem(@Nonnull Repository repository, @Nullable String branch, @Nullable RevCommit commit, @Nullable AnyObjectId tree) throws IOException {
-    this(repository, branch, commit, new GitFileStore(repository.getDirectory().getAbsolutePath(), tree));
-  }
-
-  private GitFileSystem(@Nonnull Repository repository, @Nullable String branch, @Nullable RevCommit commit, @Nonnull GitFileStore store) throws IOException {
     this.repository = repository;
-    this.session = UUID.randomUUID().toString();
-    this.rootPath = new GitPath(this, "/");
     this.branch = branch;
     this.commit = commit;
-    this.store = store;
+    rootPath = new GitPath(this, "/");
+    session = UUID.randomUUID().toString();
+    store = new GitFileStore(session, tree);
     GitFileSystemProvider.INSTANCE.register(this);
   }
 

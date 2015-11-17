@@ -4,10 +4,9 @@ import com.beijunyi.parallelgit.AbstractParallelGitTest;
 import org.eclipse.jgit.api.Git;
 import org.eclipse.jgit.api.MergeResult;
 import org.eclipse.jgit.revwalk.RevCommit;
-import org.junit.Assert;
-import org.junit.Before;
-import org.junit.Test;
+import org.junit.*;
 
+@Ignore
 public class MergeRequestTest extends AbstractParallelGitTest {
 
   @Before
