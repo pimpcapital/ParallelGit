@@ -161,12 +161,30 @@ public final class GfsIO {
     return getChildren(dir, gfs).get(name);
   }
 
-  public static boolean addChild(@Nonnull String name, @Nonnull FileMode mode, @Nonnull AnyObjectId id, @Nonnull DirectoryNode dir, @Nonnull GitFileSystem gfs) throws IOException {
-    return prepareDirectory(dir, gfs).addChild(name, Node.forObject(id, mode, dir), false);
+  private static void addChild(@Nonnull String name, @Nonnull Node node, @Nonnull DirectoryNode dir, @Nonnull GitFileSystem gfs) throws IOException {
+    if(!prepareDirectory(dir, gfs).addChild(name, node, false))
+      throw new IllegalStateException();
   }
 
-  public static boolean addChildFile(@Nonnull String name, @Nonnull FileMode mode, @Nonnull byte[] bytes, @Nonnull DirectoryNode dir, @Nonnull GitFileSystem gfs) throws IOException {
-    return prepareDirectory(dir, gfs).addChild(name, FileNode.forBytes(bytes, mode, dir), false);
+  @Nonnull
+  public static Node addChild(@Nonnull String name, @Nonnull AnyObjectId id, @Nonnull FileMode mode, @Nonnull DirectoryNode dir, @Nonnull GitFileSystem gfs) throws IOException {
+    Node ret = Node.forObject(id, mode, dir);
+    addChild(name, ret, dir, gfs);
+    return ret;
+  }
+
+  @Nonnull
+  public static FileNode addChildFile(@Nonnull String name, @Nonnull byte[] bytes, @Nonnull FileMode mode, @Nonnull DirectoryNode dir, @Nonnull GitFileSystem gfs) throws IOException {
+    FileNode ret = FileNode.forBytes(bytes, mode, dir);
+    addChild(name, ret, dir, gfs);
+    return ret;
+  }
+
+  @Nonnull
+  public static DirectoryNode addChildDirectory(@Nonnull String name, @Nonnull DirectoryNode dir, @Nonnull GitFileSystem gfs) throws IOException {
+    DirectoryNode ret = DirectoryNode.newDirectory(dir);
+    addChild(name, ret, dir, gfs);
+    return ret;
   }
 
   public static boolean removeChild(@Nonnull String name, @Nonnull DirectoryNode dir, @Nonnull GitFileSystem gfs) throws IOException {

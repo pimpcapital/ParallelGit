@@ -95,13 +95,13 @@ public abstract class Node {
     this.deleted = deleted;
   }
 
-  public void reset(@Nonnull AnyObjectId object, @Nonnull FileMode mode) {
-    if((this.mode.equals(TREE) || mode.equals(TREE)) && !this.mode.equals(mode))
+  public void reset(@Nonnull AnyObjectId newId, @Nonnull FileMode newMode) {
+    if((mode.equals(TREE) || newMode.equals(TREE)) && !mode.equals(newMode))
       throw new IllegalStateException();
     release();
-    if(!object.equals(this.object) || !mode.equals(this.mode)) {
-      setObject(object);
-      setMode(mode);
+    if(!newId.equals(object) || !newMode.equals(mode)) {
+      setObject(newId);
+      setMode(newMode);
       markDirty();
     }
   }

@@ -281,9 +281,9 @@ public class GfsMerger extends ThreeWayMerger {
     }
 
     if(!result.containsConflicts())
-      GfsIO.addChildFile(name, mode, bytes, currentDirectory, gfs);
+      GfsIO.addChildFile(name, bytes, mode, currentDirectory, gfs);
     else
-      GfsIO.addChild(name, mode, gfs.saveBlob(bytes), currentDirectory, gfs);
+      GfsIO.addChild(name, gfs.saveBlob(bytes), mode, currentDirectory, gfs);
   }
 
   @Nonnull
@@ -299,7 +299,7 @@ public class GfsMerger extends ThreeWayMerger {
       if(node != null)
         node.reset(id, mode);
       else
-        GfsIO.addChild(name, mode, id, currentDirectory, gfs);
+        GfsIO.addChild(name, id, mode, currentDirectory, gfs);
     } else
       GfsIO.removeChild(name, currentDirectory, gfs);
   }
@@ -312,10 +312,16 @@ public class GfsMerger extends ThreeWayMerger {
     return ourMode.equals(TREE) && theirMode.equals(TREE);
   }
 
-  private void enterDirectory() {
-    DirectoryNode node = DirectoryNode.newDirectory(currentDirectory);
-    //todo:
-    currentDirectory = node;
+  private void enterDirectory() throws IOException {
+    Node node = GfsIO.getChild(name, currentDirectory, gfs);
+    if(node != null && !node.isDirectory()) {
+      GfsIO.removeChild(name, currentDirectory, gfs);
+      node = null;
+    }
+    if(node == null)
+      node = GfsIO.addChildDirectory(name, currentDirectory, gfs);
+    currentDirectory = (DirectoryNode) node;
+    currentDepth++;
   }
 
   private void handleFileDirectoryConflict() throws IOException {
