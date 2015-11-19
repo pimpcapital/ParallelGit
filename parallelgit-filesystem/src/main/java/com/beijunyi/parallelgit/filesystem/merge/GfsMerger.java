@@ -230,13 +230,13 @@ public class GfsMerger extends ThreeWayMerger {
 
   private void applyCommonChanges() throws IOException {
     FileMode mergedMode = mergeFileModes();
-    if(!mergedMode.equals(MISSING))
+    if(mergedMode != null)
       updateNode(ourId, mergedMode);
     else
       addConflict();
   }
 
-  @Nonnull
+  @Nullable
   private FileMode mergeFileModes() {
     if (ourMode == theirMode)
       return ourMode;
@@ -244,7 +244,7 @@ public class GfsMerger extends ThreeWayMerger {
       return theirMode.equals(MISSING) ? ourMode : theirMode;
     if (baseMode == theirMode)
       return ourMode.equals(MISSING) ? theirMode : ourMode;
-    return MISSING;
+    return null;
   }
 
   private boolean bothAreBlob() {
@@ -272,7 +272,7 @@ public class GfsMerger extends ThreeWayMerger {
 
   private void writeMergedFile(@Nonnull MergeResult<RawText> result) throws IOException {
     FileMode mergedMode = mergeFileModes();
-    FileMode mode = mergedMode.equals(MISSING) ? REGULAR_FILE : mergedMode;
+    FileMode mode = mergedMode == null ? REGULAR_FILE : mergedMode;
 
     byte[] bytes;
     try(ByteArrayOutputStream out = new ByteArrayOutputStream()) {
@@ -283,7 +283,7 @@ public class GfsMerger extends ThreeWayMerger {
     if(!result.containsConflicts())
       GfsIO.addChildFile(name, bytes, mode, currentDirectory, gfs);
     else
-      GfsIO.addChild(name, gfs.saveBlob(bytes), mode, currentDirectory, gfs);
+      updateNode(gfs.saveBlob(bytes), mode);
   }
 
   @Nonnull
@@ -294,7 +294,7 @@ public class GfsMerger extends ThreeWayMerger {
   }
 
   private void updateNode(@Nonnull AnyObjectId id, @Nonnull FileMode mode) throws IOException {
-    if(ourMode.equals(MISSING)) {
+    if(!mode.equals(MISSING)) {
       Node node = GfsIO.getChild(name, currentDirectory, gfs);
       if(node != null)
         node.reset(id, mode);

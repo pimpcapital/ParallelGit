@@ -4,42 +4,30 @@ import java.util.concurrent.ConcurrentMap;
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 
+import com.beijunyi.parallelgit.filesystem.GitFileSystem;
 import org.eclipse.jgit.lib.AnyObjectId;
 import org.eclipse.jgit.lib.FileMode;
 
 public class DirectoryNode extends Node {
 
-  protected ConcurrentMap<String, Node> children;
+  private ConcurrentMap<String, Node> children;
 
-  protected DirectoryNode(@Nullable AnyObjectId object, @Nullable DirectoryNode parent) {
-    super(FileMode.TREE, object, parent);
+  protected DirectoryNode(@Nullable AnyObjectId object, @Nonnull GitFileSystem gfs) {
+    super(FileMode.TREE, object, gfs);
   }
 
-  protected DirectoryNode(@Nullable DirectoryNode parent) {
-    this(null, parent);
-    dirty = false;
-  }
-
-  @Nonnull
-  public static DirectoryNode forTreeObject(@Nonnull AnyObjectId object, @Nonnull DirectoryNode parent) {
-    return new DirectoryNode(object, parent);
+  protected DirectoryNode(@Nonnull GitFileSystem gfs) {
+    this(null, gfs);
   }
 
   @Nonnull
-  public static DirectoryNode newDirectory(@Nonnull DirectoryNode parent) {
-    return new DirectoryNode(parent);
+  public static DirectoryNode forTreeObject(@Nonnull AnyObjectId object, @Nonnull GitFileSystem gfs) {
+    return new DirectoryNode(object, gfs);
   }
 
   @Nonnull
-  public static DirectoryNode treeRoot(@Nonnull AnyObjectId object) {
-    return new DirectoryNode(object, null);
-  }
-
-  @Nonnull
-  public static DirectoryNode emptyRoot() {
-    DirectoryNode ret = new DirectoryNode(null);
-    ret.setDirty(true);
-    return ret;
+  public static DirectoryNode newDirectory(@Nonnull GitFileSystem gfs) {
+    return new DirectoryNode(gfs);
   }
 
   @Nullable
@@ -55,10 +43,6 @@ public class DirectoryNode extends Node {
     if(children != null)
       return children.isEmpty();
     return object == null;
-  }
-
-  public void loadChildren(@Nonnull ConcurrentMap<String, Node> children) {
-    setChildren(children);
   }
 
   public boolean hasChild(@Nonnull String name) {
@@ -78,8 +62,6 @@ public class DirectoryNode extends Node {
     if(!replace && children.containsKey(name))
       return false;
     children.put(name, child);
-    if(child.isDirty() || !child.isDirectory() || !((DirectoryNode) child).isEmpty())
-      markDirty();
     return true;
   }
 
@@ -88,17 +70,26 @@ public class DirectoryNode extends Node {
     if(removed == null)
       return false;
     removed.markDeleted();
-    if(!removed.isDirectory() || !((DirectoryNode) removed).isEmpty())
-      markDirty();
     return true;
   }
 
   @Override
-  protected void release() {
+  protected boolean isTrivial() {
+    return isEmpty();
+  }
+
+  @Override
+  protected void reset() {
     if(children != null) {
       for(Node child : children.values())
         child.markDeleted();
       children = null;
     }
   }
+
+  @Override
+  public void takeSnapshot() {
+    snapshot = Snapshot.capture(this);
+  }
+
 }

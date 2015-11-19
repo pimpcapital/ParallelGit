@@ -13,6 +13,7 @@ import com.beijunyi.parallelgit.filesystem.requests.PersistRequest;
 import com.beijunyi.parallelgit.filesystem.utils.GitFileSystemBuilder;
 import com.beijunyi.parallelgit.filesystem.utils.GitParams;
 import com.beijunyi.parallelgit.filesystem.utils.GitUriUtils;
+import org.eclipse.jgit.lib.AnyObjectId;
 import org.eclipse.jgit.lib.Repository;
 
 public final class Gfs {
@@ -43,6 +44,14 @@ public final class Gfs {
     return newFileSystem()
              .repository(repoDir)
              .revision(revision)
+             .build();
+  }
+
+  @Nonnull
+  public static GitFileSystem forCommit(@Nonnull AnyObjectId commit, @Nonnull Repository repo) throws IOException {
+    return newFileSystem()
+             .repository(repo)
+             .commit(commit)
              .build();
   }
 

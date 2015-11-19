@@ -18,7 +18,7 @@ public class GitFileStore extends FileStore {
   private final DirectoryNode root;
 
   public GitFileStore(@Nonnull String name, @Nullable AnyObjectId rootTree) throws IOException {
-    this(name, rootTree != null ? DirectoryNode.treeRoot(rootTree) : DirectoryNode.emptyRoot());
+    this(name, rootTree != null ? DirectoryNode.forTreeObject(rootTree, null) : DirectoryNode.newDirectory(null));
   }
 
   private GitFileStore(@Nonnull String name, @Nonnull DirectoryNode rootNode) {

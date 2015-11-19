@@ -3,6 +3,7 @@ package com.beijunyi.parallelgit.filesystem.io;
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 
+import com.beijunyi.parallelgit.filesystem.GitFileSystem;
 import org.eclipse.jgit.lib.AnyObjectId;
 import org.eclipse.jgit.lib.FileMode;
 
@@ -10,33 +11,32 @@ import static org.eclipse.jgit.lib.FileMode.*;
 
 public abstract class Node {
 
-  protected final DirectoryNode parent;
+  protected final GitFileSystem gfs;
   protected volatile FileMode mode;
   protected volatile AnyObjectId object;
-  protected volatile boolean dirty = false;
+  protected volatile AnyObjectId snapshot;
   protected volatile boolean deleted = false;
 
-  protected Node(@Nonnull FileMode mode, @Nullable AnyObjectId object, @Nullable DirectoryNode parent) {
+  protected Node(@Nonnull FileMode mode, @Nullable AnyObjectId object, @Nonnull GitFileSystem gfs) {
     this.mode = mode;
     this.object = object;
-    this.parent = parent;
+    this.gfs = gfs;
   }
 
   @Nonnull
-  public static Node forObject(@Nonnull AnyObjectId object, @Nonnull FileMode mode, @Nonnull DirectoryNode parent) {
+  public static Node forObject(@Nonnull AnyObjectId object, @Nonnull FileMode mode, @Nonnull GitFileSystem gfs) {
     if(mode.equals(TREE))
-      return DirectoryNode.forTreeObject(object, parent);
-    return FileNode.forBlobObject(object, mode, parent);
+      return DirectoryNode.forTreeObject(object, gfs);
+    return FileNode.forBlobObject(object, mode, gfs);
   }
 
   @Nonnull
-  public static Node cloneNode(@Nonnull Node node, @Nonnull DirectoryNode parent) {
+  public static Node cloneNode(@Nonnull Node node, @Nonnull GitFileSystem gfs) {
     Node ret;
     if(node instanceof DirectoryNode)
-      ret = DirectoryNode.newDirectory(parent);
+      ret = DirectoryNode.newDirectory(gfs);
     else
-      ret = FileNode.newFile(node.isExecutableFile(), parent);
-    ret.setDirty(true);
+      ret = FileNode.newFile(node.isExecutableFile(), gfs);
     return ret;
   }
 
@@ -79,14 +79,6 @@ public abstract class Node {
     this.object = object;
   }
 
-  public boolean isDirty() {
-    return dirty;
-  }
-
-  public void setDirty(boolean dirty) {
-    this.dirty = dirty;
-  }
-
   public boolean isDeleted() {
     return deleted;
   }
@@ -98,35 +90,28 @@ public abstract class Node {
   public void reset(@Nonnull AnyObjectId newId, @Nonnull FileMode newMode) {
     if((mode.equals(TREE) || newMode.equals(TREE)) && !mode.equals(newMode))
       throw new IllegalStateException();
-    release();
+    reset();
     if(!newId.equals(object) || !newMode.equals(mode)) {
       setObject(newId);
       setMode(newMode);
-      markDirty();
-    }
-  }
-
-  public void markDirty() {
-    if(!deleted && !isDirty()) {
-      setDirty(true);
-      DirectoryNode parent = getParent();
-      if(parent != null)
-        parent.markDirty();
-    }
-  }
-
-  public void markClean(@Nullable AnyObjectId object) {
-    if(!deleted) {
-      setObject(object);
-      setDirty(false);
     }
   }
 
   public void markDeleted() {
     setDeleted(true);
-    release();
+    reset();
   }
 
-  protected abstract void release();
+  public void takeSnapshot() {
+    snapshot = Snapshot.capture(this);
+  }
+
+  public boolean isDirty() {
+    return snapshot == null || snapshot.matches(this);
+  }
+
+  protected abstract boolean isTrivial();
+
+  protected abstract void reset();
 
 }

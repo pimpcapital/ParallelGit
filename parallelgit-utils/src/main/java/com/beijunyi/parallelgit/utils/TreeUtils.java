@@ -1,6 +1,8 @@
 package com.beijunyi.parallelgit.utils;
 
 import java.io.IOException;
+import java.io.InputStream;
+import java.nio.file.NoSuchFileException;
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 
@@ -19,36 +21,36 @@ public final class TreeUtils {
   }
 
   @Nonnull
-  public static TreeWalk newTreeWalk(@Nonnull AnyObjectId treeId, @Nonnull ObjectReader reader) throws IOException {
+  public static TreeWalk newTreeWalk(@Nonnull AnyObjectId tree, @Nonnull ObjectReader reader) throws IOException {
     TreeWalk treeWalk = new TreeWalk(reader);
-    treeWalk.reset(treeId);
+    treeWalk.reset(tree);
     return treeWalk;
   }
 
   @Nonnull
-  public static TreeWalk newTreeWalk(@Nonnull AnyObjectId treeId, @Nonnull Repository repo) throws IOException {
-    return newTreeWalk(treeId, repo.newObjectReader());
+  public static TreeWalk newTreeWalk(@Nonnull AnyObjectId tree, @Nonnull Repository repo) throws IOException {
+    return newTreeWalk(tree, repo.newObjectReader());
   }
 
   @Nullable
-  public static TreeWalk forPath(@Nonnull String path, @Nonnull AnyObjectId treeId, @Nonnull ObjectReader reader) throws IOException {
-    return TreeWalk.forPath(reader, normalizeTreePath(path), treeId);
+  public static TreeWalk forPath(@Nonnull String path, @Nonnull AnyObjectId tree, @Nonnull ObjectReader reader) throws IOException {
+    return TreeWalk.forPath(reader, normalizeTreePath(path), tree);
   }
 
   @Nullable
-  public static TreeWalk forPath(@Nonnull String path, @Nonnull AnyObjectId treeId, @Nonnull Repository repo) throws IOException {
+  public static TreeWalk forPath(@Nonnull String path, @Nonnull AnyObjectId tree, @Nonnull Repository repo) throws IOException {
     try(ObjectReader reader = repo.newObjectReader()) {
-      return forPath(path, treeId, reader);
+      return forPath(path, tree, reader);
     }
   }
 
-  public static boolean exists(@Nonnull String path, @Nonnull AnyObjectId treeId, @Nonnull ObjectReader reader) throws IOException {
-    return forPath(path, treeId, reader) != null;
+  public static boolean exists(@Nonnull String path, @Nonnull AnyObjectId tree, @Nonnull ObjectReader reader) throws IOException {
+    return forPath(path, tree, reader) != null;
   }
 
-  public static boolean exists(@Nonnull String path, @Nonnull AnyObjectId treeId, @Nonnull Repository repo) throws IOException {
+  public static boolean exists(@Nonnull String path, @Nonnull AnyObjectId tree, @Nonnull Repository repo) throws IOException {
     try(ObjectReader reader = repo.newObjectReader()) {
-      return exists(path, treeId, reader);
+      return exists(path, tree, reader);
     }
   }
 
@@ -58,16 +60,46 @@ public final class TreeUtils {
   }
 
   @Nullable
-  public static AnyObjectId getObjectId(@Nonnull String path, @Nonnull AnyObjectId treeId, @Nonnull ObjectReader reader) throws IOException {
-    try(TreeWalk treeWalk = forPath(path, treeId, reader)) {
+  public static AnyObjectId getObjectId(@Nonnull String path, @Nonnull AnyObjectId tree, @Nonnull ObjectReader reader) throws IOException {
+    try(TreeWalk treeWalk = forPath(path, tree, reader)) {
       return treeWalk != null ? getObjectId(treeWalk) : null;
     }
   }
 
   @Nullable
-  public static AnyObjectId getObjectId(@Nonnull String path, @Nonnull AnyObjectId treeId, @Nonnull Repository repo) throws IOException {
+  public static AnyObjectId getObjectId(@Nonnull String path, @Nonnull AnyObjectId tree, @Nonnull Repository repo) throws IOException {
     try(ObjectReader reader = repo.newObjectReader()) {
-      return getObjectId(path, treeId, reader);
+      return getObjectId(path, tree, reader);
+    }
+  }
+
+  @Nonnull
+  public static InputStream openFile(@Nonnull String file, @Nonnull AnyObjectId tree, @Nonnull ObjectReader reader) throws IOException {
+    AnyObjectId blobId = getObjectId(file, tree, reader);
+    if(blobId == null)
+      throw new NoSuchFileException(file);
+    return ObjectUtils.openObject(blobId, reader);
+  }
+
+  @Nonnull
+  public static InputStream openFile(@Nonnull String file, @Nonnull AnyObjectId tree, @Nonnull Repository repo) throws IOException {
+    try(ObjectReader reader = repo.newObjectReader()) {
+      return openFile(file, tree, reader);
+    }
+  }
+
+  @Nonnull
+  public static byte[] readFile(@Nonnull String file, @Nonnull AnyObjectId tree, @Nonnull ObjectReader reader) throws IOException {
+    AnyObjectId blobId = getObjectId(file, tree, reader);
+    if(blobId == null)
+      throw new NoSuchFileException(file);
+    return ObjectUtils.readObject(blobId, reader);
+  }
+
+  @Nonnull
+  public static byte[] readFile(@Nonnull String file, @Nonnull AnyObjectId tree, @Nonnull Repository repo) throws IOException {
+    try(ObjectReader reader = repo.newObjectReader()) {
+      return readFile(file, tree, reader);
     }
   }
 
@@ -75,15 +107,15 @@ public final class TreeUtils {
     return treeWalk.getFileMode(0).getObjectType() == Constants.OBJ_BLOB;
   }
 
-  public static boolean isFileOrSymbolicLink(@Nonnull String path, @Nonnull AnyObjectId treeId, @Nonnull ObjectReader reader) throws IOException {
-    try(TreeWalk treeWalk = forPath(path, treeId, reader)) {
+  public static boolean isFileOrSymbolicLink(@Nonnull String path, @Nonnull AnyObjectId tree, @Nonnull ObjectReader reader) throws IOException {
+    try(TreeWalk treeWalk = forPath(path, tree, reader)) {
       return treeWalk != null && isBlob(treeWalk);
     }
   }
 
-  public static boolean isFileOrSymbolicLink(@Nonnull String path, @Nonnull AnyObjectId treeId, @Nonnull Repository repo) throws IOException {
+  public static boolean isFileOrSymbolicLink(@Nonnull String path, @Nonnull AnyObjectId tree, @Nonnull Repository repo) throws IOException {
     try(ObjectReader reader = repo.newObjectReader()) {
-      return isFileOrSymbolicLink(path, treeId, reader);
+      return isFileOrSymbolicLink(path, tree, reader);
     }
   }
 
@@ -91,15 +123,15 @@ public final class TreeUtils {
     return treeWalk.getFileMode(0).getObjectType() == Constants.OBJ_TREE;
   }
 
-  public static boolean isDirectory(@Nonnull String path, @Nonnull AnyObjectId treeId, @Nonnull ObjectReader reader) throws IOException {
-    try(TreeWalk treeWalk = forPath(path, treeId, reader)) {
+  public static boolean isDirectory(@Nonnull String path, @Nonnull AnyObjectId tree, @Nonnull ObjectReader reader) throws IOException {
+    try(TreeWalk treeWalk = forPath(path, tree, reader)) {
       return treeWalk != null && isTree(treeWalk);
     }
   }
 
-  public static boolean isDirectory(@Nonnull String path, @Nonnull AnyObjectId treeId, @Nonnull Repository repo) throws IOException {
+  public static boolean isDirectory(@Nonnull String path, @Nonnull AnyObjectId tree, @Nonnull Repository repo) throws IOException {
     try(ObjectReader reader = repo.newObjectReader()) {
-      return isDirectory(path, treeId, reader);
+      return isDirectory(path, tree, reader);
     }
   }
 
@@ -107,15 +139,15 @@ public final class TreeUtils {
     return treeWalk.getFileMode(0) == FileMode.REGULAR_FILE;
   }
 
-  public static boolean isRegularFile(@Nonnull String path, @Nonnull AnyObjectId treeId, @Nonnull ObjectReader reader) throws IOException {
-    try(TreeWalk treeWalk = forPath(path, treeId, reader)) {
+  public static boolean isRegularFile(@Nonnull String path, @Nonnull AnyObjectId tree, @Nonnull ObjectReader reader) throws IOException {
+    try(TreeWalk treeWalk = forPath(path, tree, reader)) {
       return treeWalk != null && isRegular(treeWalk);
     }
   }
 
-  public static boolean isRegularFile(@Nonnull String path, @Nonnull AnyObjectId treeId, @Nonnull Repository repo) throws IOException {
+  public static boolean isRegularFile(@Nonnull String path, @Nonnull AnyObjectId tree, @Nonnull Repository repo) throws IOException {
     try(ObjectReader reader = repo.newObjectReader()) {
-      return isRegularFile(path, treeId, reader);
+      return isRegularFile(path, tree, reader);
     }
   }
 
@@ -123,15 +155,15 @@ public final class TreeUtils {
     return treeWalk.getFileMode(0) == FileMode.EXECUTABLE_FILE;
   }
 
-  public static boolean isExecutableFile(@Nonnull String path, @Nonnull AnyObjectId treeId, @Nonnull ObjectReader reader) throws IOException {
-    try(TreeWalk treeWalk = forPath(path, treeId, reader)) {
+  public static boolean isExecutableFile(@Nonnull String path, @Nonnull AnyObjectId tree, @Nonnull ObjectReader reader) throws IOException {
+    try(TreeWalk treeWalk = forPath(path, tree, reader)) {
       return treeWalk != null && isExecutable(treeWalk);
     }
   }
 
-  public static boolean isExecutableFile(@Nonnull String path, @Nonnull AnyObjectId treeId, @Nonnull Repository repo) throws IOException {
+  public static boolean isExecutableFile(@Nonnull String path, @Nonnull AnyObjectId tree, @Nonnull Repository repo) throws IOException {
     try(ObjectReader reader = repo.newObjectReader()) {
-      return isExecutableFile(path, treeId, reader);
+      return isExecutableFile(path, tree, reader);
     }
   }
 
@@ -139,15 +171,15 @@ public final class TreeUtils {
     return treeWalk.getFileMode(0) == FileMode.REGULAR_FILE || treeWalk.getFileMode(0) == FileMode.EXECUTABLE_FILE;
   }
 
-  public static boolean isRegularOrExecutableFile(@Nonnull String path, @Nonnull AnyObjectId treeId, @Nonnull ObjectReader reader) throws IOException {
-    try(TreeWalk treeWalk = forPath(path, treeId, reader)) {
+  public static boolean isRegularOrExecutableFile(@Nonnull String path, @Nonnull AnyObjectId tree, @Nonnull ObjectReader reader) throws IOException {
+    try(TreeWalk treeWalk = forPath(path, tree, reader)) {
       return treeWalk != null && isRegularOrExecutable(treeWalk);
     }
   }
 
-  public static boolean isRegularOrExecutableFile(@Nonnull String path, @Nonnull AnyObjectId treeId, @Nonnull Repository repo) throws IOException {
+  public static boolean isRegularOrExecutableFile(@Nonnull String path, @Nonnull AnyObjectId tree, @Nonnull Repository repo) throws IOException {
     try(ObjectReader reader = repo.newObjectReader()) {
-      return isRegularOrExecutableFile(path, treeId, reader);
+      return isRegularOrExecutableFile(path, tree, reader);
     }
   }
 
@@ -155,15 +187,15 @@ public final class TreeUtils {
     return treeWalk.getFileMode(0) == FileMode.SYMLINK;
   }
 
-  public static boolean isSymbolicLink(@Nonnull String path, @Nonnull AnyObjectId treeId, @Nonnull ObjectReader reader) throws IOException {
-    try(TreeWalk treeWalk = forPath(path, treeId, reader)) {
+  public static boolean isSymbolicLink(@Nonnull String path, @Nonnull AnyObjectId tree, @Nonnull ObjectReader reader) throws IOException {
+    try(TreeWalk treeWalk = forPath(path, tree, reader)) {
       return treeWalk != null && isSymbolicLink(treeWalk);
     }
   }
 
-  public static boolean isSymbolicLink(@Nonnull String path, @Nonnull AnyObjectId treeId, @Nonnull Repository repo) throws IOException {
+  public static boolean isSymbolicLink(@Nonnull String path, @Nonnull AnyObjectId tree, @Nonnull Repository repo) throws IOException {
     try(ObjectReader reader = repo.newObjectReader()) {
-      return isSymbolicLink(path, treeId, reader);
+      return isSymbolicLink(path, tree, reader);
     }
   }
 

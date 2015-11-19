@@ -96,7 +96,7 @@ public final class GfsIO {
   @Nonnull
   private static byte[] loadFileData(@Nonnull FileNode file, @Nonnull GitFileSystem gfs) throws IOException {
     byte[] bytes = readBlobObject(file.getObject(), gfs);
-    file.loadContent(bytes);
+    file.setBytes(bytes);
     return bytes;
   }
 
@@ -128,7 +128,9 @@ public final class GfsIO {
       CanonicalTreeParser treeParser = new CanonicalTreeParser();
       treeParser.reset(treeData);
       while(!treeParser.eof()) {
-        children.put(treeParser.getEntryPathString(), Node.forObject(treeParser.getEntryObjectId(), treeParser.getEntryFileMode(), parent));
+        Node child = Node.forObject(treeParser.getEntryObjectId(), treeParser.getEntryFileMode(), gfs);
+        child.takeSnapshot();
+        children.put(treeParser.getEntryPathString(), child);
         treeParser.next();
       }
     }
@@ -138,7 +140,8 @@ public final class GfsIO {
   @Nonnull
   private static Map<String, Node> loadChildren(@Nonnull DirectoryNode dir, @Nonnull GitFileSystem gfs) throws IOException {
     ConcurrentMap<String, Node> children = readTreeObject(dir.getObject(), gfs, dir);
-    dir.loadChildren(children);
+    dir.setChildren(children);
+    dir.takeSnapshot();
     return children;
   }
 
@@ -168,21 +171,21 @@ public final class GfsIO {
 
   @Nonnull
   public static Node addChild(@Nonnull String name, @Nonnull AnyObjectId id, @Nonnull FileMode mode, @Nonnull DirectoryNode dir, @Nonnull GitFileSystem gfs) throws IOException {
-    Node ret = Node.forObject(id, mode, dir);
+    Node ret = Node.forObject(id, mode, gfs);
     addChild(name, ret, dir, gfs);
     return ret;
   }
 
   @Nonnull
   public static FileNode addChildFile(@Nonnull String name, @Nonnull byte[] bytes, @Nonnull FileMode mode, @Nonnull DirectoryNode dir, @Nonnull GitFileSystem gfs) throws IOException {
-    FileNode ret = FileNode.forBytes(bytes, mode, dir);
+    FileNode ret = FileNode.forBytes(bytes, mode, gfs);
     addChild(name, ret, dir, gfs);
     return ret;
   }
 
   @Nonnull
   public static DirectoryNode addChildDirectory(@Nonnull String name, @Nonnull DirectoryNode dir, @Nonnull GitFileSystem gfs) throws IOException {
-    DirectoryNode ret = DirectoryNode.newDirectory(dir);
+    DirectoryNode ret = DirectoryNode.newDirectory(gfs);
     addChild(name, ret, dir, gfs);
     return ret;
   }
@@ -213,7 +216,7 @@ public final class GfsIO {
       DirectoryNode parentNode = prepareDirectory(findDirectory(parent), file.getFileSystem());
       String name = getFileName(file);
       if(options.contains(StandardOpenOption.CREATE_NEW) || !parentNode.hasChild(name)) {
-        node = FileNode.newFile(FileAttributeReader.read(attrs).isExecutable(), parentNode);
+        node = FileNode.newFile(FileAttributeReader.read(attrs).isExecutable(), file.getFileSystem());
         if(!parentNode.addChild(name, node, false))
           throw new FileAlreadyExistsException(file.toString());
       } else {
@@ -235,7 +238,7 @@ public final class GfsIO {
       throw new FileAlreadyExistsException(dir.toString());
     GitPath parent = getParent(dir);
     DirectoryNode parentNode = prepareDirectory(findDirectory(parent), dir.getFileSystem());
-    if(!parentNode.addChild(getFileName(dir), DirectoryNode.newDirectory(parentNode), false))
+    if(!parentNode.addChild(getFileName(dir), DirectoryNode.newDirectory(dir.getFileSystem()), false))
       throw new FileAlreadyExistsException(dir.toString());
   }
 
@@ -245,7 +248,7 @@ public final class GfsIO {
       assert source.getObject() != null;
       bytes = sourceFs.loadObject(source.getObject());
     }
-    target.updateContent(bytes);
+    target.setBytes(bytes);
   }
 
   private static void copyDirectory(@Nonnull DirectoryNode source, @Nonnull GitFileSystem sourceFs, @Nonnull DirectoryNode target, @Nonnull GitFileSystem targetFs) throws IOException {
@@ -254,7 +257,7 @@ public final class GfsIO {
       children = readTreeObject(source.getObject(), sourceFs, source);
     ConcurrentMap<String, Node> clonedChildren = new ConcurrentHashMap<>();
     for(Map.Entry<String, Node> child : children.entrySet()) {
-      Node clonedChild = Node.cloneNode(child.getValue(), target);
+      Node clonedChild = Node.cloneNode(child.getValue(), targetFs);
       clonedChildren.put(child.getKey(), clonedChild);
       copyNode(child.getValue(), sourceFs, clonedChild, targetFs);
     }
@@ -282,7 +285,7 @@ public final class GfsIO {
       throw new FileAlreadyExistsException(target.toString());
     GitPath targetParent = getParent(target);
     DirectoryNode targetDirectory = prepareDirectory(findDirectory(targetParent), target.getFileSystem());
-    Node targetNode = Node.cloneNode(sourceNode, targetDirectory);
+    Node targetNode = Node.cloneNode(sourceNode, target.getFileSystem());
     if(!targetDirectory.addChild(getFileName(target), targetNode, options.contains(StandardCopyOption.REPLACE_EXISTING)))
       throw new FileAlreadyExistsException(target.toString());
     copyNode(sourceNode, source.getFileSystem(), targetNode, target.getFileSystem());
@@ -358,7 +361,8 @@ public final class GfsIO {
       nodeObject = persistDirectory((DirectoryNode) node, isRoot, gfs);
     else
       throw new IllegalStateException();
-    node.markClean(nodeObject);
+    node.setObject(nodeObject);
+    node.takeSnapshot();
     return nodeObject;
   }
 

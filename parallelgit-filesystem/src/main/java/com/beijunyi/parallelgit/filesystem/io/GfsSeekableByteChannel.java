@@ -126,7 +126,7 @@ public class GfsSeekableByteChannel implements SeekableByteChannel {
     synchronized(this) {
       if(!closed) {
         closed = true;
-        file.updateContent(getBytes());
+        file.setBytes(getBytes());
       }
     }
   }
