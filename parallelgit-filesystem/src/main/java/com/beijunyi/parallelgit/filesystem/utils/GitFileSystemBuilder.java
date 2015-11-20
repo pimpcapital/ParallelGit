@@ -30,8 +30,6 @@ public class GitFileSystemBuilder {
   private AnyObjectId commitId;
   private String commitIdStr;
   private String revision;
-  private AnyObjectId treeId;
-  private String treeIdStr;
 
   @Nonnull
   public GitFileSystemBuilder repository(@Nullable Repository repository) {
@@ -104,24 +102,11 @@ public class GitFileSystemBuilder {
   }
 
   @Nonnull
-  public GitFileSystemBuilder tree(@Nullable AnyObjectId treeId) {
-    this.treeId = treeId;
-    return this;
-  }
-
-  @Nonnull
-  public GitFileSystemBuilder tree(@Nullable String treeIdStr) {
-    this.treeIdStr = treeIdStr;
-    return this;
-  }
-
-  @Nonnull
   public GitFileSystem build() throws IOException {
     prepareRepository();
     prepareBranch();
     prepareCommit();
-    prepareTree();
-    return new GitFileSystem(repository, branch, commit, treeId);
+    return new GitFileSystem(repository, commit, branch);
   }
 
   @Nonnull
@@ -130,8 +115,7 @@ public class GitFileSystemBuilder {
              .create(params.getCreate())
              .bare(params.getBare())
              .branch(params.getBranch())
-             .commit(params.getCommit())
-             .tree(params.getTree());
+             .commit(params.getCommit());
   }
 
   private void prepareRepository() throws IOException {
@@ -187,16 +171,7 @@ public class GitFileSystemBuilder {
       if(commitId != null)
         commit = CommitUtils.getCommit(commitId, repository);
     }
-
   }
 
-  private void prepareTree() throws IOException {
-    if(treeId == null) {
-      if(treeIdStr != null)
-        treeId = repository.resolve(treeIdStr);
-      else if(commit != null)
-        treeId = commit.getTree();
-    }
-  }
 
 }

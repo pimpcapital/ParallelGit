@@ -13,7 +13,6 @@ public class GitParams extends HashMap<String, String> {
   public final static String BARE_KEY = "bare";
   public final static String BRANCH_KEY = "branch";
   public final static String COMMIT_KEY = "commit";
-  public final static String TREE_KEY = "tree";
 
   @Nonnull
   public static GitParams emptyMap() {
@@ -96,23 +95,6 @@ public class GitParams extends HashMap<String, String> {
   @Nullable
   public String getCommit() {
     return get(COMMIT_KEY);
-  }
-
-  @Nonnull
-  public GitParams setTree(@Nullable String tree) {
-    if(tree != null)
-      put(TREE_KEY, tree);
-    return this;
-  }
-
-  @Nonnull
-  public GitParams setTree(@Nullable AnyObjectId tree) {
-    return setTree(tree != null ? tree.getName() : null);
-  }
-
-  @Nullable
-  public String getTree() {
-    return get(TREE_KEY);
   }
 
 }

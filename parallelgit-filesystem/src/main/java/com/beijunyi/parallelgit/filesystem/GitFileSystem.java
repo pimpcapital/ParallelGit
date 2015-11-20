@@ -24,7 +24,7 @@ public class GitFileSystem extends FileSystem {
                                                              GfsFileAttributeView.Posix.POSIX_VIEW
     )));
 
-  private final Repository repository;
+  private final GfsDataService ds;
   private final String session;
   private final GitFileStore store;
   private final GitPath rootPath;
@@ -34,14 +34,12 @@ public class GitFileSystem extends FileSystem {
   private String message;
   private RevCommit sourceCommit;
 
-  private ObjectReader reader;
-  private ObjectInserter inserter;
-  private boolean closed = false;
+  private volatile boolean closed = false;
 
-  public GitFileSystem(@Nonnull Repository repository, @Nullable String branch, @Nullable RevCommit commit, @Nullable AnyObjectId tree) throws IOException {
-    this.repository = repository;
+  public GitFileSystem(@Nonnull Repository repository, @Nonnull RevCommit commit, @Nullable String branch) throws IOException {
     this.branch = branch;
     this.commit = commit;
+    ds = new GfsDataService(repository);
     rootPath = new GitPath(this, "/");
     session = UUID.randomUUID().toString();
     store = new GitFileStore(session, tree);
@@ -57,11 +55,8 @@ public class GitFileSystem extends FileSystem {
   @Override
   public synchronized void close() {
     if(!closed) {
-      if(inserter != null)
-        inserter.close();
-      if(reader != null)
-        reader.close();
       closed = true;
+      ds.close();
       GitFileSystemProvider.INSTANCE.unregister(this);
     }
   }
@@ -209,47 +204,6 @@ public class GitFileSystem extends FileSystem {
   }
 
   @Nonnull
-  private ObjectReader reader() {
-    if(reader == null)
-      reader = repository.newObjectReader();
-    return reader;
-  }
-
-  public boolean hasObject(@Nonnull AnyObjectId objectId) throws IOException {
-    return reader().has(objectId);
-  }
-
-  @Nonnull
-  public byte[] loadObject(@Nonnull AnyObjectId objectId) throws IOException {
-    return reader().open(objectId).getBytes();
-  }
-
-  public long getBlobSize(@Nonnull AnyObjectId objectId) throws IOException {
-    return reader().getObjectSize(objectId, Constants.OBJ_BLOB);
-  }
-
-  @Nonnull
-  private ObjectInserter inserter() {
-    if(inserter == null)
-      inserter = repository.newObjectInserter();
-    return inserter;
-  }
-
-  @Nonnull
-  public AnyObjectId saveBlob(@Nonnull byte[] bytes) throws IOException {
-    return inserter().insert(Constants.OBJ_BLOB, bytes);
-  }
-
-  @Nonnull
-  public AnyObjectId saveTree(@Nonnull TreeFormatter tf) throws IOException {
-    return inserter().insert(tf);
-  }
-
-  public void flush() throws IOException {
-    inserter().flush();
-  }
-
-  @Nonnull
   public AnyObjectId persist() throws IOException {
     AnyObjectId result = GfsIO.persistRoot(this);
     flush();
@@ -258,7 +212,7 @@ public class GitFileSystem extends FileSystem {
 
   @Nonnull
   public Repository getRepository() {
-    return repository;
+    return ds.getRepository();
   }
 
   @Nullable

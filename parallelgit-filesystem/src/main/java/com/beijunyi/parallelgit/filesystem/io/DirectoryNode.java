@@ -4,6 +4,7 @@ import java.util.concurrent.ConcurrentMap;
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 
+import com.beijunyi.parallelgit.filesystem.GfsDataService;
 import com.beijunyi.parallelgit.filesystem.GitFileSystem;
 import org.eclipse.jgit.lib.AnyObjectId;
 import org.eclipse.jgit.lib.FileMode;
@@ -12,22 +13,22 @@ public class DirectoryNode extends Node {
 
   private ConcurrentMap<String, Node> children;
 
-  protected DirectoryNode(@Nullable AnyObjectId object, @Nonnull GitFileSystem gfs) {
-    super(FileMode.TREE, object, gfs);
+  protected DirectoryNode(@Nullable AnyObjectId object, @Nonnull GfsDataService ds) {
+    super(FileMode.TREE, object, ds);
   }
 
-  protected DirectoryNode(@Nonnull GitFileSystem gfs) {
-    this(null, gfs);
-  }
-
-  @Nonnull
-  public static DirectoryNode forTreeObject(@Nonnull AnyObjectId object, @Nonnull GitFileSystem gfs) {
-    return new DirectoryNode(object, gfs);
+  protected DirectoryNode(@Nonnull GfsDataService ds) {
+    this(null, ds);
   }
 
   @Nonnull
-  public static DirectoryNode newDirectory(@Nonnull GitFileSystem gfs) {
-    return new DirectoryNode(gfs);
+  public static DirectoryNode forTreeObject(@Nonnull AnyObjectId object, @Nonnull GfsDataService ds) {
+    return new DirectoryNode(object, ds);
+  }
+
+  @Nonnull
+  public static DirectoryNode newDirectory(@Nonnull GfsDataService ds) {
+    return new DirectoryNode(ds);
   }
 
   @Nullable
@@ -89,7 +90,6 @@ public class DirectoryNode extends Node {
 
   @Override
   public void takeSnapshot() {
-    snapshot = Snapshot.capture(this);
   }
 
 }

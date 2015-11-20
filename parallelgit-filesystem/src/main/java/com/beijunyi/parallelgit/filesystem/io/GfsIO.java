@@ -10,6 +10,7 @@ import java.util.concurrent.ConcurrentMap;
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 
+import com.beijunyi.parallelgit.filesystem.GfsDataService;
 import com.beijunyi.parallelgit.filesystem.GitFileSystem;
 import com.beijunyi.parallelgit.filesystem.GitPath;
 import com.beijunyi.parallelgit.filesystem.utils.FileAttributeReader;
@@ -372,6 +373,11 @@ public final class GfsIO {
     AnyObjectId ret = persistNode(root, true, gfs);
     assert ret != null;
     return ret;
+  }
+
+  @Nonnull
+  private static GfsDataService getDataService(@Nonnull GitFileSystem gfs) {
+    return gfs.getD
   }
 
 }

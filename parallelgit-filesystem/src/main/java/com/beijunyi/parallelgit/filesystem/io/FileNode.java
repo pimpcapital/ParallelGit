@@ -3,7 +3,7 @@ package com.beijunyi.parallelgit.filesystem.io;
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 
-import com.beijunyi.parallelgit.filesystem.GitFileSystem;
+import com.beijunyi.parallelgit.filesystem.GfsDataService;
 import org.eclipse.jgit.lib.AnyObjectId;
 import org.eclipse.jgit.lib.FileMode;
 
@@ -12,29 +12,29 @@ public class FileNode extends Node {
   private byte[] bytes;
   private long size = -1;
 
-  private FileNode(@Nonnull FileMode mode, @Nullable AnyObjectId object, @Nonnull GitFileSystem gfs) {
-    super(mode, object, gfs);
+  private FileNode(@Nonnull FileMode mode, @Nullable AnyObjectId object, @Nonnull GfsDataService ds) {
+    super(mode, object, ds);
   }
 
-  private FileNode(@Nonnull FileMode mode, @Nonnull GitFileSystem gfs) {
-    this(mode, null, gfs);
-  }
-
-  @Nonnull
-  protected static FileNode forBlobObject(@Nonnull AnyObjectId object, @Nonnull FileMode mode, @Nonnull GitFileSystem gfs) {
-    return new FileNode(mode, object, gfs);
+  private FileNode(@Nonnull FileMode mode, @Nonnull GfsDataService ds) {
+    this(mode, null, ds);
   }
 
   @Nonnull
-  public static FileNode forBytes(@Nonnull byte[] bytes, @Nonnull FileMode mode, @Nonnull GitFileSystem gfs) {
-    FileNode ret = new FileNode(mode, gfs);
+  protected static FileNode forBlobObject(@Nonnull AnyObjectId object, @Nonnull FileMode mode, @Nonnull GfsDataService ds) {
+    return new FileNode(mode, object, ds);
+  }
+
+  @Nonnull
+  public static FileNode forBytes(@Nonnull byte[] bytes, @Nonnull FileMode mode, @Nonnull GfsDataService ds) {
+    FileNode ret = new FileNode(mode, ds);
     ret.setBytes(bytes);
     return ret;
   }
 
   @Nonnull
-  public static FileNode newFile(boolean executable, @Nonnull GitFileSystem gfs) {
-    return new FileNode(executable ? FileMode.EXECUTABLE_FILE : FileMode.REGULAR_FILE, gfs);
+  public static FileNode newFile(boolean executable, @Nonnull GfsDataService ds) {
+    return new FileNode(executable ? FileMode.EXECUTABLE_FILE : FileMode.REGULAR_FILE, ds);
   }
 
   @Nullable

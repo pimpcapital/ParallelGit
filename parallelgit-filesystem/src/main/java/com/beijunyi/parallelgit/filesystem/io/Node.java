@@ -3,6 +3,7 @@ package com.beijunyi.parallelgit.filesystem.io;
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 
+import com.beijunyi.parallelgit.filesystem.GfsDataService;
 import com.beijunyi.parallelgit.filesystem.GitFileSystem;
 import org.eclipse.jgit.lib.AnyObjectId;
 import org.eclipse.jgit.lib.FileMode;
@@ -11,32 +12,33 @@ import static org.eclipse.jgit.lib.FileMode.*;
 
 public abstract class Node {
 
-  protected final GitFileSystem gfs;
+  protected final GfsDataService ds;
+
   protected volatile FileMode mode;
   protected volatile AnyObjectId object;
   protected volatile AnyObjectId snapshot;
   protected volatile boolean deleted = false;
 
-  protected Node(@Nonnull FileMode mode, @Nullable AnyObjectId object, @Nonnull GitFileSystem gfs) {
+  protected Node(@Nonnull FileMode mode, @Nullable AnyObjectId object, @Nonnull GfsDataService ds) {
     this.mode = mode;
     this.object = object;
-    this.gfs = gfs;
+    this.ds = ds;
   }
 
   @Nonnull
-  public static Node forObject(@Nonnull AnyObjectId object, @Nonnull FileMode mode, @Nonnull GitFileSystem gfs) {
+  public static Node forObject(@Nonnull AnyObjectId object, @Nonnull FileMode mode, @Nonnull GfsDataService ds) {
     if(mode.equals(TREE))
-      return DirectoryNode.forTreeObject(object, gfs);
-    return FileNode.forBlobObject(object, mode, gfs);
+      return DirectoryNode.forTreeObject(object, ds);
+    return FileNode.forBlobObject(object, mode, ds);
   }
 
   @Nonnull
-  public static Node cloneNode(@Nonnull Node node, @Nonnull GitFileSystem gfs) {
+  public static Node cloneNode(@Nonnull Node node, @Nonnull GfsDataService ds) {
     Node ret;
     if(node instanceof DirectoryNode)
-      ret = DirectoryNode.newDirectory(gfs);
+      ret = DirectoryNode.newDirectory(ds);
     else
-      ret = FileNode.newFile(node.isExecutableFile(), gfs);
+      ret = FileNode.newFile(node.isExecutableFile(), ds);
     return ret;
   }
 
@@ -63,11 +65,6 @@ public abstract class Node {
 
   public boolean isDirectory() {
     return mode.equals(TREE);
-  }
-
-  @Nullable
-  public DirectoryNode getParent() {
-    return parent;
   }
 
   @Nullable
@@ -103,11 +100,10 @@ public abstract class Node {
   }
 
   public void takeSnapshot() {
-    snapshot = Snapshot.capture(this);
   }
 
   public boolean isDirty() {
-    return snapshot == null || snapshot.matches(this);
+    return false;
   }
 
   protected abstract boolean isTrivial();
