@@ -10,8 +10,8 @@ import javax.annotation.Nonnull;
 import com.beijunyi.parallelgit.filesystem.requests.CommitRequest;
 import com.beijunyi.parallelgit.filesystem.requests.MergeRequest;
 import com.beijunyi.parallelgit.filesystem.requests.PersistRequest;
-import com.beijunyi.parallelgit.filesystem.utils.GitFileSystemBuilder;
-import com.beijunyi.parallelgit.filesystem.utils.GitParams;
+import com.beijunyi.parallelgit.filesystem.utils.GfsBuilder;
+import com.beijunyi.parallelgit.filesystem.utils.GfsParams;
 import com.beijunyi.parallelgit.filesystem.utils.GitUriUtils;
 import org.eclipse.jgit.lib.AnyObjectId;
 import org.eclipse.jgit.lib.Repository;
@@ -19,8 +19,8 @@ import org.eclipse.jgit.lib.Repository;
 public final class Gfs {
 
   @Nonnull
-  public static GitFileSystemBuilder newFileSystem() {
-    return new GitFileSystemBuilder();
+  public static GfsBuilder newFileSystem() {
+    return new GfsBuilder();
   }
 
   @Nonnull
@@ -59,7 +59,7 @@ public final class Gfs {
   public static GitFileSystem fromUri(@Nonnull URI uri, @Nonnull Map<String, ?> properties) throws IOException {
     return newFileSystem()
              .repository(GitUriUtils.getRepository(uri))
-             .readParams(GitParams.getParams(properties))
+             .readParams(GfsParams.getParams(properties))
              .build();
   }
 
@@ -67,7 +67,7 @@ public final class Gfs {
   public static GitFileSystem fromPath(@Nonnull Path path, @Nonnull Map<String, ?> properties) throws IOException {
     return newFileSystem()
              .repository(path.toFile())
-             .readParams(GitParams.getParams(properties))
+             .readParams(GfsParams.getParams(properties))
              .build();
   }
 

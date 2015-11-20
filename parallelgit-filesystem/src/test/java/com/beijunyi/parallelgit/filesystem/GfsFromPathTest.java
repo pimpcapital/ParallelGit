@@ -5,7 +5,7 @@ import java.net.URI;
 import java.nio.file.Path;
 
 import com.beijunyi.parallelgit.AbstractParallelGitTest;
-import com.beijunyi.parallelgit.filesystem.utils.GitParams;
+import com.beijunyi.parallelgit.filesystem.utils.GfsParams;
 import com.beijunyi.parallelgit.filesystem.utils.GitUriBuilder;
 import org.junit.Before;
 import org.junit.Test;
@@ -24,14 +24,14 @@ public class GfsFromPathTest extends AbstractParallelGitTest {
     URI uri = GitUriBuilder.prepare()
                 .repository(repo)
                 .build();
-    GitFileSystem gfs = Gfs.fromUri(uri, GitParams.emptyMap());
+    GitFileSystem gfs = Gfs.fromUri(uri, GfsParams.emptyMap());
     assertEquals(repo.getDirectory(), gfs.getRepository().getDirectory());
   }
 
   @Test
   public void buildFromPath() throws IOException {
     Path path = repoDir.toPath();
-    GitFileSystem gfs = Gfs.fromPath(path, GitParams.emptyMap());
+    GitFileSystem gfs = Gfs.fromPath(path, GfsParams.emptyMap());
     assertEquals(repo.getDirectory(), gfs.getRepository().getDirectory());
   }
 

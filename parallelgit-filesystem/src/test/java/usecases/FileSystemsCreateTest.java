@@ -7,7 +7,7 @@ import java.nio.file.FileSystems;
 
 import com.beijunyi.parallelgit.AbstractParallelGitTest;
 import com.beijunyi.parallelgit.filesystem.GitFileSystem;
-import com.beijunyi.parallelgit.filesystem.utils.GitParams;
+import com.beijunyi.parallelgit.filesystem.utils.GfsParams;
 import com.beijunyi.parallelgit.filesystem.utils.GitUriBuilder;
 import org.junit.Before;
 import org.junit.Test;
@@ -26,7 +26,7 @@ public class FileSystemsCreateTest extends AbstractParallelGitTest {
     URI uri = GitUriBuilder.prepare()
                 .repository(repoDir)
                 .build();
-    FileSystem fs = FileSystems.newFileSystem(uri, GitParams.emptyMap().setCreate(true));
+    FileSystem fs = FileSystems.newFileSystem(uri, GfsParams.emptyMap().setCreate(true));
     assertTrue(fs instanceof GitFileSystem);
   }
 
@@ -36,7 +36,7 @@ public class FileSystemsCreateTest extends AbstractParallelGitTest {
     URI uri = GitUriBuilder.prepare()
                 .repository(repoDir)
                 .build();
-    FileSystems.newFileSystem(uri, GitParams.emptyMap().setCreate(true));
+    FileSystems.newFileSystem(uri, GfsParams.emptyMap().setCreate(true));
   }
 
   @Test
@@ -44,7 +44,7 @@ public class FileSystemsCreateTest extends AbstractParallelGitTest {
     URI uri = GitUriBuilder.prepare()
                 .repository(repoDir)
                 .build();
-    FileSystem fs = FileSystems.newFileSystem(uri, GitParams.emptyMap().setCreate(true).setBare(true));
+    FileSystem fs = FileSystems.newFileSystem(uri, GfsParams.emptyMap().setCreate(true).setBare(true));
     assertEquals(repoDir, ((GitFileSystem)fs).getRepository().getDirectory());
   }
 
@@ -53,7 +53,7 @@ public class FileSystemsCreateTest extends AbstractParallelGitTest {
     URI uri = GitUriBuilder.prepare()
                 .repository(repoDir)
                 .build();
-    FileSystem fs = FileSystems.newFileSystem(uri, GitParams.emptyMap().setCreate(true).setBare(false));
+    FileSystem fs = FileSystems.newFileSystem(uri, GfsParams.emptyMap().setCreate(true).setBare(false));
     assertEquals(repoDir, ((GitFileSystem)fs).getRepository().getWorkTree());
   }
 

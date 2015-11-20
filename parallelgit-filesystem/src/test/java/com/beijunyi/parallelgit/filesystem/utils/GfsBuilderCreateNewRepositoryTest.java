@@ -10,7 +10,7 @@ import org.junit.Test;
 
 import static org.junit.Assert.assertEquals;
 
-public class GitFileSystemBuilderCreateNewRepositoryTest extends AbstractParallelGitTest {
+public class GfsBuilderCreateNewRepositoryTest extends AbstractParallelGitTest {
 
   @Before
   public void setupRepository() throws IOException {

@@ -6,9 +6,11 @@ import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 
 import com.beijunyi.parallelgit.filesystem.GitFileSystem;
+import com.beijunyi.parallelgit.filesystem.exceptions.HeadAlreadyDefinedException;
 import com.beijunyi.parallelgit.filesystem.exceptions.NoRepositoryException;
 import com.beijunyi.parallelgit.utils.BranchUtils;
 import com.beijunyi.parallelgit.utils.CommitUtils;
+import com.beijunyi.parallelgit.utils.RepositoryUtils;
 import org.eclipse.jgit.internal.storage.file.FileRepository;
 import org.eclipse.jgit.lib.AnyObjectId;
 import org.eclipse.jgit.lib.Constants;
@@ -17,88 +19,81 @@ import org.eclipse.jgit.revwalk.RevCommit;
 
 import static com.beijunyi.parallelgit.utils.RefUtils.ensureBranchRefName;
 
-public class GitFileSystemBuilder {
+public class GfsBuilder {
 
-  private Repository repository;
+  private final Repository repo;
+
   private File repoDir;
-  private String repoDirPath;
   private Boolean create;
   private Boolean bare;
   private String branch;
-  private String branchRef;
   private RevCommit commit;
-  private AnyObjectId commitId;
-  private String commitIdStr;
-  private String revision;
 
-  @Nonnull
-  public GitFileSystemBuilder repository(@Nullable Repository repository) {
-    this.repository = repository;
-    return this;
+  public GfsBuilder(@Nonnull Repository repo) {
+    this.repo = repo;
+  }
+
+  public GfsBuilder(@Nonnull File repoDir) throws IOException {
+    this(RepositoryUtils.openRepository(repoDir));
+  }
+
+  public GfsBuilder(@Nonnull String repoDir) throws IOException {
+    this(new File(repoDir));
   }
 
   @Nonnull
-  public GitFileSystemBuilder repository(@Nullable File repoDir) {
-    this.repoDir = repoDir;
-    return this;
-  }
-
-  @Nonnull
-  public GitFileSystemBuilder repository(@Nullable String repoDirPath) {
-    this.repoDirPath = repoDirPath;
-    return this;
-  }
-
-  @Nonnull
-  public GitFileSystemBuilder create(@Nullable Boolean create) {
+  public GfsBuilder create(@Nullable Boolean create) {
     this.create = create;
     return this;
   }
 
   @Nonnull
-  public GitFileSystemBuilder create() {
+  public GfsBuilder create() {
     return create(true);
   }
 
   @Nonnull
-  public GitFileSystemBuilder bare(@Nullable Boolean bare) {
+  public GfsBuilder bare(@Nullable Boolean bare) {
     this.bare = bare;
     return this;
   }
 
   @Nonnull
-  public GitFileSystemBuilder bare() {
+  public GfsBuilder bare() {
     return bare(true);
   }
 
   @Nonnull
-  public GitFileSystemBuilder branch(@Nullable String branch) {
+  public GfsBuilder branch(@Nonnull String branch) {
+    if(commit != null)
+      throw new HeadAlreadyDefinedException();
     this.branch = branch;
     return this;
   }
 
   @Nonnull
-  public GitFileSystemBuilder commit(@Nullable RevCommit commit) {
+  public GfsBuilder commit(@Nonnull RevCommit commit) {
+    if(branch != null)
+      throw new HeadAlreadyDefinedException();
     this.commit = commit;
     return this;
   }
 
   @Nonnull
-  public GitFileSystemBuilder commit(@Nullable AnyObjectId commitId) {
-    this.commitId = commitId;
-    return this;
+  public GfsBuilder commit(@Nonnull AnyObjectId commit) throws IOException {
+    return commit(CommitUtils.getCommit(commit, repo));
   }
 
   @Nonnull
-  public GitFileSystemBuilder commit(@Nullable String commitIdStr) {
-    this.commitIdStr = commitIdStr;
-    return this;
+  public GfsBuilder commit(@Nonnull String commit) throws IOException {
+    return commit(CommitUtils.getCommit(commit, repo));
   }
 
   @Nonnull
-  public GitFileSystemBuilder revision(@Nullable String revision) {
-    this.revision = revision;
-    return this;
+  public GfsBuilder revision(@Nonnull String revision) throws IOException {
+    if(BranchUtils.branchExists(revision, repo))
+      return branch(revision);
+    return commit(revision);
   }
 
   @Nonnull
@@ -106,11 +101,11 @@ public class GitFileSystemBuilder {
     prepareRepository();
     prepareBranch();
     prepareCommit();
-    return new GitFileSystem(repository, commit, branch);
+    return new GitFileSystem(repo, commit, branch);
   }
 
   @Nonnull
-  public GitFileSystemBuilder readParams(@Nonnull GitParams params) {
+  public GfsBuilder readParams(@Nonnull GfsParams params) throws IOException {
     return this
              .create(params.getCreate())
              .bare(params.getBare())

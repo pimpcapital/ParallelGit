@@ -4,7 +4,7 @@ import java.io.IOException;
 import java.net.URI;
 import java.util.Collections;
 
-import com.beijunyi.parallelgit.filesystem.utils.GitParams;
+import com.beijunyi.parallelgit.filesystem.utils.GfsParams;
 import com.beijunyi.parallelgit.filesystem.utils.GitUriBuilder;
 import org.eclipse.jgit.lib.AnyObjectId;
 import org.eclipse.jgit.lib.Repository;
@@ -50,7 +50,7 @@ public class GitFileSystemProviderNewFileSystemTest extends AbstractGitFileSyste
     URI uri = GitUriBuilder.prepare()
                 .repository(repoDir)
                 .build();
-    try(GitFileSystem gfs = provider.newFileSystem(uri, Collections.singletonMap(GitParams.BRANCH_KEY, "test_branch"))) {
+    try(GitFileSystem gfs = provider.newFileSystem(uri, Collections.singletonMap(GfsParams.BRANCH_KEY, "test_branch"))) {
       assertEquals("test_branch", gfs.getBranch());
 
       RevCommit baseCommit = gfs.getCommit();
@@ -71,7 +71,7 @@ public class GitFileSystemProviderNewFileSystemTest extends AbstractGitFileSyste
     URI uri = GitUriBuilder.prepare()
                 .repository(repoDir)
                 .build();
-    try(GitFileSystem gfs = provider.newFileSystem(uri, Collections.singletonMap(GitParams.COMMIT_KEY, commit))) {
+    try(GitFileSystem gfs = provider.newFileSystem(uri, Collections.singletonMap(GfsParams.COMMIT_KEY, commit))) {
       assertNull(gfs.getBranch());
 
       RevCommit baseCommit = gfs.getCommit();
@@ -92,7 +92,7 @@ public class GitFileSystemProviderNewFileSystemTest extends AbstractGitFileSyste
     URI uri = GitUriBuilder.prepare()
                 .repository(repoDir)
                 .build();
-    try (GitFileSystem gfs = provider.newFileSystem(uri, Collections.singletonMap(GitParams.TREE_KEY, tree))) {
+    try (GitFileSystem gfs = provider.newFileSystem(uri, Collections.singletonMap(GfsParams.TREE_KEY, tree))) {
       assertNull(gfs.getBranch());
 
       assertNull(gfs.getCommit());

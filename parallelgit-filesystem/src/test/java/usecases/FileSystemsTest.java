@@ -7,7 +7,7 @@ import java.nio.file.FileSystems;
 
 import com.beijunyi.parallelgit.AbstractParallelGitTest;
 import com.beijunyi.parallelgit.filesystem.GitFileSystem;
-import com.beijunyi.parallelgit.filesystem.utils.GitParams;
+import com.beijunyi.parallelgit.filesystem.utils.GfsParams;
 import com.beijunyi.parallelgit.filesystem.utils.GitUriBuilder;
 import org.eclipse.jgit.lib.AnyObjectId;
 import org.eclipse.jgit.revwalk.RevCommit;
@@ -30,7 +30,7 @@ public class FileSystemsTest extends AbstractParallelGitTest {
     URI uri = GitUriBuilder.prepare()
                 .repository(repoDir)
                 .build();
-    FileSystem fs = FileSystems.newFileSystem(uri, GitParams.emptyMap());
+    FileSystem fs = FileSystems.newFileSystem(uri, GfsParams.emptyMap());
     assertTrue(fs instanceof GitFileSystem);
     assertEquals(repoDir, ((GitFileSystem)fs).getRepository().getDirectory());
   }
@@ -40,7 +40,7 @@ public class FileSystemsTest extends AbstractParallelGitTest {
     URI uri = GitUriBuilder.prepare()
                 .repository(repoDir)
                 .build();
-    FileSystem fs = FileSystems.newFileSystem(uri, GitParams.emptyMap().setBranch("test_branch"));
+    FileSystem fs = FileSystems.newFileSystem(uri, GfsParams.emptyMap().setBranch("test_branch"));
     assertEquals("test_branch", ((GitFileSystem)fs).getBranch());
   }
 
@@ -49,7 +49,7 @@ public class FileSystemsTest extends AbstractParallelGitTest {
     URI uri = GitUriBuilder.prepare()
                 .repository(repoDir)
                 .build();
-    FileSystem fs = FileSystems.newFileSystem(uri, GitParams.emptyMap().setCommit(head));
+    FileSystem fs = FileSystems.newFileSystem(uri, GfsParams.emptyMap().setCommit(head));
     assertEquals(head, ((GitFileSystem)fs).getCommit());
   }
 
@@ -59,7 +59,7 @@ public class FileSystemsTest extends AbstractParallelGitTest {
                 .repository(repoDir)
                 .build();
     AnyObjectId treeId = head.getTree();
-    FileSystem fs = FileSystems.newFileSystem(uri, GitParams.emptyMap().setTree(treeId));
+    FileSystem fs = FileSystems.newFileSystem(uri, GfsParams.emptyMap().setTree(treeId));
     assertEquals(treeId, ((GitFileSystem)fs).getTree());
   }
 
