@@ -26,7 +26,7 @@ public class IterateDirectoryTest extends AbstractParallelGitTest {
 
   @Test
   public void iterateDirectory() throws IOException {
-    try(GitFileSystem gfs = Gfs.forRevision("my_branch", repo)) {             // open git file system
+    try(GitFileSystem gfs = Gfs.newFileSystem("my_branch", repo)) {             // open git file system
       Path dir = gfs.getPath("/dir");                                                    // convert string to nio path
       try(DirectoryStream<Path> children = Files.newDirectoryStream(dir)) {              // open directory stream
 

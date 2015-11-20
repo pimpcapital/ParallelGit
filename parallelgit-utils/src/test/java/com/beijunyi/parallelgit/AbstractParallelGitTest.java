@@ -118,7 +118,7 @@ public abstract class AbstractParallelGitTest {
   @Nonnull
   protected RevCommit commitToBranch(@Nonnull String branch, @Nonnull String message, @Nullable AnyObjectId parent) throws IOException {
     if(parent == null && BranchUtils.branchExists(branch, repo))
-      parent = BranchUtils.getBranchHeadCommit(branch, repo);
+      parent = BranchUtils.getHeadCommit(branch, repo);
     RevCommit commitId = commit(message, parent);
     updateBranchHead(branch, commitId, parent == null);
     return commitId;

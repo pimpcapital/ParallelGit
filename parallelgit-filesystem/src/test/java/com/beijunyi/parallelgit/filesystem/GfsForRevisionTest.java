@@ -15,7 +15,7 @@ public class GfsForRevisionTest extends AbstractParallelGitTest {
     initFileRepository(true);
     writeSomeFileToCache();
     commitToBranch("test_branch");
-    GitFileSystem gfs = Gfs.forRevision("test_branch", repo);
+    GitFileSystem gfs = Gfs.newFileSystem("test_branch", repo);
     assertEquals("test_branch", gfs.getBranch());
   }
 
@@ -24,7 +24,7 @@ public class GfsForRevisionTest extends AbstractParallelGitTest {
     initFileRepository(true);
     writeSomeFileToCache();
     RevCommit commit = commit(null);
-    GitFileSystem gfs = Gfs.forRevision(commit.getName(), repo);
+    GitFileSystem gfs = Gfs.newFileSystem(commit.getName(), repo);
     assertEquals(commit, gfs.getCommit());
   }
 
@@ -33,7 +33,7 @@ public class GfsForRevisionTest extends AbstractParallelGitTest {
     initFileRepository(true);
     writeSomeFileToCache();
     commitToBranch("test_branch");
-    GitFileSystem gfs = Gfs.forRevision("test_branch", repoDir);
+    GitFileSystem gfs = Gfs.newFileSystem("test_branch", repoDir);
     assertEquals(repoDir, gfs.getRepository().getDirectory());
   }
 
@@ -42,7 +42,7 @@ public class GfsForRevisionTest extends AbstractParallelGitTest {
     initFileRepository(false);
     writeSomeFileToCache();
     commitToBranch("test_branch");
-    GitFileSystem gfs = Gfs.forRevision("test_branch", repoDir);
+    GitFileSystem gfs = Gfs.newFileSystem("test_branch", repoDir);
     assertEquals(repoDir, gfs.getRepository().getWorkTree());
   }
 
@@ -51,7 +51,7 @@ public class GfsForRevisionTest extends AbstractParallelGitTest {
     initFileRepository(true);
     writeSomeFileToCache();
     commitToBranch("test_branch");
-    GitFileSystem gfs = Gfs.forRevision("test_branch", repoDir.toString());
+    GitFileSystem gfs = Gfs.newFileSystem("test_branch", repoDir.toString());
     assertEquals(repoDir, gfs.getRepository().getDirectory());
   }
 
@@ -60,7 +60,7 @@ public class GfsForRevisionTest extends AbstractParallelGitTest {
     initFileRepository(false);
     writeSomeFileToCache();
     commitToBranch("test_branch");
-    GitFileSystem gfs = Gfs.forRevision("test_branch", repoDir.toString());
+    GitFileSystem gfs = Gfs.newFileSystem("test_branch", repoDir.toString());
     assertEquals(repoDir, gfs.getRepository().getWorkTree());
   }
 

@@ -4,7 +4,6 @@ import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 
 import com.beijunyi.parallelgit.filesystem.GfsDataService;
-import com.beijunyi.parallelgit.filesystem.GitFileSystem;
 import org.eclipse.jgit.lib.AnyObjectId;
 import org.eclipse.jgit.lib.FileMode;
 
@@ -40,6 +39,11 @@ public abstract class Node {
     else
       ret = FileNode.newFile(node.isExecutableFile(), ds);
     return ret;
+  }
+
+  @Nonnull
+  public GfsDataService getDataService() {
+    return ds;
   }
 
   @Nonnull
@@ -101,6 +105,8 @@ public abstract class Node {
 
   public void takeSnapshot() {
   }
+
+  public abstract boolean isInitialized();
 
   public boolean isDirty() {
     return false;

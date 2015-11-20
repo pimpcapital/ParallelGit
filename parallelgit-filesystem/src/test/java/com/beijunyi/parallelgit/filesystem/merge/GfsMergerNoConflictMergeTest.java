@@ -34,7 +34,7 @@ public class GfsMergerNoConflictMergeTest extends AbstractParallelGitTest {
     writeToCache("/theirs.txt");
     AnyObjectId theirs = commit(base);
 
-    try(GitFileSystem gfs = Gfs.forCommit(ours, repo)) {
+    try(GitFileSystem gfs = Gfs.newFileSystem(ours, repo)) {
       GfsMerger merger = new GfsMerger(gfs);
       assertTrue(merger.merge(ours, theirs));
     }
@@ -52,7 +52,7 @@ public class GfsMergerNoConflictMergeTest extends AbstractParallelGitTest {
     writeToCache("/theirs.txt");
     AnyObjectId theirs = commit(base);
 
-    try(GitFileSystem gfs = Gfs.forCommit(ours, repo)) {
+    try(GitFileSystem gfs = Gfs.newFileSystem(ours, repo)) {
       GfsMerger merger = new GfsMerger(gfs);
       merger.merge(ours, theirs);
       assertNotNull(merger.getResultTreeId());
@@ -72,7 +72,7 @@ public class GfsMergerNoConflictMergeTest extends AbstractParallelGitTest {
     AnyObjectId theirs = commit(base);
 
     AnyObjectId tree;
-    try(GitFileSystem gfs = Gfs.forCommit(ours, repo)) {
+    try(GitFileSystem gfs = Gfs.newFileSystem(ours, repo)) {
       GfsMerger merger = new GfsMerger(gfs);
       merger.merge(ours, theirs);
       tree = merger.getResultTreeId();
@@ -94,7 +94,7 @@ public class GfsMergerNoConflictMergeTest extends AbstractParallelGitTest {
     AnyObjectId theirs = commit(base);
 
     AnyObjectId tree;
-    try(GitFileSystem gfs = Gfs.forCommit(ours, repo)) {
+    try(GitFileSystem gfs = Gfs.newFileSystem(ours, repo)) {
       GfsMerger merger = new GfsMerger(gfs);
       merger.merge(ours, theirs);
       tree = merger.getResultTreeId();
@@ -117,7 +117,7 @@ public class GfsMergerNoConflictMergeTest extends AbstractParallelGitTest {
     AnyObjectId theirs = commit(base);
 
     AnyObjectId tree;
-    try(GitFileSystem gfs = Gfs.forCommit(ours, repo)) {
+    try(GitFileSystem gfs = Gfs.newFileSystem(ours, repo)) {
       GfsMerger merger = new GfsMerger(gfs);
       merger.merge(ours, theirs);
       tree = merger.getResultTreeId();
@@ -139,7 +139,7 @@ public class GfsMergerNoConflictMergeTest extends AbstractParallelGitTest {
     AnyObjectId theirs = commit(base);
 
     AnyObjectId tree;
-    try(GitFileSystem gfs = Gfs.forCommit(ours, repo)) {
+    try(GitFileSystem gfs = Gfs.newFileSystem(ours, repo)) {
       GfsMerger merger = new GfsMerger(gfs);
       merger.merge(ours, theirs);
       tree = merger.getResultTreeId();
@@ -161,7 +161,7 @@ public class GfsMergerNoConflictMergeTest extends AbstractParallelGitTest {
     AnyObjectId theirs = commit(base);
 
     AnyObjectId tree;
-    try(GitFileSystem gfs = Gfs.forCommit(ours, repo)) {
+    try(GitFileSystem gfs = Gfs.newFileSystem(ours, repo)) {
       GfsMerger merger = new GfsMerger(gfs);
       merger.merge(ours, theirs);
       tree = merger.getResultTreeId();
@@ -183,7 +183,7 @@ public class GfsMergerNoConflictMergeTest extends AbstractParallelGitTest {
     AnyObjectId theirs = commit(base);
 
     AnyObjectId tree;
-    try(GitFileSystem gfs = Gfs.forCommit(ours, repo)) {
+    try(GitFileSystem gfs = Gfs.newFileSystem(ours, repo)) {
       GfsMerger merger = new GfsMerger(gfs);
       merger.merge(ours, theirs);
       tree = merger.getResultTreeId();
@@ -205,7 +205,7 @@ public class GfsMergerNoConflictMergeTest extends AbstractParallelGitTest {
     AnyObjectId theirs = commit(base);
 
     AnyObjectId tree;
-    try(GitFileSystem gfs = Gfs.forCommit(ours, repo)) {
+    try(GitFileSystem gfs = Gfs.newFileSystem(ours, repo)) {
       GfsMerger merger = new GfsMerger(gfs);
       merger.merge(ours, theirs);
       tree = merger.getResultTreeId();
@@ -228,7 +228,7 @@ public class GfsMergerNoConflictMergeTest extends AbstractParallelGitTest {
     AnyObjectId theirs = commit(base);
 
     AnyObjectId tree;
-    try(GitFileSystem gfs = Gfs.forCommit(ours, repo)) {
+    try(GitFileSystem gfs = Gfs.newFileSystem(ours, repo)) {
       GfsMerger merger = new GfsMerger(gfs);
       merger.merge(ours, theirs);
       tree = merger.getResultTreeId();
@@ -251,7 +251,7 @@ public class GfsMergerNoConflictMergeTest extends AbstractParallelGitTest {
     AnyObjectId theirs = commit(base);
 
     AnyObjectId tree;
-    try(GitFileSystem gfs = Gfs.forCommit(ours, repo)) {
+    try(GitFileSystem gfs = Gfs.newFileSystem(ours, repo)) {
       GfsMerger merger = new GfsMerger(gfs);
       merger.merge(ours, theirs);
       tree = merger.getResultTreeId();
@@ -274,7 +274,7 @@ public class GfsMergerNoConflictMergeTest extends AbstractParallelGitTest {
     AnyObjectId theirs = commit(base);
 
     AnyObjectId tree;
-    try(GitFileSystem gfs = Gfs.forCommit(ours, repo)) {
+    try(GitFileSystem gfs = Gfs.newFileSystem(ours, repo)) {
       GfsMerger merger = new GfsMerger(gfs);
       merger.merge(ours, theirs);
       tree = merger.getResultTreeId();
@@ -296,7 +296,7 @@ public class GfsMergerNoConflictMergeTest extends AbstractParallelGitTest {
     RevCommit theirs = commit(base);
 
     AnyObjectId tree;
-    try(GitFileSystem gfs = Gfs.forCommit(ours, repo)) {
+    try(GitFileSystem gfs = Gfs.newFileSystem(ours, repo)) {
       GfsMerger merger = new GfsMerger(gfs);
       merger.merge(ours, theirs);
       tree = merger.getResultTreeId();

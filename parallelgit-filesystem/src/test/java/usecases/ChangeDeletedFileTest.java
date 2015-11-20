@@ -28,7 +28,7 @@ public class ChangeDeletedFileTest extends AbstractParallelGitTest {
     writeToCache("/dir/test_file.txt");
     RevCommit commit = commit(null);
 
-    try(GitFileSystem gfs = Gfs.newFileSystem().repository(repo).commit(commit).build()) {
+    try(GitFileSystem gfs = Gfs.newFileSystem(repo).commit(commit).build()) {
       GitPath file = gfs.getPath("/dir/test_file.txt");
       OutputStream out = Files.newOutputStream(file);
       Files.delete(file);

@@ -6,7 +6,7 @@ import org.junit.Before;
 
 public abstract class PreSetupGitFileSystemTest extends AbstractGitFileSystemTest {
 
-  protected GitFileStore store;
+  protected GfsFileStore store;
   protected String branch;
 
   @Before

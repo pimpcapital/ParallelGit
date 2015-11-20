@@ -9,8 +9,6 @@ import org.eclipse.jgit.lib.AnyObjectId;
 
 public class GfsParams extends HashMap<String, String> {
 
-  public final static String CREATE_KEY = "create";
-  public final static String BARE_KEY = "bare";
   public final static String BRANCH_KEY = "branch";
   public final static String COMMIT_KEY = "commit";
 
@@ -20,7 +18,7 @@ public class GfsParams extends HashMap<String, String> {
   }
 
   @Nonnull
-  public static GfsParams getParams(@Nonnull Map<String, ?> properties) {
+  public static GfsParams fromProperties(@Nonnull Map<String, ?> properties) {
     GfsParams params = new GfsParams();
     for(Map.Entry<String, ?> entry : properties.entrySet()) {
       Object value = entry.getValue();
@@ -30,42 +28,6 @@ public class GfsParams extends HashMap<String, String> {
         params.put(entry.getKey(), value.toString());
     }
     return params;
-  }
-
-  @Nonnull
-  public GfsParams setCreate(@Nullable String create) {
-    if(create != null)
-      put(CREATE_KEY, create);
-    return this;
-  }
-
-  @Nonnull
-  public GfsParams setCreate(boolean create) {
-    return setCreate(Boolean.toString(create));
-  }
-
-  @Nullable
-  public Boolean getCreate() {
-    String value = get(CREATE_KEY);
-    return value != null ? Boolean.valueOf(value) : null;
-  }
-
-  @Nonnull
-  public GfsParams setBare(@Nullable String bare) {
-    if(bare != null)
-      put(BARE_KEY, bare);
-    return this;
-  }
-
-  @Nonnull
-  public GfsParams setBare(boolean bare) {
-    return setBare(Boolean.toString(bare));
-  }
-
-  @Nullable
-  public Boolean getBare() {
-    String value = get(BARE_KEY);
-    return value != null ? Boolean.valueOf(value) : null;
   }
 
   @Nonnull

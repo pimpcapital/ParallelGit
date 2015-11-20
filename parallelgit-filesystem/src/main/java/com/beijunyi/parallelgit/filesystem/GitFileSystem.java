@@ -11,7 +11,8 @@ import javax.annotation.Nullable;
 import com.beijunyi.parallelgit.filesystem.io.GfsFileAttributeView;
 import com.beijunyi.parallelgit.filesystem.io.GfsIO;
 import com.beijunyi.parallelgit.filesystem.utils.GitGlobs;
-import org.eclipse.jgit.lib.*;
+import org.eclipse.jgit.lib.AnyObjectId;
+import org.eclipse.jgit.lib.Repository;
 import org.eclipse.jgit.revwalk.RevCommit;
 
 public class GitFileSystem extends FileSystem {
@@ -24,25 +25,18 @@ public class GitFileSystem extends FileSystem {
                                                              GfsFileAttributeView.Posix.POSIX_VIEW
     )));
 
-  private final GfsDataService ds;
-  private final String session;
-  private final GitFileStore store;
-  private final GitPath rootPath;
-  private String branch;
-  private RevCommit commit;
-
-  private String message;
-  private RevCommit sourceCommit;
+  private final String sid;
+  private final GfsDataService dataService;
+  private final GfsStateService stateService;
+  private final GfsFileStore fileStore;
 
   private volatile boolean closed = false;
 
   public GitFileSystem(@Nonnull Repository repository, @Nonnull RevCommit commit, @Nullable String branch) throws IOException {
-    this.branch = branch;
-    this.commit = commit;
-    ds = new GfsDataService(repository);
-    rootPath = new GitPath(this, "/");
-    session = UUID.randomUUID().toString();
-    store = new GitFileStore(session, tree);
+    sid = UUID.randomUUID().toString();
+    dataService = new GfsDataService(repository);
+    stateService = new GfsStateService(commit, branch);
+    fileStore = new GfsFileStore(commit.getTree(), dataService);
     GitFileSystemProvider.INSTANCE.register(this);
   }
 
@@ -56,7 +50,7 @@ public class GitFileSystem extends FileSystem {
   public synchronized void close() {
     if(!closed) {
       closed = true;
-      ds.close();
+      dataService.close();
       GitFileSystemProvider.INSTANCE.unregister(this);
     }
   }
@@ -92,7 +86,7 @@ public class GitFileSystem extends FileSystem {
   @Nonnull
   @Override
   public Iterable<FileStore> getFileStores() {
-    final List<FileStore> allowedList = Collections.<FileStore>singletonList(store);
+    final List<FileStore> allowedList = Collections.<FileStore>singletonList(fileStore);
     return new Iterable<FileStore>() {
       @Override
       public Iterator<FileStore> iterator() {
@@ -172,35 +166,39 @@ public class GitFileSystem extends FileSystem {
 
   @Nonnull
   public String getSessionId() {
-    return session;
+    return sid;
   }
 
   @Nonnull
   public GitPath getRootPath() {
-    return rootPath;
+    return getPath("/");
   }
 
   @Nonnull
-  public GitFileStore getFileStore() {
-    return store;
+  public GfsDataService getDataService() {
+    return dataService;
+  }
+
+  @Nonnull
+  public GfsStateService getStateService() {
+    return stateService;
+  }
+
+  @Nonnull
+  public GfsFileStore getFileStore() {
+    return fileStore;
   }
 
   @Override
-  public boolean equals(@Nullable Object o) {
-    if(this == o)
-      return true;
-
-    if(o == null || getClass() != o.getClass())
-      return false;
-
-    GitFileSystem that = (GitFileSystem)o;
-    return session.equals(that.session);
+  public boolean equals(@Nullable Object that) {
+    return this == that
+             || !(that == null || getClass() != that.getClass()) && sid.equals(((GitFileSystem)that).sid);
 
   }
 
   @Override
   public int hashCode() {
-    return session.hashCode();
+    return sid.hashCode();
   }
 
   @Nonnull
@@ -212,7 +210,7 @@ public class GitFileSystem extends FileSystem {
 
   @Nonnull
   public Repository getRepository() {
-    return ds.getRepository();
+    return dataService.getRepository();
   }
 
   @Nullable
@@ -253,11 +251,11 @@ public class GitFileSystem extends FileSystem {
 
   @Nullable
   public AnyObjectId getTree() {
-    return store.getTree();
+    return fileStore.getTree();
   }
 
   public boolean isDirty() {
-    return store.isDirty();
+    return fileStore.isDirty();
   }
 
 }

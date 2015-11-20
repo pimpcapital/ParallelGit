@@ -13,59 +13,59 @@ import com.beijunyi.parallelgit.filesystem.GitFileSystemProvider;
 import com.beijunyi.parallelgit.filesystem.GitPath;
 import org.eclipse.jgit.lib.Repository;
 
-public class GitUriBuilder {
+public class GfsUriBuilder {
 
   private String repository;
   private String file;
   private final Map<String, String> params = new LinkedHashMap<>();
 
   @Nonnull
-  public static GitUriBuilder prepare() {
-    return new GitUriBuilder();
+  public static GfsUriBuilder prepare() {
+    return new GfsUriBuilder();
   }
 
   @Nonnull
-  public static GitUriBuilder fromFileSystem(@Nonnull GitFileSystem gfs) {
+  public static GfsUriBuilder fromFileSystem(@Nonnull GitFileSystem gfs) {
     return prepare()
              .repository(gfs.getRepository())
              .sid(gfs.getSessionId());
   }
 
   @Nonnull
-  public GitUriBuilder sid(@Nullable String session) {
+  public GfsUriBuilder sid(@Nullable String session) {
     if(session != null)
-      params.put(GitUriUtils.SID_KEY, session);
+      params.put(GfsUriUtils.SID_KEY, session);
     else
-      params.remove(GitUriUtils.SID_KEY);
+      params.remove(GfsUriUtils.SID_KEY);
     return this;
   }
 
   @Nonnull
-  public GitUriBuilder repository(@Nullable String repoDirPath) {
+  public GfsUriBuilder repository(@Nullable String repoDirPath) {
     this.repository = repoDirPath;
     return this;
   }
 
   @Nonnull
-  public GitUriBuilder repository(@Nullable File repoDir) {
+  public GfsUriBuilder repository(@Nullable File repoDir) {
     return repository(repoDir != null ? repoDir.toURI().getPath() : null);
   }
 
   @Nonnull
-  public GitUriBuilder repository(@Nullable Repository repository) {
+  public GfsUriBuilder repository(@Nullable Repository repository) {
     return repository(repository != null
                         ? (repository.isBare() ? repository.getDirectory() : repository.getWorkTree())
                         : null);
   }
 
   @Nonnull
-  public GitUriBuilder file(@Nullable String filePathStr) {
+  public GfsUriBuilder file(@Nullable String filePathStr) {
     this.file = filePathStr;
     return this;
   }
 
   @Nonnull
-  public GitUriBuilder file(@Nullable GitPath filePath) {
+  public GfsUriBuilder file(@Nullable GitPath filePath) {
     return file(filePath != null ? filePath.toRealPath().toString() : null);
   }
 

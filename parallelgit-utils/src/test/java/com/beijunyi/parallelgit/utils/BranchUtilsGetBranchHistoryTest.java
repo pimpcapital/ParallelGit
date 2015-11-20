@@ -28,7 +28,7 @@ public class BranchUtilsGetBranchHistoryTest extends AbstractParallelGitTest {
     expected[1] = commitToBranch(branch, expected[2]);
     writeSomeFileToCache();
     expected[0] = commitToBranch(branch, expected[1]);
-    List<RevCommit> history = BranchUtils.getBranchHistory(branch, repo);
+    List<RevCommit> history = BranchUtils.getHistory(branch, repo);
     AnyObjectId[] actual = new AnyObjectId[3];
     history.toArray(actual);
     Assert.assertArrayEquals(expected, actual);
@@ -37,7 +37,7 @@ public class BranchUtilsGetBranchHistoryTest extends AbstractParallelGitTest {
   @Test(expected = NoSuchBranchException.class)
   public void getHistoryOfNonExistentBranch_shouldThrowNoSuchBranchException() throws IOException {
     String branch = "non_existent_branch";
-    BranchUtils.getBranchHistory(branch, repo);
+    BranchUtils.getHistory(branch, repo);
   }
 
 }

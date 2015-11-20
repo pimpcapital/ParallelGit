@@ -7,7 +7,7 @@ import java.nio.file.Path;
 import java.nio.file.Paths;
 
 import com.beijunyi.parallelgit.filesystem.AbstractGitFileSystemTest;
-import com.beijunyi.parallelgit.filesystem.utils.GitUriBuilder;
+import com.beijunyi.parallelgit.filesystem.utils.GfsUriBuilder;
 import org.junit.Before;
 import org.junit.Test;
 
@@ -33,7 +33,7 @@ public class PathsTest extends AbstractGitFileSystemTest {
 
   @Test(expected = FileSystemNotFoundException.class)
   public void getArbitraryFileFromUri_invalidSid() {
-    URI uri = GitUriBuilder.fromFileSystem(gfs)
+    URI uri = GfsUriBuilder.fromFileSystem(gfs)
                 .file("/test_file.txt")
                 .sid("some_invalid_sid").build();
     Paths.get(uri);

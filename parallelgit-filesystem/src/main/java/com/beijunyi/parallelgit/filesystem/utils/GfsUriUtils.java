@@ -8,7 +8,7 @@ import javax.annotation.Nullable;
 
 import com.beijunyi.parallelgit.filesystem.GitFileSystemProvider;
 
-public final class GitUriUtils {
+public final class GfsUriUtils {
 
   public final static String SID_KEY = "sid";
 

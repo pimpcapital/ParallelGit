@@ -12,7 +12,7 @@ import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 
 import com.beijunyi.parallelgit.filesystem.io.*;
-import com.beijunyi.parallelgit.filesystem.utils.GitUriUtils;
+import com.beijunyi.parallelgit.filesystem.utils.GfsUriUtils;
 
 import static java.nio.file.StandardOpenOption.*;
 
@@ -35,13 +35,13 @@ public class GitFileSystemProvider extends FileSystemProvider {
   @Nonnull
   @Override
   public GitFileSystem newFileSystem(@Nonnull Path path, @Nonnull Map<String, ?> properties) throws IOException {
-    return Gfs.fromPath(path, properties);
+    return Gfs.newFileSystem(path, properties);
   }
 
   @Nonnull
   @Override
   public GitFileSystem newFileSystem(@Nonnull URI uri, @Nonnull Map<String, ?> properties) throws IOException {
-    return Gfs.fromUri(uri, properties);
+    return Gfs.newFileSystem(uri, properties);
   }
 
   public void register(@Nonnull GitFileSystem gfs) {
@@ -60,7 +60,7 @@ public class GitFileSystemProvider extends FileSystemProvider {
   @Nullable
   @Override
   public GitFileSystem getFileSystem(@Nonnull URI uri) {
-    String session = GitUriUtils.getSession(uri);
+    String session = GfsUriUtils.getSession(uri);
     if(session == null)
       return null;
     return getFileSystem(session);
@@ -72,7 +72,7 @@ public class GitFileSystemProvider extends FileSystemProvider {
     GitFileSystem gfs = getFileSystem(uri);
     if(gfs == null)
       throw new FileSystemNotFoundException(uri.toString());
-    String file = GitUriUtils.getFile(uri);
+    String file = GfsUriUtils.getFile(uri);
     return gfs.getPath(file).toRealPath();
   }
 
@@ -133,7 +133,7 @@ public class GitFileSystemProvider extends FileSystemProvider {
 
   @Nonnull
   @Override
-  public GitFileStore getFileStore(@Nonnull Path path) {
+  public GfsFileStore getFileStore(@Nonnull Path path) {
     return ((GitPath) path).getFileStore();
   }
 

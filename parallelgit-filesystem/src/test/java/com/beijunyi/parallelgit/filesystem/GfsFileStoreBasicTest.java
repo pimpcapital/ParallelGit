@@ -7,7 +7,7 @@ import org.junit.Test;
 
 import static org.junit.Assert.*;
 
-public class GitFileStoreBasicTest extends PreSetupGitFileSystemTest {
+public class GfsFileStoreBasicTest extends PreSetupGitFileSystemTest {
 
   @Test
   public void getName_shouldReturnTheFileSystemSessionId() {

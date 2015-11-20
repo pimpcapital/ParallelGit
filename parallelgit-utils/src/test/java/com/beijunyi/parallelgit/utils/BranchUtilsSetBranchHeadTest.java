@@ -27,7 +27,7 @@ public class BranchUtilsSetBranchHeadTest extends AbstractParallelGitTest {
     writeSomeFileToCache();
     AnyObjectId childCommit = commit(branchHead);
     BranchUtils.newCommit(branch, childCommit, repo);
-    Assert.assertEquals(childCommit, BranchUtils.getBranchHeadCommit(branch, repo));
+    Assert.assertEquals(childCommit, BranchUtils.getHeadCommit(branch, repo));
   }
 
   @Test(expected = RefUpdateRejectedException.class)
@@ -42,7 +42,7 @@ public class BranchUtilsSetBranchHeadTest extends AbstractParallelGitTest {
     writeSomeFileToCache();
     AnyObjectId amendedCommit = commit(branchHead.getParent(0));
     BranchUtils.amendCommit(branch, amendedCommit, repo);
-    Assert.assertEquals(amendedCommit, BranchUtils.getBranchHeadCommit(branch, repo));
+    Assert.assertEquals(amendedCommit, BranchUtils.getHeadCommit(branch, repo));
   }
 
   @Test
@@ -50,7 +50,7 @@ public class BranchUtilsSetBranchHeadTest extends AbstractParallelGitTest {
     writeSomeFileToCache();
     AnyObjectId cherryPickedCommit = commit(branchHead);
     BranchUtils.cherryPickCommit(branch, cherryPickedCommit, repo);
-    Assert.assertEquals(cherryPickedCommit, BranchUtils.getBranchHeadCommit(branch, repo));
+    Assert.assertEquals(cherryPickedCommit, BranchUtils.getHeadCommit(branch, repo));
   }
 
   @Test(expected = RefUpdateRejectedException.class)

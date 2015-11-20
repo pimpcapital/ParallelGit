@@ -31,7 +31,7 @@ public class ObjectUtilsReadObjectTest extends AbstractParallelGitTest {
   public void readObject_theResultShouldEqualToTheObjectData() throws Exception {
     byte[] expected = "test text data".getBytes();
     AnyObjectId objectId = ObjectUtils.insertBlob(expected, repo);
-    Assert.assertArrayEquals(expected, ObjectUtils.readObject(objectId, repo));
+    Assert.assertArrayEquals(expected, ObjectUtils.readBlob(objectId, repo));
   }
 
 }

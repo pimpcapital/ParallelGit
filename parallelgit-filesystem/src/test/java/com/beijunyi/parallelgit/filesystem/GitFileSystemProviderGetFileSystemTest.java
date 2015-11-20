@@ -3,7 +3,7 @@ package com.beijunyi.parallelgit.filesystem;
 import java.io.IOException;
 import java.net.URI;
 
-import com.beijunyi.parallelgit.filesystem.utils.GitUriBuilder;
+import com.beijunyi.parallelgit.filesystem.utils.GfsUriBuilder;
 import org.junit.Test;
 
 import static org.junit.Assert.*;
@@ -19,7 +19,7 @@ public class GitFileSystemProviderGetFileSystemTest extends PreSetupGitFileSyste
 
   @Test
   public void getFileSystemForUriWithInvalidSessionId_theResultShouldBeNull() {
-    URI uri = GitUriBuilder.fromFileSystem(gfs)
+    URI uri = GfsUriBuilder.fromFileSystem(gfs)
                 .sid("some_invalid_sid")
                 .build();
     assertNull(provider.getFileSystem(uri));
@@ -27,7 +27,7 @@ public class GitFileSystemProviderGetFileSystemTest extends PreSetupGitFileSyste
 
   @Test
   public void getFileSystemForUriWithNoSessionId_theResultShouldBeNull() {
-    URI uri = GitUriBuilder.fromFileSystem(gfs)
+    URI uri = GfsUriBuilder.fromFileSystem(gfs)
                 .sid(null)
                 .build();
     assertNull(provider.getFileSystem(uri));

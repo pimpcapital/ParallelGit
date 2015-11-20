@@ -8,7 +8,7 @@ import java.nio.file.FileSystems;
 import com.beijunyi.parallelgit.AbstractParallelGitTest;
 import com.beijunyi.parallelgit.filesystem.GitFileSystem;
 import com.beijunyi.parallelgit.filesystem.utils.GfsParams;
-import com.beijunyi.parallelgit.filesystem.utils.GitUriBuilder;
+import com.beijunyi.parallelgit.filesystem.utils.GfsUriBuilder;
 import org.junit.Before;
 import org.junit.Test;
 
@@ -23,7 +23,7 @@ public class FileSystemsCreateTest extends AbstractParallelGitTest {
 
   @Test
   public void createRepository() throws IOException {
-    URI uri = GitUriBuilder.prepare()
+    URI uri = GfsUriBuilder.prepare()
                 .repository(repoDir)
                 .build();
     FileSystem fs = FileSystems.newFileSystem(uri, GfsParams.emptyMap().setCreate(true));
@@ -33,7 +33,7 @@ public class FileSystemsCreateTest extends AbstractParallelGitTest {
   @Test(expected = IllegalStateException.class)
   public void createRepository_whenOneAlreadyExists() throws IOException {
     initFileRepository(true);
-    URI uri = GitUriBuilder.prepare()
+    URI uri = GfsUriBuilder.prepare()
                 .repository(repoDir)
                 .build();
     FileSystems.newFileSystem(uri, GfsParams.emptyMap().setCreate(true));
@@ -41,7 +41,7 @@ public class FileSystemsCreateTest extends AbstractParallelGitTest {
 
   @Test
   public void createBareRepository() throws IOException {
-    URI uri = GitUriBuilder.prepare()
+    URI uri = GfsUriBuilder.prepare()
                 .repository(repoDir)
                 .build();
     FileSystem fs = FileSystems.newFileSystem(uri, GfsParams.emptyMap().setCreate(true).setBare(true));
@@ -50,7 +50,7 @@ public class FileSystemsCreateTest extends AbstractParallelGitTest {
 
   @Test
   public void createNonBareRepository() throws IOException {
-    URI uri = GitUriBuilder.prepare()
+    URI uri = GfsUriBuilder.prepare()
                 .repository(repoDir)
                 .build();
     FileSystem fs = FileSystems.newFileSystem(uri, GfsParams.emptyMap().setCreate(true).setBare(false));

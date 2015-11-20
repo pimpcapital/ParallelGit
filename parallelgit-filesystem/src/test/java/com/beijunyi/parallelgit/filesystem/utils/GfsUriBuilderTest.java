@@ -6,30 +6,30 @@ import org.junit.Test;
 
 import static org.junit.Assert.assertEquals;
 
-public class GitUriBuilderTest {
+public class GfsUriBuilderTest {
 
   @Test
   public void createUri_unixRepoPath() {
-    assertEquals(URI.create("gfs:/repo"), GitUriBuilder.prepare()
+    assertEquals(URI.create("gfs:/repo"), GfsUriBuilder.prepare()
                                             .repository("/repo")
                                             .build());
   }
 
   @Test
   public void createUri_dosRepoPath() {
-    assertEquals(URI.create("gfs:/c:/repo"), GitUriBuilder.prepare()
+    assertEquals(URI.create("gfs:/c:/repo"), GfsUriBuilder.prepare()
                                                .repository("/c:/repo")
                                                .build());
   }
 
   @Test(expected = IllegalArgumentException.class)
   public void createUri_nullRepoPath() {
-    GitUriBuilder.prepare().build();
+    GfsUriBuilder.prepare().build();
   }
 
   @Test
   public void createUriWithFile() {
-    assertEquals(URI.create("gfs:/repo#/file.txt"), GitUriBuilder.prepare()
+    assertEquals(URI.create("gfs:/repo#/file.txt"), GfsUriBuilder.prepare()
                                                       .repository("/repo")
                                                       .file("/file.txt")
                                                       .build());
@@ -37,7 +37,7 @@ public class GitUriBuilderTest {
 
   @Test
   public void createUriWithFile_relativeFilePath() {
-    assertEquals(URI.create("gfs:/repo#/file.txt"), GitUriBuilder.prepare()
+    assertEquals(URI.create("gfs:/repo#/file.txt"), GfsUriBuilder.prepare()
                                                       .repository("/repo")
                                                       .file("file.txt")
                                                       .build());
@@ -45,7 +45,7 @@ public class GitUriBuilderTest {
 
   @Test
   public void createUriWithEmptyFile() {
-    assertEquals(URI.create("gfs:/repo"), GitUriBuilder.prepare()
+    assertEquals(URI.create("gfs:/repo"), GfsUriBuilder.prepare()
                                             .repository("/repo")
                                             .file("")
                                             .build());
@@ -53,7 +53,7 @@ public class GitUriBuilderTest {
 
   @Test
   public void createUriWithRootFile() {
-    assertEquals(URI.create("gfs:/repo"), GitUriBuilder.prepare()
+    assertEquals(URI.create("gfs:/repo"), GfsUriBuilder.prepare()
                                             .repository("/repo")
                                             .file("/")
                                             .build());
@@ -61,7 +61,7 @@ public class GitUriBuilderTest {
 
   @Test
   public void createUriWithSid() {
-    assertEquals(URI.create("gfs:/repo?sid=testsession"), GitUriBuilder.prepare()
+    assertEquals(URI.create("gfs:/repo?sid=testsession"), GfsUriBuilder.prepare()
                                                             .repository("/repo")
                                                             .sid("testsession")
                                                             .build());
@@ -69,7 +69,7 @@ public class GitUriBuilderTest {
 
   @Test
   public void createUriWithFileAndSid() {
-    assertEquals(URI.create("gfs:/repo?sid=testsession#/file.txt"), GitUriBuilder.prepare()
+    assertEquals(URI.create("gfs:/repo?sid=testsession#/file.txt"), GfsUriBuilder.prepare()
                                                                       .repository("/repo")
                                                                       .file("/file.txt")
                                                                       .sid("testsession")

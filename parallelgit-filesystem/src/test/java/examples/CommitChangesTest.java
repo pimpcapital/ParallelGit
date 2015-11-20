@@ -28,7 +28,7 @@ public class CommitChangesTest extends AbstractParallelGitTest {
   @Test
   public void commitChanges() throws IOException {
     RevCommit commit;
-    try(GitFileSystem gfs = Gfs.forRevision("my_branch", repo)) {             // open git file system
+    try(GitFileSystem gfs = Gfs.newFileSystem("my_branch", repo)) {             // open git file system
       Path file = gfs.getPath("/my_file.txt");                                           // convert string to nio path
       Files.write(file, "my text data".getBytes());                                      // write file
       commit = Gfs.commit(gfs).message("my commit message").execute();              // commit changes
@@ -44,7 +44,7 @@ public class CommitChangesTest extends AbstractParallelGitTest {
   @Test
   public void persistBlobs() throws IOException {
     AnyObjectId tree;
-    try(GitFileSystem gfs = Gfs.forRevision("my_branch", repo)) {             // open git file system
+    try(GitFileSystem gfs = Gfs.newFileSystem("my_branch", repo)) {             // open git file system
       Path file = gfs.getPath("/my_file.txt");                                           // convert string to nio path
       Files.write(file, "my text data".getBytes());                                      // write file
       tree = Gfs.persist(gfs).execute();                                            // persistRoot changes and create a tree
@@ -55,7 +55,7 @@ public class CommitChangesTest extends AbstractParallelGitTest {
     assertTrue(TreeUtils.exists("/my_file.txt", tree, repo));                            // the file exists in the tree
     AnyObjectId blobId = TreeUtils.getObjectId("/my_file.txt", tree, repo);              // get the blob of the file
     assertNotNull(blobId);                                                               // the blob of the file is found
-    assertEquals("my text data", new String(ObjectUtils.readObject(blobId, repo)));      // the data is correct
+    assertEquals("my text data", new String(ObjectUtils.readBlob(blobId, repo)));      // the data is correct
   }
 
 }

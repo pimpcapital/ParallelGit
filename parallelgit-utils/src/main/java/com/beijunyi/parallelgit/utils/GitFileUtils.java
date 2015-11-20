@@ -5,6 +5,7 @@ import java.io.InputStream;
 import java.nio.file.NoSuchFileException;
 import javax.annotation.Nonnull;
 
+import com.beijunyi.parallelgit.utils.io.BlobSnapshot;
 import org.eclipse.jgit.lib.AnyObjectId;
 import org.eclipse.jgit.lib.ObjectReader;
 import org.eclipse.jgit.lib.Repository;
@@ -88,22 +89,22 @@ public final class GitFileUtils {
   }
 
   @Nonnull
-  public static byte[] readFile(@Nonnull String file, @Nonnull AnyObjectId commit, @Nonnull ObjectReader reader) throws IOException {
+  public static BlobSnapshot readFile(@Nonnull String file, @Nonnull AnyObjectId commit, @Nonnull ObjectReader reader) throws IOException {
     AnyObjectId blobId = ObjectUtils.findObject(file, commit, reader);
     if(blobId == null)
       throw new NoSuchFileException(file);
-    return ObjectUtils.readObject(blobId, reader);
+    return ObjectUtils.readBlob(blobId, reader);
   }
 
   @Nonnull
-  public static byte[] readFile(@Nonnull String file, @Nonnull AnyObjectId commit, @Nonnull Repository repo) throws IOException {
+  public static BlobSnapshot readFile(@Nonnull String file, @Nonnull AnyObjectId commit, @Nonnull Repository repo) throws IOException {
     try(ObjectReader reader = repo.newObjectReader()) {
       return readFile(file, commit, reader);
     }
   }
 
   @Nonnull
-  public static byte[] readFile(@Nonnull String file, @Nonnull String revision, @Nonnull Repository repo) throws IOException {
+  public static BlobSnapshot readFile(@Nonnull String file, @Nonnull String revision, @Nonnull Repository repo) throws IOException {
     return readFile(file, repo.resolve(revision), repo);
   }
 

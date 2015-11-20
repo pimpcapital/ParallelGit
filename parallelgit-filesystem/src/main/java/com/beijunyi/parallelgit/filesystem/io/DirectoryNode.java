@@ -5,7 +5,6 @@ import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 
 import com.beijunyi.parallelgit.filesystem.GfsDataService;
-import com.beijunyi.parallelgit.filesystem.GitFileSystem;
 import org.eclipse.jgit.lib.AnyObjectId;
 import org.eclipse.jgit.lib.FileMode;
 
@@ -72,6 +71,11 @@ public class DirectoryNode extends Node {
       return false;
     removed.markDeleted();
     return true;
+  }
+
+  @Override
+  public boolean isInitialized() {
+    return children != null;
   }
 
   @Override

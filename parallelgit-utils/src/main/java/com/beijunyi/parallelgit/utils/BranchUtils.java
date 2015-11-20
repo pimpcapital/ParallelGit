@@ -6,7 +6,9 @@ import java.util.Map;
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 
-import com.beijunyi.parallelgit.utils.exceptions.*;
+import com.beijunyi.parallelgit.utils.exceptions.BranchAlreadyExistsException;
+import com.beijunyi.parallelgit.utils.exceptions.NoSuchBranchException;
+import com.beijunyi.parallelgit.utils.exceptions.RefUpdateValidator;
 import org.eclipse.jgit.lib.*;
 import org.eclipse.jgit.revwalk.*;
 
@@ -15,11 +17,9 @@ import static com.beijunyi.parallelgit.utils.RefUtils.ensureBranchRefName;
 public final class BranchUtils {
 
   @Nonnull
-  public static List<RevCommit> getBranchHistory(@Nonnull String name, @Nonnull Repository repo) throws IOException {
+  public static List<RevCommit> getHistory(@Nonnull String name, @Nonnull Repository repo) throws IOException {
     String branchRef = ensureBranchRefName(name);
     RevCommit head = CommitUtils.getCommit(branchRef, repo);
-    if(head == null)
-      throw new NoSuchBranchException(branchRef);
     return CommitUtils.getCommitHistory(head, repo);
   }
 
@@ -34,11 +34,11 @@ public final class BranchUtils {
   }
 
   @Nonnull
-  public static AnyObjectId getBranchHeadCommit(@Nonnull String name, @Nonnull Repository repo) throws IOException {
+  public static RevCommit getHeadCommit(@Nonnull String name, @Nonnull Repository repo) throws IOException {
     Ref ref = RefUtils.getBranchRef(name, repo);
     if(ref == null)
       throw new NoSuchBranchException(name);
-    return ref.getObjectId();
+    return CommitUtils.getCommit(ref.getObjectId(), repo);
   }
 
   public static void createBranch(@Nonnull String name, @Nonnull RevTag startPoint, @Nonnull Repository repo) throws IOException {
@@ -80,8 +80,6 @@ public final class BranchUtils {
       createBranch(name, ref, repo);
     else {
       RevCommit commit = CommitUtils.getCommit(startPoint, repo);
-      if(commit == null)
-        throw new NoSuchRevisionException(startPoint);
       createBranch(name, commit, repo);
     }
   }

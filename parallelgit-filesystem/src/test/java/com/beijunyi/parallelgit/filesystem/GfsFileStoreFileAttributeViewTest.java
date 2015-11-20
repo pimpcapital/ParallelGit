@@ -8,7 +8,7 @@ import org.junit.Test;
 
 import static org.junit.Assert.*;
 
-public class GitFileStoreFileAttributeViewTest extends PreSetupGitFileSystemTest {
+public class GfsFileStoreFileAttributeViewTest extends PreSetupGitFileSystemTest {
 
   @Test
   public void supportsBasicFileAttributeView_shouldReturnTrue() {

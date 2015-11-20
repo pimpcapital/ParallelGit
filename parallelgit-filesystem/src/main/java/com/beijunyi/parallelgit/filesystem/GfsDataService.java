@@ -3,9 +3,13 @@ package com.beijunyi.parallelgit.filesystem;
 import java.io.Closeable;
 import java.io.IOException;
 import java.nio.file.ClosedFileSystemException;
+import java.util.HashMap;
+import java.util.Map;
 import javax.annotation.Nonnull;
 
+import com.beijunyi.parallelgit.filesystem.io.Node;
 import org.eclipse.jgit.lib.*;
+import org.eclipse.jgit.treewalk.CanonicalTreeParser;
 
 public class GfsDataService implements Closeable {
 
@@ -34,17 +38,34 @@ public class GfsDataService implements Closeable {
   }
 
   @Nonnull
-  public byte[] loadObject(@Nonnull AnyObjectId objectId) throws IOException {
+  public byte[] readBlob(@Nonnull AnyObjectId id) throws IOException {
     checkClosed();
     synchronized(reader) {
-      return reader.open(objectId).getBytes();
+      return reader.open(id).getBytes();
     }
   }
 
-  public long getBlobSize(@Nonnull AnyObjectId objectId) throws IOException {
+  public long getBlobSize(@Nonnull AnyObjectId id) throws IOException {
     checkClosed();
     synchronized(reader) {
-      return reader.getObjectSize(objectId, Constants.OBJ_BLOB);
+      return reader.getObjectSize(id, Constants.OBJ_BLOB);
+    }
+  }
+
+  @Nonnull
+  public Map<String, Node> readTree(@Nonnull AnyObjectId id) throws IOException {
+    checkClosed();
+    synchronized(reader) {
+      Map<String, Node> children = new HashMap<>();
+      CanonicalTreeParser treeParser = new CanonicalTreeParser();
+      treeParser.reset(reader, id);
+      while(!treeParser.eof()) {
+        Node child = Node.forObject(treeParser.getEntryObjectId(), treeParser.getEntryFileMode(), this);
+        child.takeSnapshot();
+        children.put(treeParser.getEntryPathString(), child);
+        treeParser.next();
+      }
+      return children;
     }
   }
 

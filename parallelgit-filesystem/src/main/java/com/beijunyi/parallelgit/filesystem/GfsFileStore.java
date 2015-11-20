@@ -12,30 +12,28 @@ import com.beijunyi.parallelgit.filesystem.io.DirectoryNode;
 import com.beijunyi.parallelgit.filesystem.io.GfsFileAttributeView;
 import org.eclipse.jgit.lib.AnyObjectId;
 
-public class GitFileStore extends FileStore {
+public class GfsFileStore extends FileStore {
 
-  private final String name;
   private final DirectoryNode root;
 
-  public GitFileStore(@Nonnull String name, @Nullable AnyObjectId rootTree) throws IOException {
-    this(name, rootTree != null ? DirectoryNode.forTreeObject(rootTree, null) : DirectoryNode.newDirectory(null));
+  public GfsFileStore(@Nonnull AnyObjectId rootTree, @Nonnull GfsDataService dataService) throws IOException {
+    this(DirectoryNode.forTreeObject(rootTree, dataService));
   }
 
-  private GitFileStore(@Nonnull String name, @Nonnull DirectoryNode rootNode) {
-    this.name = name;
+  private GfsFileStore(@Nonnull DirectoryNode rootNode) {
     root = rootNode;
   }
 
   @Nonnull
   @Override
   public String name() {
-    return name;
+    return "gfs";
   }
 
   @Nonnull
   @Override
   public String type() {
-    return "gitfs";
+    return "gfs";
   }
 
   @Override
@@ -95,6 +93,11 @@ public class GitFileStore extends FileStore {
   @Nonnull
   public DirectoryNode getRoot() {
     return root;
+  }
+
+  @Nonnull
+  public AnyObjectId persist() {
+    return root.
   }
 
   @Nonnull

@@ -7,7 +7,7 @@ import org.junit.Test;
 
 import static org.junit.Assert.*;
 
-public class GitFileStoreIsDirtyTest extends PreSetupGitFileSystemTest {
+public class GfsFileStoreIsDirtyTest extends PreSetupGitFileSystemTest {
 
   @Test
   public void testIsDirtyWhenStoreIsFresh_shouldReturnFalse() throws IOException {

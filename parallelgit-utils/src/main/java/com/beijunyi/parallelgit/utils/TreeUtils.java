@@ -3,9 +3,12 @@ package com.beijunyi.parallelgit.utils;
 import java.io.IOException;
 import java.io.InputStream;
 import java.nio.file.NoSuchFileException;
+import java.nio.file.NotDirectoryException;
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 
+import com.beijunyi.parallelgit.utils.io.BlobSnapshot;
+import com.beijunyi.parallelgit.utils.io.TreeSnapshot;
 import org.eclipse.jgit.lib.*;
 import org.eclipse.jgit.treewalk.TreeWalk;
 
@@ -89,17 +92,32 @@ public final class TreeUtils {
   }
 
   @Nonnull
-  public static byte[] readFile(@Nonnull String file, @Nonnull AnyObjectId tree, @Nonnull ObjectReader reader) throws IOException {
+  public static BlobSnapshot readFile(@Nonnull String file, @Nonnull AnyObjectId tree, @Nonnull ObjectReader reader) throws IOException {
     AnyObjectId blobId = getObjectId(file, tree, reader);
     if(blobId == null)
       throw new NoSuchFileException(file);
-    return ObjectUtils.readObject(blobId, reader);
+    return ObjectUtils.readBlob(blobId, reader);
   }
 
   @Nonnull
-  public static byte[] readFile(@Nonnull String file, @Nonnull AnyObjectId tree, @Nonnull Repository repo) throws IOException {
+  public static BlobSnapshot readFile(@Nonnull String file, @Nonnull AnyObjectId tree, @Nonnull Repository repo) throws IOException {
     try(ObjectReader reader = repo.newObjectReader()) {
       return readFile(file, tree, reader);
+    }
+  }
+
+  @Nonnull
+  public static TreeSnapshot readDirectory(@Nonnull String dir, @Nonnull AnyObjectId tree, @Nonnull ObjectReader reader) throws IOException {
+    AnyObjectId blobId = getObjectId(dir, tree, reader);
+    if(blobId == null)
+      throw new NotDirectoryException(dir);
+    return ObjectUtils.readTree(blobId, reader);
+  }
+
+  @Nonnull
+  public static TreeSnapshot readDirectory(@Nonnull String dir, @Nonnull AnyObjectId tree, @Nonnull Repository repo) throws IOException {
+    try(ObjectReader reader = repo.newObjectReader()) {
+      return readDirectory(dir, tree, reader);
     }
   }
 

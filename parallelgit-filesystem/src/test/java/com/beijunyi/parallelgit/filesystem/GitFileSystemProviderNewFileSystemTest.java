@@ -5,7 +5,7 @@ import java.net.URI;
 import java.util.Collections;
 
 import com.beijunyi.parallelgit.filesystem.utils.GfsParams;
-import com.beijunyi.parallelgit.filesystem.utils.GitUriBuilder;
+import com.beijunyi.parallelgit.filesystem.utils.GfsUriBuilder;
 import org.eclipse.jgit.lib.AnyObjectId;
 import org.eclipse.jgit.lib.Repository;
 import org.eclipse.jgit.revwalk.RevCommit;
@@ -19,7 +19,7 @@ public class GitFileSystemProviderNewFileSystemTest extends AbstractGitFileSyste
   @Test
   public void openNonBareRepositoryFromUri() throws IOException {
     initFileRepository(false);
-    URI uri = GitUriBuilder.prepare()
+    URI uri = GfsUriBuilder.prepare()
                 .repository(repoDir)
                 .build();
     try(GitFileSystem gfs = provider.newFileSystem(uri, Collections.<String, Object>emptyMap())) {
@@ -32,7 +32,7 @@ public class GitFileSystemProviderNewFileSystemTest extends AbstractGitFileSyste
   @Test
   public void openBareRepositoryFromUri() throws IOException {
     initFileRepository(true);
-    URI uri = GitUriBuilder.prepare()
+    URI uri = GfsUriBuilder.prepare()
                 .repository(repoDir)
                 .build();
     try(GitFileSystem gfs = provider.newFileSystem(uri, Collections.<String, Object>emptyMap())) {
@@ -47,7 +47,7 @@ public class GitFileSystemProviderNewFileSystemTest extends AbstractGitFileSyste
     initFileRepository(true);
     writeToCache("some_file");
     RevCommit commit = commitToBranch("test_branch");
-    URI uri = GitUriBuilder.prepare()
+    URI uri = GfsUriBuilder.prepare()
                 .repository(repoDir)
                 .build();
     try(GitFileSystem gfs = provider.newFileSystem(uri, Collections.singletonMap(GfsParams.BRANCH_KEY, "test_branch"))) {
@@ -68,7 +68,7 @@ public class GitFileSystemProviderNewFileSystemTest extends AbstractGitFileSyste
     initFileRepository(true);
     writeToCache("some_file");
     RevCommit commit = commitToMaster();
-    URI uri = GitUriBuilder.prepare()
+    URI uri = GfsUriBuilder.prepare()
                 .repository(repoDir)
                 .build();
     try(GitFileSystem gfs = provider.newFileSystem(uri, Collections.singletonMap(GfsParams.COMMIT_KEY, commit))) {
@@ -89,7 +89,7 @@ public class GitFileSystemProviderNewFileSystemTest extends AbstractGitFileSyste
     initFileRepository(true);
     writeToCache("some_file");
     RevTree tree = commitToMaster().getTree();
-    URI uri = GitUriBuilder.prepare()
+    URI uri = GfsUriBuilder.prepare()
                 .repository(repoDir)
                 .build();
     try (GitFileSystem gfs = provider.newFileSystem(uri, Collections.singletonMap(GfsParams.TREE_KEY, tree))) {

@@ -5,7 +5,10 @@ import java.io.InputStream;
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 
+import com.beijunyi.parallelgit.utils.io.BlobSnapshot;
+import com.beijunyi.parallelgit.utils.io.TreeSnapshot;
 import org.eclipse.jgit.lib.*;
+import org.eclipse.jgit.treewalk.TreeWalk;
 
 public final class ObjectUtils {
 
@@ -49,17 +52,29 @@ public final class ObjectUtils {
   }
 
   @Nonnull
-  public static byte[] readObject(@Nonnull AnyObjectId id, @Nonnull ObjectReader reader) throws IOException {
-    return reader.open(id).getBytes();
+  public static BlobSnapshot readBlob(@Nonnull AnyObjectId id, @Nonnull ObjectReader reader) throws IOException {
+    return new BlobSnapshot(reader.open(id).getBytes());
   }
 
   @Nonnull
-  public static byte[] readObject(@Nonnull AnyObjectId id, @Nonnull Repository repo) throws IOException {
+  public static BlobSnapshot readBlob(@Nonnull AnyObjectId id, @Nonnull Repository repo) throws IOException {
     try(ObjectReader reader = repo.newObjectReader()) {
-      return readObject(id, reader);
+      return readBlob(id, reader);
     }
   }
 
+  @Nonnull
+  public static TreeSnapshot readTree(@Nonnull AnyObjectId id, @Nonnull ObjectReader reader) throws IOException {
+    try(TreeWalk tw = TreeUtils.newTreeWalk(id, reader)) {
+      return new TreeSnapshot(tw);
+    }
+  }
 
+  @Nonnull
+  public static TreeSnapshot readTree(@Nonnull AnyObjectId id, @Nonnull Repository repo) throws IOException {
+    try(ObjectReader reader = repo.newObjectReader()) {
+      return readTree(id, reader);
+    }
+  }
 
 }

@@ -6,7 +6,7 @@ import org.junit.Test;
 
 import static org.junit.Assert.assertEquals;
 
-public class GitFileStoreSpaceTest extends PreSetupGitFileSystemTest {
+public class GfsFileStoreSpaceTest extends PreSetupGitFileSystemTest {
 
   @Test
   public void getTotalSpace_shouldReturnZero() throws IOException {

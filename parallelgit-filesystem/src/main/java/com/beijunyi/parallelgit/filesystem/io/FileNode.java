@@ -26,9 +26,9 @@ public class FileNode extends Node {
   }
 
   @Nonnull
-  public static FileNode forBytes(@Nonnull byte[] bytes, @Nonnull FileMode mode, @Nonnull GfsDataService ds) {
+  public static FileNode newFile(@Nonnull byte[] bytes, @Nonnull FileMode mode, @Nonnull GfsDataService ds) {
     FileNode ret = new FileNode(mode, ds);
-    ret.setBytes(bytes);
+    ret.bytes = bytes;
     return ret;
   }
 
@@ -53,6 +53,11 @@ public class FileNode extends Node {
 
   public void setSize(long size) {
     this.size = size;
+  }
+
+  @Override
+  public boolean isInitialized() {
+    return bytes != null;
   }
 
   @Override

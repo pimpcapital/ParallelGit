@@ -3,7 +3,7 @@ package com.beijunyi.parallelgit.filesystem;
 import java.io.IOException;
 import java.net.URI;
 
-import com.beijunyi.parallelgit.filesystem.utils.GitUriBuilder;
+import com.beijunyi.parallelgit.filesystem.utils.GfsUriBuilder;
 import org.junit.Before;
 import org.junit.Test;
 
@@ -18,7 +18,7 @@ public class GitFileSystemProviderGetPathTest extends AbstractGitFileSystemTest 
 
   @Test
   public void getPathFromUri() {
-    URI uri = GitUriBuilder.fromFileSystem(gfs)
+    URI uri = GfsUriBuilder.fromFileSystem(gfs)
                 .file("/some_file.txt")
                 .build();
     GitPath path = provider.getPath(uri);
@@ -27,7 +27,7 @@ public class GitFileSystemProviderGetPathTest extends AbstractGitFileSystemTest 
 
   @Test
   public void getRootPathFromUri() {
-    URI uri = GitUriBuilder.fromFileSystem(gfs)
+    URI uri = GfsUriBuilder.fromFileSystem(gfs)
                 .file("/")
                 .build();
     GitPath path = provider.getPath(uri);
