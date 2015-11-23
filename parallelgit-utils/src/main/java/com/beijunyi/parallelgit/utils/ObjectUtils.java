@@ -8,7 +8,6 @@ import javax.annotation.Nullable;
 import com.beijunyi.parallelgit.utils.io.BlobSnapshot;
 import com.beijunyi.parallelgit.utils.io.TreeSnapshot;
 import org.eclipse.jgit.lib.*;
-import org.eclipse.jgit.treewalk.TreeWalk;
 
 public final class ObjectUtils {
 
@@ -39,21 +38,30 @@ public final class ObjectUtils {
     }
   }
 
+  public static long getBlobSize(@Nonnull AnyObjectId id, @Nonnull ObjectReader reader) throws IOException {
+    return reader.getObjectSize(id, Constants.OBJ_BLOB);
+  }
+
+  public static long getBlobSize(@Nonnull AnyObjectId id, @Nonnull Repository repo) throws IOException {
+    try(ObjectReader reader = repo.newObjectReader()) {
+      return getBlobSize(id, reader);
+    }  }
+
   @Nonnull
-  public static InputStream openObject(@Nonnull AnyObjectId id, @Nonnull ObjectReader reader) throws IOException {
+  public static InputStream openBlob(@Nonnull AnyObjectId id, @Nonnull ObjectReader reader) throws IOException {
     return reader.open(id).openStream();
   }
 
   @Nonnull
-  public static InputStream openObject(@Nonnull AnyObjectId id, @Nonnull Repository repo) throws IOException {
+  public static InputStream openBlob(@Nonnull AnyObjectId id, @Nonnull Repository repo) throws IOException {
     try(ObjectReader reader = repo.newObjectReader()) {
-      return openObject(id, reader);
+      return openBlob(id, reader);
     }
   }
 
   @Nonnull
   public static BlobSnapshot readBlob(@Nonnull AnyObjectId id, @Nonnull ObjectReader reader) throws IOException {
-    return new BlobSnapshot(reader.open(id).getBytes());
+    return BlobSnapshot.load(id, reader);
   }
 
   @Nonnull
@@ -65,9 +73,7 @@ public final class ObjectUtils {
 
   @Nonnull
   public static TreeSnapshot readTree(@Nonnull AnyObjectId id, @Nonnull ObjectReader reader) throws IOException {
-    try(TreeWalk tw = TreeUtils.newTreeWalk(id, reader)) {
-      return new TreeSnapshot(tw);
-    }
+    return TreeSnapshot.load(id, reader);
   }
 
   @Nonnull

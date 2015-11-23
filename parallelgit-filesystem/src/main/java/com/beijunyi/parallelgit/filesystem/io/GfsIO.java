@@ -19,6 +19,10 @@ import org.eclipse.jgit.lib.FileMode;
 import org.eclipse.jgit.lib.TreeFormatter;
 import org.eclipse.jgit.treewalk.CanonicalTreeParser;
 
+import static java.nio.file.AccessMode.EXECUTE;
+import static java.nio.file.StandardCopyOption.REPLACE_EXISTING;
+import static java.nio.file.StandardOpenOption.*;
+
 public final class GfsIO {
 
   @Nonnull
@@ -88,7 +92,7 @@ public final class GfsIO {
   }
 
   @Nonnull
-  private static byte[] readBlobObject(@Nullable AnyObjectId id, @Nonnull GfsDataService gds) throws IOException {
+  private static byte[] readBlob(@Nullable AnyObjectId id, @Nonnull GfsDataService gds) throws IOException {
     if(id == null)
       return new byte[0];
     return gds.readBlob(id);
@@ -96,7 +100,7 @@ public final class GfsIO {
 
   @Nonnull
   private static byte[] loadFileData(@Nonnull FileNode file, @Nonnull GfsDataService gds) throws IOException {
-    byte[] bytes = readBlobObject(file.getObject(), gds);
+    byte[] bytes = readBlob(file.getObject(), gds);
     file.setBytes(bytes);
     return bytes;
   }
@@ -205,10 +209,10 @@ public final class GfsIO {
     if(file.isRoot())
       throw new AccessDeniedException(file.toString());
     FileNode node;
-    if(options.contains(StandardOpenOption.CREATE) || options.contains(StandardOpenOption.CREATE_NEW)) {
+    if(options.contains(CREATE) || options.contains(CREATE_NEW)) {
       DirectoryNode parent = findDirectory(getParent(file));
       String name = getFileName(file);
-      if(options.contains(StandardOpenOption.CREATE_NEW) || !parent.hasChild(name)) {
+      if(options.contains(CREATE_NEW) || !parent.hasChild(name)) {
         node = FileNode.newFile(FileAttributeReader.read(attrs).isExecutable(), parent.getDataService());
         if(!parent.addChild(name, node, false))
           throw new FileAlreadyExistsException(file.toString());
@@ -217,7 +221,7 @@ public final class GfsIO {
       }
     } else
       node = findFile(file);
-    return new GfsSeekableByteChannel(node, file.getFileSystem(), options);
+    return new GfsSeekableByteChannel(node, getDataService(file), options);
   }
 
   @Nonnull
@@ -236,7 +240,7 @@ public final class GfsIO {
   private static void deepCopyFile(@Nonnull FileNode source, @Nonnull FileNode target) throws IOException {
     byte[] bytes = source.getBytes();
     if(bytes == null)
-      bytes = readBlobObject(source.getObject(), source.getDataService());
+      bytes = readBlob(source.getObject(), source.getDataService());
     target.setBytes(bytes);
   }
 
@@ -275,7 +279,7 @@ public final class GfsIO {
     GitPath targetParent = getParent(target);
     DirectoryNode targetDirectory = findDirectory(targetParent);
     Node targetNode = Node.cloneNode(sourceNode, getDataService(target));
-    if(!targetDirectory.addChild(getFileName(target), targetNode, options.contains(StandardCopyOption.REPLACE_EXISTING)))
+    if(!targetDirectory.addChild(getFileName(target), targetNode, options.contains(REPLACE_EXISTING)))
       throw new FileAlreadyExistsException(target.toString());
     copyNode(sourceNode, targetNode);
     return true;
@@ -299,7 +303,7 @@ public final class GfsIO {
 
   public static void checkAccess(@Nonnull GitPath path, @Nonnull Set<AccessMode> modes) throws IOException {
     Node node = getNode(path);
-    if(modes.contains(AccessMode.EXECUTE) && !node.isExecutableFile())
+    if(modes.contains(EXECUTE) && !node.isExecutableFile())
       throw new AccessDeniedException(path.toString());
   }
 
@@ -320,7 +324,7 @@ public final class GfsIO {
   }
 
   @Nullable
-  private static AnyObjectId persistDirectory(@Nonnull DirectoryNode dir, boolean isRoot, @Nonnull GitFileSystem gfs) throws IOException {
+  private static AnyObjectId persistDirectory(@Nonnull DirectoryNode dir, boolean isRoot, @Nonnull GfsDataService gds) throws IOException {
     Map<String, Node> children = dir.getChildren();
     int count = 0;
     TreeFormatter formatter = new TreeFormatter();

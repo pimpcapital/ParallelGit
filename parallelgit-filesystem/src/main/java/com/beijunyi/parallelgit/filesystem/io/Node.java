@@ -4,31 +4,37 @@ import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 
 import com.beijunyi.parallelgit.filesystem.GfsDataService;
+import com.beijunyi.parallelgit.utils.io.GitFileEntry;
+import com.beijunyi.parallelgit.utils.io.ObjectSnapshot;
 import org.eclipse.jgit.lib.AnyObjectId;
 import org.eclipse.jgit.lib.FileMode;
 
 import static org.eclipse.jgit.lib.FileMode.*;
 
-public abstract class Node {
+public abstract class Node<Snapshot extends ObjectSnapshot> {
 
-  protected final GfsDataService ds;
+  protected final GfsDataService gds;
 
-  protected volatile FileMode mode;
-  protected volatile AnyObjectId object;
-  protected volatile AnyObjectId snapshot;
+  protected volatile AnyObjectId id;
+  protected volatile Snapshot snapshot;
   protected volatile boolean deleted = false;
 
-  protected Node(@Nonnull FileMode mode, @Nullable AnyObjectId object, @Nonnull GfsDataService ds) {
-    this.mode = mode;
-    this.object = object;
-    this.ds = ds;
+  protected Node(@Nullable AnyObjectId id, @Nullable Snapshot snapshot, @Nonnull GfsDataService gds) {
+    this.id = id;
+    this.snapshot = snapshot;
+    this.gds = gds;
+  }
+
+  @Nonnull
+  public static Node fromEntry(@Nonnull GitFileEntry entry, @Nonnull GfsDataService gds) {
+
   }
 
   @Nonnull
   public static Node forObject(@Nonnull AnyObjectId object, @Nonnull FileMode mode, @Nonnull GfsDataService ds) {
     if(mode.equals(TREE))
       return DirectoryNode.forTreeObject(object, ds);
-    return FileNode.forBlobObject(object, mode, ds);
+    return FileNode.forBlobId(object, mode, ds);
   }
 
   @Nonnull
@@ -43,7 +49,7 @@ public abstract class Node {
 
   @Nonnull
   public GfsDataService getDataService() {
-    return ds;
+    return gds;
   }
 
   @Nonnull

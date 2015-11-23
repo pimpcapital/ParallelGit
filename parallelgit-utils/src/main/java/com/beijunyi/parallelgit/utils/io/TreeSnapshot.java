@@ -1,23 +1,19 @@
 package com.beijunyi.parallelgit.utils.io;
 
 import java.io.IOException;
-import java.util.Collections;
-import java.util.HashMap;
-import java.util.Map;
+import java.util.*;
 import javax.annotation.Nonnull;
 
+import com.beijunyi.parallelgit.utils.TreeUtils;
+import org.eclipse.jgit.lib.*;
 import org.eclipse.jgit.treewalk.TreeWalk;
 
-public class TreeSnapshot {
+public class TreeSnapshot implements ObjectSnapshot {
 
   private final Map<String, GitFileEntry> children;
 
-  public TreeSnapshot(@Nonnull TreeWalk tw) throws IOException {
-    this(wrap(tw));
-  }
-
   private TreeSnapshot(@Nonnull Map<String, GitFileEntry> children) {
-    this.children = children;
+    this.children = Collections.unmodifiableMap(children);
   }
 
   @Nonnull
@@ -26,11 +22,29 @@ public class TreeSnapshot {
   }
 
   @Nonnull
-  private static Map<String, GitFileEntry> wrap(@Nonnull TreeWalk tw) throws IOException {
+  public AnyObjectId save(@Nonnull ObjectInserter inserter) throws IOException {
+    TreeFormatter formatter = new TreeFormatter();
+    for(Map.Entry<String, GitFileEntry> child : new TreeMap<>(children).entrySet()) {
+      String name = child.getKey();
+      GitFileEntry entry = child.getValue();
+      formatter.append(name, entry.getMode(), entry.getId());
+    }
+    return formatter.insertTo(inserter);
+  }
+
+  @Nonnull
+  public static TreeSnapshot load(@Nonnull AnyObjectId id, @Nonnull ObjectReader reader) throws IOException {
     HashMap<String, GitFileEntry> ret = new HashMap<>();
-    while(tw.next())
-      ret.put(tw.getNameString(), new GitFileEntry(tw.getObjectId(0), tw.getFileMode(0)));
-    return Collections.unmodifiableMap(ret);
+    try(TreeWalk tw = TreeUtils.newTreeWalk(id, reader)) {
+      while(tw.next())
+        ret.put(tw.getNameString(), new GitFileEntry(tw.getObjectId(0), tw.getFileMode(0)));
+    }
+    return new TreeSnapshot(ret);
+  }
+
+  @Nonnull
+  public static TreeSnapshot capture(@Nonnull Map<String, GitFileEntry> children) {
+    return new TreeSnapshot(children);
   }
 
 }

@@ -3,13 +3,15 @@ package com.beijunyi.parallelgit.filesystem;
 import java.io.Closeable;
 import java.io.IOException;
 import java.nio.file.ClosedFileSystemException;
-import java.util.HashMap;
 import java.util.Map;
+import java.util.TreeMap;
 import javax.annotation.Nonnull;
 
-import com.beijunyi.parallelgit.filesystem.io.Node;
+import com.beijunyi.parallelgit.utils.ObjectUtils;
+import com.beijunyi.parallelgit.utils.io.BlobSnapshot;
+import com.beijunyi.parallelgit.utils.io.GitFileEntry;
+import com.beijunyi.parallelgit.utils.io.TreeSnapshot;
 import org.eclipse.jgit.lib.*;
-import org.eclipse.jgit.treewalk.CanonicalTreeParser;
 
 public class GfsDataService implements Closeable {
 
@@ -38,34 +40,25 @@ public class GfsDataService implements Closeable {
   }
 
   @Nonnull
-  public byte[] readBlob(@Nonnull AnyObjectId id) throws IOException {
+  public BlobSnapshot readBlob(@Nonnull AnyObjectId id) throws IOException {
     checkClosed();
     synchronized(reader) {
-      return reader.open(id).getBytes();
+      return ObjectUtils.readBlob(id, reader);
     }
   }
 
   public long getBlobSize(@Nonnull AnyObjectId id) throws IOException {
     checkClosed();
     synchronized(reader) {
-      return reader.getObjectSize(id, Constants.OBJ_BLOB);
+      return ObjectUtils.getBlobSize(id, reader);
     }
   }
 
   @Nonnull
-  public Map<String, Node> readTree(@Nonnull AnyObjectId id) throws IOException {
+  public TreeSnapshot readTree(@Nonnull AnyObjectId id) throws IOException {
     checkClosed();
     synchronized(reader) {
-      Map<String, Node> children = new HashMap<>();
-      CanonicalTreeParser treeParser = new CanonicalTreeParser();
-      treeParser.reset(reader, id);
-      while(!treeParser.eof()) {
-        Node child = Node.forObject(treeParser.getEntryObjectId(), treeParser.getEntryFileMode(), this);
-        child.takeSnapshot();
-        children.put(treeParser.getEntryPathString(), child);
-        treeParser.next();
-      }
-      return children;
+      return ObjectUtils.readTree(id, reader);
     }
   }
 
@@ -79,10 +72,16 @@ public class GfsDataService implements Closeable {
   }
 
   @Nonnull
-  public AnyObjectId saveTree(@Nonnull TreeFormatter tf) throws IOException {
+  public AnyObjectId saveTree(@Nonnull TreeSnapshot tree) throws IOException {
     checkClosed();
+    TreeFormatter formatter = new TreeFormatter();
+    for(Map.Entry<String, GitFileEntry> child : new TreeMap<>(tree.getChildren()).entrySet()) {
+      String name = child.getKey();
+      GitFileEntry entry = child.getValue();
+      formatter.append(name, entry.getMode(), entry.getId());
+    }
     synchronized(inserter) {
-      return inserter.insert(tf);
+      return inserter.insert(formatter);
     }
   }
 

@@ -4,37 +4,38 @@ import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 
 import com.beijunyi.parallelgit.filesystem.GfsDataService;
+import com.beijunyi.parallelgit.utils.io.BlobSnapshot;
 import org.eclipse.jgit.lib.AnyObjectId;
 import org.eclipse.jgit.lib.FileMode;
 
-public class FileNode extends Node {
+import static org.eclipse.jgit.lib.FileMode.*;
 
+public class FileNode extends Node<BlobSnapshot> {
+
+  private FileMode mode;
   private byte[] bytes;
   private long size = -1;
 
-  private FileNode(@Nonnull FileMode mode, @Nullable AnyObjectId object, @Nonnull GfsDataService ds) {
-    super(mode, object, ds);
-  }
-
-  private FileNode(@Nonnull FileMode mode, @Nonnull GfsDataService ds) {
-    this(mode, null, ds);
+  private FileNode(@Nullable AnyObjectId id, @Nullable BlobSnapshot snapshot, @Nonnull FileMode mode, @Nonnull GfsDataService gds) {
+    super(id, snapshot, gds);
+    this.mode = mode;
   }
 
   @Nonnull
-  protected static FileNode forBlobObject(@Nonnull AnyObjectId object, @Nonnull FileMode mode, @Nonnull GfsDataService ds) {
-    return new FileNode(mode, object, ds);
+  protected static FileNode forBlobId(@Nonnull AnyObjectId object, @Nonnull FileMode mode, @Nonnull GfsDataService gds) {
+    return new FileNode(mode, object, gds);
   }
 
   @Nonnull
-  public static FileNode newFile(@Nonnull byte[] bytes, @Nonnull FileMode mode, @Nonnull GfsDataService ds) {
-    FileNode ret = new FileNode(mode, ds);
+  public static FileNode newFile(@Nonnull byte[] bytes, @Nonnull FileMode mode, @Nonnull GfsDataService gds) {
+    FileNode ret = new FileNode(null, mode, gds);
     ret.bytes = bytes;
     return ret;
   }
 
   @Nonnull
-  public static FileNode newFile(boolean executable, @Nonnull GfsDataService ds) {
-    return new FileNode(executable ? FileMode.EXECUTABLE_FILE : FileMode.REGULAR_FILE, ds);
+  public static FileNode newFile(boolean executable, @Nonnull GfsDataService gds) {
+    return new FileNode(null, executable ? EXECUTABLE_FILE : REGULAR_FILE, gds);
   }
 
   @Nullable

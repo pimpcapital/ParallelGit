@@ -81,7 +81,7 @@ public final class TreeUtils {
     AnyObjectId blobId = getObjectId(file, tree, reader);
     if(blobId == null)
       throw new NoSuchFileException(file);
-    return ObjectUtils.openObject(blobId, reader);
+    return ObjectUtils.openBlob(blobId, reader);
   }
 
   @Nonnull

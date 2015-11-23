@@ -1,37 +1,41 @@
 package com.beijunyi.parallelgit.filesystem.io;
 
+import java.util.Map;
+import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentMap;
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 
 import com.beijunyi.parallelgit.filesystem.GfsDataService;
+import com.beijunyi.parallelgit.utils.io.GitFileEntry;
+import com.beijunyi.parallelgit.utils.io.TreeSnapshot;
 import org.eclipse.jgit.lib.AnyObjectId;
-import org.eclipse.jgit.lib.FileMode;
 
-public class DirectoryNode extends Node {
+public class DirectoryNode extends Node<TreeSnapshot> {
 
   private ConcurrentMap<String, Node> children;
 
-  protected DirectoryNode(@Nullable AnyObjectId object, @Nonnull GfsDataService ds) {
-    super(FileMode.TREE, object, ds);
-  }
-
-  protected DirectoryNode(@Nonnull GfsDataService ds) {
-    this(null, ds);
+  protected DirectoryNode(@Nullable TreeSnapshot snapshot, @Nonnull GfsDataService ds) {
+    super(snapshot, ds);
   }
 
   @Nonnull
-  public static DirectoryNode forTreeObject(@Nonnull AnyObjectId object, @Nonnull GfsDataService ds) {
-    return new DirectoryNode(object, ds);
+  public static DirectoryNode fromObject(@Nonnull AnyObjectId id, )
+
+  @Nonnull
+  public static DirectoryNode fromSnapshot(@Nonnull TreeSnapshot snapshot, @Nonnull GfsDataService gds) {
+    return new DirectoryNode(snapshot, gds);
   }
 
   @Nonnull
-  public static DirectoryNode newDirectory(@Nonnull GfsDataService ds) {
-    return new DirectoryNode(ds);
+  public static DirectoryNode newDirectory(@Nonnull GfsDataService gds) {
+    return new DirectoryNode(null, gds);
   }
 
   @Nullable
   public ConcurrentMap<String, Node> getChildren() {
+    if(children != null)
+      loadChildren();
     return children;
   }
 
@@ -94,6 +98,16 @@ public class DirectoryNode extends Node {
 
   @Override
   public void takeSnapshot() {
+  }
+
+  private synchronized void loadChildren() {
+    if(children == null) {
+      children = new ConcurrentHashMap<>();
+      if(snapshot != null) {
+        for(Map.Entry<String, GitFileEntry> entry : snapshot.getChildren().entrySet())
+          children.put(entry.getKey(), Node.fromEntry(entry.getValue(), gds));
+      }
+    }
   }
 
 }
