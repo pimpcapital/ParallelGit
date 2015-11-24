@@ -1,5 +1,6 @@
 package com.beijunyi.parallelgit.filesystem.io;
 
+import java.io.IOException;
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 
@@ -27,14 +28,9 @@ public abstract class Node<Snapshot extends ObjectSnapshot> {
 
   @Nonnull
   public static Node fromEntry(@Nonnull GitFileEntry entry, @Nonnull GfsDataService gds) {
-
-  }
-
-  @Nonnull
-  public static Node forObject(@Nonnull AnyObjectId object, @Nonnull FileMode mode, @Nonnull GfsDataService ds) {
-    if(mode.equals(TREE))
-      return DirectoryNode.forTreeObject(object, ds);
-    return FileNode.forBlobId(object, mode, ds);
+    if(entry.getMode() == TREE)
+      return DirectoryNode.fromObject(entry.getId(), gds);
+    return FileNode.fromObject(entry.getId(), entry.getMode(), gds);
   }
 
   @Nonnull
@@ -52,38 +48,25 @@ public abstract class Node<Snapshot extends ObjectSnapshot> {
     return gds;
   }
 
-  @Nonnull
-  public FileMode getMode() {
-    return mode;
-  }
-
-  public void setMode(@Nonnull FileMode mode) {
-    this.mode = mode;
-  }
-
   public boolean isRegularFile() {
-    return mode.equals(REGULAR_FILE) || mode.equals(EXECUTABLE_FILE);
+    return getMode().equals(REGULAR_FILE) || getMode().equals(EXECUTABLE_FILE);
   }
 
   public boolean isExecutableFile() {
-    return mode.equals(EXECUTABLE_FILE);
+    return getMode().equals(EXECUTABLE_FILE);
   }
 
   public boolean isSymbolicLink() {
-    return mode.equals(FileMode.SYMLINK);
+    return getMode().equals(SYMLINK);
   }
 
   public boolean isDirectory() {
-    return mode.equals(TREE);
+    return getMode().equals(TREE);
   }
 
   @Nullable
-  public AnyObjectId getObject() {
-    return object;
-  }
-
-  public void setObject(@Nullable AnyObjectId object) {
-    this.object = object;
+  public AnyObjectId getObjectId() {
+    return id;
   }
 
   public boolean isDeleted() {
@@ -109,17 +92,21 @@ public abstract class Node<Snapshot extends ObjectSnapshot> {
     reset();
   }
 
-  public void takeSnapshot() {
+  @Nullable
+  public AnyObjectId persist() throws IOException {
+    snapshot = takeSnapshot();
+    if(snapshot != null)
+      id = gds.write(snapshot);
+    return id;
   }
 
-  public abstract boolean isInitialized();
+  @Nonnull
+  public abstract FileMode getMode();
 
-  public boolean isDirty() {
-    return false;
-  }
+  @Nullable
+  public abstract Snapshot loadSnapshot() throws IOException;
 
-  protected abstract boolean isTrivial();
-
-  protected abstract void reset();
+  @Nullable
+  public abstract Snapshot takeSnapshot() throws IOException;
 
 }

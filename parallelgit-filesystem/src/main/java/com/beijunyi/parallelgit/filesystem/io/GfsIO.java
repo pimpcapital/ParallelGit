@@ -100,7 +100,7 @@ public final class GfsIO {
 
   @Nonnull
   private static byte[] loadFileData(@Nonnull FileNode file, @Nonnull GfsDataService gds) throws IOException {
-    byte[] bytes = readBlob(file.getObject(), gds);
+    byte[] bytes = readBlob(file.getObjectId(), gds);
     file.setBytes(bytes);
     return bytes;
   }
@@ -120,7 +120,7 @@ public final class GfsIO {
   }
 
   private static long loadFileSize(@Nonnull FileNode file, @Nonnull GitFileSystem gfs) throws IOException {
-    long size = readBlobSize(file.getObject(), gfs);
+    long size = readBlobSize(file.getObjectId(), gfs);
     file.setSize(size);
     return size;
   }
@@ -144,7 +144,7 @@ public final class GfsIO {
 
   @Nonnull
   private static Map<String, Node> loadChildren(@Nonnull DirectoryNode dir, @Nonnull GitFileSystem gfs) throws IOException {
-    ConcurrentMap<String, Node> children = readTreeObject(dir.getObject(), gfs);
+    ConcurrentMap<String, Node> children = readTreeObject(dir.getObjectId(), gfs);
     dir.setChildren(children);
     dir.takeSnapshot();
     return children;
@@ -240,14 +240,14 @@ public final class GfsIO {
   private static void deepCopyFile(@Nonnull FileNode source, @Nonnull FileNode target) throws IOException {
     byte[] bytes = source.getBytes();
     if(bytes == null)
-      bytes = readBlob(source.getObject(), source.getDataService());
+      bytes = readBlob(source.getObjectId(), source.getDataService());
     target.setBytes(bytes);
   }
 
   private static void deepCopyDirectory(@Nonnull DirectoryNode source, @Nonnull DirectoryNode target) throws IOException {
     ConcurrentMap<String, Node> children = source.getChildren();
     if(children == null)
-      children = readTreeObject(source.getObject(), source.getDataService());
+      children = readTreeObject(source.getObjectId(), source.getDataService());
     ConcurrentMap<String, Node> clonedChildren = new ConcurrentHashMap<>();
     for(Map.Entry<String, Node> child : children.entrySet()) {
       Node clonedChild = Node.cloneNode(child.getValue(), target.getDataService());
@@ -258,8 +258,8 @@ public final class GfsIO {
   }
 
   private static void copyNode(@Nonnull Node source, @Nonnull Node target) throws IOException {
-    if(!source.isInitialized() && source.getObject() != null && target.getDataService().hasObject(source.getObject())) {
-      target.setObject(source.getObject());
+    if(!source.isInitialized() && source.getObjectId() != null && target.getDataService().hasObject(source.getObjectId())) {
+      target.setObject(source.getObjectId());
       return;
     }
     if(source instanceof FileNode && target instanceof FileNode)
@@ -345,7 +345,7 @@ public final class GfsIO {
   @Nullable
   private static AnyObjectId persistNode(@Nonnull Node node, boolean isRoot, @Nonnull GitFileSystem gfs) throws IOException {
     if(!node.isDirty())
-      return node.getObject();
+      return node.getObjectId();
     AnyObjectId nodeObject;
     if(node instanceof FileNode)
       nodeObject = persistFile((FileNode) node, gfs);

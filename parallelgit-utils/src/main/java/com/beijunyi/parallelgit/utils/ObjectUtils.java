@@ -13,11 +13,6 @@ public final class ObjectUtils {
 
 
   @Nonnull
-  public static AnyObjectId calculateBlobId(@Nonnull byte[] data) {
-    return new ObjectInserter.Formatter().idFor(Constants.OBJ_BLOB, data);
-  }
-
-  @Nonnull
   public static AnyObjectId insertBlob(@Nonnull byte[] data, @Nonnull Repository repo) throws IOException {
     try(ObjectInserter inserter = repo.newObjectInserter()) {
       AnyObjectId blobId = inserter.insert(Constants.OBJ_BLOB, data);

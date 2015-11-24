@@ -40,7 +40,7 @@ public abstract class AbstractParallelGitTest {
 
   @Nonnull
   protected AnyObjectId writeToCache(@Nonnull String path, @Nonnull byte[] content, @Nonnull FileMode mode) throws IOException {
-    AnyObjectId blobId = repo != null ? ObjectUtils.insertBlob(content, repo) : ObjectUtils.calculateBlobId(content);
+    AnyObjectId blobId = repo != null ? ObjectUtils.insertBlob(content, repo) : calculateBlobId(content);
     CacheUtils.addFile(path, mode, blobId, cache);
     return blobId;
   }
@@ -84,7 +84,7 @@ public abstract class AbstractParallelGitTest {
 
   @Nonnull
   protected AnyObjectId someObjectId() {
-    return ObjectUtils.calculateBlobId(UUID.randomUUID().toString().getBytes());
+    return calculateBlobId(UUID.randomUUID().toString().getBytes());
   }
 
   @Nonnull
@@ -189,6 +189,11 @@ public abstract class AbstractParallelGitTest {
   @Nonnull
   protected RevCommit initRepository() throws IOException {
     return initRepository(true, true);
+  }
+
+  @Nonnull
+  public static AnyObjectId calculateBlobId(@Nonnull byte[] data) {
+    return new ObjectInserter.Formatter().idFor(Constants.OBJ_BLOB, data);
   }
 
   public static void assertCacheEquals(@Nullable String message, @Nonnull DirCache expected, @Nonnull DirCache actual) {

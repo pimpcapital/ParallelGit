@@ -1,5 +1,6 @@
 package com.beijunyi.parallelgit.filesystem.io;
 
+import java.io.IOException;
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 
@@ -22,24 +23,28 @@ public class FileNode extends Node<BlobSnapshot> {
   }
 
   @Nonnull
-  protected static FileNode forBlobId(@Nonnull AnyObjectId object, @Nonnull FileMode mode, @Nonnull GfsDataService gds) {
-    return new FileNode(mode, object, gds);
+  protected static FileNode fromObject(@Nonnull AnyObjectId id, @Nonnull FileMode mode, @Nonnull GfsDataService gds) {
+    return new FileNode(id, null, mode, gds);
   }
 
   @Nonnull
   public static FileNode newFile(@Nonnull byte[] bytes, @Nonnull FileMode mode, @Nonnull GfsDataService gds) {
-    FileNode ret = new FileNode(null, mode, gds);
+    FileNode ret = new FileNode(null, null, mode, gds);
     ret.bytes = bytes;
     return ret;
   }
 
   @Nonnull
   public static FileNode newFile(boolean executable, @Nonnull GfsDataService gds) {
-    return new FileNode(null, executable ? EXECUTABLE_FILE : REGULAR_FILE, gds);
+    return new FileNode(null, null, executable ? EXECUTABLE_FILE : REGULAR_FILE, gds);
   }
 
-  @Nullable
-  public byte[] getBytes() {
+  @Nonnull
+  public byte[] getBytes() throws IOException {
+    if(bytes != null)
+      return bytes;
+    snapshot = loadSnapshot();
+    bytes = snapshot.getBytes();
     return bytes;
   }
 
@@ -48,27 +53,30 @@ public class FileNode extends Node<BlobSnapshot> {
     this.size = bytes != null ? bytes.length : -1;
   }
 
-  public long getSize() {
+  public long getSize() throws IOException {
+    if(size != -1)
+      return size;
+    size = gds.getBlobSize(id);
     return size;
   }
 
-  public void setSize(long size) {
-    this.size = size;
-  }
-
+  @Nonnull
   @Override
-  public boolean isInitialized() {
-    return bytes != null;
+  public FileMode getMode() {
+    return mode;
   }
 
+  @Nonnull
   @Override
-  protected boolean isTrivial() {
-    return false;
+  public BlobSnapshot loadSnapshot() throws IOException {
+    if(id == null)
+      throw new IllegalStateException();
+    return gds.readBlob(id);
   }
 
+  @Nullable
   @Override
-  protected void reset() {
-    setBytes(null);
+  public BlobSnapshot takeSnapshot() {
+    return bytes != null ? BlobSnapshot.capture(bytes) : null;
   }
-
 }

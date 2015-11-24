@@ -102,7 +102,7 @@ public class GfsFileStore extends FileStore {
 
   @Nonnull
   public AnyObjectId getTree() {
-    AnyObjectId rootObject = root.getObject();
+    AnyObjectId rootObject = root.getObjectId();
     if(rootObject == null)
       throw new NoTreeException();
     return rootObject;

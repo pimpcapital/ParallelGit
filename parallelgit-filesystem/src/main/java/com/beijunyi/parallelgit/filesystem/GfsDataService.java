@@ -3,13 +3,11 @@ package com.beijunyi.parallelgit.filesystem;
 import java.io.Closeable;
 import java.io.IOException;
 import java.nio.file.ClosedFileSystemException;
-import java.util.Map;
-import java.util.TreeMap;
 import javax.annotation.Nonnull;
 
 import com.beijunyi.parallelgit.utils.ObjectUtils;
 import com.beijunyi.parallelgit.utils.io.BlobSnapshot;
-import com.beijunyi.parallelgit.utils.io.GitFileEntry;
+import com.beijunyi.parallelgit.utils.io.ObjectSnapshot;
 import com.beijunyi.parallelgit.utils.io.TreeSnapshot;
 import org.eclipse.jgit.lib.*;
 
@@ -55,6 +53,15 @@ public class GfsDataService implements Closeable {
   }
 
   @Nonnull
+  public AnyObjectId writeBlob(@Nonnull byte[] bytes) throws IOException {
+    checkClosed();
+    synchronized(inserter) {
+      return inserter.insert(Constants.OBJ_BLOB, bytes);
+    }
+  }
+
+
+  @Nonnull
   public TreeSnapshot readTree(@Nonnull AnyObjectId id) throws IOException {
     checkClosed();
     synchronized(reader) {
@@ -62,27 +69,9 @@ public class GfsDataService implements Closeable {
     }
   }
 
-
   @Nonnull
-  public AnyObjectId saveBlob(@Nonnull byte[] bytes) throws IOException {
-    checkClosed();
-    synchronized(inserter) {
-      return inserter.insert(Constants.OBJ_BLOB, bytes);
-    }
-  }
-
-  @Nonnull
-  public AnyObjectId saveTree(@Nonnull TreeSnapshot tree) throws IOException {
-    checkClosed();
-    TreeFormatter formatter = new TreeFormatter();
-    for(Map.Entry<String, GitFileEntry> child : new TreeMap<>(tree.getChildren()).entrySet()) {
-      String name = child.getKey();
-      GitFileEntry entry = child.getValue();
-      formatter.append(name, entry.getMode(), entry.getId());
-    }
-    synchronized(inserter) {
-      return inserter.insert(formatter);
-    }
+  public AnyObjectId write(@Nonnull ObjectSnapshot snapshot) throws IOException {
+    return snapshot.save(inserter);
   }
 
   public void flush() throws IOException {
@@ -106,6 +95,8 @@ public class GfsDataService implements Closeable {
     if(closed)
       throw new ClosedFileSystemException();
   }
+
+
 
 
 }

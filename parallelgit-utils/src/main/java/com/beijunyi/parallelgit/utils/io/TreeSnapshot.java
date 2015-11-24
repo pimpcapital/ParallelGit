@@ -3,6 +3,7 @@ package com.beijunyi.parallelgit.utils.io;
 import java.io.IOException;
 import java.util.*;
 import javax.annotation.Nonnull;
+import javax.annotation.Nullable;
 
 import com.beijunyi.parallelgit.utils.TreeUtils;
 import org.eclipse.jgit.lib.*;
@@ -13,7 +14,7 @@ public class TreeSnapshot implements ObjectSnapshot {
   private final Map<String, GitFileEntry> children;
 
   private TreeSnapshot(@Nonnull Map<String, GitFileEntry> children) {
-    this.children = Collections.unmodifiableMap(children);
+    this.children = Collections.unmodifiableMap(new TreeMap<>(children));
   }
 
   @Nonnull
@@ -22,14 +23,13 @@ public class TreeSnapshot implements ObjectSnapshot {
   }
 
   @Nonnull
+  public AnyObjectId getId() {
+    return new ObjectInserter.Formatter().idFor(Constants.OBJ_TREE, format().toByteArray());
+  }
+
+  @Nonnull
   public AnyObjectId save(@Nonnull ObjectInserter inserter) throws IOException {
-    TreeFormatter formatter = new TreeFormatter();
-    for(Map.Entry<String, GitFileEntry> child : new TreeMap<>(children).entrySet()) {
-      String name = child.getKey();
-      GitFileEntry entry = child.getValue();
-      formatter.append(name, entry.getMode(), entry.getId());
-    }
-    return formatter.insertTo(inserter);
+    return inserter.insert(format());
   }
 
   @Nonnull
@@ -42,9 +42,20 @@ public class TreeSnapshot implements ObjectSnapshot {
     return new TreeSnapshot(ret);
   }
 
-  @Nonnull
+  @Nullable
   public static TreeSnapshot capture(@Nonnull Map<String, GitFileEntry> children) {
-    return new TreeSnapshot(children);
+    return children.isEmpty() ? new TreeSnapshot(children) : null;
+  }
+
+  @Nonnull
+  private TreeFormatter format() {
+    TreeFormatter formatter = new TreeFormatter();
+    for(Map.Entry<String, GitFileEntry> child : children.entrySet()) {
+      String name = child.getKey();
+      GitFileEntry entry = child.getValue();
+      formatter.append(name, entry.getMode(), entry.getId());
+    }
+    return formatter;
   }
 
 }

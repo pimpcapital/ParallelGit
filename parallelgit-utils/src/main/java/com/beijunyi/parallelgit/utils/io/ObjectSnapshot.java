@@ -9,6 +9,9 @@ import org.eclipse.jgit.lib.ObjectInserter;
 public interface ObjectSnapshot {
 
   @Nonnull
+  AnyObjectId getId();
+
+  @Nonnull
   AnyObjectId save(@Nonnull ObjectInserter inserter) throws IOException;
 
 }

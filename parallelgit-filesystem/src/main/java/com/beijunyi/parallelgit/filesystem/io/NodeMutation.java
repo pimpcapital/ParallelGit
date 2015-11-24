@@ -58,7 +58,7 @@ public class NodeMutation {
 
   private void updateId(@Nonnull Node node) {
     assert id != null;
-    if(!id.equals(node.getObject())) {
+    if(!id.equals(node.getObjectId())) {
       node.setObject(id);
       mutated = true;
     }

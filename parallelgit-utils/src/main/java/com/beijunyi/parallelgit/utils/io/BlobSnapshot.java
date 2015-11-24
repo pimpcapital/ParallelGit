@@ -20,6 +20,12 @@ public class BlobSnapshot implements ObjectSnapshot {
 
   @Nonnull
   @Override
+  public AnyObjectId getId() {
+    return new ObjectInserter.Formatter().idFor(Constants.OBJ_BLOB, bytes);
+  }
+
+  @Nonnull
+  @Override
   public AnyObjectId save(@Nonnull ObjectInserter inserter) throws IOException {
     return inserter.insert(Constants.OBJ_BLOB, bytes);
   }
@@ -27,6 +33,11 @@ public class BlobSnapshot implements ObjectSnapshot {
   @Nonnull
   public static BlobSnapshot load(@Nonnull AnyObjectId id, @Nonnull ObjectReader reader) throws IOException {
     return new BlobSnapshot(reader.open(id).getBytes());
+  }
+
+  @Nonnull
+  public static BlobSnapshot capture(@Nonnull byte[] bytes) {
+    return new BlobSnapshot(bytes);
   }
 
 }
