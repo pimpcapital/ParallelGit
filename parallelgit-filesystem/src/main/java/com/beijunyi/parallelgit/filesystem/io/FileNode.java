@@ -17,40 +17,26 @@ public class FileNode extends Node<BlobSnapshot> {
   private byte[] bytes;
   private long size = -1;
 
-  private FileNode(@Nullable AnyObjectId id, @Nullable BlobSnapshot snapshot, @Nonnull FileMode mode, @Nonnull GfsDataService gds) {
-    super(id, snapshot, gds);
+  private FileNode(@Nullable AnyObjectId id, @Nonnull FileMode mode, @Nonnull GfsDataService gds) {
+    super(id, gds);
     this.mode = mode;
   }
 
   @Nonnull
   protected static FileNode fromObject(@Nonnull AnyObjectId id, @Nonnull FileMode mode, @Nonnull GfsDataService gds) {
-    return new FileNode(id, null, mode, gds);
+    return new FileNode(id, mode, gds);
   }
 
   @Nonnull
   public static FileNode newFile(@Nonnull byte[] bytes, @Nonnull FileMode mode, @Nonnull GfsDataService gds) {
-    FileNode ret = new FileNode(null, null, mode, gds);
+    FileNode ret = new FileNode(null, mode, gds);
     ret.bytes = bytes;
     return ret;
   }
 
   @Nonnull
   public static FileNode newFile(boolean executable, @Nonnull GfsDataService gds) {
-    return new FileNode(null, null, executable ? EXECUTABLE_FILE : REGULAR_FILE, gds);
-  }
-
-  @Nonnull
-  public byte[] getBytes() throws IOException {
-    if(bytes != null)
-      return bytes;
-    snapshot = loadSnapshot();
-    bytes = snapshot.getBytes();
-    return bytes;
-  }
-
-  public void setBytes(@Nullable byte[] bytes) {
-    this.bytes = bytes;
-    this.size = bytes != null ? bytes.length : -1;
+    return new FileNode(null, executable ? EXECUTABLE_FILE : REGULAR_FILE, gds);
   }
 
   public long getSize() throws IOException {
@@ -66,17 +52,64 @@ public class FileNode extends Node<BlobSnapshot> {
     return mode;
   }
 
-  @Nonnull
   @Override
-  public BlobSnapshot loadSnapshot() throws IOException {
-    if(id == null)
-      throw new IllegalStateException();
-    return gds.readBlob(id);
+  public void setMode(@Nonnull FileMode mode) {
+    if(mode.equals(FileMode.TREE))
+      throw new IllegalArgumentException();
+    if(mode.equals(FileMode.GITLINK))
+      throw new UnsupportedOperationException();
+    this.mode = mode;
   }
 
   @Nullable
   @Override
-  public BlobSnapshot takeSnapshot() {
-    return bytes != null ? BlobSnapshot.capture(bytes) : null;
+  public BlobSnapshot loadSnapshot() throws IOException {
+    return id != null ? gds.readBlob(id) : null;
   }
+
+  @Nullable
+  @Override
+  public BlobSnapshot takeSnapshot(boolean persist, boolean allowEmpty) throws IOException {
+    if(bytes == null)
+      return null;
+    BlobSnapshot ret = BlobSnapshot.capture(bytes);
+    if(persist)
+      id = gds.write(ret);
+    return ret;
+  }
+
+  @Nonnull
+  @Override
+  public Node clone(@Nonnull GfsDataService targetGds) throws IOException {
+    FileNode ret = new FileNode(null, mode, targetGds);
+    if(bytes != null)
+      ret.bytes = bytes;
+    else {
+      ret.id = id;
+      targetGds.pullObject(id, gds);
+    }
+    return ret;
+  }
+
+  @Nonnull
+  public byte[] getBytes() throws IOException {
+    if(bytes != null)
+      return bytes;
+    initBytes();
+    return bytes;
+  }
+
+  public void setBytes(@Nullable byte[] bytes) {
+    this.bytes = bytes;
+    this.size = bytes != null ? bytes.length : -1;
+  }
+
+  private synchronized void initBytes() throws IOException {
+    if(bytes == null) {
+      BlobSnapshot snapshot = loadSnapshot();
+      bytes = snapshot != null ? snapshot.getBytes() : new byte[0];
+      size = bytes.length;
+    }
+  }
+
 }

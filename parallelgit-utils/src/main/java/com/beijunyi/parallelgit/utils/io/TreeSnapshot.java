@@ -9,7 +9,7 @@ import com.beijunyi.parallelgit.utils.TreeUtils;
 import org.eclipse.jgit.lib.*;
 import org.eclipse.jgit.treewalk.TreeWalk;
 
-public class TreeSnapshot implements ObjectSnapshot {
+public class TreeSnapshot extends ObjectSnapshot {
 
   private final Map<String, GitFileEntry> children;
 
@@ -23,12 +23,12 @@ public class TreeSnapshot implements ObjectSnapshot {
   }
 
   @Nonnull
-  public AnyObjectId getId() {
+  public AnyObjectId computeId() {
     return new ObjectInserter.Formatter().idFor(Constants.OBJ_TREE, format().toByteArray());
   }
 
   @Nonnull
-  public AnyObjectId save(@Nonnull ObjectInserter inserter) throws IOException {
+  public AnyObjectId persist(@Nonnull ObjectInserter inserter) throws IOException {
     return inserter.insert(format());
   }
 
@@ -43,8 +43,8 @@ public class TreeSnapshot implements ObjectSnapshot {
   }
 
   @Nullable
-  public static TreeSnapshot capture(@Nonnull Map<String, GitFileEntry> children) {
-    return children.isEmpty() ? new TreeSnapshot(children) : null;
+  public static TreeSnapshot capture(@Nonnull Map<String, GitFileEntry> children, boolean allowEmpty) {
+    return allowEmpty || !children.isEmpty() ? new TreeSnapshot(children) : null;
   }
 
   @Nonnull

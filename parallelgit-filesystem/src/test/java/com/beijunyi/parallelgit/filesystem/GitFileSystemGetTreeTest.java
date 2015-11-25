@@ -3,7 +3,6 @@ package com.beijunyi.parallelgit.filesystem;
 import java.io.IOException;
 
 import com.beijunyi.parallelgit.AbstractParallelGitTest;
-import org.eclipse.jgit.lib.AnyObjectId;
 import org.eclipse.jgit.revwalk.RevCommit;
 import org.junit.Before;
 import org.junit.Test;
@@ -22,7 +21,7 @@ public class GitFileSystemGetTreeTest extends AbstractParallelGitTest {
     writeSomeFileToCache();
     RevCommit head = commitToBranch("test_branch");
 
-    GitFileSystem gfs = Gfs.newFileSystem().repository(repo).branch("test_branch").build();
+    GitFileSystem gfs = Gfs.newFileSystem(repo).branch("test_branch").build();
     assertEquals(head.getTree(), gfs.getTree());
   }
 
@@ -31,17 +30,8 @@ public class GitFileSystemGetTreeTest extends AbstractParallelGitTest {
     writeSomeFileToCache();
     RevCommit commit = commit(null);
 
-    GitFileSystem gfs = Gfs.newFileSystem().repository(repo).commit(commit).build();
+    GitFileSystem gfs = Gfs.newFileSystem(repo).commit(commit).build();
     assertEquals(commit.getTree(), gfs.getTree());
-  }
-
-  @Test
-  public void getTreeWhenFileSystemWasCreatedFromTree_theTreeShouldEqualToTheInputTree() throws IOException {
-    writeSomeFileToCache();
-    AnyObjectId tree = commit(null).getTree();
-
-    GitFileSystem gfs = Gfs.newFileSystem().repository(repo).tree(tree).build();
-    assertEquals(tree, gfs.getTree());
   }
 
 }

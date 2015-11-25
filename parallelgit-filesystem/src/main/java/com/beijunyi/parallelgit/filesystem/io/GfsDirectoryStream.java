@@ -13,19 +13,15 @@ import com.beijunyi.parallelgit.filesystem.GitPath;
 public class GfsDirectoryStream implements DirectoryStream<Path> {
 
   private final GitPath parent;
-  private final SortedSet<String> children;
+  private final List<String> children;
   private final Filter<? super Path> filter;
   private volatile boolean closed = false;
 
   public GfsDirectoryStream(@Nonnull DirectoryNode dir, @Nonnull GitPath parent, @Nullable Filter<? super Path> filter) throws IOException {
     this.parent = parent;
     this.filter = filter;
-    children = new TreeSet<>(GfsIO.getChildren(dir, parent.getFileSystem()).keySet());
-  }
-
-  private void checkNotClosed() throws ClosedDirectoryStreamException {
-    if(closed)
-      throw new ClosedDirectoryStreamException();
+    children = new ArrayList<>(dir.getChildren().keySet());
+    Collections.sort(children);
   }
 
   @Nonnull
@@ -79,6 +75,11 @@ public class GfsDirectoryStream implements DirectoryStream<Path> {
   @Override
   public void close() throws IOException {
     closed = true;
+  }
+
+  private void checkNotClosed() throws ClosedDirectoryStreamException {
+    if(closed)
+      throw new ClosedDirectoryStreamException();
   }
 
 }

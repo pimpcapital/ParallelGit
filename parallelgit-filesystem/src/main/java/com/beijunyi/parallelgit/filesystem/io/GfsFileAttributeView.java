@@ -6,8 +6,10 @@ import java.util.*;
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 
-import com.beijunyi.parallelgit.filesystem.GitFileSystem;
 import org.eclipse.jgit.lib.FileMode;
+
+import static java.nio.file.attribute.PosixFilePermission.OWNER_EXECUTE;
+import static org.eclipse.jgit.lib.FileMode.*;
 
 public abstract class GfsFileAttributeView implements FileAttributeView {
 
@@ -54,19 +56,17 @@ public abstract class GfsFileAttributeView implements FileAttributeView {
     ));
 
   protected final Node node;
-  protected final GitFileSystem gfs;
 
-  protected GfsFileAttributeView(@Nonnull Node node, @Nonnull GitFileSystem gfs) {
+  protected GfsFileAttributeView(@Nonnull Node node) {
     this.node = node;
-    this.gfs = gfs;
   }
 
   @Nonnull
-  static <V extends FileAttributeView> V forNode(@Nonnull Node node, @Nonnull GitFileSystem gfs, @Nonnull Class<V> type) throws UnsupportedOperationException {
+  static <V extends FileAttributeView> V forNode(@Nonnull Node node, @Nonnull Class<V> type) throws UnsupportedOperationException {
     if(type.isAssignableFrom(GfsFileAttributeView.Basic.class))
-      return type.cast(new GfsFileAttributeView.Basic(node, gfs));
+      return type.cast(new GfsFileAttributeView.Basic(node));
     if(type.isAssignableFrom(GfsFileAttributeView.Posix.class))
-      return type.cast(new GfsFileAttributeView.Posix(node, gfs));
+      return type.cast(new GfsFileAttributeView.Posix(node));
     throw new UnsupportedOperationException(type.getName());
   }
 
@@ -79,8 +79,8 @@ public abstract class GfsFileAttributeView implements FileAttributeView {
 
     public static final String BASIC_VIEW = "basic";
 
-    protected Basic(@Nonnull Node node, @Nonnull GitFileSystem gfs) {
-      super(node, gfs);
+    protected Basic(@Nonnull Node node) {
+      super(node);
     }
 
     @Nonnull
@@ -107,7 +107,7 @@ public abstract class GfsFileAttributeView implements FileAttributeView {
       for(String key : keys) {
         switch(key) {
           case SIZE_NAME:
-            result.put(key, GfsIO.getSize(node, gfs));
+            result.put(key, node.getSize());
             break;
           case CREATION_TIME_NAME:
             result.put(key, EPOCH);
@@ -151,8 +151,8 @@ public abstract class GfsFileAttributeView implements FileAttributeView {
 
     public static final String POSIX_VIEW = "posix";
 
-    protected Posix(@Nonnull Node node, @Nonnull GitFileSystem gfs) {
-      super(node, gfs);
+    protected Posix(@Nonnull Node node) {
+      super(node);
     }
 
     @Nonnull
@@ -171,21 +171,15 @@ public abstract class GfsFileAttributeView implements FileAttributeView {
     public Set<PosixFilePermission> getPermissions() throws IOException {
       Set<PosixFilePermission> perms = new HashSet<>(DEFAULT_PERMISSIONS);
       if(node.isExecutableFile())
-        perms.add(PosixFilePermission.OWNER_EXECUTE);
+        perms.add(OWNER_EXECUTE);
       return Collections.unmodifiableSet(perms);
     }
 
 
     @Override
     public void setPermissions(@Nonnull Set<PosixFilePermission> perms) throws IOException {
-      FileMode type = perms.contains(PosixFilePermission.OWNER_EXECUTE) ? FileMode.EXECUTABLE_FILE : FileMode.REGULAR_FILE;
-      if(!type.equals(node.getMode())) {
-        if(node.isRegularFile())
-          node.setMode(type);
-        else
-          throw new IllegalArgumentException();
-      }
-
+      FileMode mode = perms.contains(OWNER_EXECUTE) ? EXECUTABLE_FILE : REGULAR_FILE;
+      node.setMode(mode);
     }
 
     @Override

@@ -16,7 +16,7 @@ public class GitFileSystemProviderBasicPropertiesTest extends AbstractGitFileSys
 
   @Test
   public void gitFileSystemProviderSchemeTest() {
-    assertEquals(GitFileSystemProvider.GIT_FS_SCHEME, provider.getScheme());
+    assertEquals(GitFileSystemProvider.GFS, provider.getScheme());
   }
 
   @Test

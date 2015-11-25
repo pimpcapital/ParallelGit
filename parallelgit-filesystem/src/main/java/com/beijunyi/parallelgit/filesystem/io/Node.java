@@ -17,12 +17,9 @@ public abstract class Node<Snapshot extends ObjectSnapshot> {
   protected final GfsDataService gds;
 
   protected volatile AnyObjectId id;
-  protected volatile Snapshot snapshot;
-  protected volatile boolean deleted = false;
 
-  protected Node(@Nullable AnyObjectId id, @Nullable Snapshot snapshot, @Nonnull GfsDataService gds) {
+  protected Node(@Nullable AnyObjectId id, @Nonnull GfsDataService gds) {
     this.id = id;
-    this.snapshot = snapshot;
     this.gds = gds;
   }
 
@@ -31,16 +28,6 @@ public abstract class Node<Snapshot extends ObjectSnapshot> {
     if(entry.getMode() == TREE)
       return DirectoryNode.fromObject(entry.getId(), gds);
     return FileNode.fromObject(entry.getId(), entry.getMode(), gds);
-  }
-
-  @Nonnull
-  public static Node cloneNode(@Nonnull Node node, @Nonnull GfsDataService ds) {
-    Node ret;
-    if(node instanceof DirectoryNode)
-      ret = DirectoryNode.newDirectory(ds);
-    else
-      ret = FileNode.newFile(node.isExecutableFile(), ds);
-    return ret;
   }
 
   @Nonnull
@@ -69,44 +56,20 @@ public abstract class Node<Snapshot extends ObjectSnapshot> {
     return id;
   }
 
-  public boolean isDeleted() {
-    return deleted;
-  }
-
-  public void setDeleted(boolean deleted) {
-    this.deleted = deleted;
-  }
-
-  public void reset(@Nonnull AnyObjectId newId, @Nonnull FileMode newMode) {
-    if((mode.equals(TREE) || newMode.equals(TREE)) && !mode.equals(newMode))
-      throw new IllegalStateException();
-    reset();
-    if(!newId.equals(object) || !newMode.equals(mode)) {
-      setObject(newId);
-      setMode(newMode);
-    }
-  }
-
-  public void markDeleted() {
-    setDeleted(true);
-    reset();
-  }
-
-  @Nullable
-  public AnyObjectId persist() throws IOException {
-    snapshot = takeSnapshot();
-    if(snapshot != null)
-      id = gds.write(snapshot);
-    return id;
-  }
+  public abstract long getSize() throws IOException;
 
   @Nonnull
   public abstract FileMode getMode();
+
+  public abstract void setMode(@Nonnull FileMode mode);
 
   @Nullable
   public abstract Snapshot loadSnapshot() throws IOException;
 
   @Nullable
-  public abstract Snapshot takeSnapshot() throws IOException;
+  public abstract Snapshot takeSnapshot(boolean persist, boolean allowEmpty) throws IOException;
+
+  @Nonnull
+  public abstract Node clone(@Nonnull GfsDataService targetGds) throws IOException;
 
 }

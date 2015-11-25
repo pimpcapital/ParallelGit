@@ -18,18 +18,16 @@ import static java.nio.file.StandardOpenOption.*;
 
 public class GitFileSystemProvider extends FileSystemProvider {
 
-  public final static String GIT_FS_SCHEME = "gfs";
-
-  public final static Set<OpenOption> SUPPORTED_OPEN_OPTIONS = new HashSet<>(Arrays.<OpenOption>asList(READ, SPARSE, CREATE, CREATE_NEW, WRITE, APPEND, TRUNCATE_EXISTING));
-
+  public static final String GFS = "gfs";
   public static final GitFileSystemProvider INSTANCE = getInstalledProvider();
 
+  private final static Set<OpenOption> SUPPORTED_OPEN_OPTIONS = new HashSet<>(Arrays.<OpenOption>asList(READ, SPARSE, CREATE, CREATE_NEW, WRITE, APPEND, TRUNCATE_EXISTING));
   private final Map<String, GitFileSystem> fsMap = new ConcurrentHashMap<>();
 
   @Nonnull
   @Override
   public String getScheme() {
-    return GIT_FS_SCHEME;
+    return GFS;
   }
 
   @Nonnull

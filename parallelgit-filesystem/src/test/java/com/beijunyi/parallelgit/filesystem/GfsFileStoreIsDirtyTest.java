@@ -30,7 +30,7 @@ public class GfsFileStoreIsDirtyTest extends PreSetupGitFileSystemTest {
   @Test
   public void testIsDirtyAfterChangesArePersisted_shouldReturnFalse() throws IOException {
     Files.write(gfs.getPath("/some_file.txt"), "some text content".getBytes());
-    gfs.persist();
+    gfs.getFileStore();
     assertFalse(store.isDirty());
   }
 

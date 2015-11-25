@@ -5,7 +5,7 @@ import javax.annotation.Nonnull;
 
 import org.eclipse.jgit.lib.*;
 
-public class BlobSnapshot implements ObjectSnapshot {
+public class BlobSnapshot extends ObjectSnapshot {
 
   private byte[] bytes;
 
@@ -20,13 +20,13 @@ public class BlobSnapshot implements ObjectSnapshot {
 
   @Nonnull
   @Override
-  public AnyObjectId getId() {
+  public AnyObjectId computeId() {
     return new ObjectInserter.Formatter().idFor(Constants.OBJ_BLOB, bytes);
   }
 
   @Nonnull
   @Override
-  public AnyObjectId save(@Nonnull ObjectInserter inserter) throws IOException {
+  public AnyObjectId persist(@Nonnull ObjectInserter inserter) throws IOException {
     return inserter.insert(Constants.OBJ_BLOB, bytes);
   }
 

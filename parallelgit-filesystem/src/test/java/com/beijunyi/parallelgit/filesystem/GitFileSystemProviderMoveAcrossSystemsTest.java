@@ -18,7 +18,7 @@ public class GitFileSystemProviderMoveAcrossSystemsTest extends AbstractGitFileS
   @Before
   public void setupTargetSystem() throws IOException {
     targetRepo = new TestRepository();
-    targetGfs = Gfs.newFileSystem().repository(targetRepo).build();
+    targetGfs = Gfs.newFileSystem(targetRepo).build();
   }
 
   @After

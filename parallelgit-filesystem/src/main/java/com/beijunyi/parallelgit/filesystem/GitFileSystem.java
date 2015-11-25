@@ -9,7 +9,6 @@ import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 
 import com.beijunyi.parallelgit.filesystem.io.GfsFileAttributeView;
-import com.beijunyi.parallelgit.filesystem.io.GfsIO;
 import com.beijunyi.parallelgit.filesystem.utils.GitGlobs;
 import org.eclipse.jgit.lib.AnyObjectId;
 import org.eclipse.jgit.lib.Repository;
@@ -74,7 +73,7 @@ public class GitFileSystem extends FileSystem {
   @Nonnull
   @Override
   public Iterable<Path> getRootDirectories() {
-    final List<Path> allowedList = Collections.<Path>singletonList(rootPath);
+    final List<Path> allowedList = Collections.<Path>singletonList(getRootPath());
     return new Iterable<Path>() {
       @Override
       public Iterator<Path> iterator() {
@@ -203,8 +202,7 @@ public class GitFileSystem extends FileSystem {
 
   @Nonnull
   public AnyObjectId persist() throws IOException {
-    AnyObjectId result = GfsIO.persistRoot(this);
-    flush();
+    AnyObjectId result = fileStore.persist();
     return result;
   }
 
@@ -254,7 +252,7 @@ public class GitFileSystem extends FileSystem {
     return fileStore.getTree();
   }
 
-  public boolean isDirty() {
+  public boolean isDirty() throws IOException {
     return fileStore.isDirty();
   }
 

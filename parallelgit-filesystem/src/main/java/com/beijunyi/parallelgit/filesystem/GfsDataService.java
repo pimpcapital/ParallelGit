@@ -6,10 +6,10 @@ import java.nio.file.ClosedFileSystemException;
 import javax.annotation.Nonnull;
 
 import com.beijunyi.parallelgit.utils.ObjectUtils;
-import com.beijunyi.parallelgit.utils.io.BlobSnapshot;
-import com.beijunyi.parallelgit.utils.io.ObjectSnapshot;
-import com.beijunyi.parallelgit.utils.io.TreeSnapshot;
+import com.beijunyi.parallelgit.utils.io.*;
 import org.eclipse.jgit.lib.*;
+
+import static org.eclipse.jgit.lib.Constants.*;
 
 public class GfsDataService implements Closeable {
 
@@ -53,15 +53,6 @@ public class GfsDataService implements Closeable {
   }
 
   @Nonnull
-  public AnyObjectId writeBlob(@Nonnull byte[] bytes) throws IOException {
-    checkClosed();
-    synchronized(inserter) {
-      return inserter.insert(Constants.OBJ_BLOB, bytes);
-    }
-  }
-
-
-  @Nonnull
   public TreeSnapshot readTree(@Nonnull AnyObjectId id) throws IOException {
     checkClosed();
     synchronized(reader) {
@@ -71,7 +62,23 @@ public class GfsDataService implements Closeable {
 
   @Nonnull
   public AnyObjectId write(@Nonnull ObjectSnapshot snapshot) throws IOException {
-    return snapshot.save(inserter);
+    return snapshot.insert(inserter);
+  }
+
+  public void pullObject(@Nonnull AnyObjectId id, @Nonnull GfsDataService sourceGds) throws IOException {
+    if(!hasObject(id)) {
+      ObjectLoader loader = sourceGds.reader.open(id);
+      switch(loader.getType()) {
+        case OBJ_TREE:
+          pullTree(id, sourceGds);
+          break;
+        case OBJ_BLOB:
+          pullBlob(id, sourceGds);
+          break;
+        default:
+          throw new UnsupportedOperationException(id.toString());
+      }
+    }
   }
 
   public void flush() throws IOException {
@@ -91,12 +98,20 @@ public class GfsDataService implements Closeable {
     }
   }
 
+  private void pullTree(@Nonnull AnyObjectId id, @Nonnull GfsDataService sourceGds) throws IOException {
+    TreeSnapshot tree = sourceGds.readTree(id);
+    for(GitFileEntry entry : tree.getChildren().values())
+      pullObject(entry.getId(), sourceGds);
+    write(tree);
+  }
+
+  private void pullBlob(@Nonnull AnyObjectId id, @Nonnull GfsDataService sourceGds) throws IOException {
+    write(sourceGds.readBlob(id));
+  }
+
   private void checkClosed() {
     if(closed)
       throw new ClosedFileSystemException();
   }
-
-
-
 
 }

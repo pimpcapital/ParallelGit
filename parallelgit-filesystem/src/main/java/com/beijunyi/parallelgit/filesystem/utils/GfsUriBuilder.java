@@ -104,7 +104,7 @@ public class GfsUriBuilder {
   @Nonnull
   public URI build() {
     try {
-      return new URI(GitFileSystemProvider.GIT_FS_SCHEME, null, buildPath(), buildQuery(), buildFragment());
+      return new URI(GitFileSystemProvider.GFS, null, buildPath(), buildQuery(), buildFragment());
     } catch(URISyntaxException e) {
       throw new IllegalStateException(e);
     }

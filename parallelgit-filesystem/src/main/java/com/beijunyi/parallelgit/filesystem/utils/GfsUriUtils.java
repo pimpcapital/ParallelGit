@@ -13,7 +13,7 @@ public final class GfsUriUtils {
   public final static String SID_KEY = "sid";
 
   static void checkScheme(@Nonnull URI uri) throws ProviderMismatchException {
-    if(!GitFileSystemProvider.GIT_FS_SCHEME.equalsIgnoreCase(uri.getScheme()))
+    if(!GitFileSystemProvider.GFS.equalsIgnoreCase(uri.getScheme()))
       throw new ProviderMismatchException(uri.getScheme());
   }
 

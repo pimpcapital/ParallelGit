@@ -67,6 +67,7 @@ public final class CommitRequest extends GitFileSystemRequest<RevCommit> {
   @Nullable
   @Override
   protected RevCommit doExecute() throws IOException {
+    prepareMessage();
     prepareCommitter();
     prepareAuthor();
     prepareParents();
@@ -87,14 +88,14 @@ public final class CommitRequest extends GitFileSystemRequest<RevCommit> {
     return commit;
   }
 
-  private void prepareCommitter() {
-    if(committer == null)
-      committer = new PersonIdent(repo);
-  }
-
   private void prepareMessage() {
     if(message == null)
       message = gfs.getMessage();
+  }
+
+  private void prepareCommitter() {
+    if(committer == null)
+      committer = new PersonIdent(repo);
   }
 
   private void prepareAuthor() {

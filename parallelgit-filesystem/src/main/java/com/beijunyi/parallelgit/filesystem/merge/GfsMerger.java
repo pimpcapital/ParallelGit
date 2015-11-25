@@ -119,8 +119,7 @@ public class GfsMerger extends ThreeWayMerger {
     if(conflicts.isEmpty()) {
       resultTree = gfs.persist();
       return true;
-    } else
-      gfs.flush();
+    }
     return false;
   }
 
