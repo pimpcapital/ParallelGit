@@ -26,16 +26,16 @@ public class GitFileSystem extends FileSystem {
 
   private final String sid;
   private final GfsDataService dataService;
-  private final GfsStateService stateService;
+  private final GfsStatusService statusService;
   private final GfsFileStore fileStore;
 
   private volatile boolean closed = false;
 
-  public GitFileSystem(@Nonnull Repository repository, @Nonnull RevCommit commit, @Nullable String branch) throws IOException {
+  public GitFileSystem(@Nonnull Repository repository, @Nullable String branch, @Nullable RevCommit commit) throws IOException {
     sid = UUID.randomUUID().toString();
     dataService = new GfsDataService(repository);
-    stateService = new GfsStateService(commit, branch);
-    fileStore = new GfsFileStore(commit.getTree(), dataService);
+    statusService = new GfsStatusService(branch, commit);
+    fileStore = new GfsFileStore(commit != null ? commit.getTree() : null, dataService);
     GitFileSystemProvider.INSTANCE.register(this);
   }
 
@@ -179,8 +179,8 @@ public class GitFileSystem extends FileSystem {
   }
 
   @Nonnull
-  public GfsStateService getStateService() {
-    return stateService;
+  public GfsStatusService getStatusService() {
+    return statusService;
   }
 
   @Nonnull
@@ -211,40 +211,9 @@ public class GitFileSystem extends FileSystem {
     return dataService.getRepository();
   }
 
-  @Nullable
-  public String getBranch() {
-    return branch;
-  }
-
-  public void setBranch(@Nullable String branch) {
-    this.branch = branch;
-  }
-
-  @Nullable
-  public RevCommit getCommit() {
-    return commit;
-  }
-
-  public void setCommit(@Nullable RevCommit commit) {
-    this.commit = commit;
-  }
-
-  @Nullable
-  public String getMessage() {
-    return message;
-  }
-
-  public void setMessage(@Nullable String message) {
-    this.message = message;
-  }
-
-  @Nullable
-  public RevCommit getSourceCommit() {
-    return sourceCommit;
-  }
-
-  public void setSourceCommit(@Nullable RevCommit sourceCommit) {
-    this.sourceCommit = sourceCommit;
+  @Nonnull
+  public GfsStatus getStatus() {
+    return statusService.getStatus();
   }
 
   @Nullable

@@ -31,7 +31,6 @@ public class NodeMutation {
   }
 
   public void mutate(@Nonnull Node node) {
-    node.reset();
     if(node.isDirectory())
       mutateDirectory((DirectoryNode) node);
     else
@@ -49,7 +48,6 @@ public class NodeMutation {
   private void mutateFile(@Nonnull FileNode file) {
     if(!TREE.equals(mode))
       throw new IllegalArgumentException();
-    file.reset();
     if(id != null)
       updateId(file);
     else
@@ -59,7 +57,6 @@ public class NodeMutation {
   private void updateId(@Nonnull Node node) {
     assert id != null;
     if(!id.equals(node.getObjectId())) {
-      node.setObject(id);
       mutated = true;
     }
   }

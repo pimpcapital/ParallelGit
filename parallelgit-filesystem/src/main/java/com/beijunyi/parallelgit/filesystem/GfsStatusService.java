@@ -7,19 +7,20 @@ import javax.annotation.Nullable;
 
 import org.eclipse.jgit.revwalk.RevCommit;
 
-public class GfsStateService implements AutoCloseable {
+public class GfsStatusService implements AutoCloseable {
 
   private ReentrantLock lock = new ReentrantLock();
 
-  private RevCommit commit;
   private String branch;
+  private RevCommit commit;
 
+  private GfsState state = GfsState.NORMAL;
   private String mergeMessage;
   private RevCommit mergeCommit;
 
   private boolean closed = false;
 
-  public GfsStateService(@Nonnull RevCommit commit, @Nullable String branch) {
+  public GfsStatusService(@Nullable String branch, @Nullable RevCommit commit) {
     this.commit = commit;
     this.branch = branch;
   }
@@ -35,25 +36,8 @@ public class GfsStateService implements AutoCloseable {
   }
 
   @Nonnull
-  public RevCommit getCommit() {
-    checkClosed();
-    return commit;
-  }
-
-  public void setCommit(@Nonnull RevCommit commit) {
-    checkClosed();
-    this.commit = commit;
-  }
-
-  @Nullable
-  public String getBranch() {
-    checkClosed();
-    return branch;
-  }
-
-  public void setBranch(@Nullable String branch) {
-    checkClosed();
-    this.branch = branch;
+  public GfsStatus getStatus() {
+    return new GfsStatus(branch, commit, state);
   }
 
   @Nullable

@@ -19,8 +19,8 @@ public class GfsFileStore extends FileStore {
 
   private final DirectoryNode root;
 
-  public GfsFileStore(@Nonnull AnyObjectId rootTree, @Nonnull GfsDataService gds) {
-    root = DirectoryNode.fromObject(rootTree, gds);
+  public GfsFileStore(@Nullable AnyObjectId rootTree, @Nonnull GfsDataService gds) {
+    root = rootTree != null ? DirectoryNode.fromObject(rootTree, gds) : DirectoryNode.newDirectory(gds);
   }
 
   @Nonnull

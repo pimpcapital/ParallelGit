@@ -62,11 +62,13 @@ public class GfsBuilder {
   public GitFileSystem build() throws IOException {
     if(branch == null && commit == null)
       branch = Constants.MASTER;
-    if(commit == null)
-      commit = BranchUtils.getHeadCommit(branch, repo);
-    if(branch != null && !BranchUtils.branchExists(branch, repo))
+    if(commit == null) {
+      AnyObjectId commitId = repo.resolve(branch);
+      commit = commitId != null ? CommitUtils.getCommit(commitId, repo) : null;
+    }
+    if(branch != null && !BranchUtils.branchExists(branch, repo) && commit != null)
       branch = null;
-    return new GitFileSystem(repo, commit, branch);
+    return new GitFileSystem(repo, branch, commit);
   }
 
   @Nonnull

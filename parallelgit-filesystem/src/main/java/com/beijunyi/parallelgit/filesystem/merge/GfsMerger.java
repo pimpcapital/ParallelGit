@@ -18,8 +18,6 @@ import org.eclipse.jgit.lib.AnyObjectId;
 import org.eclipse.jgit.lib.FileMode;
 import org.eclipse.jgit.lib.ObjectId;
 import org.eclipse.jgit.merge.*;
-import org.eclipse.jgit.treewalk.NameConflictTreeWalk;
-import org.eclipse.jgit.treewalk.TreeWalk;
 
 import static org.eclipse.jgit.diff.DiffAlgorithm.SupportedAlgorithm.HISTOGRAM;
 import static org.eclipse.jgit.lib.ConfigConstants.*;
@@ -35,26 +33,17 @@ public class GfsMerger extends ThreeWayMerger {
   private MergeFormatter formatter;
   private List<String> conflictMarkers;
   private boolean formatConflicts;
-  private TreeWalk tw;
 
   private DirectoryNode currentDirectory;
   private int currentDepth;
 
-  private String path;
-  private String name;
-  private FileMode baseMode;
-  private FileMode ourMode;
-  private FileMode theirMode;
-  private AnyObjectId baseId;
-  private AnyObjectId ourId;
-  private AnyObjectId theirId;
+  private ThreeWayWalker walker;
 
   private AnyObjectId resultTree;
 
   public GfsMerger(@Nonnull GitFileSystem gfs) {
     super(gfs.getRepository());
     this.gfs = gfs;
-    tw = new NameConflictTreeWalk(reader);
     currentDirectory = gfs.getFileStore().getRoot();
     currentDepth = 0;
   }
@@ -114,7 +103,7 @@ public class GfsMerger extends ThreeWayMerger {
     prepareAlgorithm();
     prepareFormatter();
     prepareConflictMarkers();
-    prepareTreeWalk();
+    ThreeWayWalker walker = new ThreeWayWalker(mergeBase(), sourceTrees[0], sourceTrees[1], reader);
     mergeTreeWalk();
     if(conflicts.isEmpty()) {
       resultTree = gfs.persist();
@@ -139,13 +128,6 @@ public class GfsMerger extends ThreeWayMerger {
   private void prepareConflictMarkers() {
     if(conflictMarkers == null)
       conflictMarkers = Arrays.asList("BASE", "OURS", "THEIRS");
-  }
-
-  private void prepareTreeWalk() throws IOException {
-    tw = new NameConflictTreeWalk(reader);
-    tw.addTree(mergeBase());
-    tw.addTree(sourceTrees[0]);
-    tw.addTree(sourceTrees[1]);
   }
 
   private void mergeTreeWalk() throws IOException {
@@ -186,17 +168,6 @@ public class GfsMerger extends ThreeWayMerger {
 
     handleFileDirectoryConflict();
     return false;
-  }
-
-  private void readTreeNodes() {
-    path = tw.getPathString();
-    name = tw.getNameString();
-    baseMode = tw.getFileMode(0);
-    baseId = tw.getObjectId(0);
-    ourMode = tw.getFileMode(1);
-    ourId = tw.getObjectId(1);
-    theirMode = tw.getFileMode(2);
-    theirId = tw.getObjectId(2);
   }
 
   private void prepareDirectory() {
