@@ -16,26 +16,29 @@ public class ThreeWayWalker implements Iterator<ThreeWayEntry>, AutoCloseable {
   private final TreeWalk tw;
   private final LinkedList<DirectoryNode> dirs;
   private IOException error;
-  private ThreeWayEntry next;
 
-  public ThreeWayWalker(@Nonnull ThreeWayWalkerConfiguration config, @Nonnull ObjectReader reader) throws IOException {
+  private ThreeWayEntry next;
+  private ThreeWayEntry current;
+
+  public ThreeWayWalker(@Nonnull ThreeWayWalkerConfig config, @Nonnull ObjectReader reader) throws IOException {
     tw = config.prepareTreeWalk(reader);
     dirs = config.getDirectories();
   }
 
   @Override
   public boolean hasNext() {
-    prepareNext();
+    findNextEntry();
     return error == null && next != null;
   }
 
   @Nonnull
   @Override
   public ThreeWayEntry next() {
-    prepareNext();
+    findNextEntry();
     if(next == null)
       throw new NoSuchElementException();
-    return next;
+    prepareCurrentEntry();
+    return current;
   }
 
   @Override
@@ -44,8 +47,14 @@ public class ThreeWayWalker implements Iterator<ThreeWayEntry>, AutoCloseable {
   }
 
   @Override
-  public void close() throws Exception {
+  public void close() {
     tw.close();
+  }
+
+  public void enterDirectory() throws IOException {
+    if(current == null)
+      throw new IllegalStateException();
+    tw.enterSubtree();
   }
 
   @Nullable
@@ -53,7 +62,7 @@ public class ThreeWayWalker implements Iterator<ThreeWayEntry>, AutoCloseable {
     return error;
   }
 
-  private void prepareNext() {
+  private void findNextEntry() {
     if(next != null)
       return;
     try {
@@ -62,6 +71,14 @@ public class ThreeWayWalker implements Iterator<ThreeWayEntry>, AutoCloseable {
     } catch(IOException e) {
       error = e;
     }
+  }
+
+  private void prepareCurrentEntry() {
+    current = next;
+    next = null;
+    int prevDepth = dirs.size();
+    for(int d = prevDepth; d > current.getDepth(); d--)
+      dirs.removeLast();
   }
 
 }

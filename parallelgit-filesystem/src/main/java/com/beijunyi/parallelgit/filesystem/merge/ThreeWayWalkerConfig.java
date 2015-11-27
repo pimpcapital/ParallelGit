@@ -11,14 +11,14 @@ import org.eclipse.jgit.treewalk.AbstractTreeIterator;
 import org.eclipse.jgit.treewalk.NameConflictTreeWalk;
 import org.eclipse.jgit.treewalk.TreeWalk;
 
-public class ThreeWayWalkerConfiguration {
+public class ThreeWayWalkerConfig {
 
   private final DirectoryNode root;
   private final AbstractTreeIterator base;
   private final RevTree ours;
   private final RevTree theirs;
 
-  public ThreeWayWalkerConfiguration(@Nonnull DirectoryNode root, @Nonnull AbstractTreeIterator base, @Nonnull RevTree ours, @Nonnull RevTree theirs) {
+  public ThreeWayWalkerConfig(@Nonnull DirectoryNode root, @Nonnull AbstractTreeIterator base, @Nonnull RevTree ours, @Nonnull RevTree theirs) {
     this.root = root;
     this.base = base;
     this.ours = ours;

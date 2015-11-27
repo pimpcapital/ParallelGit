@@ -14,10 +14,9 @@ import org.eclipse.jgit.diff.DiffAlgorithm;
 import org.eclipse.jgit.diff.DiffAlgorithm.SupportedAlgorithm;
 import org.eclipse.jgit.diff.RawText;
 import org.eclipse.jgit.diff.RawTextComparator;
-import org.eclipse.jgit.lib.AnyObjectId;
-import org.eclipse.jgit.lib.FileMode;
-import org.eclipse.jgit.lib.ObjectId;
+import org.eclipse.jgit.lib.*;
 import org.eclipse.jgit.merge.*;
+import org.eclipse.jgit.revwalk.RevTree;
 
 import static org.eclipse.jgit.diff.DiffAlgorithm.SupportedAlgorithm.HISTOGRAM;
 import static org.eclipse.jgit.lib.ConfigConstants.*;
@@ -32,20 +31,15 @@ public class GfsMerger extends ThreeWayMerger {
   private MergeAlgorithm algorithm;
   private MergeFormatter formatter;
   private List<String> conflictMarkers;
-  private boolean formatConflicts;
-
-  private DirectoryNode currentDirectory;
-  private int currentDepth;
-
-  private ThreeWayWalker walker;
 
   private AnyObjectId resultTree;
 
   public GfsMerger(@Nonnull GitFileSystem gfs) {
     super(gfs.getRepository());
     this.gfs = gfs;
-    currentDirectory = gfs.getFileStore().getRoot();
-    currentDepth = 0;
+    algorithm = defaultAlgorithm(db);
+    formatter = defaultFormatter();
+    conflictMarkers = defaultConflictMarkers();
   }
 
   @Nullable
@@ -75,14 +69,6 @@ public class GfsMerger extends ThreeWayMerger {
     this.conflictMarkers = conflictMarkers;
   }
 
-  public boolean isFormatConflicts() {
-    return formatConflicts;
-  }
-
-  public void setFormatConflicts(boolean formatConflicts) {
-    this.formatConflicts = formatConflicts;
-  }
-
   @Nonnull
   public GitFileSystem getFileSystem() {
     return gfs;
@@ -100,11 +86,11 @@ public class GfsMerger extends ThreeWayMerger {
 
   @Override
   protected boolean mergeImpl() throws IOException {
-    prepareAlgorithm();
-    prepareFormatter();
-    prepareConflictMarkers();
-    ThreeWayWalker walker = new ThreeWayWalker(mergeBase(), sourceTrees[0], sourceTrees[1], reader);
-    mergeTreeWalk();
+    ThreeWayWalker walker = prepareWalker();
+    ContentMergeConfig cmConfig = new ContentMergeConfig(algorithm, formatter, conflictMarkers);
+    GfsIterativeMerger merger = new GfsIterativeMerger(walker, cmConfig);
+
+    mergeRecursively(walker);
     if(conflicts.isEmpty()) {
       resultTree = gfs.persist();
       return true;
@@ -112,25 +98,20 @@ public class GfsMerger extends ThreeWayMerger {
     return false;
   }
 
-  private void prepareAlgorithm() {
-    if(algorithm == null) {
-      SupportedAlgorithm diffAlg = db.getConfig().getEnum(CONFIG_DIFF_SECTION, null, CONFIG_KEY_ALGORITHM, HISTOGRAM);
-      algorithm = new MergeAlgorithm(DiffAlgorithm.getAlgorithm(diffAlg));
+  @Nonnull
+  private ThreeWayWalker prepareWalker() throws IOException {
+    DirectoryNode root = gfs.getFileStore().getRoot();
+    RevTree ourTree = sourceTrees[0];
+    RevTree theirTree = sourceTrees[1];
+    ThreeWayWalkerConfig config = new ThreeWayWalkerConfig(root, mergeBase(), ourTree, theirTree);
+    return new ThreeWayWalker(config, reader);
+  }
+
+
+  private void mergeRecursively(@Nonnull ThreeWayWalker walker) throws IOException {
+    while(walker.hasNext()) {
+
     }
-  }
-
-  private void prepareFormatter() {
-    if(formatter == null) {
-      formatter = new MergeFormatter();
-    }
-  }
-
-  private void prepareConflictMarkers() {
-    if(conflictMarkers == null)
-      conflictMarkers = Arrays.asList("BASE", "OURS", "THEIRS");
-  }
-
-  private void mergeTreeWalk() throws IOException {
     while(tw.next()) {
       if(mergeTreeNode() && tw.isSubtree())
         tw.enterSubtree();
@@ -138,9 +119,6 @@ public class GfsMerger extends ThreeWayMerger {
   }
 
   private boolean mergeTreeNode() throws IOException {
-    readTreeNodes();
-    prepareDirectory();
-
     if(oursIsNotChanged()) {
       applyTheirs();
       return false;
@@ -168,14 +146,6 @@ public class GfsMerger extends ThreeWayMerger {
 
     handleFileDirectoryConflict();
     return false;
-  }
-
-  private void prepareDirectory() {
-    int depth = tw.getDepth();
-    while(currentDepth > depth) {
-      currentDirectory = currentDirectory.getParent();
-      currentDepth--;
-    }
   }
 
   private boolean oursIsNotChanged() {
@@ -297,6 +267,22 @@ public class GfsMerger extends ThreeWayMerger {
   private void handleFileDirectoryConflict() throws IOException {
     updateNode(ourId, ourMode);
     addConflict();
+  }
+
+  @Nonnull
+  private static MergeAlgorithm defaultAlgorithm(@Nonnull Repository repo) {
+    SupportedAlgorithm diffAlg = repo.getConfig().getEnum(CONFIG_DIFF_SECTION, null, CONFIG_KEY_ALGORITHM, HISTOGRAM);
+    return new MergeAlgorithm(DiffAlgorithm.getAlgorithm(diffAlg));
+  }
+
+  @Nonnull
+  private static MergeFormatter defaultFormatter() {
+    return new MergeFormatter();
+  }
+
+  @Nonnull
+  private static List<String> defaultConflictMarkers() {
+    return Arrays.asList("BASE", "OURS", "THEIRS");
   }
 
 }
