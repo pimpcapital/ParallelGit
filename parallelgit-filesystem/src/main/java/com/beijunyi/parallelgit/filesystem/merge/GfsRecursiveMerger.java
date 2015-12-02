@@ -1,27 +1,33 @@
 package com.beijunyi.parallelgit.filesystem.merge;
 
 import java.io.IOException;
+import java.util.HashMap;
+import java.util.Map;
 import javax.annotation.Nonnull;
 
 import com.beijunyi.parallelgit.utils.io.GitFileEntry;
 
-public class GfsIterativeMerger {
+public class GfsRecursiveMerger {
 
   private final ThreeWayWalker walker;
   private final ContentMergeConfig config;
+  private final Map<String, GfsMergeConflict> conflicts = new HashMap<>();
 
-  public GfsIterativeMerger(@Nonnull ThreeWayWalker walker, @Nonnull ContentMergeConfig config) {
+  public GfsRecursiveMerger(@Nonnull ThreeWayWalker walker, @Nonnull ContentMergeConfig config) {
     this.walker = walker;
     this.config = config;
   }
 
-  public void merge() throws IOException {
+  @Nonnull
+  public Map<String, GfsMergeConflict> merge() throws IOException {
     while(walker.hasNext()) {
       ThreeWayEntry entry = walker.next();
       mergeEntry(entry);
     }
-    if(walker.getError() != null)
-      throw walker.getError();
+    IOException error = walker.getError();
+    if(error != null)
+      throw error;
+    return conflicts;
   }
 
   private boolean mergeEntry(@Nonnull ThreeWayEntry entry) {

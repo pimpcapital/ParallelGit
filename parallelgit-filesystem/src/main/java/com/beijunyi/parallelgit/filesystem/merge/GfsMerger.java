@@ -7,6 +7,7 @@ import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 
 import com.beijunyi.parallelgit.filesystem.GitFileSystem;
+import com.beijunyi.parallelgit.filesystem.exceptions.MergeNotStartedException;
 import com.beijunyi.parallelgit.filesystem.io.DirectoryNode;
 import com.beijunyi.parallelgit.filesystem.io.GfsIO;
 import com.beijunyi.parallelgit.filesystem.io.Node;
@@ -32,7 +33,7 @@ public class GfsMerger extends ThreeWayMerger {
   private MergeFormatter formatter;
   private List<String> conflictMarkers;
 
-  private AnyObjectId resultTree;
+  private GfsMergeResult result;
 
   public GfsMerger(@Nonnull GitFileSystem gfs) {
     super(gfs.getRepository());
@@ -79,23 +80,22 @@ public class GfsMerger extends ThreeWayMerger {
     return conflicts;
   }
 
+  @Nonnull
   @Override
   public ObjectId getResultTreeId() {
-    return (ObjectId) resultTree;
+    if(result == null)
+      throw new MergeNotStartedException();
+    return (ObjectId) result.getTreeId();
   }
 
   @Override
   protected boolean mergeImpl() throws IOException {
     ThreeWayWalker walker = prepareWalker();
     ContentMergeConfig cmConfig = new ContentMergeConfig(algorithm, formatter, conflictMarkers);
-    GfsIterativeMerger merger = new GfsIterativeMerger(walker, cmConfig);
+    GfsRecursiveMerger merger = new GfsRecursiveMerger(walker, cmConfig);
+    Map<String, GfsMergeConflict> conflicts = merger.merge();
 
-    mergeRecursively(walker);
-    if(conflicts.isEmpty()) {
-      resultTree = gfs.persist();
-      return true;
-    }
-    return false;
+    return result.isSuccessful();
   }
 
   @Nonnull
@@ -105,17 +105,6 @@ public class GfsMerger extends ThreeWayMerger {
     RevTree theirTree = sourceTrees[1];
     ThreeWayWalkerConfig config = new ThreeWayWalkerConfig(root, mergeBase(), ourTree, theirTree);
     return new ThreeWayWalker(config, reader);
-  }
-
-
-  private void mergeRecursively(@Nonnull ThreeWayWalker walker) throws IOException {
-    while(walker.hasNext()) {
-
-    }
-    while(tw.next()) {
-      if(mergeTreeNode() && tw.isSubtree())
-        tw.enterSubtree();
-    }
   }
 
   private boolean mergeTreeNode() throws IOException {

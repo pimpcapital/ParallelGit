@@ -21,7 +21,7 @@ public class ThreeWayWalker implements Iterator<ThreeWayEntry>, AutoCloseable {
   private ThreeWayEntry current;
 
   public ThreeWayWalker(@Nonnull ThreeWayWalkerConfig config, @Nonnull ObjectReader reader) throws IOException {
-    tw = config.prepareTreeWalk(reader);
+    tw = config.makeTreeWalk(reader);
     dirs = config.getDirectories();
   }
 

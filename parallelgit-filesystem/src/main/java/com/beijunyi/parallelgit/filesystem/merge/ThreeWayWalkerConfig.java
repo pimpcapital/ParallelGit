@@ -26,7 +26,7 @@ public class ThreeWayWalkerConfig {
   }
 
   @Nonnull
-  public TreeWalk prepareTreeWalk(@Nonnull ObjectReader reader) throws IOException {
+  public TreeWalk makeTreeWalk(@Nonnull ObjectReader reader) throws IOException {
     TreeWalk ret = new NameConflictTreeWalk(reader);
     ret.addTree(base);
     ret.addTree(ours);
