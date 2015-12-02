@@ -93,7 +93,8 @@ public class GfsMerger extends ThreeWayMerger {
     ThreeWayWalker walker = prepareWalker();
     ContentMergeConfig cmConfig = new ContentMergeConfig(algorithm, formatter, conflictMarkers);
     GfsRecursiveMerger merger = new GfsRecursiveMerger(walker, cmConfig);
-    Map<String, GfsMergeConflict> conflicts = merger.merge();
+    if(merger.merge())
+      result =
 
     return result.isSuccessful();
   }
@@ -163,17 +164,6 @@ public class GfsMerger extends ThreeWayMerger {
       updateNode(ourId, mergedMode);
     else
       addConflict();
-  }
-
-  @Nullable
-  private FileMode mergeFileModes() {
-    if (ourMode == theirMode)
-      return ourMode;
-    if (baseMode == ourMode)
-      return theirMode.equals(MISSING) ? ourMode : theirMode;
-    if (baseMode == theirMode)
-      return ourMode.equals(MISSING) ? theirMode : ourMode;
-    return null;
   }
 
   private boolean bothAreBlob() {
