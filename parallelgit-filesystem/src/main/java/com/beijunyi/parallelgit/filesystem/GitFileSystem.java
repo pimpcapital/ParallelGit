@@ -8,33 +8,34 @@ import java.util.regex.Pattern;
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 
-import com.beijunyi.parallelgit.filesystem.io.GfsFileAttributeView;
 import com.beijunyi.parallelgit.filesystem.utils.GitGlobs;
 import org.eclipse.jgit.lib.AnyObjectId;
 import org.eclipse.jgit.lib.Repository;
 import org.eclipse.jgit.revwalk.RevCommit;
 
+import static com.beijunyi.parallelgit.filesystem.io.GfsFileAttributeView.Basic.BASIC_VIEW;
+import static com.beijunyi.parallelgit.filesystem.io.GfsFileAttributeView.Posix.POSIX_VIEW;
+import static java.util.Arrays.asList;
+import static java.util.Collections.unmodifiableSet;
+import static java.util.UUID.randomUUID;
+
 public class GitFileSystem extends FileSystem {
 
   private static final String GLOB_SYNTAX = "glob";
   private static final String REGEX_SYNTAX = "regex";
-  private static final Set<String> SUPPORTED_VIEWS =
-    Collections.unmodifiableSet(new HashSet<>(Arrays.asList(
-                                                             GfsFileAttributeView.Basic.BASIC_VIEW,
-                                                             GfsFileAttributeView.Posix.POSIX_VIEW
-    )));
+  private static final Set<String> SUPPORTED_VIEWS = unmodifiableSet(new HashSet<>(asList(BASIC_VIEW, POSIX_VIEW)));
 
   private final String sid;
-  private final GfsDataService dataService;
-  private final GfsStatusService statusService;
+  private final GfsDataProvider dataService;
+  private final GfsStatusProvider status;
   private final GfsFileStore fileStore;
 
   private volatile boolean closed = false;
 
   public GitFileSystem(@Nonnull Repository repository, @Nullable String branch, @Nullable RevCommit commit) throws IOException {
-    sid = UUID.randomUUID().toString();
-    dataService = new GfsDataService(repository);
-    statusService = new GfsStatusService(branch, commit);
+    sid = randomUUID().toString();
+    dataService = new GfsDataProvider(repository);
+    status = new GfsStatusProvider(branch, commit);
     fileStore = new GfsFileStore(commit != null ? commit.getTree() : null, dataService);
     GitFileSystemProvider.INSTANCE.register(this);
   }
@@ -174,13 +175,13 @@ public class GitFileSystem extends FileSystem {
   }
 
   @Nonnull
-  public GfsDataService getDataService() {
+  public GfsDataProvider getDataService() {
     return dataService;
   }
 
   @Nonnull
-  public GfsStatusService getStatusService() {
-    return statusService;
+  public GfsStatusProvider status() {
+    return status;
   }
 
   @Nonnull
@@ -209,11 +210,6 @@ public class GitFileSystem extends FileSystem {
   @Nonnull
   public Repository getRepository() {
     return dataService.getRepository();
-  }
-
-  @Nonnull
-  public GfsStatus getStatus() {
-    return statusService.getStatus();
   }
 
   @Nullable

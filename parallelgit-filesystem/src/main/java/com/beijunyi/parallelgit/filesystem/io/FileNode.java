@@ -4,7 +4,7 @@ import java.io.IOException;
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 
-import com.beijunyi.parallelgit.filesystem.GfsDataService;
+import com.beijunyi.parallelgit.filesystem.GfsDataProvider;
 import com.beijunyi.parallelgit.utils.io.BlobSnapshot;
 import org.eclipse.jgit.lib.AnyObjectId;
 import org.eclipse.jgit.lib.FileMode;
@@ -17,25 +17,25 @@ public class FileNode extends Node<BlobSnapshot> {
   private byte[] bytes;
   private long size = -1;
 
-  private FileNode(@Nullable AnyObjectId id, @Nonnull FileMode mode, @Nonnull GfsDataService gds) {
+  private FileNode(@Nullable AnyObjectId id, @Nonnull FileMode mode, @Nonnull GfsDataProvider gds) {
     super(id, gds);
     this.mode = mode;
   }
 
   @Nonnull
-  protected static FileNode fromObject(@Nonnull AnyObjectId id, @Nonnull FileMode mode, @Nonnull GfsDataService gds) {
+  protected static FileNode fromObject(@Nonnull AnyObjectId id, @Nonnull FileMode mode, @Nonnull GfsDataProvider gds) {
     return new FileNode(id, mode, gds);
   }
 
   @Nonnull
-  public static FileNode newFile(@Nonnull byte[] bytes, @Nonnull FileMode mode, @Nonnull GfsDataService gds) {
+  public static FileNode newFile(@Nonnull byte[] bytes, @Nonnull FileMode mode, @Nonnull GfsDataProvider gds) {
     FileNode ret = new FileNode(null, mode, gds);
     ret.bytes = bytes;
     return ret;
   }
 
   @Nonnull
-  public static FileNode newFile(boolean executable, @Nonnull GfsDataService gds) {
+  public static FileNode newFile(boolean executable, @Nonnull GfsDataProvider gds) {
     return new FileNode(null, executable ? EXECUTABLE_FILE : REGULAR_FILE, gds);
   }
 
@@ -80,7 +80,7 @@ public class FileNode extends Node<BlobSnapshot> {
 
   @Nonnull
   @Override
-  public Node clone(@Nonnull GfsDataService targetGds) throws IOException {
+  public Node clone(@Nonnull GfsDataProvider targetGds) throws IOException {
     FileNode ret = new FileNode(null, mode, targetGds);
     if(bytes != null)
       ret.bytes = bytes;

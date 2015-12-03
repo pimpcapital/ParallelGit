@@ -26,7 +26,7 @@ public class ThreeWayEntry {
 
   @Nonnull
   public static ThreeWayEntry read(@Nonnull TreeWalk tw) {
-    return new ThreeWayEntry(tw.getPathString(), tw.getNameString(), tw.getDepth(),
+    return new ThreeWayEntry("/" + tw.getPathString(), tw.getNameString(), tw.getDepth(),
                               new GitFileEntry(tw.getObjectId(0), tw.getFileMode(0)),
                               new GitFileEntry(tw.getObjectId(1), tw.getFileMode(1)),
                               new GitFileEntry(tw.getObjectId(2), tw.getFileMode(2)));

@@ -1,4 +1,4 @@
-package com.beijunyi.parallelgit.filesystem.requests;
+package com.beijunyi.parallelgit.filesystem.commands;
 
 import java.io.IOException;
 import java.util.ArrayList;
@@ -7,10 +7,10 @@ import java.util.List;
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 
+import com.beijunyi.parallelgit.filesystem.GfsState;
+import com.beijunyi.parallelgit.filesystem.GfsStatusUpdate;
 import com.beijunyi.parallelgit.filesystem.GitFileSystem;
-import com.beijunyi.parallelgit.filesystem.exceptions.DirtyFileSystemException;
-import com.beijunyi.parallelgit.filesystem.exceptions.NoBranchException;
-import com.beijunyi.parallelgit.filesystem.exceptions.NoHeadCommitException;
+import com.beijunyi.parallelgit.filesystem.exceptions.*;
 import com.beijunyi.parallelgit.filesystem.merge.GfsMerger;
 import com.beijunyi.parallelgit.utils.BranchUtils;
 import com.beijunyi.parallelgit.utils.CommitUtils;
@@ -26,7 +26,7 @@ import org.eclipse.jgit.revwalk.RevCommit;
 import static com.beijunyi.parallelgit.utils.RefUtils.ensureBranchRefName;
 import static java.util.Collections.singletonList;
 
-public final class MergeRequest extends GitFileSystemRequest<RevCommit> {
+public final class GfsMergeCommand extends GfsCommand<GfsMergeCommand.Result> {
 
   private String branch;
   private Ref branchRef;
@@ -42,71 +42,77 @@ public final class MergeRequest extends GitFileSystemRequest<RevCommit> {
   private String message;
   private GfsMerger merger;
 
-  public MergeRequest(@Nonnull GitFileSystem gfs) {
+  public GfsMergeCommand(@Nonnull GitFileSystem gfs) {
     super(gfs);
   }
 
   @Nonnull
-  public MergeRequest target(@Nullable String branch) {
-    this.target = branch;
-    return this;
-  }
-
-  @Nonnull
-  public MergeRequest target(@Nullable Ref branchRef) {
-    this.targetRef = branchRef;
-    return this;
-  }
-
-  @Nonnull
-  public MergeRequest squash(boolean squash) {
-    this.squash = squash;
-    return this;
-  }
-
-  @Nonnull
-  public MergeRequest commit(boolean commit) {
-    this.commit = commit;
-    return this;
-  }
-
-  @Nonnull
-  public MergeRequest committer(@Nullable PersonIdent committer) {
-    this.committer = committer;
-    return this;
-  }
-
-  @Nonnull
-  public MergeRequest message(@Nullable String message) {
-    this.message = message;
-    return this;
-  }
-
-  @Nonnull
-  public MergeRequest setMerger(@Nullable GfsMerger merger) {
-    this.merger = merger;
-    return this;
-  }
-
-  @Nullable
   @Override
-  protected RevCommit doExecute() throws IOException {
+  protected GfsState startState() {
+    return GfsState.MERGING;
+  }
+
+  @Nonnull
+  @Override
+  protected Result doExecute(@Nonnull GfsStatusUpdate status) throws IOException {
     prepareBranchHead();
     prepareTarget();
     prepareSourceCommit();
     prepareMessage();
     if(isUpToDate())
-      return headCommit;
+      return Result.success(headCommit);
     if(canBeFastForwarded())
       return fastForward();
     return threeWayMerge();
+  }
+
+  @Nonnull
+  public GfsMergeCommand target(@Nullable String branch) {
+    this.target = branch;
+    return this;
+  }
+
+  @Nonnull
+  public GfsMergeCommand target(@Nullable Ref branchRef) {
+    this.targetRef = branchRef;
+    return this;
+  }
+
+  @Nonnull
+  public GfsMergeCommand squash(boolean squash) {
+    this.squash = squash;
+    return this;
+  }
+
+  @Nonnull
+  public GfsMergeCommand commit(boolean commit) {
+    this.commit = commit;
+    return this;
+  }
+
+  @Nonnull
+  public GfsMergeCommand committer(@Nullable PersonIdent committer) {
+    this.committer = committer;
+    return this;
+  }
+
+  @Nonnull
+  public GfsMergeCommand message(@Nullable String message) {
+    this.message = message;
+    return this;
+  }
+
+  @Nonnull
+  public GfsMergeCommand setMerger(@Nullable GfsMerger merger) {
+    this.merger = merger;
+    return this;
   }
 
   private void prepareBranchHead() throws IOException {
     if(gfs.isDirty())
       throw new DirtyFileSystemException();
 
-    branch = gfs.getBranch();
+    branch = gfs.status().branch();
     if(branch == null)
       throw new NoBranchException();
 
@@ -114,7 +120,7 @@ public final class MergeRequest extends GitFileSystemRequest<RevCommit> {
     if(branchRef == null)
       throw new NoSuchBranchException(ensureBranchRefName(branch));
 
-    headCommit = gfs.getCommit();
+    headCommit = gfs.status().commit();
     if(headCommit == null)
       throw new NoHeadCommitException();
   }
@@ -189,6 +195,38 @@ public final class MergeRequest extends GitFileSystemRequest<RevCommit> {
   private void prepareCommitter() {
     if(committer == null)
       committer = new PersonIdent(repo);
+  }
+
+  public static class Result implements GfsCommandResult {
+
+    private final RevCommit commit;
+
+    private Result(@Nullable RevCommit commit) {
+      this.commit = commit;
+    }
+
+    @Nonnull
+    public static Result success(@Nonnull RevCommit commit) {
+      return new Result(commit);
+    }
+
+    @Nonnull
+    public static Result noChange() {
+      return new Result(null);
+    }
+
+    @Override
+    public boolean isSuccessful() {
+      return commit != null;
+    }
+
+    @Nonnull
+    public RevCommit getCommit() {
+      if(commit == null)
+        throw new NoChangeException();
+      return commit;
+    }
+
   }
 
 }

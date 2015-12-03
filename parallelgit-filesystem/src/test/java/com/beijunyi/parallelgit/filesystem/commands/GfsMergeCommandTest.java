@@ -1,4 +1,4 @@
-package com.beijunyi.parallelgit.filesystem.requests;
+package com.beijunyi.parallelgit.filesystem.commands;
 
 import com.beijunyi.parallelgit.AbstractParallelGitTest;
 import org.eclipse.jgit.api.Git;
@@ -7,7 +7,7 @@ import org.eclipse.jgit.revwalk.RevCommit;
 import org.junit.*;
 
 @Ignore
-public class MergeRequestTest extends AbstractParallelGitTest {
+public class GfsMergeCommandTest extends AbstractParallelGitTest {
 
   @Before
   public void setUp() throws Exception {

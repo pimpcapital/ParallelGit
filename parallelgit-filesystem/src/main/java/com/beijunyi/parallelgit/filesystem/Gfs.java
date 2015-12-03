@@ -7,8 +7,8 @@ import java.nio.file.Path;
 import java.util.Map;
 import javax.annotation.Nonnull;
 
-import com.beijunyi.parallelgit.filesystem.requests.CommitRequest;
-import com.beijunyi.parallelgit.filesystem.requests.MergeRequest;
+import com.beijunyi.parallelgit.filesystem.commands.GfsCommitCommand;
+import com.beijunyi.parallelgit.filesystem.commands.GfsMergeCommand;
 import com.beijunyi.parallelgit.filesystem.utils.GfsBuilder;
 import com.beijunyi.parallelgit.filesystem.utils.GfsParams;
 import com.beijunyi.parallelgit.filesystem.utils.GfsUriUtils;
@@ -75,13 +75,13 @@ public final class Gfs {
   }
 
   @Nonnull
-  public static CommitRequest commit(@Nonnull GitFileSystem gfs) {
-    return new CommitRequest(gfs);
+  public static GfsCommitCommand commit(@Nonnull GitFileSystem gfs) {
+    return new GfsCommitCommand(gfs);
   }
 
   @Nonnull
-  public static MergeRequest merge(@Nonnull GitFileSystem gfs) {
-    return new MergeRequest(gfs);
+  public static GfsMergeCommand merge(@Nonnull GitFileSystem gfs) {
+    return new GfsMergeCommand(gfs);
   }
 
 }

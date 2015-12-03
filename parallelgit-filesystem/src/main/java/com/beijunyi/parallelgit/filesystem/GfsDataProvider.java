@@ -11,7 +11,7 @@ import org.eclipse.jgit.lib.*;
 
 import static org.eclipse.jgit.lib.Constants.*;
 
-public class GfsDataService implements Closeable {
+public class GfsDataProvider implements Closeable {
 
   private final Repository repo;
   private final ObjectReader reader;
@@ -19,7 +19,7 @@ public class GfsDataService implements Closeable {
 
   private volatile boolean closed = false;
 
-  GfsDataService(@Nonnull final Repository repo) {
+  GfsDataProvider(@Nonnull final Repository repo) {
     this.repo = repo;
     this.reader = repo.newObjectReader();
     this.inserter = repo.newObjectInserter();
@@ -65,7 +65,7 @@ public class GfsDataService implements Closeable {
     return snapshot.insert(inserter);
   }
 
-  public void pullObject(@Nonnull AnyObjectId id, @Nonnull GfsDataService sourceGds) throws IOException {
+  public void pullObject(@Nonnull AnyObjectId id, @Nonnull GfsDataProvider sourceGds) throws IOException {
     if(!hasObject(id)) {
       ObjectLoader loader = sourceGds.reader.open(id);
       switch(loader.getType()) {
@@ -98,14 +98,14 @@ public class GfsDataService implements Closeable {
     }
   }
 
-  private void pullTree(@Nonnull AnyObjectId id, @Nonnull GfsDataService sourceGds) throws IOException {
+  private void pullTree(@Nonnull AnyObjectId id, @Nonnull GfsDataProvider sourceGds) throws IOException {
     TreeSnapshot tree = sourceGds.readTree(id);
     for(GitFileEntry entry : tree.getChildren().values())
       pullObject(entry.getId(), sourceGds);
     write(tree);
   }
 
-  private void pullBlob(@Nonnull AnyObjectId id, @Nonnull GfsDataService sourceGds) throws IOException {
+  private void pullBlob(@Nonnull AnyObjectId id, @Nonnull GfsDataProvider sourceGds) throws IOException {
     write(sourceGds.readBlob(id));
   }
 

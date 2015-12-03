@@ -6,6 +6,8 @@ import javax.annotation.Nullable;
 import org.eclipse.jgit.lib.AnyObjectId;
 import org.eclipse.jgit.lib.FileMode;
 
+import static org.eclipse.jgit.lib.FileMode.*;
+
 public class GitFileEntry {
 
   private final AnyObjectId id;
@@ -24,6 +26,38 @@ public class GitFileEntry {
   @Nonnull
   public FileMode getMode() {
     return mode;
+  }
+
+  public boolean isRegularFile() {
+    return mode.equals(REGULAR_FILE);
+  }
+
+  public boolean isExecutableFile() {
+    return mode.equals(EXECUTABLE_FILE);
+  }
+
+  public boolean isDirectory() {
+    return mode.equals(TREE);
+  }
+
+  public boolean isSymbolicLink() {
+    return mode.equals(SYMLINK);
+  }
+
+  public boolean isGitLink() {
+    return mode.equals(GITLINK);
+  }
+
+  public boolean isMissing() {
+    return mode.equals(MISSING);
+  }
+
+  public boolean hasSameObjectAs(@Nonnull GitFileEntry entry) {
+    return id.equals(entry.getId());
+  }
+
+  public boolean hasSameModeAs(@Nonnull GitFileEntry entry) {
+    return mode.equals(entry.getMode());
   }
 
   @Override

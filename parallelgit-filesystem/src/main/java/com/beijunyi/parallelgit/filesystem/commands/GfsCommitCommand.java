@@ -1,4 +1,4 @@
-package com.beijunyi.parallelgit.filesystem.requests;
+package com.beijunyi.parallelgit.filesystem.commands;
 
 import java.io.IOException;
 import java.util.Arrays;
@@ -7,7 +7,10 @@ import java.util.List;
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 
+import com.beijunyi.parallelgit.filesystem.GfsState;
+import com.beijunyi.parallelgit.filesystem.GfsStatusUpdate;
 import com.beijunyi.parallelgit.filesystem.GitFileSystem;
+import com.beijunyi.parallelgit.filesystem.exceptions.NoChangeException;
 import com.beijunyi.parallelgit.utils.BranchUtils;
 import com.beijunyi.parallelgit.utils.CommitUtils;
 import org.eclipse.jgit.lib.AnyObjectId;
@@ -16,7 +19,7 @@ import org.eclipse.jgit.revwalk.RevCommit;
 
 import static com.beijunyi.parallelgit.utils.RefUtils.ensureBranchRefName;
 
-public final class CommitRequest extends GitFileSystemRequest<RevCommit> {
+public final class GfsCommitCommand extends GfsCommand<GfsCommitCommand.Result> {
 
   private final String branchRef;
   private final RevCommit commit;
@@ -27,7 +30,7 @@ public final class CommitRequest extends GitFileSystemRequest<RevCommit> {
   private boolean amend = false;
   private boolean allowEmpty = false;
 
-  public CommitRequest(@Nonnull GitFileSystem gfs) {
+  public GfsCommitCommand(@Nonnull GitFileSystem gfs) {
     super(gfs);
     String branch = gfs.getBranch();
     branchRef = branch != null ? ensureBranchRefName(branch) : null;
@@ -35,38 +38,14 @@ public final class CommitRequest extends GitFileSystemRequest<RevCommit> {
   }
 
   @Nonnull
-  public CommitRequest author(@Nullable PersonIdent author) {
-    this.author = author;
-    return this;
-  }
-
-  @Nonnull
-  public CommitRequest committer(@Nullable PersonIdent committer) {
-    this.committer = committer;
-    return this;
-  }
-
-  @Nonnull
-  public CommitRequest message(@Nullable String message) {
-    this.message = message;
-    return this;
-  }
-
-  @Nonnull
-  public CommitRequest amend(boolean amend) {
-    this.amend = amend;
-    return this;
-  }
-
-  @Nonnull
-  public CommitRequest allowEmpty(boolean allowEmpty) {
-    this.allowEmpty = allowEmpty;
-    return this;
-  }
-
-  @Nullable
   @Override
-  protected RevCommit doExecute() throws IOException {
+  protected GfsState startState() {
+    return GfsState.COMMITTING;
+  }
+
+  @Nonnull
+  @Override
+  protected Result doExecute(@Nonnull GfsStatusUpdate status) throws IOException {
     prepareMessage();
     prepareCommitter();
     prepareAuthor();
@@ -79,6 +58,36 @@ public final class CommitRequest extends GitFileSystemRequest<RevCommit> {
       updateRef(resultCommit);
     updateFileSystem(resultCommit);
     return resultCommit;
+  }
+
+  @Nonnull
+  public GfsCommitCommand author(@Nullable PersonIdent author) {
+    this.author = author;
+    return this;
+  }
+
+  @Nonnull
+  public GfsCommitCommand committer(@Nullable PersonIdent committer) {
+    this.committer = committer;
+    return this;
+  }
+
+  @Nonnull
+  public GfsCommitCommand message(@Nullable String message) {
+    this.message = message;
+    return this;
+  }
+
+  @Nonnull
+  public GfsCommitCommand amend(boolean amend) {
+    this.amend = amend;
+    return this;
+  }
+
+  @Nonnull
+  public GfsCommitCommand allowEmpty(boolean allowEmpty) {
+    this.allowEmpty = allowEmpty;
+    return this;
   }
 
   @Nonnull
@@ -131,5 +140,37 @@ public final class CommitRequest extends GitFileSystemRequest<RevCommit> {
   private void updateFileSystem(@Nonnull RevCommit head) {
     gfs.setCommit(head);
     gfs.setMessage(null);
+  }
+
+  public static class Result implements GfsCommandResult {
+
+    private final RevCommit commit;
+
+    private Result(@Nullable RevCommit commit) {
+      this.commit = commit;
+    }
+
+    @Nonnull
+    public static Result success(@Nonnull RevCommit commit) {
+      return new Result(commit);
+    }
+
+    @Nonnull
+    public static Result noChange() {
+      return new Result(null);
+    }
+
+    @Override
+    public boolean isSuccessful() {
+      return commit != null;
+    }
+
+    @Nonnull
+    public RevCommit getCommit() {
+      if(commit == null)
+        throw new NoChangeException();
+      return commit;
+    }
+
   }
 }

@@ -1,4 +1,4 @@
-package com.beijunyi.parallelgit.filesystem.requests;
+package com.beijunyi.parallelgit.filesystem.commands;
 
 import java.io.IOException;
 
@@ -11,7 +11,7 @@ import org.junit.Test;
 
 import static org.junit.Assert.*;
 
-public class CommitRequestTest extends PreSetupGitFileSystemTest {
+public class GfsCommitCommandTest extends PreSetupGitFileSystemTest {
 
   @Test
   public void commitInBranch_theResultCommitShouldBecomeTheHeadOfBranch() throws IOException {
