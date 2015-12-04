@@ -25,37 +25,22 @@ public class GfsStatusProvider implements AutoCloseable {
   }
 
   @Nonnull
-  public GfsStatusUpdate prepareUpdate(@Nonnull GfsState state) {
+  public GfsStatusUpdater prepareUpdate(@Nonnull GfsState state) {
     checkClosed();
     lock.lock();
-    return new GfsStatusUpdate(this);
+    return new GfsStatusUpdater();
   }
 
-  public void completeUpdate(@Nonnull GfsStatusUpdate update) {
+  public void completeUpdate(@Nonnull GfsState state, @Nonnull GfsStatusUpdater updater) {
     checkClosed();
 
     lock.unlock();
   }
 
-
-  @Nullable
-  public String branch() {
-    return branch;
-  }
-
-  @Nullable
-  public RevCommit commit() {
-    return commit;
-  }
-
   @Nonnull
-  public GfsState state() {
-    return state;
-  }
-
-  @Nullable
-  public GfsMergeNote mergeNote() {
-    return mergeNote;
+  public GfsStatus get() {
+    checkClosed();
+    return new GfsStatus(state, branch, commit, mergeNote);
   }
 
   @Override

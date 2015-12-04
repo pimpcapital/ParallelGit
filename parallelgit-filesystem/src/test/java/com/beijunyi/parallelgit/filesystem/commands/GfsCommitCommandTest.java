@@ -4,6 +4,7 @@ import java.io.IOException;
 
 import com.beijunyi.parallelgit.filesystem.Gfs;
 import com.beijunyi.parallelgit.filesystem.PreSetupGitFileSystemTest;
+import com.beijunyi.parallelgit.filesystem.commands.GfsCommitCommand.Result;
 import com.beijunyi.parallelgit.utils.CommitUtils;
 import org.eclipse.jgit.lib.PersonIdent;
 import org.eclipse.jgit.revwalk.RevCommit;
@@ -16,10 +17,8 @@ public class GfsCommitCommandTest extends PreSetupGitFileSystemTest {
   @Test
   public void commitInBranch_theResultCommitShouldBecomeTheHeadOfBranch() throws IOException {
     writeSomeFileToGfs();
-    RevCommit commit = Gfs.commit(gfs)
-                         .execute();
-    assert gfs.getBranch() != null;
-    assertEquals(repo.resolve(gfs.getBranch()), commit);
+    Result result = Gfs.commit(gfs).execute();
+    assertEquals(repo.resolve(gfs.status().get().branch()), result.getCommit());
   }
 
   @Test

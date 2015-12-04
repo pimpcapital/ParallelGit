@@ -1,4 +1,4 @@
 package com.beijunyi.parallelgit.filesystem.exceptions;
 
-public class MergeNotStartedException extends RuntimeException {
+public class MergeNotStartedException extends IllegalStateException {
 }
