@@ -5,6 +5,9 @@ import java.util.concurrent.locks.ReentrantLock;
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 
+import com.beijunyi.parallelgit.filesystem.exceptions.MergeNotStartedException;
+import com.beijunyi.parallelgit.filesystem.exceptions.NoBranchException;
+import com.beijunyi.parallelgit.filesystem.exceptions.NoHeadCommitException;
 import com.beijunyi.parallelgit.filesystem.merge.GfsMergeNote;
 import org.eclipse.jgit.revwalk.RevCommit;
 
@@ -24,23 +27,85 @@ public class GfsStatusProvider implements AutoCloseable {
     this.branch = branch;
   }
 
-  @Nonnull
-  public GfsStatusUpdater prepareUpdate(@Nonnull GfsState state) {
-    checkClosed();
+  private void lock() {
     lock.lock();
-    return new GfsStatusUpdater();
   }
 
-  public void completeUpdate(@Nonnull GfsState state, @Nonnull GfsStatusUpdater updater) {
-    checkClosed();
-
+  private void unlock() {
     lock.unlock();
   }
 
   @Nonnull
-  public GfsStatus get() {
+  public GfsState state() {
     checkClosed();
-    return new GfsStatus(state, branch, commit, mergeNote);
+    return state;
+  }
+
+  @Nonnull
+  public GfsStatusProvider state(@Nonnull GfsState state) {
+    checkClosed();
+    this.state = state;
+    return this;
+  }
+
+  @Nonnull
+  public String branch() {
+    checkClosed();
+    if(branch == null)
+      throw new NoBranchException();
+    return branch;
+  }
+
+  @Nonnull
+  public GfsStatusProvider branch(@Nonnull String branch) {
+    checkClosed();
+    this.branch = branch;
+    return this;
+  }
+
+  public boolean isAttached() {
+    return branch != null;
+  }
+
+  @Nonnull
+  public RevCommit commit() {
+    checkClosed();
+    if(commit == null)
+      throw new NoHeadCommitException();
+    return commit;
+  }
+
+  @Nonnull
+  public GfsStatusProvider commit(@Nonnull RevCommit commit) {
+    checkClosed();
+    this.commit = commit;
+    return this;
+  }
+
+  public boolean isInitialized() {
+    return branch != null;
+  }
+
+  @Nonnull
+  public GfsMergeNote mergeNote() {
+    checkClosed();
+    if(mergeNote == null)
+      throw new MergeNotStartedException();
+    return mergeNote;
+  }
+
+
+  @Nonnull
+  public GfsStatusProvider mergeNote(@Nonnull GfsMergeNote mergeNote) {
+    checkClosed();
+    this.mergeNote = mergeNote;
+    return this;
+  }
+
+  @Nonnull
+  public GfsStatusProvider clearMergeNote() {
+    mergeNote = null;
+    return this;
   }
 
   @Override

@@ -7,15 +7,15 @@ import java.util.List;
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 
-import com.beijunyi.parallelgit.filesystem.GfsState;
-import com.beijunyi.parallelgit.filesystem.GfsStatusUpdater;
-import com.beijunyi.parallelgit.filesystem.GitFileSystem;
+import com.beijunyi.parallelgit.filesystem.*;
 import com.beijunyi.parallelgit.filesystem.exceptions.NoChangeException;
 import com.beijunyi.parallelgit.utils.BranchUtils;
 import com.beijunyi.parallelgit.utils.CommitUtils;
 import org.eclipse.jgit.lib.AnyObjectId;
 import org.eclipse.jgit.lib.PersonIdent;
 import org.eclipse.jgit.revwalk.RevCommit;
+
+import static com.beijunyi.parallelgit.filesystem.GfsState.COMMITTING;
 
 public final class GfsCommitCommand extends GfsCommand<GfsCommitCommand.Result> {
 
@@ -32,36 +32,17 @@ public final class GfsCommitCommand extends GfsCommand<GfsCommitCommand.Result> 
 
   @Nonnull
   @Override
-  protected GfsState startState(@Nonnull GfsState current) {
-    switch(current) {
-      case NORMAL:
-        return GfsState.COMMITTING;
-      case MERGING:
-      case CHERRY_PICKING:
-        return current;
-      default:
-        throw new IllegalStateException(current.name());
-    }
-  }
-
-  @Nonnull
-  @Override
-  protected GfsState exitState(@Nonnull Result result) {
-    return GfsState.NORMAL;
-  }
-
-  @Nonnull
-  @Override
-  protected Result doExecute(@Nonnull GfsStatusUpdater status) throws IOException {
-    prepareMessage(status);
+  protected Result doExecute() throws IOException {
+    prepareState();
+    prepareMessage();
     prepareCommitter();
-    prepareAuthor(status);
-    prepareParents(status);
+    prepareAuthor();
+    prepareParents();
     AnyObjectId resultTree = gfs.persist();
-    if(!allowEmpty && !amend && isSameAsParent(resultTree, status))
+    if(!allowEmpty && !amend && isSameAsParent(resultTree))
       return Result.noChange();
     RevCommit resultCommit = CommitUtils.createCommit(message, resultTree, author, committer, parents, repo);
-    updateStatus(status, resultCommit);
+    updateStatus(resultCommit);
     return Result.success(resultCommit);
   }
 
@@ -95,8 +76,23 @@ public final class GfsCommitCommand extends GfsCommand<GfsCommitCommand.Result> 
     return this;
   }
 
-  private void prepareMessage(@Nonnull GfsStatusUpdater status) {
+  private void prepareState() {
+    GfsStatusProvider status = gfs.status();
+    GfsState state  = status.state();
+    switch(state) {
+      case NORMAL:
+        status.state(COMMITTING);
+      case MERGING:
+      case CHERRY_PICKING:
+        break;
+      default:
+        throw new IllegalStateException(state.name());
+    }
+  }
+
+  private void prepareMessage() {
     if(message == null) {
+      GfsStatusProvider status = gfs.status();
       if(status.state() == GfsState.MERGING || status.state() == GfsState.CHERRY_PICKING)
         message = status.mergeNote().getMessage();
       else
@@ -109,17 +105,20 @@ public final class GfsCommitCommand extends GfsCommand<GfsCommitCommand.Result> 
       committer = new PersonIdent(repo);
   }
 
-  private void prepareAuthor(@Nonnull GfsStatusUpdater status) {
+  private void prepareAuthor() {
     if(author == null) {
       if(!amend)
         author = committer;
-      else
+      else {
+        GfsStatusProvider status = gfs.status();
         author = status.commit().getAuthorIdent();
+      }
     }
   }
 
-  private void prepareParents(@Nonnull GfsStatusUpdater status) {
+  private void prepareParents() {
     if(parents == null) {
+      GfsStatusProvider status = gfs.status();
       if(!amend) {
         if(status.isInitialized())
           parents = Collections.singletonList(status.commit());
@@ -130,11 +129,13 @@ public final class GfsCommitCommand extends GfsCommand<GfsCommitCommand.Result> 
     }
   }
 
-  private boolean isSameAsParent(@Nonnull AnyObjectId newTree, @Nonnull GfsStatusUpdater status) {
+  private boolean isSameAsParent(@Nonnull AnyObjectId newTree) {
+    GfsStatusProvider status = gfs.status();
     return status.isInitialized() && status.commit().getTree().equals(newTree);
   }
 
-  private void updateStatus(@Nonnull GfsStatusUpdater status, @Nonnull RevCommit newHead) throws IOException {
+  private void updateStatus(@Nonnull RevCommit newHead) throws IOException {
+    GfsStatusProvider status = gfs.status();
     if(status.isAttached()) {
       if(amend)
         BranchUtils.amendCommit(status.branch(), newHead, repo);

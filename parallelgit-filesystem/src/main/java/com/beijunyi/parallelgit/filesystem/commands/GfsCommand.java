@@ -22,26 +22,11 @@ public abstract class GfsCommand<Result extends GfsCommandResult> {
   public synchronized Result execute() throws IOException {
     checkExecuted();
     executed = true;
-
-    GfsStatusProvider status = gfs.status();
-    GfsState startState = startState(status.state());
-    GfsStatusUpdater update = status.prepareUpdate(startState);
-
-    Result result = doExecute(update);
-
-    GfsState endState = exitState(result);
-    status.completeUpdate(endState, update);
-    return result;
+    return doExecute();
   }
 
   @Nonnull
-  protected abstract GfsState startState(@Nonnull GfsState current);
-
-  @Nonnull
-  protected abstract GfsState exitState(@Nonnull Result result);
-
-  @Nonnull
-  protected abstract Result doExecute(@Nonnull GfsStatusUpdater status) throws IOException;
+  protected abstract Result doExecute() throws IOException;
 
   private void checkExecuted() {
     if(executed)

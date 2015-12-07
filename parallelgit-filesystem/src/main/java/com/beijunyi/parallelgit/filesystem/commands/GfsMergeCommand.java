@@ -7,9 +7,7 @@ import java.util.List;
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 
-import com.beijunyi.parallelgit.filesystem.GfsState;
-import com.beijunyi.parallelgit.filesystem.GfsStatusUpdater;
-import com.beijunyi.parallelgit.filesystem.GitFileSystem;
+import com.beijunyi.parallelgit.filesystem.*;
 import com.beijunyi.parallelgit.filesystem.exceptions.*;
 import com.beijunyi.parallelgit.filesystem.merge.GfsMerger;
 import com.beijunyi.parallelgit.utils.BranchUtils;
@@ -48,24 +46,7 @@ public final class GfsMergeCommand extends GfsCommand<GfsMergeCommand.Result> {
 
   @Nonnull
   @Override
-  protected GfsState startState(@Nonnull GfsState current) {
-    switch(current) {
-      case NORMAL:
-        return GfsState.MERGING;
-      default:
-        throw new IllegalStateException(current.name());
-    }
-  }
-
-  @Nonnull
-  @Override
-  protected GfsState exitState(@Nonnull Result result) {
-    return null;
-  }
-
-  @Nonnull
-  @Override
-  protected Result doExecute(@Nonnull GfsStatusUpdater status) throws IOException {
+  protected Result doExecute() throws IOException {
     prepareBranchHead();
     prepareTarget();
     prepareSourceCommit();
