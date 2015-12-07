@@ -5,7 +5,6 @@ import java.io.IOException;
 import com.beijunyi.parallelgit.AbstractParallelGitTest;
 import com.beijunyi.parallelgit.filesystem.Gfs;
 import com.beijunyi.parallelgit.filesystem.GitFileSystem;
-import com.beijunyi.parallelgit.filesystem.exceptions.NoRepositoryException;
 import org.eclipse.jgit.lib.AnyObjectId;
 import org.junit.Before;
 import org.junit.Test;
@@ -21,99 +20,65 @@ public class GfsBuilderTest extends AbstractParallelGitTest {
 
   @Test
   public void buildFromRepository() throws IOException {
-    GitFileSystem gfs = Gfs.newFileSystem()
-                          .repository(repo)
+    GitFileSystem gfs = Gfs.newFileSystem(repo)
                           .build();
     assertEquals(repo.getDirectory(), gfs.getRepository().getDirectory());
   }
 
   @Test
   public void buildFromRepositoryDirectory() throws IOException {
-    GitFileSystem gfs = Gfs.newFileSystem()
-                          .repository(repo.getDirectory())
+    GitFileSystem gfs = Gfs.newFileSystem(repo.getDirectory())
                           .build();
     assertEquals(repo.getDirectory(), gfs.getRepository().getDirectory());
   }
 
   @Test
   public void buildFromRepositoryDirectoryPath() throws IOException {
-    GitFileSystem gfs = Gfs.newFileSystem()
-                          .repository(repo.getDirectory().getAbsolutePath())
+    GitFileSystem gfs = Gfs.newFileSystem(repo.getDirectory().getAbsolutePath())
                           .build();
     assertEquals(repo.getDirectory(), gfs.getRepository().getDirectory());
   }
 
   @Test
   public void buildFromRepositoryWorkTree() throws IOException {
-    GitFileSystem gfs = Gfs.newFileSystem()
-                          .repository(repo.getWorkTree())
+    GitFileSystem gfs = Gfs.newFileSystem(repo.getWorkTree())
                           .build();
     assertEquals(repo.getDirectory(), gfs.getRepository().getDirectory());
   }
 
   @Test
   public void buildFromRepositoryWorkTreePath() throws IOException {
-    GitFileSystem gfs = Gfs.newFileSystem()
-                          .repository(repo.getWorkTree().getAbsolutePath())
+    GitFileSystem gfs = Gfs.newFileSystem(repo.getWorkTree().getAbsolutePath())
                           .build();
     assertEquals(repo.getDirectory(), gfs.getRepository().getDirectory());
   }
 
   @Test
   public void buildWithBranch() throws IOException {
-    GitFileSystem gfs = Gfs.newFileSystem()
-                          .repository(repo)
+    GitFileSystem gfs = Gfs.newFileSystem(repo)
                           .branch("test_branch")
                           .build();
-    assertEquals("test_branch", gfs.getBranch());
+    assertEquals("test_branch", gfs.getStatusProvider().branch());
   }
 
   @Test
   public void buildWithRevision() throws IOException {
     writeSomeFileToCache();
     AnyObjectId commit = commitToMaster();
-    GitFileSystem gfs = Gfs.newFileSystem()
-                          .repository(repo)
+    GitFileSystem gfs = Gfs.newFileSystem(repo)
                           .commit(commit)
                           .build();
-    assertEquals(commit, gfs.getCommit());
+    assertEquals(commit, gfs.getStatusProvider().commit());
   }
 
   @Test
   public void buildWithRevisionString() throws IOException {
     writeSomeFileToCache();
     AnyObjectId commit = commitToMaster();
-    GitFileSystem gfs = Gfs.newFileSystem()
-                          .repository(repo)
+    GitFileSystem gfs = Gfs.newFileSystem(repo)
                           .commit(commit.getName())
                           .build();
-    assertEquals(commit, gfs.getCommit());
+    assertEquals(commit, gfs.getStatusProvider().commit());
   }
 
-  @Test
-  public void buildWithTree() throws IOException {
-    writeSomeFileToCache();
-    AnyObjectId tree = commitToMaster().getTree();
-    GitFileSystem gfs = Gfs.newFileSystem()
-                          .repository(repo)
-                          .tree(tree)
-                          .build();
-    assertEquals(tree, gfs.getTree());
-  }
-
-  @Test
-  public void buildWithTreeString() throws IOException {
-    writeSomeFileToCache();
-    AnyObjectId tree = commitToMaster().getTree();
-    GitFileSystem gfs = Gfs.newFileSystem()
-                          .repository(repo)
-                          .tree(tree.getName())
-                          .build();
-    assertEquals(tree, gfs.getTree());
-  }
-
-  @Test(expected = NoRepositoryException.class)
-  public void buildWithoutRepository_shouldThrowNoRepositoryException() throws IOException {
-    Gfs.newFileSystem().build();
-  }
 }

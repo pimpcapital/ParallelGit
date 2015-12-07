@@ -32,7 +32,7 @@ public class ChangeDeletedFileTest extends AbstractParallelGitTest {
       GitPath file = gfs.getPath("/dir/test_file.txt");
       OutputStream out = Files.newOutputStream(file);
       Files.delete(file);
-      gfs.persist();
+      gfs.flush();
       out.write("some new data".getBytes());
       out.close();
       Node node = gfs.getFileStore().getRoot().getChild("dir");

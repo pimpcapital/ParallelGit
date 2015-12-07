@@ -18,7 +18,7 @@ public class GfsCommitCommandTest extends PreSetupGitFileSystemTest {
   public void commitInBranch_theResultCommitShouldBecomeTheHeadOfBranch() throws IOException {
     writeSomeFileToGfs();
     Result result = Gfs.commit(gfs).execute();
-    assertEquals(repo.resolve(gfs.status().get().branch()), result.getCommit());
+    assertEquals(repo.resolve(gfs.getStatusProvider().get().branch()), result.getCommit());
   }
 
   @Test

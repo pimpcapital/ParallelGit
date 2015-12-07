@@ -8,7 +8,7 @@ import java.util.concurrent.ConcurrentMap;
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 
-import com.beijunyi.parallelgit.filesystem.GfsDataProvider;
+import com.beijunyi.parallelgit.filesystem.GfsObjectService;
 import com.beijunyi.parallelgit.utils.io.GitFileEntry;
 import com.beijunyi.parallelgit.utils.io.ObjectSnapshot;
 import com.beijunyi.parallelgit.utils.io.TreeSnapshot;
@@ -21,17 +21,17 @@ public class DirectoryNode extends Node<TreeSnapshot> {
 
   private ConcurrentMap<String, Node> children;
 
-  protected DirectoryNode(@Nullable AnyObjectId id, @Nonnull GfsDataProvider gds) {
+  protected DirectoryNode(@Nullable AnyObjectId id, @Nonnull GfsObjectService gds) {
     super(id, gds);
   }
 
   @Nonnull
-  public static DirectoryNode fromObject(@Nonnull AnyObjectId id, @Nonnull GfsDataProvider gds) {
+  public static DirectoryNode fromObject(@Nonnull AnyObjectId id, @Nonnull GfsObjectService gds) {
     return new DirectoryNode(id, gds);
   }
 
   @Nonnull
-  public static DirectoryNode newDirectory(@Nonnull GfsDataProvider gds) {
+  public static DirectoryNode newDirectory(@Nonnull GfsObjectService gds) {
     return new DirectoryNode(null, gds);
   }
 
@@ -50,6 +50,12 @@ public class DirectoryNode extends Node<TreeSnapshot> {
   public void setMode(@Nonnull FileMode mode) {
     if(mode.equals(TREE))
       throw new IllegalArgumentException(mode.toString());
+  }
+
+  @Override
+  public synchronized void reset(@Nonnull AnyObjectId id) {
+    this.id = id;
+    children = null;
   }
 
   @Nullable
@@ -78,7 +84,7 @@ public class DirectoryNode extends Node<TreeSnapshot> {
 
   @Nonnull
   @Override
-  public Node clone(@Nonnull GfsDataProvider targetGds) throws IOException {
+  public Node clone(@Nonnull GfsObjectService targetGds) throws IOException {
     DirectoryNode ret = new DirectoryNode(null, targetGds);
     if(children != null) {
       for(Map.Entry<String, Node> child : children.entrySet()) {

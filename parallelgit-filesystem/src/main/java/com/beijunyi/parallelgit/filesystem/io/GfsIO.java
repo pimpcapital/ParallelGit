@@ -9,7 +9,7 @@ import java.util.Set;
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 
-import com.beijunyi.parallelgit.filesystem.GfsDataProvider;
+import com.beijunyi.parallelgit.filesystem.GfsObjectService;
 import com.beijunyi.parallelgit.filesystem.GitPath;
 import com.beijunyi.parallelgit.filesystem.utils.FileAttributeReader;
 
@@ -163,8 +163,8 @@ public final class GfsIO {
   }
 
   @Nonnull
-  private static GfsDataProvider getDataService(@Nonnull GitPath path) {
-    return path.getFileSystem().getDataService();
+  private static GfsObjectService getDataService(@Nonnull GitPath path) {
+    return path.getFileSystem().getObjectService();
   }
 
 }

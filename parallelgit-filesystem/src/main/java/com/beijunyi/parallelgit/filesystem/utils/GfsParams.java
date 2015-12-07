@@ -12,6 +12,8 @@ public class GfsParams extends HashMap<String, String> {
   public final static String BRANCH_KEY = "branch";
   public final static String COMMIT_KEY = "commit";
 
+  private GfsParams() {}
+
   @Nonnull
   public static GfsParams emptyMap() {
     return new GfsParams();

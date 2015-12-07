@@ -90,7 +90,7 @@ public class GfsMerger extends ThreeWayMerger {
     ContentMergeConfig cmConfig = new ContentMergeConfig(algorithm, formatter, conflictMarkers);
     GfsRecursiveMerger merger = new GfsRecursiveMerger(walker, cmConfig, reader);
     if(merger.merge()) {
-      result = GfsMergeResult.success(gfs.persist());
+      result = GfsMergeResult.success(gfs.flush());
       return true;
     } else {
       result = GfsMergeResult.conflicting(merger.getConflicts());

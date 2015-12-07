@@ -1,5 +1,6 @@
 package com.beijunyi.parallelgit.filesystem;
 
+import java.io.IOException;
 import java.nio.file.ClosedFileSystemException;
 import java.util.concurrent.locks.ReentrantLock;
 import javax.annotation.Nonnull;
@@ -9,11 +10,14 @@ import com.beijunyi.parallelgit.filesystem.exceptions.MergeNotStartedException;
 import com.beijunyi.parallelgit.filesystem.exceptions.NoBranchException;
 import com.beijunyi.parallelgit.filesystem.exceptions.NoHeadCommitException;
 import com.beijunyi.parallelgit.filesystem.merge.GfsMergeNote;
+import com.beijunyi.parallelgit.utils.io.TreeSnapshot;
 import org.eclipse.jgit.revwalk.RevCommit;
 
 public class GfsStatusProvider implements AutoCloseable {
 
   private final ReentrantLock lock = new ReentrantLock();
+
+  private final GfsFileStore fileStore;
 
   private GfsState state = GfsState.NORMAL;
   private String branch;
@@ -22,16 +26,25 @@ public class GfsStatusProvider implements AutoCloseable {
 
   private boolean closed = false;
 
-  public GfsStatusProvider(@Nullable String branch, @Nullable RevCommit commit) {
+  public GfsStatusProvider(@Nonnull GfsFileStore fileStore, @Nullable String branch, @Nullable RevCommit commit) {
+    this.fileStore = fileStore;
     this.commit = commit;
     this.branch = branch;
   }
 
-  private void lock() {
+  public boolean isDirty() throws IOException {
+    if(commit == null)
+      return true;
+    TreeSnapshot root = fileStore.getRoot().takeSnapshot(false, true);
+    assert root != null;
+    return commit.getTree().equals(root.getId());
+  }
+
+  public void lock() {
     lock.lock();
   }
 
-  private void unlock() {
+  public void unlock() {
     lock.unlock();
   }
 

@@ -4,7 +4,7 @@ import java.io.IOException;
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 
-import com.beijunyi.parallelgit.filesystem.GfsDataProvider;
+import com.beijunyi.parallelgit.filesystem.GfsObjectService;
 import com.beijunyi.parallelgit.utils.io.GitFileEntry;
 import com.beijunyi.parallelgit.utils.io.ObjectSnapshot;
 import org.eclipse.jgit.lib.AnyObjectId;
@@ -14,24 +14,24 @@ import static org.eclipse.jgit.lib.FileMode.*;
 
 public abstract class Node<Snapshot extends ObjectSnapshot> {
 
-  protected final GfsDataProvider gds;
+  protected final GfsObjectService gds;
 
   protected volatile AnyObjectId id;
 
-  protected Node(@Nullable AnyObjectId id, @Nonnull GfsDataProvider gds) {
+  protected Node(@Nullable AnyObjectId id, @Nonnull GfsObjectService gds) {
     this.id = id;
     this.gds = gds;
   }
 
   @Nonnull
-  public static Node fromEntry(@Nonnull GitFileEntry entry, @Nonnull GfsDataProvider gds) {
+  public static Node fromEntry(@Nonnull GitFileEntry entry, @Nonnull GfsObjectService gds) {
     if(entry.getMode() == TREE)
       return DirectoryNode.fromObject(entry.getId(), gds);
     return FileNode.fromObject(entry.getId(), entry.getMode(), gds);
   }
 
   @Nonnull
-  public GfsDataProvider getDataService() {
+  public GfsObjectService getDataService() {
     return gds;
   }
 
@@ -63,6 +63,8 @@ public abstract class Node<Snapshot extends ObjectSnapshot> {
 
   public abstract void setMode(@Nonnull FileMode mode);
 
+  public abstract void reset(@Nonnull AnyObjectId id);
+
   @Nullable
   public abstract Snapshot loadSnapshot() throws IOException;
 
@@ -70,6 +72,6 @@ public abstract class Node<Snapshot extends ObjectSnapshot> {
   public abstract Snapshot takeSnapshot(boolean persist, boolean allowEmpty) throws IOException;
 
   @Nonnull
-  public abstract Node clone(@Nonnull GfsDataProvider targetGds) throws IOException;
+  public abstract Node clone(@Nonnull GfsObjectService targetGds) throws IOException;
 
 }

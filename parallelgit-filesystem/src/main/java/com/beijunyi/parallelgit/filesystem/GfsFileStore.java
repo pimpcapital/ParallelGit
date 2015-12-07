@@ -7,10 +7,8 @@ import java.nio.file.attribute.FileStoreAttributeView;
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 
-import com.beijunyi.parallelgit.filesystem.exceptions.NoTreeException;
 import com.beijunyi.parallelgit.filesystem.io.DirectoryNode;
 import com.beijunyi.parallelgit.filesystem.io.GfsFileAttributeView;
-import com.beijunyi.parallelgit.utils.io.TreeSnapshot;
 import org.eclipse.jgit.lib.AnyObjectId;
 
 import static com.beijunyi.parallelgit.filesystem.GitFileSystemProvider.GFS;
@@ -19,8 +17,8 @@ public class GfsFileStore extends FileStore {
 
   private final DirectoryNode root;
 
-  public GfsFileStore(@Nullable AnyObjectId rootTree, @Nonnull GfsDataProvider gds) {
-    root = rootTree != null ? DirectoryNode.fromObject(rootTree, gds) : DirectoryNode.newDirectory(gds);
+  public GfsFileStore(@Nullable AnyObjectId rootTree, @Nonnull GfsObjectService gos) {
+    root = rootTree != null ? DirectoryNode.fromObject(rootTree, gos) : DirectoryNode.newDirectory(gos);
   }
 
   @Nonnull
@@ -92,30 +90,6 @@ public class GfsFileStore extends FileStore {
   @Nonnull
   public DirectoryNode getRoot() {
     return root;
-  }
-
-  @Nonnull
-  public AnyObjectId persist() throws IOException {
-    TreeSnapshot snapshot = root.takeSnapshot(true, true);
-    assert snapshot != null;
-    return snapshot.getId();
-  }
-
-  @Nonnull
-  public AnyObjectId getTree() {
-    AnyObjectId rootObject = root.getObjectId();
-    if(rootObject == null)
-      throw new NoTreeException();
-    return rootObject;
-  }
-
-  public boolean isDirty() throws IOException {
-    AnyObjectId id = root.getObjectId();
-    if(id == null)
-      return true;
-    TreeSnapshot snapshot = root.takeSnapshot(false, true);
-    assert snapshot != null;
-    return snapshot.computeId().equals(id);
   }
 
 }
