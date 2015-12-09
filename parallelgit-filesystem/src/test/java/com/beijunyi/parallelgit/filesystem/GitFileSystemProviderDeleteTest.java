@@ -12,10 +12,7 @@ public class GitFileSystemProviderDeleteTest extends AbstractGitFileSystemTest {
 
   @Test
   public void deleteFile_fileShouldNotExistAfterDeletion() throws IOException {
-    initRepository();
-    writeToCache("/test_file.txt");
-    commitToMaster();
-    initGitFileSystem();
+    initGitFileSystem("/test_file.txt");
 
     GitPath path = gfs.getPath("/test_file.txt");
     provider.delete(path);
@@ -24,22 +21,16 @@ public class GitFileSystemProviderDeleteTest extends AbstractGitFileSystemTest {
 
   @Test
   public void deleteFile_theFileSystemShouldBecomeDirty() throws IOException {
-    initRepository();
-    writeToCache("/test_file.txt");
-    commitToMaster();
-    initGitFileSystem();
+    initGitFileSystem("/test_file.txt");
 
     GitPath path = gfs.getPath("/test_file.txt");
     provider.delete(path);
-    assertTrue(gfs.isDirty());
+    assertTrue(gfs.getStatusProvider().isDirty());
   }
 
   @Test
   public void deleteEmptyDirectory_directoryShouldNotExistAfterDeletion() throws IOException {
-    initRepository();
-    writeToCache("/dir/some_file.txt");
-    commitToMaster();
-    initGitFileSystem();
+    initGitFileSystem("/dir/some_file.txt");
 
     GitPath file = gfs.getPath("/dir/some_file.txt");
     provider.delete(file);
@@ -49,20 +40,17 @@ public class GitFileSystemProviderDeleteTest extends AbstractGitFileSystemTest {
   }
 
   @Test
-  public void createAndDeleteEmptyDirectory_theFileSystemShouldStayClean() throws IOException {
+  public void createAndDeleteEmptyDirectory_theFileSystemShouldRemainClean() throws IOException {
     initGitFileSystem();
     GitPath dir = gfs.getPath("/empty_dir");
     provider.createDirectory(dir);
     provider.delete(dir);
-    assertFalse(gfs.isDirty());
+    assertFalse(gfs.getStatusProvider().isDirty());
   }
 
   @Test
   public void deleteNonEmptyDirectory_directoryShouldNotExistAfterDeletion() throws IOException {
-    initRepository();
-    writeToCache("/dir/some_file.txt");
-    commitToMaster();
-    initGitFileSystem();
+    initGitFileSystem("/dir/some_file.txt");
 
     GitPath dir = gfs.getPath("/dir");
     provider.delete(dir);

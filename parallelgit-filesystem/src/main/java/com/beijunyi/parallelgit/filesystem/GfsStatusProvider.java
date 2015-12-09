@@ -76,6 +76,13 @@ public class GfsStatusProvider implements AutoCloseable {
     return this;
   }
 
+  @Nonnull
+  public GfsStatusProvider detach() {
+    checkClosed();
+    branch = null;
+    return this;
+  }
+
   public boolean isAttached() {
     return branch != null;
   }

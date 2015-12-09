@@ -25,8 +25,7 @@ public class CommitEmptyDirectoryTest extends AbstractGitFileSystemTest {
     writeSomeFileToGfs();
     Path dir = gfs.getPath("/empty_dir");
     Files.createDirectory(dir);
-    RevCommit commit = Gfs.commit(gfs).execute();
-    assert commit != null;
+    RevCommit commit = Gfs.commit(gfs).execute().getCommit();
     assertFalse(GitFileUtils.exists("/empty_dir", commit, repo));
   }
 
@@ -35,8 +34,7 @@ public class CommitEmptyDirectoryTest extends AbstractGitFileSystemTest {
     writeSomeFileToGfs();
     Path dir = gfs.getPath("/dir1/dir2");
     Files.createDirectories(dir);
-    RevCommit commit = Gfs.commit(gfs).execute();
-    assert commit != null;
+    RevCommit commit = Gfs.commit(gfs).execute().getCommit();
     assertFalse(GitFileUtils.exists("/dir1", commit, repo));
   }
 

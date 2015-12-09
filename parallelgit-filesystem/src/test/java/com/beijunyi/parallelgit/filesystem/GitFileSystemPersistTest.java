@@ -14,13 +14,13 @@ public class GitFileSystemPersistTest extends PreSetupGitFileSystemTest {
 
   @Test
   public void persistWhenNoChangeIsMade_theResultShouldEqualToThePreviousTree() throws IOException {
-    AnyObjectId previousTree = gfs.getTree();
+    AnyObjectId previousTree = gfs.getStatusProvider().commit().getTree();
     assertEquals(previousTree, gfs.flush());
   }
 
   @Test
   public void persistAfterChangeIsMade_theResultShouldNotEqualToThePreviousTree() throws IOException {
-    AnyObjectId previousTree = gfs.getTree();
+    AnyObjectId previousTree = gfs.getStatusProvider().commit().getTree();
     Files.write(gfs.getPath("/some_file.txt"), "some text content".getBytes());
     assertNotEquals(previousTree, gfs.flush());
   }
@@ -40,7 +40,7 @@ public class GitFileSystemPersistTest extends PreSetupGitFileSystemTest {
   public void persistChanges_theFileSystemShouldBecomeClean() throws IOException {
     Files.write(gfs.getPath("/some_file.txt"), "some text content".getBytes());
     gfs.flush();
-    assertFalse(gfs.isDirty());
+    assertFalse(gfs.getStatusProvider().isDirty());
   }
 
 }

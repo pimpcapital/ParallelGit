@@ -10,20 +10,20 @@ public class GfsFileStoreSpaceTest extends PreSetupGitFileSystemTest {
 
   @Test
   public void getTotalSpace_shouldReturnZero() throws IOException {
-    assertEquals(0L, store.getTotalSpace());
-    assertEquals(0L, store.getAttribute("totalSpace"));
+    assertEquals(0L, fileStore.getTotalSpace());
+    assertEquals(0L, fileStore.getAttribute("totalSpace"));
   }
 
   @Test
   public void getUnallocatedSpace_shouldReturnZero() throws IOException {
-    assertEquals(0L, store.getUnallocatedSpace());
-    assertEquals(0L, store.getAttribute("unallocatedSpace"));
+    assertEquals(0L, fileStore.getUnallocatedSpace());
+    assertEquals(0L, fileStore.getAttribute("unallocatedSpace"));
   }
 
   @Test
   public void getUsableSpace_shouldReturnTheAmountOfFreeMemory() throws IOException {
-    assertEquals(Runtime.getRuntime().freeMemory(), store.getUsableSpace());
-    assertEquals(Runtime.getRuntime().freeMemory(), store.getAttribute("usableSpace"));
+    assertEquals(Runtime.getRuntime().freeMemory(), fileStore.getUsableSpace());
+    assertEquals(Runtime.getRuntime().freeMemory(), fileStore.getAttribute("usableSpace"));
   }
 
 

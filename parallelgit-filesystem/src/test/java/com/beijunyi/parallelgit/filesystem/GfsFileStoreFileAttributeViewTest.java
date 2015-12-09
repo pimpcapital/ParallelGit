@@ -12,24 +12,24 @@ public class GfsFileStoreFileAttributeViewTest extends PreSetupGitFileSystemTest
 
   @Test
   public void supportsBasicFileAttributeView_shouldReturnTrue() {
-    assertTrue(store.supportsFileAttributeView(BasicFileAttributeView.class));
-    assertTrue(store.supportsFileAttributeView("basic"));
+    assertTrue(fileStore.supportsFileAttributeView(BasicFileAttributeView.class));
+    assertTrue(fileStore.supportsFileAttributeView("basic"));
   }
 
   @Test
   public void supportsPosixFileAttributeView_shouldReturnTrue() {
-    assertTrue(store.supportsFileAttributeView(PosixFileAttributeView.class));
-    assertTrue(store.supportsFileAttributeView("posix"));
+    assertTrue(fileStore.supportsFileAttributeView(PosixFileAttributeView.class));
+    assertTrue(fileStore.supportsFileAttributeView("posix"));
   }
 
   @Test
   public void supportsUnsupportedFileAttributeView_shouldReturnFalse() {
-    assertFalse(store.supportsFileAttributeView("unsupported_view"));
+    assertFalse(fileStore.supportsFileAttributeView("unsupported_view"));
   }
 
   @Test(expected = UnsupportedOperationException.class)
   public void fileStoreGetUnsupportedAttributeTest() throws IOException {
-    store.getAttribute("unsupported_attribute");
+    fileStore.getAttribute("unsupported_attribute");
   }
 
 }

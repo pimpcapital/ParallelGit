@@ -5,7 +5,6 @@ import java.io.IOException;
 import com.beijunyi.parallelgit.filesystem.Gfs;
 import com.beijunyi.parallelgit.filesystem.PreSetupGitFileSystemTest;
 import com.beijunyi.parallelgit.filesystem.commands.GfsCommitCommand.Result;
-import com.beijunyi.parallelgit.utils.CommitUtils;
 import org.eclipse.jgit.lib.PersonIdent;
 import org.eclipse.jgit.revwalk.RevCommit;
 import org.junit.Test;
@@ -15,144 +14,113 @@ import static org.junit.Assert.*;
 public class GfsCommitCommandTest extends PreSetupGitFileSystemTest {
 
   @Test
-  public void commitInBranch_theResultCommitShouldBecomeTheHeadOfBranch() throws IOException {
+  public void commitInBranch_theResultCommitShouldEqualTheHeadOfTheAttachedBranch() throws IOException {
     writeSomeFileToGfs();
     Result result = Gfs.commit(gfs).execute();
-    assertEquals(repo.resolve(gfs.getStatusProvider().get().branch()), result.getCommit());
+    assertEquals(repo.resolve(gfs.getStatusProvider().branch()), result.getCommit());
   }
 
   @Test
-  public void commitNoChange_shouldReturnNull() throws IOException {
-    RevCommit commit = Gfs.commit(gfs)
-                         .execute();
-    assertNull(commit);
+  public void commitNoChange_theResultShouldBeUnsuccessful() throws IOException {
+    Result result = Gfs.commit(gfs).execute();
+    assertFalse(result.isSuccessful());
   }
 
   @Test
-  public void commitNoChangeWithAllowEmptyOption_shouldReturnNonNull() throws IOException {
-    RevCommit commit = Gfs.commit(gfs)
-                         .allowEmpty(true)
-                         .execute();
-    assertNotNull(commit);
+  public void commitNoChangeWithAllowEmptyOption_theResultsShouldBeSuccessful() throws IOException {
+    Result result = Gfs.commit(gfs).allowEmpty(true).execute();
+    assertTrue(result.isSuccessful());
   }
 
   @Test
-  public void commitNoChangeWithAllowEmptyOption_rootTreeOfTheResultCommitShouldBeTheSameAsParent() throws IOException {
-    RevCommit commit = Gfs.commit(gfs)
-                         .allowEmpty(true)
-                         .execute();
-    assert commit != null;
-    assertEquals(CommitUtils.getCommit(commit.getParent(0), repo).getTree(), commit.getTree());
+  public void commitNoChangeWithAllowEmptyOption_newCommitShouldBeCreated() throws IOException {
+    RevCommit currentHead = gfs.getStatusProvider().commit();
+    Result result = Gfs.commit(gfs).allowEmpty(true).execute();
+    assertNotEquals(currentHead, result.getCommit());
   }
 
   @Test
-  public void commitWithMessage_theResultCommitShouldHaveTheInputMessage() throws IOException {
+  public void commitNoChangeWithAllowEmptyOption_theResultCommitShouldHaveTheSameTree() throws IOException {
+    RevCommit currentHead = gfs.getStatusProvider().commit();
+    Result result = Gfs.commit(gfs).allowEmpty(true).execute();
+    assertNotEquals(currentHead.getTree(), result.getCommit().getTree());
+  }
+
+  @Test
+  public void commitWithMessage_theResultCommitShouldHaveTheSpecifiedMessage() throws IOException {
     writeSomeFileToGfs();
-    RevCommit commit = Gfs.commit(gfs)
-                         .message("test_message")
-                         .execute();
-    assert commit != null;
-    assertEquals("test_message", commit.getFullMessage());
+    Result result = Gfs.commit(gfs).message("test_message").execute();
+    assertEquals("test_message", result.getCommit().getFullMessage());
   }
 
   @Test
-  public void commitWithAuthor_theResultCommitShouldHaveTheInputAuthor() throws IOException {
+  public void commitWithAuthor_theResultCommitShouldHaveTheSpecifiedAuthor() throws IOException {
     writeSomeFileToGfs();
     PersonIdent author = new PersonIdent("test_author_name", "test_author@email.com");
-    RevCommit commit = Gfs.commit(gfs)
-                         .author(author)
-                         .execute();
-    assert commit != null;
-    assertEquals(author, commit.getAuthorIdent());
+    Result result = Gfs.commit(gfs).author(author).execute();
+    assertEquals(author, result.getCommit().getAuthorIdent());
   }
 
   @Test
-  public void commitWithCommitter_theResultCommitShouldHaveTheInputCommitter() throws IOException {
+  public void commitWithCommitter_theResultCommitShouldHaveTheSpecifiedCommitter() throws IOException {
     writeSomeFileToGfs();
     PersonIdent committer = new PersonIdent("test_committer_name", "test_committer@email.com");
-    RevCommit commit = Gfs.commit(gfs)
-                         .committer(committer)
-                         .execute();
-    assert commit != null;
-    assertEquals(committer, commit.getCommitterIdent());
+    Result result = Gfs.commit(gfs).committer(committer).execute();
+    assertEquals(committer, result.getCommit().getCommitterIdent());
   }
 
   @Test
-  public void commitWithCommitterOnly_theResultCommitAuthorShouldDefaultToTheInputCommitter() throws IOException {
+  public void commitWithCommitterOnly_theResultCommitAuthorShouldDefaultToBeTheSameAsTheSpecifiedCommitter() throws IOException {
     writeSomeFileToGfs();
     PersonIdent committer = new PersonIdent("test_committer_name", "test_committer@email.com");
-    RevCommit commit = Gfs.commit(gfs)
-                         .committer(committer)
-                         .execute();
-    assert commit != null;
-    assertEquals(committer, commit.getAuthorIdent());
+    Result result = Gfs.commit(gfs).committer(committer).execute();
+    assertEquals(committer, result.getCommit().getAuthorIdent());
   }
 
   @Test
-  public void commitWithAuthorAndCommitter_theResultCommitShouldHaveTheInputAuthorAndCommitter() throws IOException {
+  public void commitWithAuthorAndCommitter_theResultCommitShouldHaveTheSpecifiedAuthorAndCommitter() throws IOException {
     writeSomeFileToGfs();
     PersonIdent author = new PersonIdent("test_author_name", "test_author@email.com");
     PersonIdent committer = new PersonIdent("test_committer_name", "test_committer@email.com");
-    RevCommit commit = Gfs.commit(gfs)
-                         .committer(committer)
-                         .author(author)
-                         .execute();
-    assert commit != null;
-    assertEquals(author, commit.getAuthorIdent());
+    Result result = Gfs.commit(gfs).committer(committer).author(author).execute();
+    RevCommit resultCommit = result.getCommit();
+    assertEquals(author, resultCommit.getAuthorIdent());
+    assertEquals(committer, resultCommit.getCommitterIdent());
   }
 
   @Test
-  public void amendCommit_theResultCommitShouldHaveTheSameParentCommitsAsTheAmendedCommit() throws IOException {
+  public void amendCommit_theResultCommitShouldHaveTheSameParentsAsTheAmendedCommit() throws IOException {
+    RevCommit[] parents = gfs.getStatusProvider().commit().getParents();
     writeSomeFileToGfs();
-    assert gfs.getCommit() != null;
-    RevCommit[] parents = gfs.getCommit().getParents();
-    RevCommit commit = Gfs.commit(gfs)
-                         .amend(true)
-                         .execute();
-    assert commit != null;
-    assertArrayEquals(parents, commit.getParents());
+    Result result = Gfs.commit(gfs).amend(true).execute();
+    assertArrayEquals(parents, result.getCommit().getParents());
   }
 
   @Test
-  public void amendInBranch_theResultCommitShouldBecomeTheHeadOfBranch() throws IOException {
+  public void amendInBranch_theResultCommitShouldEqualTheHeadOfTheAttachedBranch() throws IOException {
     writeSomeFileToGfs();
-    RevCommit commit = Gfs.commit(gfs)
-                         .amend(true)
-                         .execute();
-    assert gfs.getBranch() != null;
-    assertEquals(repo.resolve(gfs.getBranch()), commit);
+    Result result = Gfs.commit(gfs).amend(true).execute();
+    assertEquals(repo.resolve(gfs.getStatusProvider().branch()), result.getCommit());
   }
 
   @Test
-  public void amendCommitMessage_theResultCommitShouldHaveTheInputMessage() throws IOException {
-    RevCommit commit = Gfs.commit(gfs)
-                         .message("test_message")
-                         .amend(true)
-                         .execute();
-    assert commit != null;
-    assertEquals("test_message", commit.getFullMessage());
+  public void amendCommitMessage_theResultCommitShouldHaveTheNewMessage() throws IOException {
+    Result result = Gfs.commit(gfs).message("test_message").amend(true).execute();
+    assertEquals("test_message", result.getCommit().getFullMessage());
   }
 
   @Test
   public void amendCommitAuthor_theResultCommitShouldHaveTheInputAuthor() throws IOException {
     PersonIdent author = new PersonIdent("test_author_name", "test_author@email.com");
-    RevCommit commit = Gfs.commit(gfs)
-                         .author(author)
-                         .amend(true)
-                         .execute();
-    assert commit != null;
-    assertEquals(author, commit.getAuthorIdent());
+    Result result = Gfs.commit(gfs).author(author).amend(true).execute();
+    assertEquals(author, result.getCommit().getAuthorIdent());
   }
 
   @Test
   public void amendCommitCommitter_theResultCommitShouldHaveTheInputCommitter() throws IOException {
     PersonIdent committer = new PersonIdent("test_committer_name", "test_committer@email.com");
-    RevCommit commit = Gfs.commit(gfs)
-                         .committer(committer)
-                         .amend(true)
-                         .execute();
-    assert commit != null;
-    assertEquals(committer, commit.getCommitterIdent());
+    Result result = Gfs.commit(gfs).committer(committer).amend(true).execute();
+    assertEquals(committer, result.getCommit().getCommitterIdent());
   }
 
 }

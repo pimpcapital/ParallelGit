@@ -8,14 +8,14 @@ public class GfsParamsTest {
 
   @Test
   public void setBranch_theResultParamsShouldContainTheInputBranch() {
-    GfsParams params = GfsParams.emptyMap().setBranch("test_branch");
-    assertEquals("test_branch", params.getBranch());
+    GfsParams params = GfsParams.emptyMap().branch("test_branch");
+    assertEquals("test_branch", params.branch());
   }
 
   @Test
   public void setCommit_theResultParamsShouldContainTheInputCommit() {
-    GfsParams params = GfsParams.emptyMap().setCommit("test_commit");
-    assertEquals("test_commit", params.getCommit());
+    GfsParams params = GfsParams.emptyMap().commit("test_commit");
+    assertEquals("test_commit", params.commit());
   }
 
 }

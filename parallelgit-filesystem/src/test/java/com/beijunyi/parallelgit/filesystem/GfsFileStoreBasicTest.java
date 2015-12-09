@@ -11,22 +11,22 @@ public class GfsFileStoreBasicTest extends PreSetupGitFileSystemTest {
 
   @Test
   public void getName_shouldReturnTheFileSystemSessionId() {
-    assertEquals(gfs.getSessionId(), store.name());
+    assertEquals(gfs.getSessionId(), fileStore.name());
   }
 
   @Test
   public void getType_shouldReturnGitfs() throws IOException {
-    assertEquals("gitfs", store.type());
+    assertEquals("gitfs", fileStore.type());
   }
 
   @Test
   public void testIsReadOnly_shouldReturnFalse() throws IOException {
-    assertFalse(store.isReadOnly());
+    assertFalse(fileStore.isReadOnly());
   }
 
   @Test
   public void getFileStoreAttributeView_shouldReturnNull() {
-    assertNull(store.getFileStoreAttributeView(FileStoreAttributeView.class));
+    assertNull(fileStore.getFileStoreAttributeView(FileStoreAttributeView.class));
   }
 
 }

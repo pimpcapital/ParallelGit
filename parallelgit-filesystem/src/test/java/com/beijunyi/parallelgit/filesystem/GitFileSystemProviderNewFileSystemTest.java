@@ -9,7 +9,6 @@ import com.beijunyi.parallelgit.filesystem.utils.GfsUriBuilder;
 import org.eclipse.jgit.lib.AnyObjectId;
 import org.eclipse.jgit.lib.Repository;
 import org.eclipse.jgit.revwalk.RevCommit;
-import org.eclipse.jgit.revwalk.RevTree;
 import org.junit.Test;
 
 import static org.junit.Assert.*;
@@ -83,25 +82,5 @@ public class GitFileSystemProviderNewFileSystemTest extends AbstractGitFileSyste
       assertEquals(commit.getTree(), baseTree);
     }
   }
-
-  @Test
-  public void openWithTree() throws IOException {
-    initFileRepository(true);
-    writeToCache("some_file");
-    RevTree tree = commitToMaster().getTree();
-    URI uri = GfsUriBuilder.prepare()
-                .repository(repoDir)
-                .build();
-    try (GitFileSystem gfs = provider.newFileSystem(uri, Collections.singletonMap(GfsParams.TREE_KEY, tree))) {
-      assertNull(gfs.getBranch());
-
-      assertNull(gfs.getCommit());
-
-      AnyObjectId baseTree = gfs.getTree();
-      assertNotNull(baseTree);
-      assertEquals(tree, baseTree);
-    }
-  }
-
 
 }

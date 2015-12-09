@@ -38,8 +38,7 @@ public abstract class AbstractGitFileSystemTest extends AbstractParallelGitTest 
   protected void initGitFileSystemForBranch(@Nonnull String branch) throws IOException {
     assert repo != null;
     if(gfs == null)
-      injectGitFileSystem(Gfs.newFileSystem()
-                            .repository(repo)
+      injectGitFileSystem(Gfs.newFileSystem(repo)
                             .branch(branch)
                             .build());
   }
@@ -47,24 +46,19 @@ public abstract class AbstractGitFileSystemTest extends AbstractParallelGitTest 
   protected void initGitFileSystemForRevision(@Nonnull AnyObjectId revisionId) throws IOException {
     assert repo != null;
     if(gfs == null)
-      injectGitFileSystem(Gfs.newFileSystem()
-                            .repository(repo)
+      injectGitFileSystem(Gfs.newFileSystem(repo)
                             .commit(revisionId)
                             .build());
   }
 
-  protected void initGitFileSystemForTree(@Nonnull AnyObjectId treeId) throws IOException {
-    assert repo != null;
-    if(gfs == null)
-      injectGitFileSystem(Gfs.newFileSystem()
-                            .repository(repo)
-                            .tree(treeId)
-                            .build());
-  }
-
-  protected void initGitFileSystem() throws IOException {
+  protected void initGitFileSystem(@Nonnull String... files) throws IOException {
     if(repo == null)
       initRepository();
+    if(files.length != 0) {
+      for(String file : files)
+        writeToCache(file);
+      commitToMaster();
+    }
     initGitFileSystemForBranch(Constants.MASTER);
   }
 

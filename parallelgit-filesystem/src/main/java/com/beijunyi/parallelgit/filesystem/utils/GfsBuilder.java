@@ -73,11 +73,11 @@ public class GfsBuilder {
 
   @Nonnull
   public GfsBuilder readParams(@Nonnull GfsParams params) throws IOException {
-    String branchValue = params.getBranch();
+    String branchValue = params.branch();
     if(branchValue != null)
       branch(branchValue);
 
-    String commitValue = params.getCommit();
+    String commitValue = params.commit();
     if(commitValue != null)
       commit(commitValue);
     return this;

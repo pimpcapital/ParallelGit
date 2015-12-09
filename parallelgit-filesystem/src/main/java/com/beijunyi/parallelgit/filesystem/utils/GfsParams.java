@@ -33,31 +33,31 @@ public class GfsParams extends HashMap<String, String> {
   }
 
   @Nonnull
-  public GfsParams setBranch(@Nullable String branch) {
+  public GfsParams branch(@Nullable String branch) {
     if(branch != null)
       put(BRANCH_KEY, branch);
     return this;
   }
 
   @Nullable
-  public String getBranch() {
+  public String branch() {
     return get(BRANCH_KEY);
   }
 
   @Nonnull
-  public GfsParams setCommit(@Nullable String commit) {
+  public GfsParams commit(@Nullable String commit) {
     if(commit != null)
       put(COMMIT_KEY, commit);
     return this;
   }
 
   @Nonnull
-  public GfsParams setCommit(@Nullable AnyObjectId commit) {
-    return setCommit(commit != null ? commit.getName() : null);
+  public GfsParams commit(@Nullable AnyObjectId commit) {
+    return commit(commit != null ? commit.getName() : null);
   }
 
   @Nullable
-  public String getCommit() {
+  public String commit() {
     return get(COMMIT_KEY);
   }
 

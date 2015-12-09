@@ -9,7 +9,6 @@ import com.beijunyi.parallelgit.AbstractParallelGitTest;
 import com.beijunyi.parallelgit.filesystem.GitFileSystem;
 import com.beijunyi.parallelgit.filesystem.utils.GfsParams;
 import com.beijunyi.parallelgit.filesystem.utils.GfsUriBuilder;
-import org.eclipse.jgit.lib.AnyObjectId;
 import org.eclipse.jgit.revwalk.RevCommit;
 import org.junit.Before;
 import org.junit.Test;
@@ -40,8 +39,8 @@ public class FileSystemsTest extends AbstractParallelGitTest {
     URI uri = GfsUriBuilder.prepare()
                 .repository(repoDir)
                 .build();
-    FileSystem fs = FileSystems.newFileSystem(uri, GfsParams.emptyMap().setBranch("test_branch"));
-    assertEquals("test_branch", ((GitFileSystem)fs).getBranch());
+    FileSystem fs = FileSystems.newFileSystem(uri, GfsParams.emptyMap().branch("test_branch"));
+    assertEquals("test_branch", ((GitFileSystem)fs).getStatusProvider().branch());
   }
 
   @Test
@@ -49,20 +48,9 @@ public class FileSystemsTest extends AbstractParallelGitTest {
     URI uri = GfsUriBuilder.prepare()
                 .repository(repoDir)
                 .build();
-    FileSystem fs = FileSystems.newFileSystem(uri, GfsParams.emptyMap().setCommit(head));
-    assertEquals(head, ((GitFileSystem)fs).getCommit());
+    FileSystem fs = FileSystems.newFileSystem(uri, GfsParams.emptyMap().commit(head));
+    assertEquals(head, ((GitFileSystem)fs).getStatusProvider().commit());
   }
-
-  @Test
-  public void newFileSystemFromUri_withTreeParam() throws IOException {
-    URI uri = GfsUriBuilder.prepare()
-                .repository(repoDir)
-                .build();
-    AnyObjectId treeId = head.getTree();
-    FileSystem fs = FileSystems.newFileSystem(uri, GfsParams.emptyMap().setTree(treeId));
-    assertEquals(treeId, ((GitFileSystem)fs).getTree());
-  }
-
 
   @Test
   public void newFileSystemFromPath() throws IOException {
