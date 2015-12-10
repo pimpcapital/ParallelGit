@@ -12,6 +12,7 @@ import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 
 import com.beijunyi.parallelgit.filesystem.io.*;
+import com.beijunyi.parallelgit.filesystem.utils.GfsConfiguration;
 import com.beijunyi.parallelgit.filesystem.utils.GfsUriUtils;
 
 import static java.nio.file.StandardOpenOption.*;
@@ -39,6 +40,11 @@ public class GitFileSystemProvider extends FileSystemProvider {
   @Nonnull
   @Override
   public GitFileSystem newFileSystem(@Nonnull URI uri, @Nonnull Map<String, ?> properties) throws IOException {
+    return Gfs.newFileSystem(uri, properties);
+  }
+
+  @Nonnull
+  public GitFileSystem newFileSystem(@Nonnull GfsConfiguration config) throws IOException {
     return Gfs.newFileSystem(uri, properties);
   }
 

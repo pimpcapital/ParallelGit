@@ -6,7 +6,6 @@ import java.util.Collections;
 
 import com.beijunyi.parallelgit.filesystem.utils.GfsParams;
 import com.beijunyi.parallelgit.filesystem.utils.GfsUriBuilder;
-import org.eclipse.jgit.lib.AnyObjectId;
 import org.eclipse.jgit.lib.Repository;
 import org.eclipse.jgit.revwalk.RevCommit;
 import org.junit.Test;
@@ -50,15 +49,11 @@ public class GitFileSystemProviderNewFileSystemTest extends AbstractGitFileSyste
                 .repository(repoDir)
                 .build();
     try(GitFileSystem gfs = provider.newFileSystem(uri, Collections.singletonMap(GfsParams.BRANCH_KEY, "test_branch"))) {
-      assertEquals("test_branch", gfs.getBranch());
+      assertEquals("test_branch", gfs.getStatusProvider().branch());
 
-      RevCommit baseCommit = gfs.getCommit();
+      RevCommit baseCommit = gfs.getStatusProvider().commit();
       assertNotNull(baseCommit);
       assertEquals(commit, baseCommit);
-
-      AnyObjectId baseTree = gfs.getTree();
-      assertNotNull(baseTree);
-      assertEquals(commit.getTree(), baseTree);
     }
   }
 
@@ -71,15 +66,11 @@ public class GitFileSystemProviderNewFileSystemTest extends AbstractGitFileSyste
                 .repository(repoDir)
                 .build();
     try(GitFileSystem gfs = provider.newFileSystem(uri, Collections.singletonMap(GfsParams.COMMIT_KEY, commit))) {
-      assertNull(gfs.getBranch());
+      assertNull(gfs.getStatusProvider().branch());
 
-      RevCommit baseCommit = gfs.getCommit();
+      RevCommit baseCommit = gfs.getStatusProvider().commit();
       assertNotNull(baseCommit);
       assertEquals(commit, baseCommit);
-
-      AnyObjectId baseTree = gfs.getTree();
-      assertNotNull(baseTree);
-      assertEquals(commit.getTree(), baseTree);
     }
   }
 

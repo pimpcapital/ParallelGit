@@ -9,7 +9,7 @@ import javax.annotation.Nonnull;
 
 import com.beijunyi.parallelgit.filesystem.commands.GfsCommitCommand;
 import com.beijunyi.parallelgit.filesystem.commands.GfsMergeCommand;
-import com.beijunyi.parallelgit.filesystem.utils.GfsBuilder;
+import com.beijunyi.parallelgit.filesystem.utils.GfsConfiguration;
 import com.beijunyi.parallelgit.filesystem.utils.GfsParams;
 import com.beijunyi.parallelgit.filesystem.utils.GfsUriUtils;
 import org.eclipse.jgit.lib.AnyObjectId;
@@ -18,18 +18,18 @@ import org.eclipse.jgit.lib.Repository;
 public final class Gfs {
 
   @Nonnull
-  public static GfsBuilder newFileSystem(@Nonnull Repository repo) {
-    return new GfsBuilder(repo);
+  public static GfsConfiguration newFileSystem(@Nonnull Repository repo) {
+    return new GfsConfiguration(repo);
   }
 
   @Nonnull
-  public static GfsBuilder newFileSystem(@Nonnull File repoDir) throws IOException {
-    return new GfsBuilder(repoDir);
+  public static GfsConfiguration newFileSystem(@Nonnull File repoDir) throws IOException {
+    return new GfsConfiguration(repoDir);
   }
 
   @Nonnull
-  public static GfsBuilder newFileSystem(@Nonnull String repoDir) throws IOException {
-    return new GfsBuilder(repoDir);
+  public static GfsConfiguration newFileSystem(@Nonnull String repoDir) throws IOException {
+    return new GfsConfiguration(repoDir);
   }
 
   @Nonnull

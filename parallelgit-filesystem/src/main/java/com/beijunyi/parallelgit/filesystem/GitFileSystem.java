@@ -8,11 +8,11 @@ import java.util.regex.Pattern;
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 
+import com.beijunyi.parallelgit.filesystem.utils.GfsConfiguration;
 import com.beijunyi.parallelgit.filesystem.utils.GitGlobs;
 import com.beijunyi.parallelgit.utils.io.TreeSnapshot;
 import org.eclipse.jgit.lib.AnyObjectId;
 import org.eclipse.jgit.lib.Repository;
-import org.eclipse.jgit.revwalk.RevCommit;
 
 import static com.beijunyi.parallelgit.filesystem.io.GfsFileAttributeView.Basic.BASIC_VIEW;
 import static com.beijunyi.parallelgit.filesystem.io.GfsFileAttributeView.Posix.POSIX_VIEW;
@@ -33,7 +33,7 @@ public class GitFileSystem extends FileSystem {
 
   private volatile boolean closed = false;
 
-  public GitFileSystem(@Nonnull Repository repository, @Nullable String branch, @Nullable RevCommit commit) throws IOException {
+  public GitFileSystem(@Nonnull GfsConfiguration config) throws IOException {
     sid = randomUUID().toString();
     objectService = new GfsObjectService(repository);
     fileStore = new GfsFileStore(commit != null ? commit.getTree() : null, objectService);

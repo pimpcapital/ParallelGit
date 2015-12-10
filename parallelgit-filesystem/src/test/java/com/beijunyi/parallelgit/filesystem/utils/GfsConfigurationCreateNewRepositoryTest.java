@@ -10,7 +10,7 @@ import org.junit.Test;
 
 import static org.junit.Assert.assertEquals;
 
-public class GfsBuilderCreateNewRepositoryTest extends AbstractParallelGitTest {
+public class GfsConfigurationCreateNewRepositoryTest extends AbstractParallelGitTest {
 
   @Before
   public void setupRepository() throws IOException {
@@ -38,8 +38,7 @@ public class GfsBuilderCreateNewRepositoryTest extends AbstractParallelGitTest {
 
   @Test
   public void buildWithCreateAndBareOption_nonBare() throws IOException {
-    GitFileSystem gfs = Gfs.newFileSystem()
-                          .repository(repoDir)
+    GitFileSystem gfs = Gfs.newFileSystem(repoDir)
                           .create()
                           .bare(false)
                           .build();
