@@ -10,21 +10,24 @@ import javax.annotation.Nullable;
 
 import com.beijunyi.parallelgit.filesystem.utils.GfsConfiguration;
 import com.beijunyi.parallelgit.filesystem.utils.GitGlobs;
+import com.beijunyi.parallelgit.utils.RefUtils;
 import com.beijunyi.parallelgit.utils.io.TreeSnapshot;
 import org.eclipse.jgit.lib.AnyObjectId;
 import org.eclipse.jgit.lib.Repository;
+import org.eclipse.jgit.revwalk.RevCommit;
 
 import static com.beijunyi.parallelgit.filesystem.io.GfsFileAttributeView.Basic.BASIC_VIEW;
 import static com.beijunyi.parallelgit.filesystem.io.GfsFileAttributeView.Posix.POSIX_VIEW;
 import static java.util.Arrays.asList;
 import static java.util.Collections.unmodifiableSet;
-import static java.util.UUID.randomUUID;
+import static org.eclipse.jgit.lib.Constants.MASTER;
 
 public class GitFileSystem extends FileSystem {
 
+  public static final Set<String> SUPPORTED_VIEWS = unmodifiableSet(new HashSet<>(asList(BASIC_VIEW, POSIX_VIEW)));
+
   private static final String GLOB_SYNTAX = "glob";
   private static final String REGEX_SYNTAX = "regex";
-  private static final Set<String> SUPPORTED_VIEWS = unmodifiableSet(new HashSet<>(asList(BASIC_VIEW, POSIX_VIEW)));
 
   private final String sid;
   private final GfsObjectService objectService;
@@ -33,18 +36,21 @@ public class GitFileSystem extends FileSystem {
 
   private volatile boolean closed = false;
 
-  public GitFileSystem(@Nonnull GfsConfiguration config) throws IOException {
-    sid = randomUUID().toString();
-    objectService = new GfsObjectService(repository);
+  public GitFileSystem(@Nonnull GfsConfiguration cfg, @Nonnull String sid) throws IOException {
+    this.sid = sid;
+    objectService = new GfsObjectService(cfg.repository());
+    RevCommit commit = cfg.commit();
+    String branch = cfg.branch();
+    if(branch == null && commit == null)
+      branch = RefUtils.ensureBranchRefName(MASTER);
     fileStore = new GfsFileStore(commit != null ? commit.getTree() : null, objectService);
     statusProvider = new GfsStatusProvider(fileStore, branch, commit);
-    GitFileSystemProvider.INSTANCE.register(this);
   }
 
   @Nonnull
   @Override
   public GitFileSystemProvider provider() {
-    return GitFileSystemProvider.INSTANCE;
+    return GitFileSystemProvider.getInstance();
   }
 
   @Override
@@ -52,7 +58,7 @@ public class GitFileSystem extends FileSystem {
     if(!closed) {
       closed = true;
       objectService.close();
-      GitFileSystemProvider.INSTANCE.unregister(this);
+      GitFileSystemProvider.getInstance().unregister(this);
     }
   }
 
@@ -207,7 +213,7 @@ public class GitFileSystem extends FileSystem {
   @Override
   public boolean equals(@Nullable Object that) {
     return this == that
-             || !(that == null || getClass() != that.getClass()) && sid.equals(((GitFileSystem)that).sid);
+             || (that != null && getClass() == that.getClass() && sid.equals(((GitFileSystem)that).sid));
 
   }
 
@@ -216,4 +222,9 @@ public class GitFileSystem extends FileSystem {
     return sid.hashCode();
   }
 
+  @Override
+  protected void finalize() throws Throwable {
+    super.finalize();
+    close();
+  }
 }

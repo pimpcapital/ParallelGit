@@ -2,40 +2,71 @@ package com.beijunyi.parallelgit.filesystem.utils;
 
 import java.io.File;
 import java.io.IOException;
+import java.net.URI;
+import java.nio.file.Path;
+import java.util.Map;
 import javax.annotation.Nonnull;
+import javax.annotation.Nullable;
 
-import com.beijunyi.parallelgit.filesystem.GitFileSystem;
 import com.beijunyi.parallelgit.filesystem.exceptions.HeadAlreadyDefinedException;
-import com.beijunyi.parallelgit.filesystem.exceptions.RepositoryAlreadyDefinedException;
-import com.beijunyi.parallelgit.utils.BranchUtils;
-import com.beijunyi.parallelgit.utils.CommitUtils;
+import com.beijunyi.parallelgit.utils.RefUtils;
+import org.eclipse.jgit.internal.storage.dfs.DfsRepositoryDescription;
+import org.eclipse.jgit.internal.storage.dfs.InMemoryRepository;
 import org.eclipse.jgit.lib.AnyObjectId;
+import org.eclipse.jgit.lib.Ref;
 import org.eclipse.jgit.lib.Repository;
 import org.eclipse.jgit.revwalk.RevCommit;
 
-import static com.beijunyi.parallelgit.filesystem.GitFileSystemProvider.GFS;
+import static com.beijunyi.parallelgit.filesystem.GitFileSystemProvider.*;
+import static com.beijunyi.parallelgit.utils.BranchUtils.branchExists;
+import static com.beijunyi.parallelgit.utils.CommitUtils.*;
 import static com.beijunyi.parallelgit.utils.RepositoryUtils.*;
-import static org.eclipse.jgit.lib.Constants.MASTER;
 
 public class GfsConfiguration {
 
-  private Repository repo;
-  private File repoDir = new File(GFS);
-  private Boolean create = null;
-  private Boolean bare = null;
-  private String branch = MASTER;
+  private final Repository repo;
+  private String branchRef;
   private RevCommit commit;
 
   public GfsConfiguration(@Nonnull Repository repo) {
     this.repo = repo;
   }
 
-  public GfsConfiguration(@Nonnull File repoDir) throws IOException {
-    this(openRepository(repoDir));
+  @Nonnull
+  public static GfsConfiguration repo(@Nonnull Repository repo) {
+    return new GfsConfiguration(repo);
   }
 
-  public GfsConfiguration(@Nonnull String repoDir) throws IOException {
-    this(new File(repoDir));
+  @Nonnull
+  public static GfsConfiguration inMemoryRepo() {
+    return repo(new InMemoryRepository(new DfsRepositoryDescription()));
+  }
+
+  @Nonnull
+  public static GfsConfiguration fileRepo(@Nonnull File repoDir) throws IOException {
+    Repository repo = repoDir.exists() ? openRepository(repoDir) : createRepository(repoDir);
+    return repo(repo);
+  }
+
+  @Nonnull
+  public static GfsConfiguration fileRepo(@Nonnull String repoDir) throws IOException {
+    return fileRepo(new File(repoDir));
+  }
+
+  @Nonnull
+  public static GfsConfiguration fileRepo(@Nonnull Path repoDir) throws IOException {
+    return fileRepo(repoDir.toFile());
+  }
+
+  @Nonnull
+  public static GfsConfiguration fromPath(@Nonnull Path repoDir, @Nonnull Map<String, ?> props) throws IOException {
+    return fileRepo(repoDir).readProperties(props);
+  }
+
+  @Nonnull
+  public static GfsConfiguration fromUri(@Nonnull URI uri, @Nonnull Map<String, ?> props) throws IOException {
+    String repoDir = GfsUriUtils.getRepository(uri);
+    return fileRepo(repoDir).readProperties(props);
   }
 
   @Nonnull
@@ -44,104 +75,62 @@ public class GfsConfiguration {
   }
 
   @Nonnull
-  public GfsConfiguration repository(@Nonnull Repository repo) {
-    this.repo = repo;
-    repoDir = repo.getDirectory();
-    return this;
-  }
-
-  @Nonnull
-  public GfsConfiguration repository(@Nonnull File repoDir) {
-    if(this.repoDir != null && !this.repoDir.equals(repoDir))
-      throw new RepositoryAlreadyDefinedException();
-    this.repoDir = repoDir;
-    return this;
-  }
-
-  @Nonnull
-  public GfsConfiguration create(boolean create) {
-    this.create = create;
-    return this;
-  }
-
-  @Nonnull
-  public GfsConfiguration create() {
-    return create(true);
-  }
-
-  @Nonnull
-  public GfsConfiguration bare(boolean bare) {
-    this.bare = bare;
-    return this;
-  }
-
-  @Nonnull
-  public GfsConfiguration bare() {
-    return bare(true);
-  }
-
-  @Nonnull
-  public GfsConfiguration branch(@Nonnull String branch) throws IOException {
+  public GfsConfiguration branch(@Nonnull String name) throws IOException {
     if(commit != null)
       throw new HeadAlreadyDefinedException();
-    this.branch = branch;
+    if(!branchExists(name, repo) && commitExists(name, repo))
+      commit = getCommit(name, repo);
+    else {
+      branchRef = RefUtils.ensureBranchRefName(name);
+      commit = getCommit(branchRef, repo);
+    }
     return this;
+  }
+
+  @Nonnull
+  public GfsConfiguration branch(@Nonnull Ref ref) throws IOException {
+    return branch(ref.getName());
+  }
+
+  @Nullable
+  public String branch() throws IOException {
+    return branchRef;
   }
 
   @Nonnull
   public GfsConfiguration commit(@Nonnull RevCommit commit) {
-    if(branch != null)
+    if(branchRef != null || this.commit != null)
       throw new HeadAlreadyDefinedException();
     this.commit = commit;
     return this;
   }
 
   @Nonnull
-  public GfsConfiguration commit(@Nonnull AnyObjectId commit) throws IOException {
-    return commit(CommitUtils.getCommit(commit, repo));
+  public GfsConfiguration commit(@Nonnull AnyObjectId id) throws IOException {
+    return commit(getCommit(id, repo));
   }
 
   @Nonnull
-  public GfsConfiguration commit(@Nonnull String commit) throws IOException {
-    return commit(CommitUtils.getCommit(commit, repo));
+  public GfsConfiguration commit(@Nonnull String id) throws IOException {
+    return commit(getCommit(id, repo));
+  }
+
+  @Nullable
+  public RevCommit commit() {
+    return commit;
   }
 
   @Nonnull
-  public GitFileSystem build() throws IOException {
-    if(branch == null && commit == null)
-      branch = MASTER;
-    if(commit == null) {
-      AnyObjectId commitId = repo.resolve(branch);
-      commit = commitId != null ? CommitUtils.getCommit(commitId, repo) : null;
+  private GfsConfiguration readProperties(@Nonnull Map<String, ?> props) throws IOException {
+    String branch = (String) props.get(BRANCH);
+    if(branch != null)
+      branch(branch);
+    else {
+      String commit = (String) props.get(COMMIT);
+      if(commit != null)
+        commit(commit);
     }
-    if(branch != null && !BranchUtils.branchExists(branch, repo) && commit != null)
-      branch = null;
-    return new GitFileSystem(repo, branch, commit);
-  }
-
-  @Nonnull
-  public GfsConfiguration readParams(@Nonnull GfsParams params) throws IOException {
-    String branchValue = params.branch();
-    if(branchValue != null)
-      branch(branchValue);
-
-    String commitValue = params.commit();
-    if(commitValue != null)
-      commit(commitValue);
     return this;
-  }
-
-  private void prepareRepository() throws IOException {
-    if(repo == null) {
-      if(create == null)
-        create = !repoDir.exists();
-      if(create && bare == null)
-        bare = true;
-      if(create)
-        repo = createRepository(repoDir, bare);
-      else
-        repo = bare != null ? openRepository(repoDir, bare) : openRepository(repoDir);
-    }
   }
 
 }

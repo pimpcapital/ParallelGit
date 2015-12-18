@@ -240,7 +240,7 @@ public abstract class AbstractParallelGitTest {
     private final File workTree;
 
     public TestRepository(boolean bare) {
-      super(new DfsRepositoryDescription(null));
+      super(new DfsRepositoryDescription());
       File mockLocation = new File(System.getProperty("java.io.tmpdir"));
       directory = bare ? mockLocation : new File(mockLocation, Constants.DOT_GIT);
       workTree = bare ? null : mockLocation;

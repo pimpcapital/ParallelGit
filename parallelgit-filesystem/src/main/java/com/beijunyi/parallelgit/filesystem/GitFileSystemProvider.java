@@ -16,14 +16,24 @@ import com.beijunyi.parallelgit.filesystem.utils.GfsConfiguration;
 import com.beijunyi.parallelgit.filesystem.utils.GfsUriUtils;
 
 import static java.nio.file.StandardOpenOption.*;
+import static java.util.UUID.randomUUID;
 
 public class GitFileSystemProvider extends FileSystemProvider {
 
   public static final String GFS = "gfs";
-  public static final GitFileSystemProvider INSTANCE = getInstalledProvider();
+  public static final String BRANCH = "branch";
+  public static final String COMMIT = "commit";
+  public static final Set<OpenOption> SUPPORTED_OPEN_OPTIONS = new HashSet<>(Arrays.<OpenOption>asList(READ, SPARSE, CREATE, CREATE_NEW, WRITE, APPEND, TRUNCATE_EXISTING));
 
-  private final static Set<OpenOption> SUPPORTED_OPEN_OPTIONS = new HashSet<>(Arrays.<OpenOption>asList(READ, SPARSE, CREATE, CREATE_NEW, WRITE, APPEND, TRUNCATE_EXISTING));
-  private final Map<String, GitFileSystem> fsMap = new ConcurrentHashMap<>();
+  private static final GitFileSystemProvider INSTANCE = getInstalledProvider();
+  private static final Map<String, GitFileSystem> FILE_SYSTEMS = new ConcurrentHashMap<>();
+
+  private GitFileSystemProvider() {}
+
+  @Nonnull
+  public static GitFileSystemProvider getInstance() {
+    return INSTANCE;
+  }
 
   @Nonnull
   @Override
@@ -34,48 +44,48 @@ public class GitFileSystemProvider extends FileSystemProvider {
   @Nonnull
   @Override
   public GitFileSystem newFileSystem(@Nonnull Path path, @Nonnull Map<String, ?> properties) throws IOException {
-    return Gfs.newFileSystem(path, properties);
+    return newFileSystem(GfsConfiguration.fromPath(path, properties));
   }
 
   @Nonnull
   @Override
   public GitFileSystem newFileSystem(@Nonnull URI uri, @Nonnull Map<String, ?> properties) throws IOException {
-    return Gfs.newFileSystem(uri, properties);
+    return newFileSystem(GfsConfiguration.fromUri(uri, properties));
   }
 
   @Nonnull
-  public GitFileSystem newFileSystem(@Nonnull GfsConfiguration config) throws IOException {
-    return Gfs.newFileSystem(uri, properties);
-  }
-
-  public void register(@Nonnull GitFileSystem gfs) {
-    fsMap.put(gfs.getSessionId(), gfs);
+  public GitFileSystem newFileSystem(@Nonnull GfsConfiguration cfg) throws IOException {
+    String sid = randomUUID().toString();
+    GitFileSystem ret = new GitFileSystem(cfg, sid);
+    FILE_SYSTEMS.put(sid, ret);
+    return ret;
   }
 
   public void unregister(@Nonnull GitFileSystem gfs) {
-    fsMap.remove(gfs.getSessionId());
+    FILE_SYSTEMS.remove(gfs.getSessionId());
   }
 
-  @Nullable
-  public GitFileSystem getFileSystem(@Nonnull String sessionId) {
-    return fsMap.get(sessionId);
-  }
-
-  @Nullable
+  @Nonnull
   @Override
   public GitFileSystem getFileSystem(@Nonnull URI uri) {
     String session = GfsUriUtils.getSession(uri);
     if(session == null)
-      return null;
+      throw new FileSystemNotFoundException();
     return getFileSystem(session);
+  }
+
+  @Nonnull
+  public GitFileSystem getFileSystem(@Nonnull String sid) {
+    GitFileSystem ret = FILE_SYSTEMS.get(sid);
+    if(ret == null)
+      throw new FileSystemNotFoundException(sid);
+    return ret;
   }
 
   @Nonnull
   @Override
   public GitPath getPath(@Nonnull URI uri) throws FileSystemNotFoundException {
     GitFileSystem gfs = getFileSystem(uri);
-    if(gfs == null)
-      throw new FileSystemNotFoundException(uri.toString());
     String file = GfsUriUtils.getFile(uri);
     return gfs.getPath(file).toRealPath();
   }
