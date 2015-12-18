@@ -20,44 +20,37 @@ public class GfsConfigurationTest extends AbstractParallelGitTest {
 
   @Test
   public void buildFromRepository() throws IOException {
-    GitFileSystem gfs = Gfs.newFileSystem(repo)
-                          .build();
+    GitFileSystem gfs = Gfs.newFileSystem(repo);
     assertEquals(repo.getDirectory(), gfs.getRepository().getDirectory());
   }
 
   @Test
   public void buildFromRepositoryDirectory() throws IOException {
-    GitFileSystem gfs = Gfs.newFileSystem(repo.getDirectory())
-                          .build();
+    GitFileSystem gfs = Gfs.newFileSystem(repo.getDirectory());
     assertEquals(repo.getDirectory(), gfs.getRepository().getDirectory());
   }
 
   @Test
   public void buildFromRepositoryDirectoryPath() throws IOException {
-    GitFileSystem gfs = Gfs.newFileSystem(repo.getDirectory().getAbsolutePath())
-                          .build();
+    GitFileSystem gfs = Gfs.newFileSystem(repo.getDirectory().getAbsolutePath());
     assertEquals(repo.getDirectory(), gfs.getRepository().getDirectory());
   }
 
   @Test
   public void buildFromRepositoryWorkTree() throws IOException {
-    GitFileSystem gfs = Gfs.newFileSystem(repo.getWorkTree())
-                          .build();
+    GitFileSystem gfs = Gfs.newFileSystem(repo.getWorkTree());
     assertEquals(repo.getDirectory(), gfs.getRepository().getDirectory());
   }
 
   @Test
   public void buildFromRepositoryWorkTreePath() throws IOException {
-    GitFileSystem gfs = Gfs.newFileSystem(repo.getWorkTree().getAbsolutePath())
-                          .build();
+    GitFileSystem gfs = Gfs.newFileSystem(repo.getWorkTree().getAbsolutePath());
     assertEquals(repo.getDirectory(), gfs.getRepository().getDirectory());
   }
 
   @Test
   public void buildWithBranch() throws IOException {
-    GitFileSystem gfs = Gfs.newFileSystem(repo)
-                          .branch("test_branch")
-                          .build();
+    GitFileSystem gfs = Gfs.newFileSystem("test_branch", repo);
     assertEquals("test_branch", gfs.getStatusProvider().branch());
   }
 
@@ -65,9 +58,7 @@ public class GfsConfigurationTest extends AbstractParallelGitTest {
   public void buildWithRevision() throws IOException {
     writeSomeFileToCache();
     AnyObjectId commit = commitToMaster();
-    GitFileSystem gfs = Gfs.newFileSystem(repo)
-                          .commit(commit)
-                          .build();
+    GitFileSystem gfs = Gfs.newFileSystem(commit, repo);
     assertEquals(commit, gfs.getStatusProvider().commit());
   }
 
@@ -75,9 +66,7 @@ public class GfsConfigurationTest extends AbstractParallelGitTest {
   public void buildWithRevisionString() throws IOException {
     writeSomeFileToCache();
     AnyObjectId commit = commitToMaster();
-    GitFileSystem gfs = Gfs.newFileSystem(repo)
-                          .commit(commit.getName())
-                          .build();
+    GitFileSystem gfs = Gfs.newFileSystem(commit.getName(), repo);
     assertEquals(commit, gfs.getStatusProvider().commit());
   }
 

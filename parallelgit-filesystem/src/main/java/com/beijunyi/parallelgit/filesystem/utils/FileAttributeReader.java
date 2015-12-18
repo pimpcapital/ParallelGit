@@ -9,13 +9,13 @@ public class FileAttributeReader {
 
   private final Map<String, Object> attributeMap = new HashMap<>();
 
-  private FileAttributeReader(@Nonnull Collection<FileAttribute> attributes) {
+  private FileAttributeReader(@Nonnull Collection<? extends FileAttribute> attributes) {
     for(FileAttribute attribute : attributes)
       attributeMap.put(attribute.name(), attribute.value());
   }
 
   @Nonnull
-  public static FileAttributeReader read(@Nonnull Collection<FileAttribute> attributes) {
+  public static FileAttributeReader read(@Nonnull Collection<? extends FileAttribute> attributes) {
     return new FileAttributeReader(attributes);
   }
 

@@ -41,8 +41,7 @@ public class GitPathEqualTest extends AbstractGitFileSystemTest {
 
   @Test
   public void hashCodesFromDifferentFileSystemTest() throws IOException {
-    GitFileSystem other = Gfs.newFileSystem(repo)
-                            .build();
+    GitFileSystem other = Gfs.newFileSystem(repo);
     GitPath p1 = gfs.getPath("/a/b/c");
     GitPath p2 = other.getPath("/a/b/c");
     assertFalse(p1.equals(p2));

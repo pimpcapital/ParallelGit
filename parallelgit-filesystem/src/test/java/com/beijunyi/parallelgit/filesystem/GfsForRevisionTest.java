@@ -16,7 +16,7 @@ public class GfsForRevisionTest extends AbstractParallelGitTest {
     writeSomeFileToCache();
     commitToBranch("test_branch");
     GitFileSystem gfs = Gfs.newFileSystem("test_branch", repo);
-    assertEquals("test_branch", gfs.getBranch());
+    assertEquals("test_branch", gfs.getStatusProvider().branch());
   }
 
   @Test
@@ -25,7 +25,7 @@ public class GfsForRevisionTest extends AbstractParallelGitTest {
     writeSomeFileToCache();
     RevCommit commit = commit(null);
     GitFileSystem gfs = Gfs.newFileSystem(commit.getName(), repo);
-    assertEquals(commit, gfs.getCommit());
+    assertEquals(commit, gfs.getStatusProvider().commit());
   }
 
   @Test

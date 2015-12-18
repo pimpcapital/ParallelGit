@@ -86,7 +86,7 @@ public final class GfsIO {
   }
 
   @Nonnull
-  public static GfsSeekableByteChannel newByteChannel(@Nonnull GitPath file, @Nonnull Set<OpenOption> options, @Nonnull Collection<FileAttribute> attrs) throws IOException {
+  public static GfsSeekableByteChannel newByteChannel(@Nonnull GitPath file, @Nonnull Set<? extends OpenOption> options, @Nonnull Collection<? extends FileAttribute> attrs) throws IOException {
     if(file.isRoot())
       throw new AccessDeniedException(file.toString());
     FileNode node;

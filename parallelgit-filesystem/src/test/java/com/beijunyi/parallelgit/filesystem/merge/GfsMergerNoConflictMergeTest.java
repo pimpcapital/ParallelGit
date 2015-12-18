@@ -233,7 +233,7 @@ public class GfsMergerNoConflictMergeTest extends AbstractParallelGitTest {
       merger.merge(ours, theirs);
       tree = merger.getResultTreeId();
     }
-    assertArrayEquals(expected, TreeUtils.readFile("/same_changes.txt", tree, repo));
+    assertArrayEquals(expected, TreeUtils.readFile("/same_changes.txt", tree, repo).getBytes());
   }
 
   @Test
@@ -256,7 +256,7 @@ public class GfsMergerNoConflictMergeTest extends AbstractParallelGitTest {
       merger.merge(ours, theirs);
       tree = merger.getResultTreeId();
     }
-    assertArrayEquals(expected, TreeUtils.readFile("/target", tree, repo));
+    assertArrayEquals(expected, TreeUtils.readFile("/target", tree, repo).getBytes());
   }
 
   @Test
@@ -279,7 +279,7 @@ public class GfsMergerNoConflictMergeTest extends AbstractParallelGitTest {
       merger.merge(ours, theirs);
       tree = merger.getResultTreeId();
     }
-    assertArrayEquals(expected, TreeUtils.readFile("/target/test_file.txt", tree, repo));
+    assertArrayEquals(expected, TreeUtils.readFile("/target/test_file.txt", tree, repo).getBytes());
   }
 
   @Test
@@ -301,7 +301,7 @@ public class GfsMergerNoConflictMergeTest extends AbstractParallelGitTest {
       merger.merge(ours, theirs);
       tree = merger.getResultTreeId();
     }
-    assertArrayEquals("".getBytes(), TreeUtils.readFile("/test_file.txt", tree, repo));
+    assertArrayEquals("".getBytes(), TreeUtils.readFile("/test_file.txt", tree, repo).getBytes());
   }
 
 }

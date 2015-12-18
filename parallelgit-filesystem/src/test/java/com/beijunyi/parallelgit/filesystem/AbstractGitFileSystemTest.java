@@ -5,7 +5,6 @@ import java.nio.file.Files;
 import javax.annotation.Nonnull;
 
 import com.beijunyi.parallelgit.AbstractParallelGitTest;
-import org.eclipse.jgit.lib.AnyObjectId;
 import org.eclipse.jgit.lib.Constants;
 
 public abstract class AbstractGitFileSystemTest extends AbstractParallelGitTest {
@@ -38,17 +37,7 @@ public abstract class AbstractGitFileSystemTest extends AbstractParallelGitTest 
   protected void initGitFileSystemForBranch(@Nonnull String branch) throws IOException {
     assert repo != null;
     if(gfs == null)
-      injectGitFileSystem(Gfs.newFileSystem(repo)
-                            .branch(branch)
-                            .build());
-  }
-
-  protected void initGitFileSystemForRevision(@Nonnull AnyObjectId revisionId) throws IOException {
-    assert repo != null;
-    if(gfs == null)
-      injectGitFileSystem(Gfs.newFileSystem(repo)
-                            .commit(revisionId)
-                            .build());
+      injectGitFileSystem(Gfs.newFileSystem(branch, repo));
   }
 
   protected void initGitFileSystem(@Nonnull String... files) throws IOException {
