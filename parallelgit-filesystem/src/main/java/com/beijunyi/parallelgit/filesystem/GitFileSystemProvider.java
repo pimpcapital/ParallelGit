@@ -28,8 +28,6 @@ public class GitFileSystemProvider extends FileSystemProvider {
   private static final GitFileSystemProvider INSTANCE = getInstalledProvider();
   private static final Map<String, GitFileSystem> FILE_SYSTEMS = new ConcurrentHashMap<>();
 
-  private GitFileSystemProvider() {}
-
   @Nonnull
   public static GitFileSystemProvider getInstance() {
     return INSTANCE;

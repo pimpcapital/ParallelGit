@@ -5,18 +5,19 @@ import java.nio.file.attribute.FileStoreAttributeView;
 
 import org.junit.Test;
 
+import static com.beijunyi.parallelgit.filesystem.GitFileSystemProvider.GFS;
 import static org.junit.Assert.*;
 
 public class GfsFileStoreBasicTest extends PreSetupGitFileSystemTest {
 
   @Test
   public void getName_shouldReturnTheFileSystemSessionId() {
-    assertEquals(gfs.getSessionId(), fileStore.name());
+    assertEquals(GFS, fileStore.name());
   }
 
   @Test
   public void getType_shouldReturnGitfs() throws IOException {
-    assertEquals("gitfs", fileStore.type());
+    assertEquals(GFS, fileStore.type());
   }
 
   @Test
