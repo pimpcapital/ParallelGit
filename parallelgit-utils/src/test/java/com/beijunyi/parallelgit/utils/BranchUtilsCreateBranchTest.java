@@ -4,7 +4,7 @@ import java.io.IOException;
 
 import com.beijunyi.parallelgit.AbstractParallelGitTest;
 import com.beijunyi.parallelgit.utils.exceptions.BranchAlreadyExistsException;
-import com.beijunyi.parallelgit.utils.exceptions.NoSuchRevisionException;
+import com.beijunyi.parallelgit.utils.exceptions.NoSuchCommitException;
 import org.eclipse.jgit.lib.AnyObjectId;
 import org.eclipse.jgit.revwalk.RevCommit;
 import org.junit.Assert;
@@ -98,7 +98,7 @@ public class BranchUtilsCreateBranchTest extends AbstractParallelGitTest {
     BranchUtils.createBranch("test_branch", commit.getName(), repo);
   }
 
-  @Test(expected = NoSuchRevisionException.class)
+  @Test(expected = NoSuchCommitException.class)
   public void createBranchFromNonExistentStartPoint_shouldThrowNoSuchRevisionException() throws IOException {
     BranchUtils.createBranch("test_branch", "non_existent_start_point", repo);
   }

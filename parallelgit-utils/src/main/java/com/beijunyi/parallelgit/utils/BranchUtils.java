@@ -18,7 +18,9 @@ public final class BranchUtils {
 
   @Nonnull
   public static List<RevCommit> getHistory(@Nonnull String name, @Nonnull Repository repo) throws IOException {
-    String branchRef = ensureBranchRefName(name);
+    Ref branchRef = repo.getRef(ensureBranchRefName(name));
+    if(branchRef == null)
+      throw new NoSuchBranchException(name);
     RevCommit head = CommitUtils.getCommit(branchRef, repo);
     return CommitUtils.getCommitHistory(head, repo);
   }

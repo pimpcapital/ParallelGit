@@ -8,7 +8,7 @@ import java.util.List;
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 
-import com.beijunyi.parallelgit.utils.exceptions.NoSuchRevisionException;
+import com.beijunyi.parallelgit.utils.exceptions.NoSuchCommitException;
 import org.eclipse.jgit.dircache.DirCache;
 import org.eclipse.jgit.lib.*;
 import org.eclipse.jgit.revwalk.RevCommit;
@@ -50,7 +50,7 @@ public final class CommitUtils {
   public static RevCommit getCommit(@Nonnull String id, @Nonnull Repository repo) throws IOException {
     AnyObjectId commitId = repo.resolve(id);
     if(commitId == null)
-      throw new NoSuchRevisionException(id);
+      throw new NoSuchCommitException(id);
     return getCommit(commitId, repo);
   }
 
