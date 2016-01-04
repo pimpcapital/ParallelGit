@@ -21,18 +21,18 @@ public class DirectoryNode extends Node<TreeSnapshot> {
 
   private ConcurrentMap<String, Node> children;
 
-  protected DirectoryNode(@Nullable AnyObjectId id, @Nonnull GfsObjectService gds) {
-    super(id, gds);
+  protected DirectoryNode(@Nullable AnyObjectId id, @Nonnull GfsObjectService objService) {
+    super(id, objService);
   }
 
   @Nonnull
-  public static DirectoryNode fromObject(@Nonnull AnyObjectId id, @Nonnull GfsObjectService gds) {
-    return new DirectoryNode(id, gds);
+  public static DirectoryNode fromObject(@Nonnull AnyObjectId id, @Nonnull GfsObjectService objService) {
+    return new DirectoryNode(id, objService);
   }
 
   @Nonnull
-  public static DirectoryNode newDirectory(@Nonnull GfsObjectService gds) {
-    DirectoryNode ret = new DirectoryNode(null, gds);
+  public static DirectoryNode newDirectory(@Nonnull GfsObjectService objService) {
+    DirectoryNode ret = new DirectoryNode(null, objService);
     ret.setupEmptyDirectory();
     return ret;
   }
@@ -63,7 +63,7 @@ public class DirectoryNode extends Node<TreeSnapshot> {
   @Nullable
   @Override
   public TreeSnapshot loadSnapshot() throws IOException {
-    return id != null ? gds.readTree(id) : null;
+    return id != null ? objService.readTree(id) : null;
   }
 
   @Nullable
@@ -81,23 +81,23 @@ public class DirectoryNode extends Node<TreeSnapshot> {
     }
     TreeSnapshot ret = TreeSnapshot.capture(entries, allowEmpty);
     if(persist)
-      id = ret != null ? gds.write(ret) : null;
+      id = ret != null ? objService.write(ret) : null;
     return ret;
   }
 
   @Nonnull
   @Override
-  public Node clone(@Nonnull GfsObjectService targetGds) throws IOException {
-    DirectoryNode ret = new DirectoryNode(null, targetGds);
+  public Node clone(@Nonnull GfsObjectService targetObjService) throws IOException {
+    DirectoryNode ret = new DirectoryNode(null, targetObjService);
     if(isInitialized()) {
       for(Map.Entry<String, Node> child : children.entrySet()) {
         String name = child.getKey();
         Node node = child.getValue();
-        ret.addChild(name, node.clone(targetGds), false);
+        ret.addChild(name, node.clone(targetObjService), false);
       }
     } else {
       ret.id = id;
-      targetGds.pullObject(id, gds);
+      targetObjService.pullObject(id, objService);
     }
     return ret;
   }
@@ -139,7 +139,7 @@ public class DirectoryNode extends Node<TreeSnapshot> {
       TreeSnapshot tree = loadSnapshot();
       if(tree != null)
         for(Map.Entry<String, GitFileEntry> entry : tree.getChildren().entrySet())
-          children.put(entry.getKey(), Node.fromEntry(entry.getValue(), gds));
+          children.put(entry.getKey(), Node.fromEntry(entry.getValue(), objService));
     }
   }
 

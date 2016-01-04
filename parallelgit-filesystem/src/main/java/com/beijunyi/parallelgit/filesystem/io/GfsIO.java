@@ -126,7 +126,7 @@ public final class GfsIO {
       throw new AccessDeniedException(target.toString());
     GitPath targetParent = getParent(target);
     DirectoryNode targetDirectory = findDirectory(targetParent);
-    Node targetNode = sourceNode.clone(getDataService(target));
+    Node targetNode = sourceNode.clone(getObjService(target));
     if(!targetDirectory.addChild(getFileName(target), targetNode, options.contains(REPLACE_EXISTING)))
       throw new FileAlreadyExistsException(target.toString());
     return true;
@@ -163,7 +163,7 @@ public final class GfsIO {
   }
 
   @Nonnull
-  private static GfsObjectService getDataService(@Nonnull GitPath path) {
+  private static GfsObjectService getObjService(@Nonnull GitPath path) {
     return path.getFileSystem().getObjectService();
   }
 

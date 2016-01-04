@@ -17,32 +17,32 @@ public class FileNode extends Node<BlobSnapshot> {
   private byte[] bytes;
   private long size = -1;
 
-  private FileNode(@Nullable AnyObjectId id, @Nonnull FileMode mode, @Nonnull GfsObjectService gds) {
-    super(id, gds);
+  private FileNode(@Nullable AnyObjectId id, @Nonnull FileMode mode, @Nonnull GfsObjectService objService) {
+    super(id, objService);
     this.mode = mode;
   }
 
   @Nonnull
-  protected static FileNode fromObject(@Nonnull AnyObjectId id, @Nonnull FileMode mode, @Nonnull GfsObjectService gds) {
-    return new FileNode(id, mode, gds);
+  protected static FileNode fromObject(@Nonnull AnyObjectId id, @Nonnull FileMode mode, @Nonnull GfsObjectService objService) {
+    return new FileNode(id, mode, objService);
   }
 
   @Nonnull
-  public static FileNode newFile(@Nonnull byte[] bytes, @Nonnull FileMode mode, @Nonnull GfsObjectService gds) {
-    FileNode ret = new FileNode(null, mode, gds);
+  public static FileNode newFile(@Nonnull byte[] bytes, @Nonnull FileMode mode, @Nonnull GfsObjectService objService) {
+    FileNode ret = new FileNode(null, mode, objService);
     ret.bytes = bytes;
     return ret;
   }
 
   @Nonnull
-  public static FileNode newFile(boolean executable, @Nonnull GfsObjectService gds) {
-    return new FileNode(null, executable ? EXECUTABLE_FILE : REGULAR_FILE, gds);
+  public static FileNode newFile(boolean executable, @Nonnull GfsObjectService objService) {
+    return new FileNode(null, executable ? EXECUTABLE_FILE : REGULAR_FILE, objService);
   }
 
   public long getSize() throws IOException {
     if(size != -1)
       return size;
-    size = gds.getBlobSize(id);
+    size = objService.getBlobSize(id);
     return size;
   }
 
@@ -68,7 +68,7 @@ public class FileNode extends Node<BlobSnapshot> {
   @Nullable
   @Override
   public BlobSnapshot loadSnapshot() throws IOException {
-    return id != null ? gds.readBlob(id) : null;
+    return id != null ? objService.readBlob(id) : null;
   }
 
   @Nullable
@@ -78,19 +78,19 @@ public class FileNode extends Node<BlobSnapshot> {
       return null;
     BlobSnapshot ret = BlobSnapshot.capture(bytes);
     if(persist)
-      id = gds.write(ret);
+      id = objService.write(ret);
     return ret;
   }
 
   @Nonnull
   @Override
-  public Node clone(@Nonnull GfsObjectService targetGds) throws IOException {
-    FileNode ret = new FileNode(null, mode, targetGds);
+  public Node clone(@Nonnull GfsObjectService targetObjService) throws IOException {
+    FileNode ret = new FileNode(null, mode, targetObjService);
     if(bytes != null)
       ret.bytes = bytes;
     else {
       ret.id = id;
-      targetGds.pullObject(id, gds);
+      targetObjService.pullObject(id, objService);
     }
     return ret;
   }

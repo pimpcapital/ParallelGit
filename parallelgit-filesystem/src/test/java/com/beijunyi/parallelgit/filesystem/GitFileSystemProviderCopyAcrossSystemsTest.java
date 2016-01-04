@@ -64,7 +64,7 @@ public class GitFileSystemProviderCopyAcrossSystemsTest extends AbstractGitFileS
     GitPath source = gfs.getPath("/source.txt");
     GitPath target = targetGfs.getPath("/target.txt");
     provider.copy(source, target);
-    assertTrue(gfs.getStatusProvider().isDirty());
+    assertTrue(targetGfs.getStatusProvider().isDirty());
   }
 
   @Test
@@ -122,7 +122,7 @@ public class GitFileSystemProviderCopyAcrossSystemsTest extends AbstractGitFileS
     GitPath source = gfs.getPath("/source");
     GitPath target = targetGfs.getPath("/target");
     provider.copy(source, target);
-    assertTrue(gfs.getStatusProvider().isDirty());
+    assertTrue(targetGfs.getStatusProvider().isDirty());
   }
 
 }

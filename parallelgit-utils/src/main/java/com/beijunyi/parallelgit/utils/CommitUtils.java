@@ -56,6 +56,8 @@ public final class CommitUtils {
 
   public static boolean commitExists(@Nonnull String id, @Nonnull Repository repo) throws IOException {
     AnyObjectId obj = repo.resolve(id);
+    if(obj == null)
+      return false;
     try(RevWalk rw = new RevWalk(repo)) {
       return rw.parseAny(obj).getType() == Constants.OBJ_COMMIT;
     }

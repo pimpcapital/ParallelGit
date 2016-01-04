@@ -14,25 +14,25 @@ import static org.eclipse.jgit.lib.FileMode.*;
 
 public abstract class Node<Snapshot extends ObjectSnapshot> {
 
-  protected final GfsObjectService gds;
+  protected final GfsObjectService objService;
 
   protected volatile AnyObjectId id;
 
-  protected Node(@Nullable AnyObjectId id, @Nonnull GfsObjectService gds) {
+  protected Node(@Nullable AnyObjectId id, @Nonnull GfsObjectService objService) {
     this.id = id;
-    this.gds = gds;
+    this.objService = objService;
   }
 
   @Nonnull
-  public static Node fromEntry(@Nonnull GitFileEntry entry, @Nonnull GfsObjectService gds) {
+  public static Node fromEntry(@Nonnull GitFileEntry entry, @Nonnull GfsObjectService objService) {
     if(entry.getMode() == TREE)
-      return DirectoryNode.fromObject(entry.getId(), gds);
-    return FileNode.fromObject(entry.getId(), entry.getMode(), gds);
+      return DirectoryNode.fromObject(entry.getId(), objService);
+    return FileNode.fromObject(entry.getId(), entry.getMode(), objService);
   }
 
   @Nonnull
   public GfsObjectService getDataService() {
-    return gds;
+    return objService;
   }
 
   public boolean isRegularFile() {
@@ -72,6 +72,6 @@ public abstract class Node<Snapshot extends ObjectSnapshot> {
   public abstract Snapshot takeSnapshot(boolean persist, boolean allowEmpty) throws IOException;
 
   @Nonnull
-  public abstract Node clone(@Nonnull GfsObjectService targetGds) throws IOException;
+  public abstract Node clone(@Nonnull GfsObjectService targetObjService) throws IOException;
 
 }

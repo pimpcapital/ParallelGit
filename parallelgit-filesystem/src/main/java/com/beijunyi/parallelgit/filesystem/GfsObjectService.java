@@ -30,6 +30,14 @@ public class GfsObjectService implements Closeable {
     return repo;
   }
 
+  @Nonnull
+  public ObjectLoader open(@Nonnull AnyObjectId objectId) throws IOException {
+    checkClosed();
+    synchronized(reader) {
+      return reader.open(objectId);
+    }
+  }
+
   public boolean hasObject(@Nonnull AnyObjectId objectId) throws IOException {
     checkClosed();
     synchronized(reader) {
@@ -65,20 +73,26 @@ public class GfsObjectService implements Closeable {
     return snapshot.insert(inserter);
   }
 
-  public void pullObject(@Nonnull AnyObjectId id, @Nonnull GfsObjectService sourceGds) throws IOException {
+  public void pullObject(@Nonnull AnyObjectId id, boolean flush, @Nonnull GfsObjectService sourceObjService) throws IOException {
     if(!hasObject(id)) {
-      ObjectLoader loader = sourceGds.reader.open(id);
+      ObjectLoader loader = sourceObjService.open(id);
       switch(loader.getType()) {
         case OBJ_TREE:
-          pullTree(id, sourceGds);
+          pullTree(id, sourceObjService);
           break;
         case OBJ_BLOB:
-          pullBlob(id, sourceGds);
+          pullBlob(id, sourceObjService);
           break;
         default:
           throw new UnsupportedOperationException(id.toString());
       }
+      if(flush)
+        flush();
     }
+  }
+
+  public void pullObject(@Nonnull AnyObjectId id, @Nonnull GfsObjectService sourceObjService) throws IOException {
+    pullObject(id, true, sourceObjService);
   }
 
   public void flush() throws IOException {
@@ -98,15 +112,15 @@ public class GfsObjectService implements Closeable {
     }
   }
 
-  private void pullTree(@Nonnull AnyObjectId id, @Nonnull GfsObjectService sourceGds) throws IOException {
-    TreeSnapshot tree = sourceGds.readTree(id);
+  private void pullTree(@Nonnull AnyObjectId id, @Nonnull GfsObjectService sourceObjService) throws IOException {
+    TreeSnapshot tree = sourceObjService.readTree(id);
     for(GitFileEntry entry : tree.getChildren().values())
-      pullObject(entry.getId(), sourceGds);
+      pullObject(entry.getId(), false, sourceObjService);
     write(tree);
   }
 
-  private void pullBlob(@Nonnull AnyObjectId id, @Nonnull GfsObjectService sourceGds) throws IOException {
-    write(sourceGds.readBlob(id));
+  private void pullBlob(@Nonnull AnyObjectId id, @Nonnull GfsObjectService sourceObjService) throws IOException {
+    write(sourceObjService.readBlob(id));
   }
 
   private void checkClosed() {

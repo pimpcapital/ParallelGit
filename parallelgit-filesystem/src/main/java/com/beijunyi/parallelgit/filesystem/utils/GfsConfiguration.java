@@ -25,7 +25,7 @@ import static com.beijunyi.parallelgit.utils.RepositoryUtils.*;
 public class GfsConfiguration {
 
   private final Repository repo;
-  private String branchRef;
+  private String branch;
   private RevCommit commit;
 
   public GfsConfiguration(@Nonnull Repository repo) {
@@ -81,8 +81,10 @@ public class GfsConfiguration {
     if(!branchExists(name, repo) && commitExists(name, repo))
       commit = getCommit(name, repo);
     else {
-      branchRef = RefUtils.ensureBranchRefName(name);
-      commit = getCommit(branchRef, repo);
+      branch = RefUtils.ensureBranchRefName(name);
+      Ref ref = repo.getRef(branch);
+      if(ref != null)
+        commit = getCommit(ref, repo);
     }
     return this;
   }
@@ -94,12 +96,12 @@ public class GfsConfiguration {
 
   @Nullable
   public String branch() throws IOException {
-    return branchRef;
+    return branch;
   }
 
   @Nonnull
   public GfsConfiguration commit(@Nonnull RevCommit commit) {
-    if(branchRef != null || this.commit != null)
+    if(branch != null || this.commit != null)
       throw new HeadAlreadyDefinedException();
     this.commit = commit;
     return this;

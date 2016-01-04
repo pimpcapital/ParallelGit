@@ -16,6 +16,7 @@ import com.beijunyi.parallelgit.filesystem.utils.GfsConfiguration;
 import com.beijunyi.parallelgit.filesystem.utils.GfsUriUtils;
 
 import static java.nio.file.StandardOpenOption.*;
+import static java.util.Arrays.asList;
 import static java.util.UUID.randomUUID;
 
 public class GitFileSystemProvider extends FileSystemProvider {
@@ -101,7 +102,7 @@ public class GitFileSystemProvider extends FileSystemProvider {
     }
     if(!amended.contains(WRITE))
       amended.add(READ);
-    return GfsIO.newByteChannel(((GitPath)path).toRealPath(), amended, Arrays.asList(attrs));
+    return GfsIO.newByteChannel(((GitPath)path).toRealPath(), amended, asList(attrs));
   }
 
   @Nonnull
@@ -122,12 +123,12 @@ public class GitFileSystemProvider extends FileSystemProvider {
 
   @Override
   public void copy(@Nonnull Path source, @Nonnull Path target, @Nonnull CopyOption... options) throws IOException {
-    GfsIO.copy((GitPath)source, (GitPath)target, new HashSet<>(Arrays.asList(options)));
+    GfsIO.copy((GitPath)source, (GitPath)target, new HashSet<>(asList(options)));
   }
 
   @Override
   public void move(@Nonnull Path source, @Nonnull Path target, @Nonnull CopyOption... options) throws IOException {
-    GfsIO.move((GitPath)source, (GitPath)target, new HashSet<>(Arrays.asList(options)));
+    GfsIO.move((GitPath)source, (GitPath)target, new HashSet<>(asList(options)));
   }
 
   @Override
@@ -151,7 +152,7 @@ public class GitFileSystemProvider extends FileSystemProvider {
 
   @Override
   public void checkAccess(@Nonnull Path path, @Nonnull AccessMode... modes) throws IOException {
-    GfsIO.checkAccess(((GitPath)path).toRealPath(), new HashSet<>(Arrays.asList(modes)));
+    GfsIO.checkAccess(((GitPath)path).toRealPath(), new HashSet<>(asList(modes)));
   }
 
   @Nullable
@@ -200,7 +201,7 @@ public class GitFileSystemProvider extends FileSystemProvider {
     GfsFileAttributeView view = getFileAttributeView(path, viewType, options);
     if(view == null)
       throw new NoSuchFileException(path.toString());
-    return view.readAttributes(Arrays.asList(keys.split(",")));
+    return view.readAttributes(asList(keys.split(",")));
   }
 
   @Override
