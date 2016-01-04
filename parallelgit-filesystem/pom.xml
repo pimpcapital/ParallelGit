@@ -25,12 +25,6 @@
       <type>test-jar</type>
       <scope>test</scope>
     </dependency>
-    <dependency>
-      <groupId>com.beijunyi</groupId>
-      <artifactId>parallelgit-commands</artifactId>
-      <version>1.0.1-SNAPSHOT</version>
-      <scope>test</scope>
-    </dependency>
   </dependencies>
 
   <build>
