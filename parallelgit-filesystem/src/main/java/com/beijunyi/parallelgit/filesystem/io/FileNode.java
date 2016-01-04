@@ -42,7 +42,7 @@ public class FileNode extends Node<BlobSnapshot> {
   public long getSize() throws IOException {
     if(size != -1)
       return size;
-    size = objService.getBlobSize(id);
+    size = id != null ? objService.getBlobSize(id) : 0;
     return size;
   }
 

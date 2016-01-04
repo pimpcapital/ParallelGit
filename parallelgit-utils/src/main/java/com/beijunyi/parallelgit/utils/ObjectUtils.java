@@ -9,13 +9,15 @@ import com.beijunyi.parallelgit.utils.io.BlobSnapshot;
 import com.beijunyi.parallelgit.utils.io.TreeSnapshot;
 import org.eclipse.jgit.lib.*;
 
+import static org.eclipse.jgit.lib.Constants.OBJ_BLOB;
+
 public final class ObjectUtils {
 
 
   @Nonnull
   public static AnyObjectId insertBlob(@Nonnull byte[] data, @Nonnull Repository repo) throws IOException {
     try(ObjectInserter inserter = repo.newObjectInserter()) {
-      AnyObjectId blobId = inserter.insert(Constants.OBJ_BLOB, data);
+      AnyObjectId blobId = inserter.insert(OBJ_BLOB, data);
       inserter.flush();
       return blobId;
     }
@@ -34,13 +36,14 @@ public final class ObjectUtils {
   }
 
   public static long getBlobSize(@Nonnull AnyObjectId id, @Nonnull ObjectReader reader) throws IOException {
-    return reader.getObjectSize(id, Constants.OBJ_BLOB);
+    return reader.getObjectSize(id, OBJ_BLOB);
   }
 
   public static long getBlobSize(@Nonnull AnyObjectId id, @Nonnull Repository repo) throws IOException {
     try(ObjectReader reader = repo.newObjectReader()) {
       return getBlobSize(id, reader);
-    }  }
+    }
+  }
 
   @Nonnull
   public static InputStream openBlob(@Nonnull AnyObjectId id, @Nonnull ObjectReader reader) throws IOException {
