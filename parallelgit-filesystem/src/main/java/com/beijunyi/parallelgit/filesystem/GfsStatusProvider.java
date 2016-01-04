@@ -12,6 +12,7 @@ import com.beijunyi.parallelgit.filesystem.exceptions.NoHeadCommitException;
 import com.beijunyi.parallelgit.filesystem.merge.GfsMergeNote;
 import com.beijunyi.parallelgit.utils.RefUtils;
 import com.beijunyi.parallelgit.utils.io.TreeSnapshot;
+import org.eclipse.jgit.lib.AnyObjectId;
 import org.eclipse.jgit.revwalk.RevCommit;
 
 import static org.eclipse.jgit.lib.Constants.R_HEADS;
@@ -40,9 +41,9 @@ public class GfsStatusProvider implements AutoCloseable {
   public boolean isDirty() throws IOException {
     if(commit == null)
       return true;
-    TreeSnapshot root = fileStore.getRoot().takeSnapshot(false, true);
-    assert root != null;
-    return !commit.getTree().equals(root.getId());
+    TreeSnapshot snapshot = fileStore.getRoot().takeSnapshot(false, true);
+    AnyObjectId id = snapshot != null ? snapshot.getId() : fileStore.getRoot().getObjectId();
+    return !commit.getTree().equals(id);
   }
 
   public void lock() {

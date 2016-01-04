@@ -204,10 +204,14 @@ public class GitFileSystem extends FileSystem {
   @Nonnull
   public AnyObjectId flush() throws IOException {
     TreeSnapshot snapshot = fileStore.getRoot().takeSnapshot(true, true);
-    assert snapshot != null;
-    AnyObjectId tree = snapshot.getId();
-    objectService.flush();
-    return tree;
+    AnyObjectId id;
+    if(snapshot != null) {
+      id = snapshot.getId();
+      objectService.flush();
+    } else
+      id = fileStore.getRoot().getObjectId();
+    assert id != null;
+    return id;
   }
 
   @Override

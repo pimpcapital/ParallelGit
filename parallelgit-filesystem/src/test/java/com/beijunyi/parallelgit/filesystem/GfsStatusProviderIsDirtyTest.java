@@ -28,9 +28,9 @@ public class GfsStatusProviderIsDirtyTest extends PreSetupGitFileSystemTest {
   }
 
   @Test
-  public void testIsDirtyAfterChangesArePersisted_shouldReturnFalse() throws IOException {
+  public void testIsDirtyAfterChangesAreCommitted_shouldReturnFalse() throws IOException {
     Files.write(gfs.getPath("/some_file.txt"), "some text content".getBytes());
-    gfs.getFileStore();
+    Gfs.commit(gfs).execute();
     assertFalse(statusProvider.isDirty());
   }
 

@@ -36,11 +36,4 @@ public class GitFileSystemPersistTest extends PreSetupGitFileSystemTest {
     }
   }
 
-  @Test
-  public void persistChanges_theFileSystemShouldBecomeClean() throws IOException {
-    Files.write(gfs.getPath("/some_file.txt"), "some text content".getBytes());
-    gfs.flush();
-    assertFalse(gfs.getStatusProvider().isDirty());
-  }
-
 }

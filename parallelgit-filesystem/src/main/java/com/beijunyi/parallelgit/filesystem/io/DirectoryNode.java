@@ -32,7 +32,9 @@ public class DirectoryNode extends Node<TreeSnapshot> {
 
   @Nonnull
   public static DirectoryNode newDirectory(@Nonnull GfsObjectService gds) {
-    return new DirectoryNode(null, gds);
+    DirectoryNode ret = new DirectoryNode(null, gds);
+    ret.setupEmptyDirectory();
+    return ret;
   }
 
   @Override
@@ -67,7 +69,7 @@ public class DirectoryNode extends Node<TreeSnapshot> {
   @Nullable
   @Override
   public TreeSnapshot takeSnapshot(boolean persist, boolean allowEmpty) throws IOException {
-    if(children == null)
+    if(!isInitialized())
       return null;
     Map<String, GitFileEntry> entries = new HashMap<>();
     for(Map.Entry<String, Node> child : children.entrySet()) {
@@ -87,7 +89,7 @@ public class DirectoryNode extends Node<TreeSnapshot> {
   @Override
   public Node clone(@Nonnull GfsObjectService targetGds) throws IOException {
     DirectoryNode ret = new DirectoryNode(null, targetGds);
-    if(children != null) {
+    if(isInitialized()) {
       for(Map.Entry<String, Node> child : children.entrySet()) {
         String name = child.getKey();
         Node node = child.getValue();
@@ -102,42 +104,51 @@ public class DirectoryNode extends Node<TreeSnapshot> {
 
   @Nonnull
   public ConcurrentMap<String, Node> getChildren() throws IOException {
-    initChildren();
+    loadChildren();
     return children;
   }
 
   public boolean hasChild(@Nonnull String name) throws IOException {
-    initChildren();
+    loadChildren();
     return children.containsKey(name);
   }
 
   @Nullable
   public Node getChild(@Nonnull String name) throws IOException {
-    initChildren();
+    loadChildren();
     return children.get(name);
   }
 
-  public synchronized boolean addChild(@Nonnull String name, @Nonnull Node child, boolean replace) throws IOException {
-    initChildren();
+  public boolean addChild(@Nonnull String name, @Nonnull Node child, boolean replace) throws IOException {
+    loadChildren();
     if(!replace && children.containsKey(name))
       return false;
     children.put(name, child);
     return true;
   }
 
-  public synchronized boolean removeChild(@Nonnull String name) {
+  public boolean removeChild(@Nonnull String name) throws IOException {
+    loadChildren();
     Node removed = children.remove(name);
     return removed != null;
   }
 
-  private synchronized void initChildren() throws IOException {
-    if(children == null) {
+  private synchronized void loadChildren() throws IOException {
+    if(!isInitialized()) {
+      setupEmptyDirectory();
       TreeSnapshot tree = loadSnapshot();
-      children = new ConcurrentHashMap<>();
       if(tree != null)
         for(Map.Entry<String, GitFileEntry> entry : tree.getChildren().entrySet())
           children.put(entry.getKey(), Node.fromEntry(entry.getValue(), gds));
     }
+  }
+
+  private boolean isInitialized() {
+    return children != null;
+  }
+
+  private void setupEmptyDirectory() {
+    children = new ConcurrentHashMap<>();
   }
 
 }
