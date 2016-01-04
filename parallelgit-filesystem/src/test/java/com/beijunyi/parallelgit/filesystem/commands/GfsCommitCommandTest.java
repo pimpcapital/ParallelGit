@@ -43,7 +43,7 @@ public class GfsCommitCommandTest extends PreSetupGitFileSystemTest {
   public void commitNoChangeWithAllowEmptyOption_theResultCommitShouldHaveTheSameTree() throws IOException {
     RevCommit currentHead = gfs.getStatusProvider().commit();
     Result result = Gfs.commit(gfs).allowEmpty(true).execute();
-    assertNotEquals(currentHead.getTree(), result.getCommit().getTree());
+    assertEquals(currentHead.getTree(), result.getCommit().getTree());
   }
 
   @Test
