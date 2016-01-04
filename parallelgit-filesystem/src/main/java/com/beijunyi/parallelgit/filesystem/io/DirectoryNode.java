@@ -79,7 +79,7 @@ public class DirectoryNode extends Node<TreeSnapshot> {
       if(id != null)
         entries.put(child.getKey(), new GitFileEntry(id, node.getMode()));
     }
-    TreeSnapshot ret = TreeSnapshot.capture(entries, false);
+    TreeSnapshot ret = TreeSnapshot.capture(entries, allowEmpty);
     if(persist)
       id = ret != null ? gds.write(ret) : null;
     return ret;
