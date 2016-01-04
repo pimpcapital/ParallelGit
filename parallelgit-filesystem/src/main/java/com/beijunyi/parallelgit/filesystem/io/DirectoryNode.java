@@ -73,8 +73,9 @@ public class DirectoryNode extends Node<TreeSnapshot> {
     for(Map.Entry<String, Node> child : children.entrySet()) {
       Node node = child.getValue();
       ObjectSnapshot snapshot = node.takeSnapshot(persist, false);
-      if(snapshot != null)
-        entries.put(child.getKey(), new GitFileEntry(snapshot.getId(), node.getMode()));
+      AnyObjectId id = snapshot != null ? snapshot.getId() : node.getObjectId();
+      if(id != null)
+        entries.put(child.getKey(), new GitFileEntry(id, node.getMode()));
     }
     TreeSnapshot ret = TreeSnapshot.capture(entries, false);
     if(persist)

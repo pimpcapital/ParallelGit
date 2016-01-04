@@ -10,8 +10,11 @@ import com.beijunyi.parallelgit.filesystem.exceptions.MergeNotStartedException;
 import com.beijunyi.parallelgit.filesystem.exceptions.NoBranchException;
 import com.beijunyi.parallelgit.filesystem.exceptions.NoHeadCommitException;
 import com.beijunyi.parallelgit.filesystem.merge.GfsMergeNote;
+import com.beijunyi.parallelgit.utils.RefUtils;
 import com.beijunyi.parallelgit.utils.io.TreeSnapshot;
 import org.eclipse.jgit.revwalk.RevCommit;
+
+import static org.eclipse.jgit.lib.Constants.R_HEADS;
 
 public class GfsStatusProvider implements AutoCloseable {
 
@@ -28,8 +31,10 @@ public class GfsStatusProvider implements AutoCloseable {
 
   public GfsStatusProvider(@Nonnull GfsFileStore fileStore, @Nullable String branch, @Nullable RevCommit commit) {
     this.fileStore = fileStore;
-    this.commit = commit;
-    this.branch = branch;
+    if(commit != null)
+      commit(commit);
+    if(branch != null)
+      branch(branch);
   }
 
   public boolean isDirty() throws IOException {
@@ -37,7 +42,7 @@ public class GfsStatusProvider implements AutoCloseable {
       return true;
     TreeSnapshot root = fileStore.getRoot().takeSnapshot(false, true);
     assert root != null;
-    return commit.getTree().equals(root.getId());
+    return !commit.getTree().equals(root.getId());
   }
 
   public void lock() {
@@ -66,13 +71,13 @@ public class GfsStatusProvider implements AutoCloseable {
     checkClosed();
     if(branch == null)
       throw new NoBranchException();
-    return branch;
+    return branch.substring(R_HEADS.length());
   }
 
   @Nonnull
   public GfsStatusProvider branch(@Nonnull String branch) {
     checkClosed();
-    this.branch = branch;
+    this.branch = RefUtils.ensureBranchRefName(branch);
     return this;
   }
 
