@@ -127,14 +127,14 @@ public final class CommitUtils {
   }
 
   @Nonnull
-  public static List<RevCommit> findSquashableCommits(@Nonnull RevCommit start, @Nonnull RevCommit end, @Nonnull ObjectReader reader) throws IOException {
+  public static List<RevCommit> findSquashableCommits(@Nonnull RevCommit start, @Nullable RevCommit end, @Nonnull ObjectReader reader) throws IOException {
     try(RevWalk rw = new RevWalk(reader)) {
       return RevWalkUtils.find(rw, start, end);
     }
   }
 
   @Nonnull
-  public static List<RevCommit> findSquashableCommits(@Nonnull RevCommit start, @Nonnull RevCommit end, @Nonnull Repository repo) throws IOException {
+  public static List<RevCommit> findSquashableCommits(@Nonnull RevCommit start, @Nullable RevCommit end, @Nonnull Repository repo) throws IOException {
     try(ObjectReader reader = repo.newObjectReader()) {
       return findSquashableCommits(start, end, reader);
     }

@@ -10,8 +10,10 @@ import javax.annotation.Nullable;
 
 import com.beijunyi.parallelgit.filesystem.utils.GfsConfiguration;
 import com.beijunyi.parallelgit.filesystem.utils.GitGlobs;
+import com.beijunyi.parallelgit.utils.CacheUtils;
 import com.beijunyi.parallelgit.utils.RefUtils;
 import com.beijunyi.parallelgit.utils.io.TreeSnapshot;
+import org.eclipse.jgit.dircache.DirCache;
 import org.eclipse.jgit.lib.AnyObjectId;
 import org.eclipse.jgit.lib.Repository;
 import org.eclipse.jgit.revwalk.RevCommit;
@@ -30,7 +32,7 @@ public class GitFileSystem extends FileSystem {
   private static final String REGEX_SYNTAX = "regex";
 
   private final String sid;
-  private final GfsObjectService objectService;
+  private final GfsObjectService objService;
   private final GfsFileStore fileStore;
   private final GfsStatusProvider statusProvider;
 
@@ -38,12 +40,12 @@ public class GitFileSystem extends FileSystem {
 
   public GitFileSystem(@Nonnull GfsConfiguration cfg, @Nonnull String sid) throws IOException {
     this.sid = sid;
-    objectService = new GfsObjectService(cfg.repository());
+    objService = new GfsObjectService(cfg.repository());
     RevCommit commit = cfg.commit();
     String branch = cfg.branch();
     if(branch == null && commit == null)
       branch = RefUtils.ensureBranchRefName(MASTER);
-    fileStore = new GfsFileStore(commit != null ? commit.getTree() : null, objectService);
+    fileStore = new GfsFileStore(commit != null ? commit.getTree() : null, objService);
     statusProvider = new GfsStatusProvider(fileStore, branch, commit);
   }
 
@@ -57,7 +59,7 @@ public class GitFileSystem extends FileSystem {
   public synchronized void close() {
     if(!closed) {
       closed = true;
-      objectService.close();
+      objService.close();
       GitFileSystemProvider.getInstance().unregister(this);
     }
   }
@@ -173,7 +175,7 @@ public class GitFileSystem extends FileSystem {
 
   @Nonnull
   public Repository getRepository() {
-    return objectService.getRepository();
+    return objService.getRepository();
   }
 
   @Nonnull
@@ -188,7 +190,7 @@ public class GitFileSystem extends FileSystem {
 
   @Nonnull
   public GfsObjectService getObjectService() {
-    return objectService;
+    return objService;
   }
 
   @Nonnull
@@ -207,11 +209,16 @@ public class GitFileSystem extends FileSystem {
     AnyObjectId id;
     if(snapshot != null) {
       id = snapshot.getId();
-      objectService.flush();
+      objService.flush();
     } else
       id = fileStore.getRoot().getObjectId();
     assert id != null;
     return id;
+  }
+
+  @Nonnull
+  public DirCache toDirCache() throws IOException {
+    return CacheUtils.forTree(flush(), objService.getRepository());
   }
 
   @Override
