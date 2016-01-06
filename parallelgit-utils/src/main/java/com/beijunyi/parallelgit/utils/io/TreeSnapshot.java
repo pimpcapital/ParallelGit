@@ -1,7 +1,9 @@
 package com.beijunyi.parallelgit.utils.io;
 
 import java.io.IOException;
-import java.util.*;
+import java.util.Map;
+import java.util.SortedMap;
+import java.util.TreeMap;
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 
@@ -9,16 +11,20 @@ import com.beijunyi.parallelgit.utils.TreeUtils;
 import org.eclipse.jgit.lib.*;
 import org.eclipse.jgit.treewalk.TreeWalk;
 
+import static java.util.Collections.unmodifiableSortedMap;
+
 public class TreeSnapshot extends ObjectSnapshot {
 
-  private final Map<String, GitFileEntry> children;
+  private static final TreeSnapshot EMPTY_TREE_SNAPSHOT = new TreeSnapshot(new TreeMap<String, GitFileEntry>());
 
-  private TreeSnapshot(@Nonnull Map<String, GitFileEntry> children) {
-    this.children = Collections.unmodifiableMap(new TreeMap<>(children));
+  private final SortedMap<String, GitFileEntry> children;
+
+  private TreeSnapshot(@Nonnull SortedMap<String, GitFileEntry> children) {
+    this.children = unmodifiableSortedMap(children);
   }
 
   @Nonnull
-  public Map<String, GitFileEntry> getChildren() {
+  public SortedMap<String, GitFileEntry> getChildren() {
     return children;
   }
 
@@ -34,7 +40,7 @@ public class TreeSnapshot extends ObjectSnapshot {
 
   @Nonnull
   public static TreeSnapshot load(@Nonnull AnyObjectId id, @Nonnull ObjectReader reader) throws IOException {
-    HashMap<String, GitFileEntry> ret = new HashMap<>();
+    SortedMap<String, GitFileEntry> ret = new TreeMap<>();
     try(TreeWalk tw = TreeUtils.newTreeWalk(id, reader)) {
       while(tw.next())
         ret.put(tw.getNameString(), new GitFileEntry(tw.getObjectId(0), tw.getFileMode(0)));
@@ -42,9 +48,17 @@ public class TreeSnapshot extends ObjectSnapshot {
     return new TreeSnapshot(ret);
   }
 
+  @Nonnull
+  public static TreeSnapshot emptySnapshot() {
+    return EMPTY_TREE_SNAPSHOT;
+  }
+
   @Nullable
-  public static TreeSnapshot capture(@Nonnull Map<String, GitFileEntry> children, boolean allowEmpty) {
-    return allowEmpty || !children.isEmpty() ? new TreeSnapshot(children) : null;
+  public static TreeSnapshot capture(@Nonnull SortedMap<String, GitFileEntry> children, boolean allowEmpty) {
+    if(!children.isEmpty())
+      return new TreeSnapshot(children);
+    else
+      return allowEmpty ? emptySnapshot() : null;
   }
 
   @Nonnull

@@ -1,8 +1,9 @@
 package com.beijunyi.parallelgit.filesystem.io;
 
 import java.io.IOException;
-import java.util.HashMap;
 import java.util.Map;
+import java.util.SortedMap;
+import java.util.TreeMap;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentMap;
 import javax.annotation.Nonnull;
@@ -71,7 +72,7 @@ public class DirectoryNode extends Node<TreeSnapshot> {
   public TreeSnapshot takeSnapshot(boolean persist, boolean allowEmpty) throws IOException {
     if(!isInitialized())
       return null;
-    Map<String, GitFileEntry> entries = new HashMap<>();
+    SortedMap<String, GitFileEntry> entries = new TreeMap<>();
     for(Map.Entry<String, Node> child : children.entrySet()) {
       Node node = child.getValue();
       ObjectSnapshot snapshot = node.takeSnapshot(persist, false);
