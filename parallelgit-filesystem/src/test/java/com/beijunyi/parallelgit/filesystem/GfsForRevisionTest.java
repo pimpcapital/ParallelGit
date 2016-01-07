@@ -13,7 +13,7 @@ public class GfsForRevisionTest extends AbstractParallelGitTest {
   @Test
   public void buildFileSystemForBranch_theResultFileSystemBranchShouldBeTheInputBranch() throws IOException {
     initFileRepository(true);
-    writeSomeFileToCache();
+    writeSomethingToCache();
     commitToBranch("test_branch");
     GitFileSystem gfs = Gfs.newFileSystem("test_branch", repo);
     assertEquals("test_branch", gfs.getStatusProvider().branch());
@@ -22,8 +22,8 @@ public class GfsForRevisionTest extends AbstractParallelGitTest {
   @Test
   public void buildFileSystemForCommit_theResultFileSystemCommitShouldBeTheInputCommit() throws IOException {
     initFileRepository(true);
-    writeSomeFileToCache();
-    RevCommit commit = commit(null);
+    writeSomethingToCache();
+    RevCommit commit = commit();
     GitFileSystem gfs = Gfs.newFileSystem(commit.getName(), repo);
     assertEquals(commit, gfs.getStatusProvider().commit());
   }
@@ -31,7 +31,7 @@ public class GfsForRevisionTest extends AbstractParallelGitTest {
   @Test
   public void buildFileSystemFromBareRepositoryDirectory_theResultFileSystemRepositoryDirectoryShouldEqualTheInputDirectory() throws IOException {
     initFileRepository(true);
-    writeSomeFileToCache();
+    writeSomethingToCache();
     commitToBranch("test_branch");
     GitFileSystem gfs = Gfs.newFileSystem("test_branch", repoDir);
     assertEquals(repoDir, gfs.getRepository().getDirectory());
@@ -40,7 +40,7 @@ public class GfsForRevisionTest extends AbstractParallelGitTest {
   @Test
   public void buildFileSystemFromNonBareRepositoryDirectory_theResultFileSystemRepositoryDirectoryShouldEqualTheInputDirectory() throws IOException {
     initFileRepository(false);
-    writeSomeFileToCache();
+    writeSomethingToCache();
     commitToBranch("test_branch");
     GitFileSystem gfs = Gfs.newFileSystem("test_branch", repoDir);
     assertEquals(repoDir, gfs.getRepository().getWorkTree());
@@ -49,7 +49,7 @@ public class GfsForRevisionTest extends AbstractParallelGitTest {
   @Test
   public void buildFileSystemFromBareRepositoryDirectoryString_theResultFileSystemRepositoryDirectoryShouldEqualTheInputDirectory() throws IOException {
     initFileRepository(true);
-    writeSomeFileToCache();
+    writeSomethingToCache();
     commitToBranch("test_branch");
     GitFileSystem gfs = Gfs.newFileSystem("test_branch", repoDir.toString());
     assertEquals(repoDir, gfs.getRepository().getDirectory());
@@ -58,7 +58,7 @@ public class GfsForRevisionTest extends AbstractParallelGitTest {
   @Test
   public void buildFileSystemFromNonBareRepositoryDirectoryString_theResultFileSystemRepositoryDirectoryShouldEqualTheInputDirectory() throws IOException {
     initFileRepository(false);
-    writeSomeFileToCache();
+    writeSomethingToCache();
     commitToBranch("test_branch");
     GitFileSystem gfs = Gfs.newFileSystem("test_branch", repoDir.toString());
     assertEquals(repoDir, gfs.getRepository().getWorkTree());

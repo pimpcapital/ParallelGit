@@ -34,10 +34,9 @@ public final class GfsMergeCommand extends GfsCommand<GfsMergeCommand.Result> {
   private String branch;
   private Ref branchRef;
   private RevCommit headCommit;
-  private String target;
-
-  private Ref targetRef;
-  private RevCommit targetHeadCommit;
+  private String source;
+  private Ref sourceRef;
+  private RevCommit sourceHeadCommit;
   private boolean squash = false;
   private boolean commit = true;
 
@@ -70,14 +69,14 @@ public final class GfsMergeCommand extends GfsCommand<GfsMergeCommand.Result> {
   }
 
   @Nonnull
-  public GfsMergeCommand target(@Nullable String branch) {
-    this.target = branch;
+  public GfsMergeCommand source(@Nullable String branch) {
+    this.source = branch;
     return this;
   }
 
   @Nonnull
-  public GfsMergeCommand target(@Nullable Ref branchRef) {
-    this.targetRef = branchRef;
+  public GfsMergeCommand source(@Nullable Ref branchRef) {
+    this.sourceRef = branchRef;
     return this;
   }
 
@@ -127,22 +126,22 @@ public final class GfsMergeCommand extends GfsCommand<GfsMergeCommand.Result> {
   }
 
   private void prepareTarget() throws IOException {
-    if(targetRef == null) {
-      targetRef = RefUtils.getBranchRef(target, repo);
+    if(sourceRef == null) {
+      sourceRef = RefUtils.getBranchRef(source, repo);
     }
   }
 
   private void prepareSourceCommit() throws IOException {
-    targetHeadCommit = CommitUtils.getCommit(targetRef, repo);
+    sourceHeadCommit = CommitUtils.getCommit(sourceRef, repo);
   }
 
   private void prepareMessage() throws IOException {
     if(message == null) {
       if(squash) {
-        List<RevCommit> squashedCommits = CommitUtils.findSquashableCommits(targetHeadCommit, headCommit, repo);
+        List<RevCommit> squashedCommits = CommitUtils.findSquashableCommits(sourceHeadCommit, headCommit, repo);
         message = new SquashMessageFormatter().format(squashedCommits, branchRef);
       } else
-        message = new MergeMessageFormatter().format(singletonList(targetRef), branchRef);
+        message = new MergeMessageFormatter().format(singletonList(sourceRef), branchRef);
     }
   }
 
@@ -152,27 +151,27 @@ public final class GfsMergeCommand extends GfsCommand<GfsMergeCommand.Result> {
   }
 
   private boolean isUpToDate() throws IOException {
-    return headCommit != null && CommitUtils.isMergedInto(headCommit, targetHeadCommit, repo);
+    return headCommit != null && CommitUtils.isMergedInto(headCommit, sourceHeadCommit, repo);
   }
 
   private boolean canBeFastForwarded() throws IOException {
-    return headCommit == null || CommitUtils.isMergedInto(targetHeadCommit, headCommit, repo);
+    return headCommit == null || CommitUtils.isMergedInto(sourceHeadCommit, headCommit, repo);
   }
 
   @Nonnull
   private Result fastForward() throws IOException {
     GfsStatusProvider status = gfs.getStatusProvider();
     Result result;
-    if(checkout(targetHeadCommit))
+    if(checkout(sourceHeadCommit))
       result = Result.checkoutConflict();
     else if(squash) {
       GfsFileStore store = gfs.getFileStore();
-      store.getRoot().reset(cache != null ? CacheUtils.writeTree(cache, repo) : targetHeadCommit.getTree());
+      store.getRoot().reset(cache != null ? CacheUtils.writeTree(cache, repo) : sourceHeadCommit.getTree());
       status.mergeNote(mergeSquash(message));
       result = Result.fastForwardSquashed();
     } else {
-      BranchUtils.mergeBranch(branch, targetHeadCommit, targetRef, FAST_FORWARD.toString(), repo);
-      result = Result.fastForward(targetHeadCommit);
+      BranchUtils.mergeBranch(branch, sourceHeadCommit, sourceRef, FAST_FORWARD.toString(), repo);
+      result = Result.fastForward(sourceHeadCommit);
     }
     status.state(NORMAL);
     return result;
@@ -183,14 +182,14 @@ public final class GfsMergeCommand extends GfsCommand<GfsMergeCommand.Result> {
     Merger merger = prepareMerger();
     GfsStatusProvider status = gfs.getStatusProvider();
     AnyObjectId treeId;
-    if(merger.merge(headCommit, targetHeadCommit)) {
+    if(merger.merge(headCommit, sourceHeadCommit)) {
       treeId = merger.getResultTreeId();
       if(!checkout(treeId))
         return Result.checkoutConflict();
       if(commit && !squash) {
         prepareCommitter();
-        RevCommit commit = CommitUtils.createCommit(message, treeId, committer, committer, Arrays.asList(headCommit, targetHeadCommit), repo);
-        BranchUtils.mergeBranch(branch, commit, targetRef, "Merge made by " + strategy.getName() + ".", repo);
+        RevCommit commit = CommitUtils.createCommit(message, treeId, committer, committer, Arrays.asList(headCommit, sourceHeadCommit), repo);
+        BranchUtils.mergeBranch(branch, commit, sourceRef, "Merge made by " + strategy.getName() + ".", repo);
         status.state(NORMAL);
         return Result.merged(commit);
       }
@@ -209,7 +208,7 @@ public final class GfsMergeCommand extends GfsCommand<GfsMergeCommand.Result> {
       status.state(NORMAL);
       return Result.mergedSquashed();
     }
-    status.mergeNote(GfsMergeNote.mergeNoCommit(targetHeadCommit, message));
+    status.mergeNote(GfsMergeNote.mergeNoCommit(sourceHeadCommit, message));
     return Result.mergedNotCommitted();
   }
 
@@ -230,7 +229,7 @@ public final class GfsMergeCommand extends GfsCommand<GfsMergeCommand.Result> {
   private Merger prepareMerger() {
     Merger merger = strategy.newMerger(repo, true);
     if(merger instanceof ResolveMerger)
-      ((ResolveMerger)merger).setCommitNames(new String[] {"BASE", "HEAD", targetRef.getName()});
+      ((ResolveMerger)merger).setCommitNames(new String[] {"BASE", "HEAD", sourceRef.getName()});
     return merger;
   }
 

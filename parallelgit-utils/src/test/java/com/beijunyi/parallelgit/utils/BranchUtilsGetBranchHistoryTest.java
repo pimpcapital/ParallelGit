@@ -22,11 +22,11 @@ public class BranchUtilsGetBranchHistoryTest extends AbstractParallelGitTest {
   public void getBranchHistory_shouldReturnAllCommitsStartedFromTheHeadCommit() throws IOException {
     String branch = "test_branch";
     AnyObjectId[] expected = new AnyObjectId[3];
-    writeSomeFileToCache();
+    writeSomethingToCache();
     expected[2] = commitToBranch(branch);
-    writeSomeFileToCache();
+    writeSomethingToCache();
     expected[1] = commitToBranch(branch, expected[2]);
-    writeSomeFileToCache();
+    writeSomethingToCache();
     expected[0] = commitToBranch(branch, expected[1]);
     List<RevCommit> history = BranchUtils.getHistory(branch, repo);
     AnyObjectId[] actual = new AnyObjectId[3];

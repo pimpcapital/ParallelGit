@@ -56,7 +56,7 @@ public class GfsConfigurationTest extends AbstractParallelGitTest {
 
   @Test
   public void buildWithRevision() throws IOException {
-    writeSomeFileToCache();
+    writeSomethingToCache();
     AnyObjectId commit = commitToMaster();
     GitFileSystem gfs = Gfs.newFileSystem(commit, repo);
     assertEquals(commit, gfs.getStatusProvider().commit());
@@ -64,7 +64,7 @@ public class GfsConfigurationTest extends AbstractParallelGitTest {
 
   @Test
   public void buildWithRevisionString() throws IOException {
-    writeSomeFileToCache();
+    writeSomethingToCache();
     AnyObjectId commit = commitToMaster();
     GitFileSystem gfs = Gfs.newFileSystem(commit.getName(), repo);
     assertEquals(commit, gfs.getStatusProvider().commit());

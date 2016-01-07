@@ -18,7 +18,7 @@ public class BranchUtilsDeleteBranchTest extends AbstractParallelGitTest {
 
   @Test
   public void deleteBranch_branchShouldNotExistAfterDeletion() throws IOException {
-    writeSomeFileToCache();
+    writeSomethingToCache();
     commitToBranch("test_branch");
     BranchUtils.deleteBranch("test_branch", repo);
     Assert.assertNull(repo.getRef("test_branch"));
@@ -26,7 +26,7 @@ public class BranchUtilsDeleteBranchTest extends AbstractParallelGitTest {
 
   @Test
   public void deleteBranchWithBranchRefName_branchShouldNotExistAfterDeletion() throws IOException {
-    writeSomeFileToCache();
+    writeSomethingToCache();
     commitToBranch("test_branch");
     BranchUtils.deleteBranch("refs/heads/test_branch", repo);
     Assert.assertNull(repo.getRef("test_branch"));
@@ -34,7 +34,7 @@ public class BranchUtilsDeleteBranchTest extends AbstractParallelGitTest {
 
   @Test
   public void deleteBranchWhenBranchIsTheRepositoryHead_branchShouldNotExistAfterDeletion() throws IOException {
-    writeSomeFileToCache();
+    writeSomethingToCache();
     commitToBranch("test_branch");
     RepositoryUtils.setRepositoryHead(repo, "test_branch");
     BranchUtils.deleteBranch("refs/heads/test_branch", repo);
@@ -43,7 +43,7 @@ public class BranchUtilsDeleteBranchTest extends AbstractParallelGitTest {
 
   @Test
   public void deleteBranchWhenBranchIsTheRepositoryHead_repositoryHeadShouldDetachToTheBranchHeadCommit() throws IOException {
-    writeSomeFileToCache();
+    writeSomethingToCache();
     AnyObjectId headCommit = commitToBranch("test_branch");
     RepositoryUtils.setRepositoryHead(repo, "test_branch");
     BranchUtils.deleteBranch("refs/heads/test_branch", repo);

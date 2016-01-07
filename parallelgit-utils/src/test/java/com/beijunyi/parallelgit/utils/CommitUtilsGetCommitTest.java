@@ -18,14 +18,14 @@ public class CommitUtilsGetCommitTest extends AbstractParallelGitTest {
 
   @Test
   public void getCommitFromCommitId_theResultShouldEqualToTheCommitId() throws IOException {
-    writeSomeFileToCache();
+    writeSomethingToCache();
     AnyObjectId commitId = commitToMaster();
     Assert.assertEquals(commitId, CommitUtils.getCommit(commitId, repo));
   }
 
   @Test
   public void getCommitFromTagId_theResultShouldEqualToTheTaggedCommit() throws IOException {
-    writeSomeFileToCache();
+    writeSomethingToCache();
     AnyObjectId commitId = commitToMaster();
     AnyObjectId tagId = TagUtils.tagCommit("test_tag", commitId, repo).getObjectId();
     Assert.assertEquals(commitId, CommitUtils.getCommit(tagId, repo));
@@ -33,7 +33,7 @@ public class CommitUtilsGetCommitTest extends AbstractParallelGitTest {
 
   @Test
   public void getCommitFromTagRef_theResultShouldEqualToTheTaggedCommit() throws IOException {
-    writeSomeFileToCache();
+    writeSomethingToCache();
     AnyObjectId commitId = commitToMaster();
     Ref tagRef = TagUtils.tagCommit("test_tag", commitId, repo);
     Assert.assertEquals(commitId, CommitUtils.getCommit(tagRef, repo));
@@ -41,7 +41,7 @@ public class CommitUtilsGetCommitTest extends AbstractParallelGitTest {
 
   @Test
   public void getCommitFromBranchRef_theResultShouldEqualToTheBranchHead() throws IOException {
-    writeSomeFileToCache();
+    writeSomethingToCache();
     AnyObjectId headCommitId = commitToBranch("test_branch");
     Assert.assertEquals(headCommitId, CommitUtils.getCommit(repo.getRef("test_branch"), repo));
   }

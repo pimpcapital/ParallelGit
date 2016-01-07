@@ -19,7 +19,7 @@ public class BranchUtilsGetBranchesTest extends AbstractParallelGitTest {
 
   @Test
   public void createBranchAndGetBranches_theResultShouldContainTheNewBranch() throws IOException {
-    writeSomeFileToCache();
+    writeSomethingToCache();
     commitToBranch("test_branch");
 
     Map<String, Ref> branches = BranchUtils.getBranches(repo);

@@ -23,7 +23,7 @@ public class GfsMergerNoConflictMergeTest extends AbstractParallelGitTest {
 
   @Test
   public void whenMergeFinishesSuccessfully_shouldReturnTrue() throws IOException {
-    RevCommit base = commit(null);
+    RevCommit base = commit();
     RevCommit ours = clearAndWrite("/ours.txt", base);
     RevCommit theirs = clearAndWrite("/theirs.txt", base);
     try(GitFileSystem gfs = Gfs.newFileSystem(ours, repo)) {
@@ -34,7 +34,7 @@ public class GfsMergerNoConflictMergeTest extends AbstractParallelGitTest {
 
   @Test
   public void whenMergeFinishesSuccessfully_resultTreeIdShouldBeNotNull() throws IOException {
-    AnyObjectId base = commit(null);
+    AnyObjectId base = commit();
     AnyObjectId ours = clearAndWrite("/ours.txt", base);
     AnyObjectId theirs = clearAndWrite("/theirs.txt", base);
 
@@ -47,7 +47,7 @@ public class GfsMergerNoConflictMergeTest extends AbstractParallelGitTest {
 
   @Test
   public void whenOurCommitAndTheirCommitInsertDifferentFiles_bothFilesShouldExistInTheResultTree() throws IOException {
-    AnyObjectId base = commit(null);
+    AnyObjectId base = commit();
     AnyObjectId ours = clearAndWrite("/ours.txt", base);
     AnyObjectId theirs = clearAndWrite("/theirs.txt", base);
     AnyObjectId result = merge(ours, theirs);
@@ -57,7 +57,7 @@ public class GfsMergerNoConflictMergeTest extends AbstractParallelGitTest {
 
   @Test
   public void whenOurCommitAndTheirCommitInsertDifferentFilesInOneDirectory_bothFilesShouldExistInTheResultTree() throws IOException {
-    AnyObjectId base = commit(null);
+    AnyObjectId base = commit();
     String dir = "/dir";
     AnyObjectId ours = clearAndWrite(dir + "/ours.txt", base);
     AnyObjectId theirs = clearAndWrite(dir + "/theirs.txt", base);
@@ -68,7 +68,7 @@ public class GfsMergerNoConflictMergeTest extends AbstractParallelGitTest {
 
   @Test
   public void whenOursAndTheirsHaveTheSameInsertion_theFileShouldExistInTheResultTree() throws IOException {
-    AnyObjectId base = commit(null);
+    AnyObjectId base = commit();
     writeToCache("/same_insertion.txt");
     AnyObjectId ours = commit(base);
     AnyObjectId theirs = commit(base);
@@ -79,7 +79,7 @@ public class GfsMergerNoConflictMergeTest extends AbstractParallelGitTest {
   @Test
   public void whenOursAndTheirsDeleteTheSameFile_theFileShouldNotExistInTheResultTree() throws IOException {
     writeToCache("/same_deletion.txt");
-    AnyObjectId base = commit(null);
+    AnyObjectId base = commit();
     AnyObjectId ours = clearAndWrite("/something.txt", base);
     AnyObjectId theirs = clearAndWrite("/something_else.txt", base);
     AnyObjectId result = merge(ours, theirs);
@@ -88,7 +88,7 @@ public class GfsMergerNoConflictMergeTest extends AbstractParallelGitTest {
 
   @Test
   public void whenOursAndTheirsInsertTheSameDirectory_theDirectoryShouldExistInTheResultTree() throws IOException {
-    AnyObjectId base = commit(null);
+    AnyObjectId base = commit();
     String dir = "/dir";
     writeToCache(dir + "/some_file.txt");
     AnyObjectId ours = commit(base);
@@ -101,7 +101,7 @@ public class GfsMergerNoConflictMergeTest extends AbstractParallelGitTest {
   public void whenOursAndTheirsDeleteTheSameDirectory_theDirectoryShouldNotExistInTheResultTree() throws IOException {
     String dir = "/dir";
     writeToCache(dir + "/some_file.txt");
-    AnyObjectId base = commit(null);
+    AnyObjectId base = commit();
     AnyObjectId ours = clearAndWrite("/something.txt", base);
     AnyObjectId theirs = clearAndWrite("/something_else.txt", base);
     AnyObjectId result = merge(ours, theirs);
@@ -111,7 +111,7 @@ public class GfsMergerNoConflictMergeTest extends AbstractParallelGitTest {
   @Test
   public void whenOursAndTheirsHaveTheSameChanges_theFileInTheResultTreeShouldHaveTheNewContent() throws IOException {
     writeToCache("/same_changes.txt", "some text data");
-    AnyObjectId base = commit(null);
+    AnyObjectId base = commit();
 
     clearCache();
     byte[] data = "same changes".getBytes();
@@ -125,7 +125,7 @@ public class GfsMergerNoConflictMergeTest extends AbstractParallelGitTest {
   @Test
   public void whenOursAndTheirsBothChangeDirectoryIntoFile_theNewFileShouldExistInTheResultTree() throws IOException {
     writeToCache("/target/some_file.txt");
-    AnyObjectId base = commit(null);
+    AnyObjectId base = commit();
 
     clearCache();
     writeToCache("/target", "same content to avoid conflict");
@@ -138,7 +138,7 @@ public class GfsMergerNoConflictMergeTest extends AbstractParallelGitTest {
   @Test
   public void whenOursAndTheirsBothChangeFileIntoDirectory_theNewDirectoryShouldExistInTheResultTree() throws IOException {
     writeToCache("/target");
-    AnyObjectId base = commit(null);
+    AnyObjectId base = commit();
     AnyObjectId ours = clearAndWrite("/target/some_file.txt", base);
     AnyObjectId theirs = clearAndWrite("/target/some_other_file.txt", base);
     AnyObjectId result = merge(ours, theirs);
@@ -148,7 +148,7 @@ public class GfsMergerNoConflictMergeTest extends AbstractParallelGitTest {
   @Test
   public void whenContentFromOursAndTheirsCanBeAutoMerged_() throws IOException {
     writeToCache("/test_file.txt", "a\nb\nc\nd\ne");
-    RevCommit base = commit(null);
+    RevCommit base = commit();
 
     clearCache();
     writeToCache("/test_file.txt", "a\nB\nc\nd\ne");

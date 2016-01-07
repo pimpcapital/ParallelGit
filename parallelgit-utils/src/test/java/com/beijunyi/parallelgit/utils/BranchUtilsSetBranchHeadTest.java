@@ -18,13 +18,13 @@ public class BranchUtilsSetBranchHeadTest extends AbstractParallelGitTest {
   @Before
   public void setUpBranch() throws IOException {
     AnyObjectId masterHead = initMemoryRepository(false);
-    writeSomeFileToCache();
+    writeSomethingToCache();
     branchHead =commitToBranch(branch, masterHead);
   }
 
   @Test
   public void commitBranchHead_branchHeadShouldBecomeTheNewCommit() throws IOException {
-    writeSomeFileToCache();
+    writeSomethingToCache();
     AnyObjectId childCommit = commit(branchHead);
     BranchUtils.newCommit(branch, childCommit, repo);
     Assert.assertEquals(childCommit, BranchUtils.getHeadCommit(branch, repo));
@@ -32,14 +32,14 @@ public class BranchUtilsSetBranchHeadTest extends AbstractParallelGitTest {
 
   @Test(expected = RefUpdateRejectedException.class)
   public void commitBranchHeadWhenInputCommitIsNotChildCommit_shouldThrowRefUpdateRejectedException() throws IOException {
-    writeSomeFileToCache();
-    AnyObjectId nonChildCommit = commit(null);
+    writeSomethingToCache();
+    AnyObjectId nonChildCommit = commit();
     BranchUtils.newCommit(branch, nonChildCommit, repo);
   }
 
   @Test
   public void amendBranchHead_branchHeadShouldBecomeTheAmendedCommit() throws IOException {
-    writeSomeFileToCache();
+    writeSomethingToCache();
     AnyObjectId amendedCommit = commit(branchHead.getParent(0));
     BranchUtils.amendCommit(branch, amendedCommit, repo);
     Assert.assertEquals(amendedCommit, BranchUtils.getHeadCommit(branch, repo));
@@ -47,7 +47,7 @@ public class BranchUtilsSetBranchHeadTest extends AbstractParallelGitTest {
 
   @Test
   public void cherryPickBranchHead_branchHeadShouldBecomeTheCherryPickedCommit() throws IOException {
-    writeSomeFileToCache();
+    writeSomethingToCache();
     AnyObjectId cherryPickedCommit = commit(branchHead);
     BranchUtils.cherryPickCommit(branch, cherryPickedCommit, repo);
     Assert.assertEquals(cherryPickedCommit, BranchUtils.getHeadCommit(branch, repo));
@@ -55,8 +55,8 @@ public class BranchUtilsSetBranchHeadTest extends AbstractParallelGitTest {
 
   @Test(expected = RefUpdateRejectedException.class)
   public void cherryPickBranchHeadWhenInputCommitIsNotChildCommit_branchHeadShouldBecomeTheCherryPickedCommit() throws IOException {
-    writeSomeFileToCache();
-    AnyObjectId cherryPickedCommit = commit(null);
+    writeSomethingToCache();
+    AnyObjectId cherryPickedCommit = commit();
     BranchUtils.cherryPickCommit(branch, cherryPickedCommit, repo);
   }
 

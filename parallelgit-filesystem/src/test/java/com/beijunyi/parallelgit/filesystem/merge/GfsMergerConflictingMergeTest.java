@@ -29,7 +29,7 @@ public class GfsMergerConflictingMergeTest extends AbstractParallelGitTest {
   private void prepareFileWithConflictingModes(@Nonnull String conflictingFile) throws IOException {
     byte[] data = "some text data".getBytes();
     writeToCache(conflictingFile, data, FileMode.SYMLINK);
-    AnyObjectId base = commit(null);
+    AnyObjectId base = commit();
 
     clearCache();
     writeToCache(conflictingFile, data, FileMode.EXECUTABLE_FILE);
@@ -55,7 +55,7 @@ public class GfsMergerConflictingMergeTest extends AbstractParallelGitTest {
   @Test
   public void mergeFileWithConflictingData_() throws Exception {
     writeToCache("/test_file.txt", "some text data");
-    RevCommit base = commit(null);
+    RevCommit base = commit();
 
     clearCache();
     writeToCache("/test_file.txt", "some text data 1");
@@ -69,7 +69,7 @@ public class GfsMergerConflictingMergeTest extends AbstractParallelGitTest {
 
   @Test
   public void mergeFileConflictingWithDirectory_() throws Exception {
-    RevCommit base = commit(null);
+    RevCommit base = commit();
 
     clearCache();
     writeToCache("/test_file/file.txt");
@@ -90,7 +90,7 @@ public class GfsMergerConflictingMergeTest extends AbstractParallelGitTest {
 
   @Test
   public void mergeDirectoryConflictingWithFile_() throws Exception {
-    RevCommit base = commit(null);
+    RevCommit base = commit();
 
     clearCache();
     writeToCache("/test_file");

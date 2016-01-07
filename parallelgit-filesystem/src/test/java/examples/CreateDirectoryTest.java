@@ -17,7 +17,7 @@ public class CreateDirectoryTest extends AbstractParallelGitTest {
   @Before
   public void prepareExample() throws IOException {
     initRepository();
-    writeSomeFileToCache();
+    writeSomethingToCache();
     commitToBranch("my_branch");
   }
 

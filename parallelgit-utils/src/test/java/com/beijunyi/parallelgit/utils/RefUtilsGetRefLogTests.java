@@ -19,7 +19,7 @@ public class RefUtilsGetRefLogTests extends AbstractParallelGitTest {
 
   private void createCommits(@Nonnull String branch, int count) throws IOException {
     for(int i = 0; i < count; i++) {
-      writeSomeFileToCache();
+      writeSomethingToCache();
       commitToBranch(branch, null);
     }
   }
@@ -38,7 +38,7 @@ public class RefUtilsGetRefLogTests extends AbstractParallelGitTest {
 
   @Test
   public void getLastRefLog_theResultShouldReferenceToTheLastCommitCreated() throws IOException {
-    writeSomeFileToCache();
+    writeSomethingToCache();
     AnyObjectId firstCommit = commitToBranch("test_branch", "first commit", null);
     AnyObjectId secondLastCommit = commitToBranch("test_branch", "second commit", firstCommit);
     AnyObjectId lastCommit = commitToBranch("test_branch", "third commit", secondLastCommit);

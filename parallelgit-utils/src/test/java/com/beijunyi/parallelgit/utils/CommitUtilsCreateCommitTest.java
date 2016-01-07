@@ -21,7 +21,7 @@ public class CommitUtilsCreateCommitTest extends AbstractParallelGitTest {
 
   @Test
   public void createCommitFromTree_theResultCommitRootTreeShouldBeTheSpecifiedTree() throws IOException {
-    writeSomeFileToCache();
+    writeSomethingToCache();
     AnyObjectId treeId = CacheUtils.writeTree(cache, repo);
     RevCommit commit = CommitUtils.createCommit(someCommitMessage(), treeId, null, repo);
     Assert.assertEquals(treeId, commit.getTree());
@@ -36,7 +36,7 @@ public class CommitUtilsCreateCommitTest extends AbstractParallelGitTest {
 
   @Test
   public void createCommit_theResultCommitShouldHaveTheInputMessage() throws IOException {
-    writeSomeFileToCache();
+    writeSomethingToCache();
     String expectedMessage = "test message";
     RevCommit commit = CommitUtils.createCommit(expectedMessage, cache, null, repo);
     Assert.assertEquals(expectedMessage, commit.getFullMessage());
@@ -44,7 +44,7 @@ public class CommitUtilsCreateCommitTest extends AbstractParallelGitTest {
 
   @Test
   public void createCommit_theResultCommitShouldHaveTheInputCommitter() throws IOException {
-    writeSomeFileToCache();
+    writeSomethingToCache();
     PersonIdent expectedCommitter = new PersonIdent("test_user", "tester@email.com");
     RevCommit commit = CommitUtils.createCommit(someCommitMessage(), cache, expectedCommitter, null, repo);
     Assert.assertEquals(expectedCommitter, commit.getCommitterIdent());
@@ -52,7 +52,7 @@ public class CommitUtilsCreateCommitTest extends AbstractParallelGitTest {
 
   @Test
   public void createCommit_theResultCommitShouldHaveTheInputAuthor() throws IOException {
-    writeSomeFileToCache();
+    writeSomethingToCache();
     PersonIdent expectedAuthor = new PersonIdent("test_user", "tester@email.com");
     RevCommit commit = CommitUtils.createCommit(someCommitMessage(), cache, expectedAuthor, somePersonIdent(), Collections.<AnyObjectId>emptyList(), repo);
     Assert.assertEquals(expectedAuthor, commit.getAuthorIdent());
@@ -61,7 +61,7 @@ public class CommitUtilsCreateCommitTest extends AbstractParallelGitTest {
   @Test
   public void createCommit_theResultCommitShouldHaveTheInputParents() throws IOException {
     AnyObjectId[] expectedParents = new AnyObjectId[] {commitToMaster(), commitToMaster()};
-    writeSomeFileToCache();
+    writeSomethingToCache();
     RevCommit commit = CommitUtils.createCommit(someCommitMessage(), cache, somePersonIdent(), somePersonIdent(), Arrays.asList(expectedParents), repo);
     Assert.assertArrayEquals(expectedParents, commit.getParents());
   }

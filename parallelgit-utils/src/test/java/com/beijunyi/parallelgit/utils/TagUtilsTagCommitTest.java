@@ -19,8 +19,8 @@ public class TagUtilsTagCommitTest extends AbstractParallelGitTest {
 
   @Test
   public void tagHeadCommit_theResultTagShouldPointToTheHeadCommit() throws IOException {
-    writeSomeFileToCache();
-    AnyObjectId expected = commit(null);
+    writeSomethingToCache();
+    AnyObjectId expected = commit();
     RepositoryUtils.detachRepositoryHead(repo, expected);
     Ref tag = TagUtils.tagHeadCommit("test_tag", repo);
     Assert.assertEquals(expected, tag.getPeeledObjectId());
@@ -28,10 +28,10 @@ public class TagUtilsTagCommitTest extends AbstractParallelGitTest {
 
   @Test(expected = TagAlreadyExistsException.class)
   public void tagHeadCommitWithExistingTagName_shouldThrowRefUpdateRejectedException() throws IOException {
-    writeSomeFileToCache();
-    TagUtils.tagCommit("test_tag", commit(null), repo);
-    writeSomeFileToCache();
-    RepositoryUtils.detachRepositoryHead(repo, commit(null));
+    writeSomethingToCache();
+    TagUtils.tagCommit("test_tag", commit(), repo);
+    writeSomethingToCache();
+    RepositoryUtils.detachRepositoryHead(repo, commit());
     TagUtils.tagHeadCommit("test_tag", repo);
   }
 

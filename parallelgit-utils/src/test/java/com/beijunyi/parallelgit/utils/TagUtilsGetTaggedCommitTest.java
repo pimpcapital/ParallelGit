@@ -18,7 +18,7 @@ public class TagUtilsGetTaggedCommitTest extends AbstractParallelGitTest {
 
   @Test
   public void getTaggedCommit_shouldReturnTheIdOfTheTaggedCommit() throws IOException {
-    writeSomeFileToCache();
+    writeSomethingToCache();
     AnyObjectId commitId = commitToMaster();
     TagUtils.tagCommit("test_tag", commitId, repo);
     Assert.assertEquals(commitId, TagUtils.getTaggedCommit("test_tag", repo));

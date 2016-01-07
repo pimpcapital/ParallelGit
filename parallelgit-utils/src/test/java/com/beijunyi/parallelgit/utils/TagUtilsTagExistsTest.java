@@ -16,7 +16,7 @@ public class TagUtilsTagExistsTest extends AbstractParallelGitTest {
 
   @Test
   public void testTagExistsWhenTagExists_shouldReturnTrue() throws IOException {
-    writeSomeFileToCache();
+    writeSomethingToCache();
     TagUtils.tagCommit("test_tag", commitToMaster(), repo);
     Assert.assertTrue(TagUtils.tagExists("test_tag", repo));
   }
@@ -28,7 +28,7 @@ public class TagUtilsTagExistsTest extends AbstractParallelGitTest {
 
   @Test
   public void testTagExistsWhenBranchWithSameNameExists_shouldReturnFalse() throws IOException {
-    writeSomeFileToCache();
+    writeSomethingToCache();
     commitToBranch("test");
     Assert.assertFalse(TagUtils.tagExists("test", repo));
   }

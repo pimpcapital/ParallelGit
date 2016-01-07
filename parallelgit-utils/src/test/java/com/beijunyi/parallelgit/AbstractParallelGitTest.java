@@ -61,7 +61,7 @@ public abstract class AbstractParallelGitTest {
   }
 
   @Nonnull
-  protected AnyObjectId writeSomeFileToCache() throws IOException {
+  protected AnyObjectId writeSomethingToCache() throws IOException {
     return writeToCache(UUID.randomUUID().toString() + ".txt");
   }
 
@@ -106,6 +106,11 @@ public abstract class AbstractParallelGitTest {
   @Nonnull
   protected RevCommit commit(@Nullable AnyObjectId parent) throws IOException {
     return commit(someCommitMessage(), parent);
+  }
+
+  @Nonnull
+  protected RevCommit commit() throws IOException {
+    return commit(null);
   }
 
   protected void updateBranchHead(@Nonnull String branch, @Nonnull AnyObjectId commit, boolean init) throws IOException {

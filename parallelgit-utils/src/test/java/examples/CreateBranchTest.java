@@ -16,7 +16,7 @@ public class CreateBranchTest extends AbstractParallelGitTest {
   @Before
   public void prepareExample() throws IOException {
     initRepository();
-    writeSomeFileToCache();
+    writeSomethingToCache();
     commitToMaster();
   }
 

@@ -61,7 +61,7 @@ public class CacheUtilsCreateTest extends AbstractParallelGitTest {
   public void createCacheFromTree_theResultCacheShouldContainTheFilesInTheSpecifiedTree() throws IOException {
     writeToCache("/file1.txt");
     writeToCache("/file2.txt");
-    AnyObjectId treeId = commit(null).getTree();
+    AnyObjectId treeId = commit().getTree();
     DirCache cache = CacheUtils.forTree(treeId, repo);
     Assert.assertNotNull(CacheUtils.getEntry("/file1.txt", cache));
     Assert.assertNotNull(CacheUtils.getEntry("/file2.txt", cache));

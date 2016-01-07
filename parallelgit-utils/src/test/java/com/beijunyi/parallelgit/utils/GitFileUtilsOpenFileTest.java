@@ -31,7 +31,7 @@ public class GitFileUtilsOpenFileTest extends AbstractParallelGitTest {
 
   @Test(expected = NoSuchFileException.class)
   public void openFileWhenFileDoesNotExist_shouldThrowNoSuchFileException() throws IOException {
-    writeSomeFileToCache();
+    writeSomethingToCache();
     AnyObjectId commit = commitToMaster();
     GitFileUtils.openFile("/non_existent_file.txt", commit.getName(), repo);
   }

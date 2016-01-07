@@ -27,7 +27,7 @@ public class TreeUtilsReadFileTest extends AbstractParallelGitTest {
 
   @Test(expected = NoSuchFileException.class)
   public void readFileWhenFileDoesNotExist_shouldThrowNoSuchFileException() throws IOException {
-    writeSomeFileToCache();
+    writeSomethingToCache();
     RevCommit commit = commitToMaster();
     TreeUtils.readFile("/non_existent_file.txt", commit.getTree(), repo);
   }
