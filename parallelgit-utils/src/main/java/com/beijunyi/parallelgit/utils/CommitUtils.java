@@ -114,13 +114,13 @@ public final class CommitUtils {
     }
   }
 
-  public static boolean isMergedInto(@Nonnull RevCommit base, @Nonnull RevCommit target, @Nonnull ObjectReader reader) throws IOException {
+  public static boolean isMergedInto(@Nonnull AnyObjectId base, @Nonnull AnyObjectId target, @Nonnull ObjectReader reader) throws IOException {
     try(RevWalk rw = new RevWalk(reader)) {
-      return rw.isMergedInto(base, target);
+      return rw.isMergedInto(rw.lookupCommit(base), rw.lookupCommit(target));
     }
   }
 
-  public static boolean isMergedInto(@Nonnull RevCommit base, @Nonnull RevCommit target, @Nonnull Repository repo) throws IOException {
+  public static boolean isMergedInto(@Nonnull AnyObjectId base, @Nonnull AnyObjectId target, @Nonnull Repository repo) throws IOException {
     try(ObjectReader reader = repo.newObjectReader()) {
       return isMergedInto(base, target, reader);
     }
