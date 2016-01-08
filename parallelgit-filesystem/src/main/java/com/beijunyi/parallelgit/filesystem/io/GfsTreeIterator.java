@@ -28,10 +28,12 @@ public class GfsTreeIterator extends AbstractTreeIterator {
   public GfsTreeIterator(@Nonnull TreeSnapshot snapshot, @Nonnull GfsTreeIterator parent) {
     super(parent);
     entries = toList(snapshot);
+    next(1);
   }
 
   public GfsTreeIterator(@Nonnull TreeSnapshot snapshot) {
     entries = toList(snapshot);
+    next(1);
   }
 
   public GfsTreeIterator(@Nonnull GfsFileStore store) throws IOException {

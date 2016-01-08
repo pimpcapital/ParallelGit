@@ -44,8 +44,7 @@ public abstract class AbstractGitFileSystemTest extends AbstractParallelGitTest 
     if(repo == null)
       initRepository();
     if(files.length != 0) {
-      for(String file : files)
-        writeToCache(file);
+      writeMultipleToCache(files);
       commitToMaster();
     }
     initGitFileSystemForBranch(Constants.MASTER);
