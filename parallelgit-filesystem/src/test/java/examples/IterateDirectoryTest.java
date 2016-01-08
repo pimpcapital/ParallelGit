@@ -19,8 +19,7 @@ public class IterateDirectoryTest extends AbstractParallelGitTest {
   @Before
   public void prepareExample() throws IOException {
     initRepository();
-    writeFilesToCache("/dir/file1.txt");
-    writeFilesToCache("/dir/file2.txt");
+    writeMultipleToCache("/dir/file1.txt", "/dir/file2.txt");
     commitToBranch("my_branch");
   }
 

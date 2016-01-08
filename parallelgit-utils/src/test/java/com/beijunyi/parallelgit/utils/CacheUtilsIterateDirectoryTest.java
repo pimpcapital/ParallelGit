@@ -21,7 +21,7 @@ public class CacheUtilsIterateDirectoryTest extends AbstractParallelGitTest {
 
   @Test
   public void testHasNextWhenThereAreRemainingNodes_shouldReturnTrue() throws IOException {
-    writeFilesToCache
+    writeMultipleToCache
       (
         "/file1.txt",
         "/file2.txt",
@@ -34,7 +34,7 @@ public class CacheUtilsIterateDirectoryTest extends AbstractParallelGitTest {
 
   @Test
   public void testHasNextWhenThereIsNoRemainingNode_shouldReturnFalse() throws IOException {
-    writeFilesToCache
+    writeMultipleToCache
       (
         "/file1.txt",
         "/file2.txt",
@@ -49,7 +49,7 @@ public class CacheUtilsIterateDirectoryTest extends AbstractParallelGitTest {
 
   @Test(expected = NoSuchElementException.class)
   public void getHasNextWhenThereIsNoRemainingNode_shouldThrowNoSuchElementException() throws IOException {
-    writeFilesToCache
+    writeMultipleToCache
       (
         "/file1.txt",
         "/file2.txt",
@@ -64,7 +64,7 @@ public class CacheUtilsIterateDirectoryTest extends AbstractParallelGitTest {
 
   @Test
   public void iterateDirectory_shouldReturnTheDirectChildrenNodesInAlphabeticalOrder() throws IOException {
-    writeFilesToCache
+    writeMultipleToCache
       (
         "/a/aa/aaa/aaaa.txt",
         "/a/aa/aab.txt",
@@ -85,7 +85,7 @@ public class CacheUtilsIterateDirectoryTest extends AbstractParallelGitTest {
 
   @Test
   public void iterateDirectoryRecursively_shouldReturnAllChildrenNodesInAlphabeticalOrder() throws IOException {
-    writeFilesToCache
+    writeMultipleToCache
       (
         "/a/aa/aaa/aaaa.txt",
         "/a/aa/aab.txt",
@@ -155,7 +155,7 @@ public class CacheUtilsIterateDirectoryTest extends AbstractParallelGitTest {
 
   @Test(expected = UnsupportedOperationException.class)
   public void removeNode_shouldThrowUnsupportedOperationException() throws IOException {
-    writeFilesToCache
+    writeMultipleToCache
       (
         "/file1.txt",
         "/file2.txt",

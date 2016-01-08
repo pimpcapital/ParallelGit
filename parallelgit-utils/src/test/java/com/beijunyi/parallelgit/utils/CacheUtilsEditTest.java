@@ -33,8 +33,7 @@ public class CacheUtilsEditTest extends AbstractParallelGitTest {
 
   @Test
   public void keepEverything_ExistingEntriesShouldBeKept() throws IOException {
-    writeFilesToCache("/file1.txt");
-    writeFilesToCache("/file2.txt");
+    writeMultipleToCache("/file1.txt", "/file2.txt");
     DirCacheBuilder builder = CacheUtils.keepEverything(cache);
     builder.finish();
     Assert.assertNotNull(CacheUtils.getEntry("/file1.txt", cache));

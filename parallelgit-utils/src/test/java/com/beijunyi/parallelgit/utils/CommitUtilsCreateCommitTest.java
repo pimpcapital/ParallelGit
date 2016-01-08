@@ -29,7 +29,7 @@ public class CommitUtilsCreateCommitTest extends AbstractParallelGitTest {
 
   @Test
   public void createCommitFromCache_theResultCommitShouldHaveTheSameFilesAsInTheCache() throws IOException {
-    writeFilesToCache("file1.txt", "file2.txt");
+    writeMultipleToCache("file1.txt", "file2.txt");
     RevCommit commit = CommitUtils.createCommit(someCommitMessage(), cache, null, repo);
     assertCacheEquals(cache, CacheUtils.forRevision(commit, repo));
   }

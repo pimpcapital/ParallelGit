@@ -8,6 +8,7 @@ import javax.annotation.Nullable;
 
 import com.beijunyi.parallelgit.utils.*;
 import org.eclipse.jgit.dircache.DirCache;
+import org.eclipse.jgit.dircache.DirCacheBuilder;
 import org.eclipse.jgit.dircache.DirCacheEntry;
 import org.eclipse.jgit.errors.NoWorkTreeException;
 import org.eclipse.jgit.internal.storage.dfs.DfsRepositoryDescription;
@@ -65,9 +66,13 @@ public abstract class AbstractParallelGitTest {
     return writeToCache(UUID.randomUUID().toString() + ".txt");
   }
 
-  protected void writeFilesToCache(@Nonnull String... paths) throws IOException {
-    for(String path : paths)
-      writeToCache(path);
+  protected void writeMultipleToCache(@Nonnull String... paths) throws IOException {
+    DirCacheBuilder builder = CacheUtils.keepEverything(cache);
+    for(String path : paths) {
+      AnyObjectId blobId = repo != null ? ObjectUtils.insertBlob(someBytes(), repo) : someObjectId();
+      CacheUtils.addFile(path, FileMode.REGULAR_FILE, blobId, builder);
+    }
+    builder.finish();
   }
 
   @Nonnull
@@ -83,8 +88,13 @@ public abstract class AbstractParallelGitTest {
   }
 
   @Nonnull
+  protected String someText() {
+    return UUID.randomUUID().toString();
+  }
+
+  @Nonnull
   protected byte[] someBytes() {
-    return UUID.randomUUID().toString().getBytes();
+    return someText().getBytes();
   }
 
   @Nonnull
@@ -94,7 +104,7 @@ public abstract class AbstractParallelGitTest {
 
   @Nonnull
   protected String someCommitMessage() {
-    return getClass().getSimpleName() + " commit: " + UUID.randomUUID().toString();
+    return getClass().getSimpleName() + " commit: " + someText();
   }
 
   @Nonnull
