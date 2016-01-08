@@ -10,7 +10,10 @@ import org.eclipse.jgit.lib.Constants;
 public abstract class AbstractGitFileSystemTest extends AbstractParallelGitTest {
 
   protected final GitFileSystemProvider provider = GitFileSystemProvider.getInstance();
+
   protected GitFileSystem gfs;
+  protected GfsStatusProvider status;
+  protected GfsObjectService objService;
   protected GitPath root;
 
   protected void writeToGfs(@Nonnull String path, @Nonnull byte[] data) throws IOException {
@@ -53,6 +56,8 @@ public abstract class AbstractGitFileSystemTest extends AbstractParallelGitTest 
   protected void injectGitFileSystem(@Nonnull GitFileSystem gfs) {
     this.gfs = gfs;
     root = gfs.getRootPath();
+    status = gfs.getStatusProvider();
+    objService = gfs.getObjectService();
   }
 
 }

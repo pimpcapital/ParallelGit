@@ -7,10 +7,15 @@ import javax.annotation.Nonnull;
 
 import com.beijunyi.parallelgit.filesystem.AbstractGitFileSystemTest;
 import com.beijunyi.parallelgit.filesystem.io.GfsTreeIterator;
+import com.beijunyi.parallelgit.utils.TreeUtils;
+import org.eclipse.jgit.lib.FileMode;
 import org.eclipse.jgit.treewalk.TreeWalk;
+import org.eclipse.jgit.treewalk.filter.PathFilter;
 import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
+
+import static org.junit.Assert.*;
 
 public class GfsTreeWalkTest extends AbstractGitFileSystemTest {
 
@@ -51,6 +56,33 @@ public class GfsTreeWalkTest extends AbstractGitFileSystemTest {
     assertWalk(true, files);
   }
 
+  @Test
+  public void getFileModeFromFileNode_shouldEqualRegularFile() throws IOException {
+    initGitFileSystem("/test_file.txt");
+    TreeWalk tw = forPath("/test_file.txt");
+    assertEquals(FileMode.REGULAR_FILE, tw.getFileMode(0));
+  }
+
+  @Test
+  public void getFileModeFromDirectoryNode_shouldEqualTree() throws IOException {
+    initGitFileSystem("/dir/some_file.txt");
+    TreeWalk tw = forPath("/dir");
+    assertEquals(FileMode.TREE, tw.getFileMode(0));
+    assertTrue(TreeUtils.isTree(tw));
+  }
+
+  @Test
+  public void getObjectIdFromFileNode_shouldReturnTheBlobIdOfTheFile() throws IOException {
+    initRepository();
+    byte[] data = someBytes();
+    writeToCache("/test_file.txt", data);
+    commitToMaster();
+    initGitFileSystem();
+
+    TreeWalk tw = forPath("/test_file.txt");
+    assertEquals(calculateBlobId(data), TreeUtils.getObjectId(tw));
+  }
+
 
   @Nonnull
   private TreeWalk prepareTreeWalk(boolean recursive) throws IOException {
@@ -78,6 +110,21 @@ public class GfsTreeWalkTest extends AbstractGitFileSystemTest {
       list.add("/" + tw.getPathString());
     String[] ret = new String[list.size()];
     return list.toArray(ret);
+  }
+
+  @Nonnull
+  private TreeWalk forPath(@Nonnull String path) throws IOException {
+    TreeWalk tw = prepareTreeWalk(false);
+    PathFilter filter = PathFilter.create(path.charAt(0) == '/' ? path.substring(1) : path);
+    tw.setFilter(filter);
+    tw.setRecursive(false);
+    while(tw.next()) {
+      if(filter.isDone(tw))
+        return tw;
+      if(tw.isSubtree())
+        tw.enterSubtree();
+    }
+    throw new IllegalStateException();
   }
 
 }
