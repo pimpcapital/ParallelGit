@@ -151,18 +151,18 @@ public final class GfsMergeCommand extends GfsCommand<GfsMergeCommand.Result> {
   }
 
   private boolean isUpToDate() throws IOException {
-    return headCommit != null && CommitUtils.isMergedInto(headCommit, sourceHeadCommit, repo);
+    return headCommit != null && CommitUtils.isMergedInto(sourceHeadCommit, headCommit, repo);
   }
 
   private boolean canBeFastForwarded() throws IOException {
-    return headCommit == null || CommitUtils.isMergedInto(sourceHeadCommit, headCommit, repo);
+    return headCommit == null || CommitUtils.isMergedInto(headCommit, sourceHeadCommit, repo);
   }
 
   @Nonnull
   private Result fastForward() throws IOException {
     GfsStatusProvider status = gfs.getStatusProvider();
     Result result;
-    if(checkout(sourceHeadCommit))
+    if(!checkout(sourceHeadCommit))
       result = Result.checkoutConflict();
     else if(squash) {
       GfsFileStore store = gfs.getFileStore();
