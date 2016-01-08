@@ -134,7 +134,7 @@ public class DirectoryNode extends Node<TreeSnapshot> {
     return removed != null;
   }
 
-  private synchronized void loadChildren() throws IOException {
+  public synchronized void loadChildren() throws IOException {
     if(!isInitialized()) {
       setupEmptyDirectory();
       TreeSnapshot tree = loadSnapshot();

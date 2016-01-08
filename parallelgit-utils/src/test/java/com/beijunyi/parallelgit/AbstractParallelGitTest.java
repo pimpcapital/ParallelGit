@@ -83,8 +83,13 @@ public abstract class AbstractParallelGitTest {
   }
 
   @Nonnull
+  protected byte[] someBytes() {
+    return UUID.randomUUID().toString().getBytes();
+  }
+
+  @Nonnull
   protected AnyObjectId someObjectId() {
-    return calculateBlobId(UUID.randomUUID().toString().getBytes());
+    return calculateBlobId(someBytes());
   }
 
   @Nonnull
