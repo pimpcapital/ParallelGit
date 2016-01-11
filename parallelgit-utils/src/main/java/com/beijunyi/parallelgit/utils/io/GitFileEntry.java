@@ -5,6 +5,7 @@ import javax.annotation.Nullable;
 
 import org.eclipse.jgit.lib.AnyObjectId;
 import org.eclipse.jgit.lib.FileMode;
+import org.eclipse.jgit.treewalk.TreeWalk;
 
 import static org.eclipse.jgit.lib.FileMode.*;
 
@@ -16,6 +17,11 @@ public class GitFileEntry {
   public GitFileEntry(@Nonnull AnyObjectId id, @Nonnull FileMode mode) {
     this.id = id;
     this.mode = mode;
+  }
+
+  @Nonnull
+  public static GitFileEntry forTreeNode(@Nonnull TreeWalk tw, int index) {
+    return new GitFileEntry(tw.getObjectId(index), tw.getFileMode(index));
   }
 
   @Nonnull
