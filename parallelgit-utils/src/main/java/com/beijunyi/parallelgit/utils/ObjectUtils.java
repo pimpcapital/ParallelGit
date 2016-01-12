@@ -22,6 +22,15 @@ public final class ObjectUtils {
     }
   }
 
+  @Nonnull
+  public static AnyObjectId insertTree(@Nonnull TreeFormatter tf, @Nonnull Repository repo) throws IOException {
+    try(ObjectInserter inserter = repo.newObjectInserter()) {
+      AnyObjectId blobId = inserter.insert(tf);
+      inserter.flush();
+      return blobId;
+    }
+  }
+
   @Nullable
   public static AnyObjectId findObject(@Nonnull String file, @Nonnull AnyObjectId commit, @Nonnull ObjectReader reader) throws IOException {
     return TreeUtils.getObjectId(file, CommitUtils.getCommit(commit, reader).getTree(), reader);

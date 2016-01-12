@@ -94,7 +94,7 @@ public final class GfsIO {
       DirectoryNode parent = findDirectory(getParent(file));
       String name = getFileName(file);
       if(options.contains(CREATE_NEW) || !parent.hasChild(name)) {
-        node = FileNode.newFile(FileAttributeReader.read(attrs).isExecutable(), parent.getDataService());
+        node = FileNode.newFile(FileAttributeReader.read(attrs).isExecutable(), parent.getObjService());
         if(!parent.addChild(name, node, false))
           throw new FileAlreadyExistsException(file.toString());
       } else {
@@ -114,7 +114,7 @@ public final class GfsIO {
     if(dir.isRoot())
       throw new FileAlreadyExistsException(dir.toString());
     DirectoryNode parent = findDirectory(getParent(dir));
-    if(!parent.addChild(getFileName(dir), DirectoryNode.newDirectory(parent.getDataService()), false))
+    if(!parent.addChild(getFileName(dir), DirectoryNode.newDirectory(parent.getObjService()), false))
       throw new FileAlreadyExistsException(dir.toString());
   }
 

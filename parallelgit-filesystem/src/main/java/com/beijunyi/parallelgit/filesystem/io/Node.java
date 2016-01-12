@@ -31,7 +31,7 @@ public abstract class Node<Snapshot extends ObjectSnapshot> {
   }
 
   @Nonnull
-  public GfsObjectService getDataService() {
+  public GfsObjectService getObjService() {
     return objService;
   }
 

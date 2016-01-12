@@ -93,6 +93,11 @@ public abstract class AbstractParallelGitTest {
   }
 
   @Nonnull
+  protected String someFilename() {
+    return someText() + ".txt";
+  }
+
+  @Nonnull
   protected byte[] someBytes() {
     return someText().getBytes();
   }
