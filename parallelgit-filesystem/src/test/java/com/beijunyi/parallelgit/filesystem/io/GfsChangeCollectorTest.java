@@ -19,7 +19,7 @@ public class GfsChangeCollectorTest extends AbstractGitFileSystemTest {
 
   @Before
   public void setUp() {
-    collector = new GfsChangeCollector();
+    collector = new GfsChangeCollector(true);
   }
 
   @Test

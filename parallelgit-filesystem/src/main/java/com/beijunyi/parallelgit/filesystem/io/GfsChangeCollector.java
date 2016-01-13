@@ -46,7 +46,9 @@ public class GfsChangeCollector {
     return unmodifiableMap(conflicts);
   }
 
-  public void applyTo(@Nonnull GitFileSystem gfs) throws IOException {
+  public boolean applyTo(@Nonnull GitFileSystem gfs) throws IOException {
+    if(entries.isEmpty())
+      return true;
     dirs.add(gfs.getFileStore().getRoot());
     paths.add("/");
     while(!dirs.isEmpty()) {
@@ -54,6 +56,7 @@ public class GfsChangeCollector {
       String path = paths.poll();
       applyChangesToDir(dir, path);
     }
+    return !hasConflicts();
   }
 
   private void addChangedDirectory(@Nonnull String path) {
