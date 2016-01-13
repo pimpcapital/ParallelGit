@@ -1,12 +1,12 @@
 package com.beijunyi.parallelgit.filesystem.io;
 
 import java.io.IOException;
+import java.util.Map;
 import javax.annotation.Nonnull;
 
 import com.beijunyi.parallelgit.filesystem.GfsStatusProvider;
 import com.beijunyi.parallelgit.filesystem.GitFileSystem;
 import com.beijunyi.parallelgit.utils.io.GitFileEntry;
-import org.eclipse.jgit.errors.CheckoutConflictException;
 import org.eclipse.jgit.lib.AnyObjectId;
 import org.eclipse.jgit.lib.ObjectReader;
 import org.eclipse.jgit.treewalk.CanonicalTreeParser;
@@ -22,17 +22,29 @@ public class GfsCheckout {
   private final GitFileSystem gfs;
   private final GfsStatusProvider status;
   private final ObjectReader reader;
+  private final GfsChangeCollector collector;
 
-  public GfsCheckout(@Nonnull GitFileSystem gfs) {
+  public GfsCheckout(@Nonnull GitFileSystem gfs, boolean failOnConflict) {
     this.gfs = gfs;
     this.status = gfs.getStatusProvider();
     this.reader = gfs.getRepository().newObjectReader();
+    collector = new GfsChangeCollector(failOnConflict);
   }
 
-  public void checkout(@Nonnull AnyObjectId tree) throws IOException {
+  public GfsCheckout(@Nonnull GitFileSystem gfs) {
+    this(gfs, true);
+  }
+
+  public boolean checkout(@Nonnull AnyObjectId tree) throws IOException {
     TreeWalk tw = prepareTreeWalk(tree);
     GfsChangeCollector changes = parseEntries(tw);
     changes.applyTo(gfs);
+    return !collector.hasConflicts();
+  }
+
+  @Nonnull
+  public Map<String, GfsCheckoutConflict> getConflicts() {
+    return collector.getConflicts();
   }
 
   @Nonnull
@@ -46,7 +58,6 @@ public class GfsCheckout {
 
   @Nonnull
   private GfsChangeCollector parseEntries(@Nonnull TreeWalk tw) throws IOException {
-    GfsChangeCollector collector = new GfsChangeCollector();
     while(tw.next())
       if(parseEntry(tw, collector) && tw.isSubtree())
         tw.enterSubtree();
@@ -60,12 +71,13 @@ public class GfsCheckout {
     if(target.equals(worktree) || target.equals(head))
       return false;
     if(head.equals(worktree)) {
-      collector.addChange("/" + tw.getPathString(), target);
+      collector.addChange(tw.getPathString(), target);
       return false;
     }
-    if(worktree.isDirectory() && target.isDirectory())
+    if(target.isDirectory() && worktree.isDirectory())
       return true;
-    throw new CheckoutConflictException(tw.getPathString());
+    collector.addConflict(new GfsCheckoutConflict(tw.getPathString(), tw.getNameString(), tw.getDepth(), head, target, worktree));
+    return false;
   }
 
 }

@@ -77,12 +77,28 @@ public class GfsChangeCollectorTest extends AbstractGitFileSystemTest {
   }
 
   @Test
-  public void collectAndApplyDirectoryUpdate_theFileShouldHaveTheSpecifiedContentChildrenTheOperation() throws IOException {
+  public void collectAndApplyDirectoryUpdate_theDirectoryShouldHaveTheSpecifiedChildrenAfterTheOperation() throws IOException {
     initGitFileSystem("/test_dir/some_file.txt");
     collector.addChange("/test_dir", newDirectoryEntry("child1.txt", "child2.txt"));
     collector.applyTo(gfs);
     assertTrue(Files.exists(gfs.getPath("/test_dir/child1.txt")));
     assertTrue(Files.exists(gfs.getPath("/test_dir/child2.txt")));
+  }
+
+  @Test
+  public void collectAndApplyChangingFileToDirectory_theDirectoryShouldExistAfterTheOperation() throws IOException {
+    initGitFileSystem("/test_target");
+    collector.addChange("/test_target", newDirectoryEntry("child1.txt", "child2.txt"));
+    collector.applyTo(gfs);
+    assertTrue(Files.isDirectory(gfs.getPath("/test_target")));
+  }
+
+  @Test
+  public void collectAndApplyChangingDirectoryToFile_theFileShouldExistAfterTheOperation() throws IOException {
+    initGitFileSystem("/test_target/some_file.txt");
+    collector.addChange("/test_target", someFileEntry());
+    collector.applyTo(gfs);
+    assertTrue(Files.isRegularFile(gfs.getPath("/test_target")));
   }
 
   @Nonnull

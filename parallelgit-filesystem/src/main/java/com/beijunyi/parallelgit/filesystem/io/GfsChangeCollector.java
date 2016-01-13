@@ -5,20 +5,45 @@ import java.util.*;
 import javax.annotation.Nonnull;
 
 import com.beijunyi.parallelgit.filesystem.GitFileSystem;
+import com.beijunyi.parallelgit.filesystem.exceptions.GfsCheckoutConflictException;
 import com.beijunyi.parallelgit.utils.io.GitFileEntry;
+
+import static com.beijunyi.parallelgit.filesystem.utils.GfsPathUtils.*;
+import static java.util.Collections.unmodifiableMap;
 
 public class GfsChangeCollector {
 
   private final Map<String, GitFileEntry> entries = new HashMap<>();
   private final Map<String, Set<String>> changedDirs = new HashMap<>();
+  private final Map<String, GfsCheckoutConflict> conflicts = new HashMap<>();
 
   private final Queue<DirectoryNode> dirs = new LinkedList<>();
   private final Queue<String> paths = new LinkedList<>();
+  private final boolean failsOnConflict;
+
+  public GfsChangeCollector(boolean failsOnConflict) {
+    this.failsOnConflict = failsOnConflict;
+  }
 
   public void addChange(@Nonnull String path, @Nonnull GitFileEntry entry) {
     path = toAbsolutePath(path);
     entries.put(path, entry);
     addChangedDirectory(path);
+  }
+
+  public void addConflict(@Nonnull GfsCheckoutConflict conflict) {
+    conflicts.put(conflict.getPath(), conflict);
+    if(failsOnConflict)
+      throw new GfsCheckoutConflictException(conflict);
+  }
+
+  public boolean hasConflicts() {
+    return !conflicts.isEmpty();
+  }
+
+  @Nonnull
+  public Map<String, GfsCheckoutConflict> getConflicts() {
+    return unmodifiableMap(conflicts);
   }
 
   public void applyTo(@Nonnull GitFileSystem gfs) throws IOException {
@@ -55,7 +80,7 @@ public class GfsChangeCollector {
   }
 
   private void applyChangesToDir(@Nonnull DirectoryNode dir, @Nonnull String path) throws IOException {
-    String prefix = ensureTrailingSlash(path);
+    String prefix = addTrailingSlash(path);
     for(String childName : changedDirs.get(path)) {
       String childPath = prefix + childName;
       GitFileEntry change = entries.get(childPath);
@@ -78,18 +103,5 @@ public class GfsChangeCollector {
     paths.add(childPath);
   }
 
-  @Nonnull
-  private static String toAbsolutePath(@Nonnull String path) {
-    return path.startsWith("/") ? path : ("/" + path);
-  }
-
-  @Nonnull
-  private static String ensureTrailingSlash(@Nonnull String path) {
-    return path.endsWith("/") ? path : (path + "/");
-  }
-
-  private static boolean isRoot(@Nonnull String path) {
-    return "/".equals(path);
-  }
 
 }
