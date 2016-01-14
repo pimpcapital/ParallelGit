@@ -143,8 +143,9 @@ public final class GfsIO {
   public static void delete(@Nonnull GitPath file) throws IOException {
     if(file.isRoot())
       throw new AccessDeniedException(file.toString());
-    DirectoryNode parent = findDirectory(getParent(file));
-    if(!parent.removeChild(getFileName(file)))
+    GitPath parentPath = getParent(file);
+    Node parent = findNode(getParent(file));
+    if(parent == null || !parent.isDirectory() || !asDirectory(parent, parentPath).removeChild(getFileName(file)))
       throw new NoSuchFileException(file.toString());
   }
 

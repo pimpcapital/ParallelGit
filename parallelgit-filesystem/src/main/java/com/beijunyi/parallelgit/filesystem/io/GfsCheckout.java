@@ -59,7 +59,7 @@ public class GfsCheckout {
   @Nonnull
   private GfsChangeCollector parseEntries(@Nonnull TreeWalk tw) throws IOException {
     while(tw.next())
-      if(parseEntry(tw, collector) && tw.isSubtree())
+      if(parseEntry(tw, collector))
         tw.enterSubtree();
     return collector;
   }

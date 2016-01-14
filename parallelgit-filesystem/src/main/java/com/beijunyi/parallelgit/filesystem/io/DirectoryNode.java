@@ -105,23 +105,23 @@ public class DirectoryNode extends Node<TreeSnapshot> {
 
   @Nonnull
   public ConcurrentMap<String, Node> getChildren() throws IOException {
-    loadChildren();
+    loadSnapshotIfNotInitilized();
     return children;
   }
 
   public boolean hasChild(@Nonnull String name) throws IOException {
-    loadChildren();
+    loadSnapshotIfNotInitilized();
     return children.containsKey(name);
   }
 
   @Nullable
   public Node getChild(@Nonnull String name) throws IOException {
-    loadChildren();
+    loadSnapshotIfNotInitilized();
     return children.get(name);
   }
 
   public boolean addChild(@Nonnull String name, @Nonnull Node child, boolean replace) throws IOException {
-    loadChildren();
+    loadSnapshotIfNotInitilized();
     if(!replace && children.containsKey(name))
       return false;
     children.put(name, child);
@@ -129,19 +129,22 @@ public class DirectoryNode extends Node<TreeSnapshot> {
   }
 
   public boolean removeChild(@Nonnull String name) throws IOException {
-    loadChildren();
+    loadSnapshotIfNotInitilized();
     Node removed = children.remove(name);
     return removed != null;
   }
 
-  public synchronized void loadChildren() throws IOException {
+  @Nullable
+  public synchronized TreeSnapshot loadSnapshotIfNotInitilized() throws IOException {
     if(!isInitialized()) {
       setupEmptyDirectory();
-      TreeSnapshot tree = loadSnapshot();
-      if(tree != null)
-        for(Map.Entry<String, GitFileEntry> entry : tree.getChildren().entrySet())
+      TreeSnapshot snapshot = loadSnapshot();
+      if(snapshot != null)
+        for(Map.Entry<String, GitFileEntry> entry : snapshot.getChildren().entrySet())
           children.put(entry.getKey(), Node.fromEntry(entry.getValue(), objService));
+      return snapshot;
     }
+    return null;
   }
 
   private boolean isInitialized() {
