@@ -5,25 +5,17 @@ import java.util.*;
 import javax.annotation.Nonnull;
 
 import com.beijunyi.parallelgit.filesystem.GitFileSystem;
-import com.beijunyi.parallelgit.filesystem.exceptions.GfsCheckoutConflictException;
 import com.beijunyi.parallelgit.utils.io.GitFileEntry;
 
 import static com.beijunyi.parallelgit.filesystem.utils.GfsPathUtils.*;
-import static java.util.Collections.unmodifiableMap;
 
-public class GfsChangeCollector {
+public class GfsChanges {
 
   private final Map<String, GitFileEntry> entries = new HashMap<>();
   private final Map<String, Set<String>> changedDirs = new HashMap<>();
-  private final Map<String, GfsCheckoutConflict> conflicts = new HashMap<>();
 
   private final Queue<DirectoryNode> dirs = new LinkedList<>();
   private final Queue<String> paths = new LinkedList<>();
-  private final boolean failsOnConflict;
-
-  public GfsChangeCollector(boolean failsOnConflict) {
-    this.failsOnConflict = failsOnConflict;
-  }
 
   public void addChange(@Nonnull String path, @Nonnull GitFileEntry entry) {
     path = toAbsolutePath(path);
@@ -31,32 +23,16 @@ public class GfsChangeCollector {
     addChangedDirectory(path);
   }
 
-  public void addConflict(@Nonnull GfsCheckoutConflict conflict) {
-    conflicts.put(conflict.getPath(), conflict);
-    if(failsOnConflict)
-      throw new GfsCheckoutConflictException(conflict);
-  }
-
-  public boolean hasConflicts() {
-    return !conflicts.isEmpty();
-  }
-
-  @Nonnull
-  public Map<String, GfsCheckoutConflict> getConflicts() {
-    return unmodifiableMap(conflicts);
-  }
-
-  public boolean applyTo(@Nonnull GitFileSystem gfs) throws IOException {
-    if(entries.isEmpty())
-      return true;
-    dirs.add(gfs.getFileStore().getRoot());
-    paths.add("/");
-    while(!dirs.isEmpty()) {
-      DirectoryNode dir = dirs.poll();
-      String path = paths.poll();
-      applyChangesToDir(dir, path);
+  public void applyTo(@Nonnull GitFileSystem gfs) throws IOException {
+    if(!entries.isEmpty()) {
+      dirs.add(gfs.getFileStore().getRoot());
+      paths.add("/");
+      while(!dirs.isEmpty()) {
+        DirectoryNode dir = dirs.poll();
+        String path = paths.poll();
+        applyChangesToDir(dir, path);
+      }
     }
-    return !hasConflicts();
   }
 
   private void addChangedDirectory(@Nonnull String path) {

@@ -22,13 +22,13 @@ public class GfsCheckout {
   private final GitFileSystem gfs;
   private final GfsStatusProvider status;
   private final ObjectReader reader;
-  private final GfsChangeCollector collector;
+  private final GfsCheckoutChanges changes;
 
   public GfsCheckout(@Nonnull GitFileSystem gfs, boolean failOnConflict) {
     this.gfs = gfs;
     this.status = gfs.getStatusProvider();
     this.reader = gfs.getRepository().newObjectReader();
-    collector = new GfsChangeCollector(failOnConflict);
+    changes = new GfsCheckoutChanges(failOnConflict);
   }
 
   public GfsCheckout(@Nonnull GitFileSystem gfs) {
@@ -37,14 +37,14 @@ public class GfsCheckout {
 
   public boolean checkout(@Nonnull AnyObjectId tree) throws IOException {
     TreeWalk tw = prepareTreeWalk(tree);
-    GfsChangeCollector changes = parseEntries(tw);
+    mergeTreeWalk(tw);
     changes.applyTo(gfs);
-    return !collector.hasConflicts();
+    return !changes.hasConflicts();
   }
 
   @Nonnull
   public Map<String, GfsCheckoutConflict> getConflicts() {
-    return collector.getConflicts();
+    return changes.getConflicts();
   }
 
   @Nonnull
@@ -56,27 +56,25 @@ public class GfsCheckout {
     return ret;
   }
 
-  @Nonnull
-  private GfsChangeCollector parseEntries(@Nonnull TreeWalk tw) throws IOException {
+  private void mergeTreeWalk(@Nonnull TreeWalk tw) throws IOException {
     while(tw.next())
-      if(parseEntry(tw, collector))
+      if(mergeEntry(tw))
         tw.enterSubtree();
-    return collector;
   }
 
-  private boolean parseEntry(@Nonnull TreeWalk tw, @Nonnull GfsChangeCollector collector) throws IOException {
+  private boolean mergeEntry(@Nonnull TreeWalk tw) throws IOException {
     GitFileEntry head = GitFileEntry.forTreeNode(tw, HEAD);
     GitFileEntry target = GitFileEntry.forTreeNode(tw, TARGET);
     GitFileEntry worktree = GitFileEntry.forTreeNode(tw, WORKTREE);
     if(target.equals(worktree) || target.equals(head))
       return false;
     if(head.equals(worktree)) {
-      collector.addChange(tw.getPathString(), target);
+      changes.addChange(tw.getPathString(), target);
       return false;
     }
     if(target.isDirectory() && worktree.isDirectory())
       return true;
-    collector.addConflict(new GfsCheckoutConflict(tw.getPathString(), tw.getNameString(), tw.getDepth(), head, target, worktree));
+    changes.addConflict(new GfsCheckoutConflict(tw.getPathString(), tw.getNameString(), tw.getDepth(), head, target, worktree));
     return false;
   }
 

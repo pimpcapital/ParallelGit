@@ -60,8 +60,8 @@ public class GfsRecursiveMerger {
 
   private void mergeEntry() throws IOException {
     if(!applyObjectDiff() && !mergeObject()) {
-      GfsMergeConflict conflict = new GfsMergeConflict(next);
-      conflicts.put(next.getPath(), conflict);
+//      GfsMergeConflict conflict = new GfsMergeConflict(next);
+//      conflicts.put(next.getPath(), conflict);
     }
   }
 
