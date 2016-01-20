@@ -10,7 +10,7 @@ import static java.util.Collections.*;
 public class GfsMergeChanges extends GfsChanges {
 
   private final Set<String> failedPaths = new HashSet<>();
-  private final Map<String, GfsMergeConflict> conflicts = new HashMap<>();
+  private final Map<String, QuadWayEntry> conflicts = new HashMap<>();
 
   public void addFailedPath(@Nonnull String path) {
     failedPaths.add(path);
@@ -25,8 +25,8 @@ public class GfsMergeChanges extends GfsChanges {
     return unmodifiableSet(failedPaths);
   }
 
-  public void addConflict(@Nonnull GfsMergeConflict conflict) {
-    conflicts.put(conflict.getPath(), conflict);
+  public void addConflict(@Nonnull QuadWayEntry conflict) {
+    conflicts.put(conflict.path(), conflict);
   }
 
   public boolean hasConflicts() {
@@ -34,7 +34,7 @@ public class GfsMergeChanges extends GfsChanges {
   }
 
   @Nonnull
-  public Map<String, GfsMergeConflict> getConflicts() {
+  public Map<String, QuadWayEntry> getConflicts() {
     return unmodifiableMap(conflicts);
   }
 }

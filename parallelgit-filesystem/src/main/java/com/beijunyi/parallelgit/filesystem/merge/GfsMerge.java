@@ -1,41 +1,41 @@
 package com.beijunyi.parallelgit.filesystem.merge;
 
+import java.io.ByteArrayOutputStream;
 import java.io.IOException;
-import java.util.Arrays;
 import java.util.List;
 import javax.annotation.Nonnull;
+import javax.annotation.Nullable;
 
+import com.beijunyi.parallelgit.filesystem.GfsObjectService;
 import com.beijunyi.parallelgit.filesystem.GfsStatusProvider;
 import com.beijunyi.parallelgit.filesystem.GitFileSystem;
 import com.beijunyi.parallelgit.filesystem.exceptions.MergeNotStartedException;
 import com.beijunyi.parallelgit.filesystem.io.GfsTreeIterator;
+import com.beijunyi.parallelgit.utils.io.BlobSnapshot;
 import com.beijunyi.parallelgit.utils.io.GitFileEntry;
 import org.eclipse.jgit.diff.DiffAlgorithm;
-import org.eclipse.jgit.lib.ObjectId;
-import org.eclipse.jgit.lib.ObjectReader;
-import org.eclipse.jgit.lib.Repository;
-import org.eclipse.jgit.merge.MergeAlgorithm;
-import org.eclipse.jgit.merge.MergeFormatter;
-import org.eclipse.jgit.merge.ThreeWayMerger;
+import org.eclipse.jgit.diff.RawText;
+import org.eclipse.jgit.diff.RawTextComparator;
+import org.eclipse.jgit.lib.*;
+import org.eclipse.jgit.merge.*;
 import org.eclipse.jgit.treewalk.CanonicalTreeParser;
 import org.eclipse.jgit.treewalk.NameConflictTreeWalk;
 import org.eclipse.jgit.treewalk.TreeWalk;
 
+import static java.util.Arrays.asList;
 import static org.eclipse.jgit.diff.DiffAlgorithm.SupportedAlgorithm.HISTOGRAM;
 import static org.eclipse.jgit.lib.ConfigConstants.*;
+import static org.eclipse.jgit.lib.Constants.*;
+import static org.eclipse.jgit.lib.FileMode.REGULAR_FILE;
 
 public class GfsMerge extends ThreeWayMerger {
-
-  private static final int BASE = 0;
-  private static final int HEAD = 1;
-  private static final int TARGET = 2;
-  private static final int WORKTREE = 3;
 
   private final GfsMergeChanges changes = new GfsMergeChanges();
   private final GitFileSystem gfs;
   private final GfsStatusProvider status;
-  private final ObjectReader reader;
+  private final GfsObjectService objectService;
 
+  private boolean formatConflicts = true;
   private MergeAlgorithm algorithm = defaultAlgorithm(db);
   private MergeFormatter formatter = defaultFormatter();
   private List<String> conflictMarkers = defaultConflictMarkers();
@@ -46,7 +46,7 @@ public class GfsMerge extends ThreeWayMerger {
     super(gfs.getRepository());
     this.gfs = gfs;
     this.status = gfs.getStatusProvider();
-    this.reader = gfs.getRepository().newObjectReader();
+    this.objectService = gfs.getObjectService();
   }
 
   @Override
@@ -75,25 +75,88 @@ public class GfsMerge extends ThreeWayMerger {
 
   private void mergeTreeWalk(@Nonnull TreeWalk tw) throws IOException {
     while(tw.next())
-      if(mergeEntry(tw))
+      if(mergeEntry(QuadWayEntry.read(tw)))
         tw.enterSubtree();
   }
 
-  private boolean mergeEntry(@Nonnull TreeWalk tw) throws IOException {
-    GitFileEntry base = GitFileEntry.forTreeNode(tw, BASE);
-    GitFileEntry head = GitFileEntry.forTreeNode(tw, HEAD);
-    GitFileEntry target = GitFileEntry.forTreeNode(tw, TARGET);
-    GitFileEntry worktree = GitFileEntry.forTreeNode(tw, WORKTREE);
-    if(target.equals(worktree) || target.equals(head))
+  private boolean mergeEntry(@Nonnull QuadWayEntry entry) throws IOException {
+    if(entry.target().equals(entry.head()) || entry.target().equals(entry.base()))
       return false;
-    if(head.equals(worktree)) {
-      changes.addChange(tw.getPathString(), target);
+    if(!entry.isDirty())
+      return cleanMerge(entry);
+    return dirtyMerge(entry);
+  }
+
+  private boolean cleanMerge(@Nonnull QuadWayEntry entry) throws IOException {
+    if(entry.base().equals(entry.head())) {
+      changes.addChange(entry.path(), entry.target());
       return false;
     }
-    if(target.isDirectory() && worktree.isDirectory())
+    if(entry.head().isDirectory() || entry.target().isDirectory())
       return true;
-    changes.addConflict(new GfsMergeConflict(tw.getPathString(), tw.getNameString(), tw.getDepth(), base, head, target, worktree));
+    if(!entry.head().isDirectory() && !entry.target().isDirectory()) {
+      if(entry.head().isGitLink() || entry.target().isGitLink())
+        changes.addFailedPath(entry.path());
+      else
+        mergeFile(entry);
+      return false;
+    }
+    changes.addConflict(entry);
     return false;
+  }
+
+  private boolean dirtyMerge(@Nonnull QuadWayEntry entry) {
+    if(entry.base().equals(entry.head())) {
+      if(!entry.target().equals(entry.worktree())) {
+        if(entry.target().isDirectory() && entry.worktree().isDirectory())
+          return true;
+        changes.addFailedPath(entry.path());
+      }
+      return false;
+    }
+    throw new UnsupportedOperationException();
+  }
+
+  private void mergeFile(@Nonnull QuadWayEntry entry) throws IOException {
+    FileMode mode = mergeFileModes(entry.base().getMode(), entry.head().getMode(), entry.target().getMode());
+    if(entry.head().getId().equals(entry.target().getId())) {
+      if(mode == null)
+        changes.addFailedPath(entry.path());
+      else if(!mode.equals(entry.head().getMode()))
+        changes.addChange(entry.path(), new GitFileEntry(entry.head().getId(), mode));
+    } else {
+      changes.addConflict(entry);
+      if(formatConflicts) {
+        MergeResult<RawText> result = mergeContent(entry);
+        AnyObjectId id = writeResult(result);
+        changes.addChange(entry.path(), new GitFileEntry(id, mode != null ? mode : REGULAR_FILE));
+      }
+    }
+  }
+
+  @Nonnull
+  private MergeResult<RawText> mergeContent(@Nonnull QuadWayEntry entry) throws IOException {
+    RawText base = getRawText(entry.base().getId());
+    RawText head = getRawText(entry.head().getId());
+    RawText target = getRawText(entry.target().getId());
+    return algorithm.merge(RawTextComparator.DEFAULT, base, head, target);
+  }
+
+  @Nonnull
+  private RawText getRawText(@Nonnull AnyObjectId id) throws IOException {
+    if(id.equals(ObjectId.zeroId()))
+      return new RawText(new byte[0]);
+    return new RawText(reader.open(id, OBJ_BLOB).getCachedBytes());
+  }
+
+  @Nonnull
+  private AnyObjectId writeResult(@Nonnull MergeResult<RawText> result) throws IOException {
+    byte[] bytes;
+    try(ByteArrayOutputStream out = new ByteArrayOutputStream()) {
+      formatter.formatMerge(out, result, conflictMarkers, CHARACTER_ENCODING);
+      bytes = out.toByteArray();
+    }
+    return objectService.write(BlobSnapshot.capture(bytes));
   }
 
 
@@ -110,8 +173,18 @@ public class GfsMerge extends ThreeWayMerger {
 
   @Nonnull
   private static List<String> defaultConflictMarkers() {
-    return Arrays.asList("BASE", "OURS", "THEIRS");
+    return asList("BASE", "OURS", "THEIRS");
   }
 
+  @Nullable
+  private static FileMode mergeFileModes(@Nonnull FileMode base, @Nonnull FileMode head, @Nonnull FileMode target) {
+    if(head.equals(target))
+      return head;
+    if(base.equals(head))
+      return target;
+    if(base.equals(target))
+      return head;
+    return null;
+  }
 
 }

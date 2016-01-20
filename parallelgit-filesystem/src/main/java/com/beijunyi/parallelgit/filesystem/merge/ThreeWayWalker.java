@@ -11,14 +11,14 @@ import com.beijunyi.parallelgit.filesystem.io.DirectoryNode;
 import org.eclipse.jgit.lib.ObjectReader;
 import org.eclipse.jgit.treewalk.TreeWalk;
 
-public class ThreeWayWalker implements Iterator<ThreeWayEntry>, AutoCloseable {
+public class ThreeWayWalker implements Iterator<QuadWayEntry>, AutoCloseable {
 
   private final TreeWalk tw;
   private final LinkedList<DirectoryNode> dirs;
   private IOException error;
 
-  private ThreeWayEntry next;
-  private ThreeWayEntry current;
+  private QuadWayEntry next;
+  private QuadWayEntry current;
 
   public ThreeWayWalker(@Nonnull ThreeWayWalkerConfig config, @Nonnull ObjectReader reader) throws IOException {
     tw = config.makeTreeWalk(reader);
@@ -33,7 +33,7 @@ public class ThreeWayWalker implements Iterator<ThreeWayEntry>, AutoCloseable {
 
   @Nonnull
   @Override
-  public ThreeWayEntry next() {
+  public QuadWayEntry next() {
     findNextEntry();
     if(next == null)
       throw new NoSuchElementException();
@@ -67,7 +67,7 @@ public class ThreeWayWalker implements Iterator<ThreeWayEntry>, AutoCloseable {
       return;
     try {
       if(tw.next())
-        next = ThreeWayEntry.read(tw);
+        next = QuadWayEntry.read(tw);
     } catch(IOException e) {
       error = e;
     }
@@ -77,7 +77,7 @@ public class ThreeWayWalker implements Iterator<ThreeWayEntry>, AutoCloseable {
     current = next;
     next = null;
     int prevDepth = dirs.size();
-    for(int d = prevDepth; d > current.getDepth(); d--)
+    for(int d = prevDepth; d > current.depth(); d--)
       dirs.removeLast();
   }
 

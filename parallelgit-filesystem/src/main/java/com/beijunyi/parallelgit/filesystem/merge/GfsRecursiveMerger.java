@@ -2,8 +2,6 @@ package com.beijunyi.parallelgit.filesystem.merge;
 
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
-import java.util.HashMap;
-import java.util.Map;
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 
@@ -22,9 +20,9 @@ public class GfsRecursiveMerger {
   private final ContentMergeConfig config;
   private final ObjectReader reader;
 
-  private final Map<String, GfsMergeConflict> conflicts = new HashMap<>();
+//  private final Map<String, GfsMergeConflict> conflicts = new HashMap<>();
 
-  private ThreeWayEntry next;
+  private QuadWayEntry next;
   private GitFileEntry base;
   private GitFileEntry ours;
   private GitFileEntry theirs;
@@ -35,27 +33,27 @@ public class GfsRecursiveMerger {
     this.reader = reader;
   }
 
-  @Nonnull
-  public Map<String, GfsMergeConflict> getConflicts() {
-    return conflicts;
-  }
+//  @Nonnull
+//  public Map<String, GfsMergeConflict> getConflicts() {
+//    return conflicts;
+//  }
 
-  public boolean merge() throws IOException {
-    while(walker.hasNext()) {
-      next = walker.next();
-      readEntry();
-      mergeEntry();
-    }
-    IOException error = walker.getError();
-    if(error != null)
-      throw error;
-    return conflicts.isEmpty();
-  }
+//  public boolean merge() throws IOException {
+//    while(walker.hasNext()) {
+//      next = walker.next();
+//      readEntry();
+//      mergeEntry();
+//    }
+//    IOException error = walker.getError();
+//    if(error != null)
+//      throw error;
+//    return conflicts.isEmpty();
+//  }
 
   private void readEntry() {
-    base = next.getBase();
-    ours = next.getOurs();
-    theirs = next.getTheirs();
+//    base = next.base();
+//    ours = next.getOurs();
+//    theirs = next.getTheirs();
   }
 
   private void mergeEntry() throws IOException {
