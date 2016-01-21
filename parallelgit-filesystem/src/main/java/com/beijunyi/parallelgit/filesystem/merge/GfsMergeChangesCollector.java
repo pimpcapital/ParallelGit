@@ -3,11 +3,11 @@ package com.beijunyi.parallelgit.filesystem.merge;
 import java.util.*;
 import javax.annotation.Nonnull;
 
-import com.beijunyi.parallelgit.filesystem.io.GfsChanges;
+import com.beijunyi.parallelgit.filesystem.io.GfsChangesCollector;
 
 import static java.util.Collections.*;
 
-public class GfsMergeChanges extends GfsChanges {
+public class GfsMergeChangesCollector extends GfsChangesCollector {
 
   private final Set<String> failedPaths = new HashSet<>();
   private final Map<String, QuadWayEntry> conflicts = new HashMap<>();

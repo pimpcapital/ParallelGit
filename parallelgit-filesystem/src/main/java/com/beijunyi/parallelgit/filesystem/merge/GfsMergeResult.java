@@ -9,10 +9,10 @@ import org.eclipse.jgit.lib.AnyObjectId;
 public class GfsMergeResult {
 
   private final boolean successful;
-  private final Map<String, GfsMergeConflict> conflicts;
+  private final Map<String, QuadWayEntry> conflicts;
   private final AnyObjectId tree;
 
-  private GfsMergeResult(boolean successful, @Nullable Map<String, GfsMergeConflict> conflicts, @Nullable AnyObjectId tree) {
+  private GfsMergeResult(boolean successful, @Nullable Map<String, QuadWayEntry> conflicts, @Nullable AnyObjectId tree) {
     this.successful = successful;
     this.conflicts = conflicts;
     this.tree = tree;
@@ -24,7 +24,7 @@ public class GfsMergeResult {
   }
 
   @Nonnull
-  public static GfsMergeResult conflicting(@Nonnull Map<String, GfsMergeConflict> conflicts) {
+  public static GfsMergeResult conflicting(@Nonnull Map<String, QuadWayEntry> conflicts) {
     return new GfsMergeResult(false, conflicts, null);
   }
 
@@ -33,7 +33,7 @@ public class GfsMergeResult {
   }
 
   @Nonnull
-  public Map<String, GfsMergeConflict> getConflicts() {
+  public Map<String, QuadWayEntry> getConflicts() {
     if(conflicts == null)
       throw new IllegalStateException();
     return conflicts;

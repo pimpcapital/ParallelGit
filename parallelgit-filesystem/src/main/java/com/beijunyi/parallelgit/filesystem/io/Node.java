@@ -25,7 +25,7 @@ public abstract class Node<Snapshot extends ObjectSnapshot> {
 
   @Nonnull
   public static Node fromEntry(@Nonnull GitFileEntry entry, @Nonnull GfsObjectService objService) {
-    if(entry.getMode() == TREE)
+    if(entry.getMode().equals(TREE))
       return DirectoryNode.fromObject(entry.getId(), objService);
     return FileNode.fromObject(entry.getId(), entry.getMode(), objService);
   }

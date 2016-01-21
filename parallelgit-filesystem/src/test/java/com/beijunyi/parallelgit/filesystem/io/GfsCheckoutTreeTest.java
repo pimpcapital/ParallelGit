@@ -46,7 +46,7 @@ import static org.junit.Assert.assertArrayEquals;
  *    1-7       D        D        F        CONFLICT
  *    1-8       D        D        D      ENTER SUBTREE (GO TO TABLE 1)
  */
-public class GfsCheckoutTest extends AbstractGitFileSystemTest {
+public class GfsCheckoutTreeTest extends AbstractGitFileSystemTest {
 
   @Test(expected = GfsCheckoutConflictException.class)
   public void case11_allTreesHaveDifferentFiles_shouldThrowGfsCheckoutConflictException() throws IOException {

@@ -30,7 +30,7 @@ import static org.eclipse.jgit.lib.FileMode.REGULAR_FILE;
 
 public class GfsMerge extends ThreeWayMerger {
 
-  private final GfsMergeChanges changes = new GfsMergeChanges();
+  private final GfsMergeChangesCollector changes = new GfsMergeChangesCollector();
   private final GitFileSystem gfs;
   private final GfsStatusProvider status;
   private final GfsObjectService objectService;

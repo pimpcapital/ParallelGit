@@ -8,12 +8,12 @@ import com.beijunyi.parallelgit.filesystem.exceptions.GfsCheckoutConflictExcepti
 
 import static java.util.Collections.unmodifiableMap;
 
-public class GfsCheckoutChanges extends GfsChanges {
+public class GfsCheckoutChangesCollector extends GfsChangesCollector {
 
   private final Map<String, GfsCheckoutConflict> conflicts = new HashMap<>();
   private final boolean failsOnConflict;
 
-  public GfsCheckoutChanges(boolean failsOnConflict) {
+  public GfsCheckoutChangesCollector(boolean failsOnConflict) {
     this.failsOnConflict = failsOnConflict;
   }
 

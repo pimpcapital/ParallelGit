@@ -28,7 +28,7 @@ public class FileNode extends Node<BlobSnapshot> {
   }
 
   @Nonnull
-  public static FileNode newFile(@Nonnull byte[] bytes, @Nonnull FileMode mode, @Nonnull GfsObjectService objService) {
+  public static FileNode fromBytes(@Nonnull byte[] bytes, @Nonnull FileMode mode, @Nonnull GfsObjectService objService) {
     FileNode ret = new FileNode(null, mode, objService);
     ret.bytes = bytes;
     return ret;

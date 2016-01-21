@@ -8,6 +8,7 @@ import org.eclipse.jgit.lib.FileMode;
 import org.eclipse.jgit.treewalk.TreeWalk;
 
 import static org.eclipse.jgit.lib.FileMode.*;
+import static org.eclipse.jgit.lib.ObjectId.zeroId;
 
 public class GitFileEntry {
 
@@ -44,6 +45,10 @@ public class GitFileEntry {
 
   public boolean isDirectory() {
     return mode.equals(TREE);
+  }
+
+  public boolean isVirtualDirectory() {
+    return isDirectory() && zeroId().equals(id);
   }
 
   public boolean isSymbolicLink() {

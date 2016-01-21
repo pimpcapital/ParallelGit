@@ -13,13 +13,13 @@ import org.junit.Test;
 
 import static org.junit.Assert.*;
 
-public class GfsChangesTest extends AbstractGitFileSystemTest {
+public class GfsChangesCollectorTest extends AbstractGitFileSystemTest {
 
-  private GfsChanges changes;
+  private GfsChangesCollector changes;
 
   @Before
   public void setUp() {
-    changes = new GfsChanges();
+    changes = new GfsChangesCollector();
   }
 
   @Test

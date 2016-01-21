@@ -9,22 +9,37 @@ import com.beijunyi.parallelgit.utils.io.GitFileEntry;
 
 import static com.beijunyi.parallelgit.filesystem.utils.GfsPathUtils.*;
 
-public class GfsChanges {
+public class GfsChangesCollector {
 
-  private final Map<String, GitFileEntry> entries = new HashMap<>();
+  private static final GfsChange DELETE_NODE = new DeleteNode();
+  private static final GfsChange PREPARE_DIRECTORY = new PrepareDirectory();
+
+  private final Map<String, GfsChange> changes = new HashMap<>();
   private final Map<String, Set<String>> changedDirs = new HashMap<>();
 
   private final Queue<DirectoryNode> dirs = new LinkedList<>();
   private final Queue<String> paths = new LinkedList<>();
 
-  public void addChange(@Nonnull String path, @Nonnull GitFileEntry entry) {
-    path = toAbsolutePath(path);
-    entries.put(path, entry);
+  public void addChange(@Nonnull String path, @Nonnull GfsChange change) {
+    if(changes.containsKey(path))
+      throw new IllegalStateException();
+    changes.put(path, change);
     addChangedDirectory(path);
   }
 
+  public void addChange(@Nonnull String path, @Nonnull GitFileEntry entry) {
+    GfsChange change;
+    if(entry.isMissing())
+      change = DELETE_NODE;
+    else if(entry.isVirtualDirectory())
+      change = PREPARE_DIRECTORY;
+    else
+      change = new UpdateNode(entry);
+    addChange(path, change);
+  }
+
   public void applyTo(@Nonnull GitFileSystem gfs) throws IOException {
-    if(!entries.isEmpty()) {
+    if(!changes.isEmpty()) {
       dirs.add(gfs.getFileStore().getRoot());
       paths.add("/");
       while(!dirs.isEmpty()) {
@@ -62,13 +77,11 @@ public class GfsChanges {
     String prefix = addTrailingSlash(path);
     for(String childName : changedDirs.get(path)) {
       String childPath = prefix + childName;
-      GitFileEntry change = entries.get(childPath);
-      if(change == null)
+      GfsChange change = changes.get(childPath);
+      if(change != null)
+        change.applyTo(dir, childName);
+      if(changedDirs.containsKey(childPath))
         addSubDirectoryToQueue(childPath, childName, dir);
-      else if(change.isMissing())
-        dir.removeChild(childName);
-      else
-        dir.addChild(childName, Node.fromEntry(change, dir.getObjService()), true);
     }
   }
 
@@ -81,6 +94,5 @@ public class GfsChanges {
     dirs.add(child);
     paths.add(childPath);
   }
-
 
 }
