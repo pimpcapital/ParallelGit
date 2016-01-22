@@ -11,6 +11,7 @@ import org.eclipse.jgit.lib.*;
 import org.junit.Before;
 import org.junit.Test;
 
+import static org.eclipse.jgit.lib.FileMode.REGULAR_FILE;
 import static org.junit.Assert.*;
 
 public class GfsChangesCollectorTest extends AbstractGitFileSystemTest {
@@ -101,10 +102,27 @@ public class GfsChangesCollectorTest extends AbstractGitFileSystemTest {
     assertTrue(Files.isRegularFile(gfs.getPath("/test_target")));
   }
 
+  @Test
+  public void collectAndApplyFileBytesChange_theFileShouldExistAfterTheOperation() throws IOException {
+    initGitFileSystem();
+    changes.addChange("/test_file.txt", someBytes(), REGULAR_FILE);
+    changes.applyTo(gfs);
+    assertTrue(Files.exists(gfs.getPath("/test_file.txt")));
+  }
+
+  @Test
+  public void collectAndApplyFileBytesChange_theFileShouldHaveTheSpecifiedData() throws IOException {
+    initGitFileSystem();
+    byte[] expected = someBytes();
+    changes.addChange("/test_file.txt", expected, REGULAR_FILE);
+    changes.applyTo(gfs);
+    assertArrayEquals(expected, Files.readAllBytes(gfs.getPath("/test_file.txt")));
+  }
+
   @Nonnull
   private GitFileEntry newFileEntry(@Nonnull byte[] bytes) throws IOException {
     AnyObjectId blobId = ObjectUtils.insertBlob(bytes, repo);
-    return new GitFileEntry(blobId, FileMode.REGULAR_FILE);
+    return new GitFileEntry(blobId, REGULAR_FILE);
   }
 
   @Nonnull
