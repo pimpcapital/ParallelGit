@@ -46,6 +46,7 @@ public final class GfsMergeCommand extends GfsCommand<GfsMergeCommand.Result> {
   private PersonIdent committer;
   private String message;
   private MergeStrategy strategy = new StrategyRecursive();
+  private MergeFormatter formatter = new MergeFormatter();
 
   private DirCache cache;
 

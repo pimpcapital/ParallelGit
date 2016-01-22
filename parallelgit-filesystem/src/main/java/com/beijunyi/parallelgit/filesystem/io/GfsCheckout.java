@@ -14,7 +14,6 @@ import org.eclipse.jgit.lib.ObjectReader;
 import org.eclipse.jgit.treewalk.*;
 
 import static com.beijunyi.parallelgit.filesystem.utils.GfsPathUtils.toAbsolutePath;
-import static org.eclipse.jgit.lib.ObjectId.zeroId;
 
 public class GfsCheckout {
 
@@ -25,7 +24,7 @@ public class GfsCheckout {
   private final GitFileSystem gfs;
   private final GfsStatusProvider status;
   private final ObjectReader reader;
-  private final GfsCheckoutChangesCollector changes;
+  protected final GfsCheckoutChangesCollector changes;
 
   private Set<String> ignoredFiles;
 
@@ -48,8 +47,8 @@ public class GfsCheckout {
 
   public boolean checkout(@Nonnull AbstractTreeIterator iterator) throws IOException {
     TreeWalk tw = prepareTreeWalk(iterator);
-    mergeTreeWalk(tw);
-    changes.applyTo(gfs);
+    collectChanges(tw);
+    applyChanges();
     return !changes.hasConflicts();
   }
 
@@ -66,6 +65,15 @@ public class GfsCheckout {
     return changes.getConflicts();
   }
 
+  protected boolean skips(@Nonnull String path) {
+    return ignoredFiles != null && ignoredFiles.contains(path);
+  }
+
+  protected void applyChanges() throws IOException {
+    if(!changes.isEmpty())
+      changes.applyTo(gfs);
+  }
+
   @Nonnull
   private TreeWalk prepareTreeWalk(@Nonnull AbstractTreeIterator iterator) throws IOException {
     TreeWalk ret = new NameConflictTreeWalk(gfs.getRepository());
@@ -75,10 +83,10 @@ public class GfsCheckout {
     return ret;
   }
 
-  private void mergeTreeWalk(@Nonnull TreeWalk tw) throws IOException {
+  private void collectChanges(@Nonnull TreeWalk tw) throws IOException {
     while(tw.next()) {
       String path = toAbsolutePath(tw.getPathString());
-      if(ignoredFiles != null && ignoredFiles.contains(path))
+      if(skips(path))
         continue;
       GitFileEntry head = GitFileEntry.forTreeNode(tw, HEAD);
       GitFileEntry target = GitFileEntry.forTreeNode(tw, TARGET);
@@ -93,16 +101,12 @@ public class GfsCheckout {
       return false;
     if(head.equals(worktree)) {
       changes.addChange(path, target);
-      return isVirtualDirectory(target);
+      return target.isVirtualDirectory();
     }
     if(target.isDirectory() && worktree.isDirectory())
       return true;
     changes.addConflict(new GfsCheckoutConflict(path, head, target, worktree));
     return false;
-  }
-
-  public static boolean isVirtualDirectory(@Nonnull GitFileEntry entry) {
-    return entry.isDirectory() && entry.getId().equals(zeroId());
   }
 
 }

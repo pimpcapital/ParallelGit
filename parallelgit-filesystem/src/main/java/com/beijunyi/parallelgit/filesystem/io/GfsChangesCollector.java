@@ -6,6 +6,7 @@ import javax.annotation.Nonnull;
 
 import com.beijunyi.parallelgit.filesystem.GitFileSystem;
 import com.beijunyi.parallelgit.utils.io.GitFileEntry;
+import org.eclipse.jgit.lib.FileMode;
 
 import static com.beijunyi.parallelgit.filesystem.utils.GfsPathUtils.*;
 
@@ -19,6 +20,10 @@ public class GfsChangesCollector {
 
   private final Queue<DirectoryNode> dirs = new LinkedList<>();
   private final Queue<String> paths = new LinkedList<>();
+
+  public boolean isEmpty() {
+    return changes.isEmpty();
+  }
 
   public void addChange(@Nonnull String path, @Nonnull GfsChange change) {
     if(changes.containsKey(path))
@@ -38,15 +43,17 @@ public class GfsChangesCollector {
     addChange(path, change);
   }
 
+  public void addChange(@Nonnull String path, @Nonnull byte[] bytes, @Nonnull FileMode mode) {
+    addChange(path, new UpdateFile(bytes, mode));
+  }
+
   public void applyTo(@Nonnull GitFileSystem gfs) throws IOException {
-    if(!changes.isEmpty()) {
-      dirs.add(gfs.getFileStore().getRoot());
-      paths.add("/");
-      while(!dirs.isEmpty()) {
-        DirectoryNode dir = dirs.poll();
-        String path = paths.poll();
-        applyChangesToDir(dir, path);
-      }
+    dirs.add(gfs.getFileStore().getRoot());
+    paths.add("/");
+    while(!dirs.isEmpty()) {
+      DirectoryNode dir = dirs.poll();
+      String path = paths.poll();
+      applyChangesToDir(dir, path);
     }
   }
 
@@ -57,14 +64,14 @@ public class GfsChangesCollector {
     if(parentLength >= 0) {
       String parent = path.substring(0, parentLength == 0 ? 1 : parentLength);
       String filename = path.substring(parentLength + 1);
-      Set<String> siblings = getChildrenOf(parent);
+      Set<String> siblings = childrenOf(parent);
       if(siblings.add(filename))
         addChangedDirectory(parent);
     }
   }
 
   @Nonnull
-  private Set<String> getChildrenOf(@Nonnull String parent) {
+  private Set<String> childrenOf(@Nonnull String parent) {
     Set<String> ret = changedDirs.get(parent);
     if(ret == null) {
       ret = new HashSet<>();
@@ -75,7 +82,7 @@ public class GfsChangesCollector {
 
   private void applyChangesToDir(@Nonnull DirectoryNode dir, @Nonnull String path) throws IOException {
     String prefix = addTrailingSlash(path);
-    for(String childName : changedDirs.get(path)) {
+    for(String childName : childrenOf(path)) {
       String childPath = prefix + childName;
       GfsChange change = changes.get(childPath);
       if(change != null)

@@ -4,15 +4,16 @@ import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 
 import com.beijunyi.parallelgit.filesystem.GfsObjectService;
-
-import static org.eclipse.jgit.lib.FileMode.REGULAR_FILE;
+import org.eclipse.jgit.lib.FileMode;
 
 public class UpdateFile extends GfsChange {
 
   private final byte[] bytes;
+  private final FileMode mode;
 
-  public UpdateFile(@Nonnull byte[] bytes) {
+  public UpdateFile(@Nonnull byte[] bytes, @Nonnull FileMode mode) {
     this.bytes = bytes;
+    this.mode = mode;
   }
 
   @Override
@@ -28,6 +29,6 @@ public class UpdateFile extends GfsChange {
   @Nonnull
   @Override
   protected Node createNode(@Nullable Node currentNode, @Nonnull GfsObjectService objService) {
-    return FileNode.fromBytes(bytes, REGULAR_FILE, objService);
+    return FileNode.fromBytes(bytes, mode, objService);
   }
 }
