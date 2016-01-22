@@ -8,12 +8,12 @@ import com.beijunyi.parallelgit.filesystem.GfsObjectService;
 public class PrepareDirectory extends GfsChange {
 
   @Override
-  protected boolean isDeletion() {
+  protected boolean ignoresCurrentNode() {
     return false;
   }
 
   @Override
-  protected boolean ignoresCurrentNode() {
+  protected boolean shouldDelete(@Nullable Node currentNode) {
     return false;
   }
 

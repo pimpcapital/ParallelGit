@@ -16,13 +16,13 @@ public class UpdateFile extends GfsChange {
   }
 
   @Override
-  protected boolean isDeletion() {
-    return false;
+  protected boolean ignoresCurrentNode() {
+    return true;
   }
 
   @Override
-  protected boolean ignoresCurrentNode() {
-    return true;
+  protected boolean shouldDelete(@Nullable Node currentNode) {
+    return false;
   }
 
   @Nonnull

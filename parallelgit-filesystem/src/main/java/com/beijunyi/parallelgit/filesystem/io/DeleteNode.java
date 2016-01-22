@@ -8,13 +8,13 @@ import com.beijunyi.parallelgit.filesystem.GfsObjectService;
 public class DeleteNode extends GfsChange {
 
   @Override
-  protected boolean isDeletion() {
+  protected boolean ignoresCurrentNode() {
     return true;
   }
 
   @Override
-  protected boolean ignoresCurrentNode() {
-    throw new IllegalStateException();
+  protected boolean shouldDelete(@Nullable Node currentNode) {
+    return true;
   }
 
   @Nullable
