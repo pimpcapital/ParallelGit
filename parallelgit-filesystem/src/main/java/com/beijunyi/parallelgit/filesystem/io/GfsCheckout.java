@@ -45,19 +45,22 @@ public class GfsCheckout {
     return this;
   }
 
-  public boolean checkout(@Nonnull AbstractTreeIterator iterator) throws IOException {
+  public void checkout(@Nonnull AbstractTreeIterator iterator) throws IOException {
     TreeWalk tw = prepareTreeWalk(iterator);
     collectChanges(tw);
     applyChanges();
-    return !changes.hasConflicts();
   }
 
-  public boolean checkout(@Nonnull AnyObjectId tree) throws IOException {
-    return checkout(new CanonicalTreeParser(null, reader, tree));
+  public void checkout(@Nonnull AnyObjectId tree) throws IOException {
+    checkout(new CanonicalTreeParser(null, reader, tree));
   }
 
-  public boolean checkout(@Nonnull DirCache cache) throws IOException {
-    return checkout(new DirCacheIterator(cache));
+  public void checkout(@Nonnull DirCache cache) throws IOException {
+    checkout(new DirCacheIterator(cache));
+  }
+
+  public boolean hasConflicts() {
+    return !changes.isEmpty();
   }
 
   @Nonnull
