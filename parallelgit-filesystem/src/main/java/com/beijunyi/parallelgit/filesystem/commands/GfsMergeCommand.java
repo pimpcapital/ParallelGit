@@ -177,31 +177,22 @@ public final class GfsMergeCommand extends GfsCommand<GfsMergeCommand.Result> {
   @Nonnull
   private Result threeWayMerge() throws IOException {
     Merger merger = prepareMerger();
+    if(merger.merge(headCommit, sourceHeadCommit))
+      return updateFileSystemStatus(merger);
+    return handleConflicts(merger);
+  }
+
+  @Nonnull
+  private Result updateFileSystemStatus(@Nonnull Merger merger) throws IOException {
+    AnyObjectId treeId = merger.getResultTreeId();
     GfsStatusProvider status = gfs.getStatusProvider();
-    AnyObjectId treeId;
-    if(merger.merge(headCommit, sourceHeadCommit)) {
-      treeId = merger.getResultTreeId();
-      new GfsCheckout(gfs).checkout(treeId);
-      if(commit && !squash) {
-        prepareCommitter();
-        RevCommit commit = CommitUtils.createCommit(message, treeId, committer, committer, Arrays.asList(headCommit, sourceHeadCommit), repo);
-        BranchUtils.mergeBranch(branch, commit, sourceRef, "Merge made by " + strategy.getName() + ".", repo);
-        status.state(NORMAL);
-        return Result.merged(commit);
-      }
-    } else {
-      if(merger instanceof ResolveMerger) {
-        ResolveMerger rm = ResolveMerger.class.cast(merger);
-        new GfsMergeCheckout(gfs)
-          .ours(branchRef.getName())
-          .theirs(sourceRef.getName())
-          .handleConflicts(rm.getMergeResults())
-          .withFormatter(formatter)
-          .checkout(cache);
-        message = new MergeMessageFormatter().formatWithConflicts(message, rm.getUnmergedPaths());
-        rm.getMergeResults();
-      }
-      return Result.conflicting();
+    new GfsCheckout(gfs).checkout(treeId);
+    if(commit && !squash) {
+      prepareCommitter();
+      RevCommit commit = CommitUtils.createCommit(message, treeId, committer, committer, Arrays.asList(headCommit, sourceHeadCommit), repo);
+      BranchUtils.mergeBranch(branch, commit, sourceRef, "Merge made by " + strategy.getName() + ".", repo);
+      status.state(NORMAL);
+      return Result.merged(commit);
     }
     if(squash) {
       status.mergeNote(GfsMergeNote.mergeSquash(message));
@@ -210,6 +201,29 @@ public final class GfsMergeCommand extends GfsCommand<GfsMergeCommand.Result> {
     }
     status.mergeNote(GfsMergeNote.mergeNoCommit(sourceHeadCommit, message));
     return Result.mergedNotCommitted();
+  }
+
+  @Nonnull
+  private Result handleConflicts(@Nonnull Merger merger) throws IOException {
+    GfsStatusProvider status = gfs.getStatusProvider();
+    if(merger instanceof ResolveMerger) {
+      ResolveMerger rm = ResolveMerger.class.cast(merger);
+      Map<String, MergeResult<? extends Sequence>> conflicts = getConflicts(rm);
+      new GfsMergeCheckout(gfs)
+        .ours(branchRef.getName())
+        .theirs(sourceRef.getName())
+        .handleConflicts(conflicts)
+        .withFormatter(formatter)
+        .checkout(cache);
+      message = new MergeMessageFormatter().formatWithConflicts(message, rm.getUnmergedPaths());
+      if(squash) {
+        status.mergeNote(GfsMergeNote.mergeSquashConflicting(message, conflicts));
+        status.state(NORMAL);
+      } else
+        status.mergeNote(GfsMergeNote.mergeConflicting(sourceHeadCommit, message, conflicts));
+    } else
+      status.state(NORMAL);
+    return Result.conflicting();
   }
 
   private boolean tryCheckout(@Nonnull AnyObjectId tree) throws IOException {
@@ -236,6 +250,14 @@ public final class GfsMergeCommand extends GfsCommand<GfsMergeCommand.Result> {
   private void prepareCommitter() {
     if(committer == null)
       committer = new PersonIdent(repo);
+  }
+
+  @Nonnull
+  private static Map<String, MergeResult<? extends Sequence>> getConflicts(@Nonnull ResolveMerger merger) {
+    Map<String, MergeResult<? extends Sequence>> ret = new HashMap<>();
+    for(Map.Entry<String, MergeResult<? extends Sequence>> conflict : merger.getMergeResults().entrySet())
+      ret.put(toAbsolutePath(conflict.getKey()), conflict.getValue());
+    return ret;
   }
 
   public static class Result implements GfsCommandResult {

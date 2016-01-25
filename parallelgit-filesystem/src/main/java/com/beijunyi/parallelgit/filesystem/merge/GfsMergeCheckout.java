@@ -48,9 +48,7 @@ public class GfsMergeCheckout extends GfsCheckout {
 
   @Nonnull
   public GfsMergeCheckout handleConflicts(@Nonnull Map<String, MergeResult<? extends Sequence>> conflicts) {
-    this.conflicts = new HashMap<>();
-    for(Map.Entry<String, MergeResult<? extends Sequence>> conflict : conflicts.entrySet())
-      this.conflicts.put(toAbsolutePath(conflict.getKey()), conflict.getValue());
+    this.conflicts = conflicts;
     return this;
   }
 
