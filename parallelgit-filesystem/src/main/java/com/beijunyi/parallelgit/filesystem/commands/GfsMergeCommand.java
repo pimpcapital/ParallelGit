@@ -7,6 +7,7 @@ import javax.annotation.Nullable;
 
 import com.beijunyi.parallelgit.filesystem.GfsStatusProvider;
 import com.beijunyi.parallelgit.filesystem.GitFileSystem;
+import com.beijunyi.parallelgit.filesystem.exceptions.GfsCheckoutConflictException;
 import com.beijunyi.parallelgit.filesystem.exceptions.NoBranchException;
 import com.beijunyi.parallelgit.filesystem.exceptions.NoChangeException;
 import com.beijunyi.parallelgit.filesystem.io.GfsCheckout;
@@ -230,7 +231,7 @@ public final class GfsMergeCommand extends GfsCommand<GfsMergeCommand.Result> {
     GfsCheckout checkout = new GfsCheckout(gfs);
     try {
       checkout.checkout(tree);
-    } catch(CheckoutConflictException e) {
+    } catch(GfsCheckoutConflictException e) {
       return false;
     }
     return true;
