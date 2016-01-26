@@ -14,7 +14,6 @@ import static com.beijunyi.parallelgit.filesystem.commands.GfsMergeCommand.Resul
 import static com.beijunyi.parallelgit.utils.BranchUtils.createBranch;
 import static org.eclipse.jgit.api.MergeResult.MergeStatus.*;
 
-@Ignore
 public class GfsMergeCommandTest extends AbstractParallelGitTest {
 
   @Before
