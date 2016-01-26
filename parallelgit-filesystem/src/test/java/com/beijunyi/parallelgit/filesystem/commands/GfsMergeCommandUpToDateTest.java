@@ -50,7 +50,7 @@ public class GfsMergeCommandUpToDateTest extends AbstractParallelGitTest {
   @Test
   public void whenHeadIsAheadWithDirtyFile_theFileShouldStillExistInTheFileSystemAfterMerge() throws Exception {
     try(GitFileSystem gfs = Gfs.newFileSystem(OURS, repo)) {
-      Files.write(gfs.getPath("/some_file.txt"), someBytes());
+      Files.write(gfs.getPath("/test_file.txt"), someBytes());
       merge(gfs).source("theirs").execute();
       Assert.assertTrue(Files.exists(gfs.getPath("/test_file.txt")));
     }
