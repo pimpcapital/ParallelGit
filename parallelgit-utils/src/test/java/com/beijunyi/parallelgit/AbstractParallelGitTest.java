@@ -58,7 +58,7 @@ public abstract class AbstractParallelGitTest {
 
   @Nonnull
   protected AnyObjectId writeToCache(@Nonnull String path) throws IOException {
-    return writeToCache(path, path + "'s unique content");
+    return writeToCache(path, someBytes());
   }
 
   @Nonnull

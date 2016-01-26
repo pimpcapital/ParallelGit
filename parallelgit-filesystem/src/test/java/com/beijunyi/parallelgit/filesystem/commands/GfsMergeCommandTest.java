@@ -22,37 +22,6 @@ public class GfsMergeCommandTest extends AbstractParallelGitTest {
   }
 
   @Test
-  public void whenHeadIsAheadOfSourceBranch_theResultShouldBeAlreadyUpToDate() throws Exception {
-    AnyObjectId parentCommit = commit();
-    prepareBranches(commit(parentCommit), parentCommit);
-    Result result = mergeBranches();
-    Assert.assertEquals(ALREADY_UP_TO_DATE, result.getStatus());
-  }
-
-  @Test
-  public void whenHeadIsAheadWithUnstashedFile_theResultShouldBeAlreadyUpToDate() throws Exception {
-    AnyObjectId parentCommit = commit();
-    prepareBranches(commit(parentCommit), parentCommit);
-    Result result;
-    try(GitFileSystem gfs = prepareFileSystem()) {
-      Files.write(gfs.getPath("/some_file.txt"), someBytes());
-      result = merge(gfs).source("theirs").execute();
-    }
-    Assert.assertEquals(ALREADY_UP_TO_DATE, result.getStatus());
-  }
-
-  @Test
-  public void whenHeadIsAheadWithUnstashedFile_theFileShouldExistInTheFileSystemAfterMerge() throws Exception {
-    AnyObjectId parentCommit = commit();
-    prepareBranches(commit(parentCommit), parentCommit);
-    try(GitFileSystem gfs = prepareFileSystem()) {
-      Files.write(gfs.getPath("/test_file.txt"), someBytes());
-      merge(gfs).source("theirs").execute();
-      Assert.assertTrue(Files.exists(gfs.getPath("/test_file.txt")));
-    }
-  }
-
-  @Test
   public void whenHeadIsBehindSourceBranch_theResultShouldBeFastForward() throws Exception {
     AnyObjectId parentCommit = commit();
     prepareBranches(parentCommit, commit(parentCommit));
