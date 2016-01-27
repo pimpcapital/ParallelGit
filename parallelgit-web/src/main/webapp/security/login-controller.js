@@ -1,4 +1,4 @@
-app.controller('LoginController', function($scope, $cookies, $uibModalInstance, SecurityService) {
+app.controller('LoginController', function($scope, $cookies, $uibModalInstance) {
 
   $scope.username = $cookies.get('username');
   $scope.email = $cookies.get('email');

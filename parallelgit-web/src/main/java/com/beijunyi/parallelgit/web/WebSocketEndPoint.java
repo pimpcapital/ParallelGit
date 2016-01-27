@@ -2,16 +2,12 @@ package com.beijunyi.parallelgit.web;
 
 import java.io.IOException;
 import java.nio.ByteBuffer;
-import java.util.HashMap;
-import java.util.Map;
 import javax.annotation.Nonnull;
 import javax.websocket.*;
 import javax.websocket.server.ServerEndpoint;
 
-@ServerEndpoint("/ws")
-public class EchoAnnotation {
-
-  private final Map<String, Workspace> workspaces = new HashMap<>();
+@ServerEndpoint(value = "/ws", decoders = {}, encoders = {})
+public class WebSocketEndPoint {
 
   @OnOpen
   synchronized public void onOpen(@Nonnull Session session) throws IOException {
