@@ -5,7 +5,7 @@ import javax.websocket.server.ServerEndpointConfig;
 
 import com.beijunyi.parallelgit.web.config.InjectorFactory;
 
-public class WebSocketEndPointConfigurator extends ServerEndpointConfig.Configurator {
+public class EndPointConfigurator extends ServerEndpointConfig.Configurator {
 
   @Override
   public <T> T getEndpointInstance(@Nonnull Class<T> clazz) throws InstantiationException {

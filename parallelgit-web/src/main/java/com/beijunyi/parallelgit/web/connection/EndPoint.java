@@ -6,12 +6,10 @@ import javax.inject.Inject;
 import javax.websocket.*;
 import javax.websocket.server.ServerEndpoint;
 
-import com.beijunyi.parallelgit.web.workspace.GitUser;
-import com.beijunyi.parallelgit.web.workspace.Workspace;
-import com.beijunyi.parallelgit.web.workspace.WorkspaceManager;
+import com.beijunyi.parallelgit.web.workspace.*;
 
-@ServerEndpoint(value = "/ws", decoders = JsonDecoder.class, encoders = JsonEncoder.class, configurator = WebSocketEndPointConfigurator.class)
-public class WebSocketEndPoint {
+@ServerEndpoint(value = "/ws", decoders = JsonDecoder.class, encoders = JsonEncoder.class, configurator = EndPointConfigurator.class)
+public class EndPoint {
 
   private final WorkspaceManager workspaces;
 
@@ -19,7 +17,7 @@ public class WebSocketEndPoint {
   private Workspace workspace;
 
   @Inject
-  public WebSocketEndPoint(@Nonnull WorkspaceManager workspaces) {
+  public EndPoint(@Nonnull WorkspaceManager workspaces) {
     this.workspaces = workspaces;
   }
 
@@ -34,6 +32,8 @@ public class WebSocketEndPoint {
       case "login":
         processLogin(msg.getData(), session);
         break;
+      case "request-resource":
+        processRequest(msg.getData(), session);
       default:
         throw new UnsupportedOperationException();
     }
@@ -48,6 +48,11 @@ public class WebSocketEndPoint {
     GitUser user = new GitUser(data);
     workspace = workspaces.prepareWorkspace(id, user);
     session.getBasicRemote().sendObject(TitledMessage.ready());
+  }
+
+  private void processRequest(@Nonnull MessageData data, @Nonnull Session session) throws EncodeException, IOException {
+    ResourceRequest request = new ResourceRequest(data);
+    session.getBasicRemote().sendObject(TitledMessage.resource(request.getType(), request.getRequestId(), workspace.getResource(request)));
   }
 
 }

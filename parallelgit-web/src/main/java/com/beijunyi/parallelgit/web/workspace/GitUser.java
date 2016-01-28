@@ -15,7 +15,7 @@ public class GitUser {
   }
 
   public GitUser(@Nonnull MessageData msg) {
-    this(msg.get("user"), msg.get("email"));
+    this(msg.getString("user"), msg.getString("email"));
   }
 
   @Nonnull
