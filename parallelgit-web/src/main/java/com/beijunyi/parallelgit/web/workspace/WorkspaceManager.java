@@ -1,5 +1,6 @@
 package com.beijunyi.parallelgit.web.workspace;
 
+import java.io.IOException;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 import javax.annotation.Nonnull;
@@ -33,9 +34,11 @@ public class WorkspaceManager {
     }
   }
 
-  public void destroyWorkspace(@Nonnull String id) {
+  public void destroyWorkspace(@Nonnull String id) throws IOException {
     synchronized(workspaces) {
-      workspaces.remove(id);
+      Workspace workspace = workspaces.remove(id);
+      if(workspace != null)
+        workspace.close();
     }
   }
 

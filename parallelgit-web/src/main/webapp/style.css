@@ -1,3 +1,13 @@
 .modal-sm {
   width: 500px;
 }
+
+.dropdown-menu {
+  height: auto;
+  max-height: 400px;
+  overflow-x: hidden;
+}
+
+[ng-click] {
+  cursor: pointer;
+}

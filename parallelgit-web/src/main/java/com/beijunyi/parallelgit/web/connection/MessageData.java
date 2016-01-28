@@ -2,14 +2,16 @@ package com.beijunyi.parallelgit.web.connection;
 
 import java.util.HashMap;
 import javax.annotation.Nonnull;
+import javax.annotation.Nullable;
 
 public class MessageData extends HashMap<String, Object> {
 
   public MessageData() {
   }
 
-  public MessageData(@Nonnull String rid, @Nonnull Object data) {
-    put("rid", rid);
+  public MessageData(@Nullable String rid, @Nonnull Object data) {
+    if(rid != null)
+      put("rid", rid);
     put("data", data);
   }
 

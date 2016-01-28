@@ -5,7 +5,7 @@
   <link rel="stylesheet" href="style.css">
 </head>
 <body ng-app="parallel" ng-controller="MainController">
-<div ng-if="ready">
+<div ng-show="ready">
   <div ng-include="'navigation/navbar.html'"></div>
 </div>
 
@@ -18,7 +18,9 @@
 <script src="system/encode-service.js"></script>
 <script src="system/decode-service.js"></script>
 <script src="system/login-controller.js"></script>
+<script src="system/workspace-service.js"></script>
 <script src="system/security-service.js"></script>
+<script src="navigation/branch-controller.js"></script>
 <script src="main-controller.js"></script>
 </body>
 </html>

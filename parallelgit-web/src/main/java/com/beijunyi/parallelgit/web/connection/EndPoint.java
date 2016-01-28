@@ -1,6 +1,7 @@
 package com.beijunyi.parallelgit.web.connection;
 
 import java.io.IOException;
+import java.util.Map;
 import javax.annotation.Nonnull;
 import javax.inject.Inject;
 import javax.websocket.*;
@@ -32,15 +33,19 @@ public class EndPoint {
       case "login":
         processLogin(msg.getData(), session);
         break;
-      case "request-resource":
+      case "request":
         processRequest(msg.getData(), session);
+        break;
+      case "update":
+        processUpdate(msg.getData(), session);
+        break;
       default:
         throw new UnsupportedOperationException();
     }
   }
 
   @OnClose
-  public void handleClose() {
+  public void handleClose() throws IOException {
     workspaces.destroyWorkspace(id);
   }
 
@@ -50,9 +55,20 @@ public class EndPoint {
     session.getBasicRemote().sendObject(TitledMessage.ready());
   }
 
-  private void processRequest(@Nonnull MessageData data, @Nonnull Session session) throws EncodeException, IOException {
-    ResourceRequest request = new ResourceRequest(data);
-    session.getBasicRemote().sendObject(TitledMessage.resource(request.getType(), request.getRequestId(), workspace.getResource(request)));
+  private void processRequest(@Nonnull MessageData msg, @Nonnull Session session) throws EncodeException, IOException {
+    DataRequest request = new DataRequest(msg);
+    Object data = workspace.getData(request);
+    session.getBasicRemote().sendObject(TitledMessage.resource(request.getType(), request.getRequestId(), data));
+  }
+
+  private void processUpdate(@Nonnull MessageData msg, @Nonnull Session session) throws EncodeException, IOException {
+    DataUpdate update = new DataUpdate(msg);
+    Map<String, Object> updated = workspace.updateData(update);
+    for(Map.Entry<String, Object> entry : updated.entrySet()) {
+      String type = entry.getKey();
+      Object data = entry.getValue();
+      session.getBasicRemote().sendObject(TitledMessage.resource(type, null, data));
+    }
   }
 
 }

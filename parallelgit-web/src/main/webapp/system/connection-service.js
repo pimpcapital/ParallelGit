@@ -26,8 +26,8 @@ app.service('ConnectionService', function($rootScope, $timeout, EncodeService, D
     send('login', credential);
   };
 
-  this.send = function(message) {
-    send(message)
+  this.send = function(title, data) {
+    send(title, data)
   }
 
 });
