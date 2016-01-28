@@ -41,7 +41,7 @@ public class RepositoryUtilsSetRepositoryHeadTest extends AbstractParallelGitTes
 
   @Test
   public void detachHeadToCommit_theRepositoryHeadShouldBecomeTheSpecifiedCommitId() throws IOException {
-    writeSomeFileToCache();
+    writeSomethingToCache();
     AnyObjectId commitId = commitToMaster();
     RepositoryUtils.detachRepositoryHead(repo, commitId);
     Assert.assertEquals(commitId.getName(), repo.getBranch());
@@ -64,7 +64,7 @@ public class RepositoryUtilsSetRepositoryHeadTest extends AbstractParallelGitTes
 
   @Test
   public void setHeadToCommit_theRepositoryHeadShouldDetachToTheSpecifiedCommit() throws IOException {
-    writeSomeFileToCache();
+    writeSomethingToCache();
     AnyObjectId commitId = commitToMaster();
     RepositoryUtils.setRepositoryHead(repo, commitId.getName());
     Assert.assertEquals(commitId.getName(), repo.getBranch());
@@ -72,7 +72,7 @@ public class RepositoryUtilsSetRepositoryHeadTest extends AbstractParallelGitTes
 
   @Test
   public void setHeadToTag_theRepositoryHeadShouldDetachToTheTaggedCommit() throws IOException {
-    writeSomeFileToCache();
+    writeSomethingToCache();
     AnyObjectId commitId = commitToMaster();
     Ref tagRef = TagUtils.tagCommit("test_tag", commitId, repo);
     RepositoryUtils.setRepositoryHead(repo, tagRef.getName());

@@ -8,10 +8,12 @@ import java.util.List;
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 
+import com.beijunyi.parallelgit.utils.exceptions.NoSuchCommitException;
 import org.eclipse.jgit.dircache.DirCache;
 import org.eclipse.jgit.lib.*;
 import org.eclipse.jgit.revwalk.RevCommit;
 import org.eclipse.jgit.revwalk.RevWalk;
+import org.eclipse.jgit.revwalk.RevWalkUtils;
 import org.eclipse.jgit.treewalk.filter.AndTreeFilter;
 import org.eclipse.jgit.treewalk.filter.PathFilterGroup;
 import org.eclipse.jgit.treewalk.filter.TreeFilter;
@@ -44,10 +46,21 @@ public final class CommitUtils {
     }
   }
 
-  @Nullable
-  public static RevCommit getCommit(@Nonnull String revision, @Nonnull Repository repo) throws IOException {
-    AnyObjectId commitId = repo.resolve(revision);
-    return commitId != null ? getCommit(commitId, repo) : null;
+  @Nonnull
+  public static RevCommit getCommit(@Nonnull String id, @Nonnull Repository repo) throws IOException {
+    AnyObjectId commitId = repo.resolve(id);
+    if(commitId == null)
+      throw new NoSuchCommitException(id);
+    return getCommit(commitId, repo);
+  }
+
+  public static boolean commitExists(@Nonnull String id, @Nonnull Repository repo) throws IOException {
+    AnyObjectId obj = repo.resolve(id);
+    if(obj == null)
+      return false;
+    try(RevWalk rw = new RevWalk(repo)) {
+      return rw.parseAny(obj).getType() == Constants.OBJ_COMMIT;
+    }
   }
 
   @Nonnull
@@ -101,8 +114,34 @@ public final class CommitUtils {
     }
   }
 
+  public static boolean isMergedInto(@Nonnull AnyObjectId base, @Nonnull AnyObjectId target, @Nonnull ObjectReader reader) throws IOException {
+    try(RevWalk rw = new RevWalk(reader)) {
+      return rw.isMergedInto(rw.lookupCommit(base), rw.lookupCommit(target));
+    }
+  }
+
+  public static boolean isMergedInto(@Nonnull AnyObjectId base, @Nonnull AnyObjectId target, @Nonnull Repository repo) throws IOException {
+    try(ObjectReader reader = repo.newObjectReader()) {
+      return isMergedInto(base, target, reader);
+    }
+  }
+
   @Nonnull
-  public static RevCommit createCommit(@Nonnull String message, @Nonnull AnyObjectId treeId, @Nonnull PersonIdent author, @Nonnull PersonIdent committer, @Nonnull List<AnyObjectId> parents, @Nonnull Repository repo) throws IOException {
+  public static List<RevCommit> findSquashableCommits(@Nonnull RevCommit start, @Nullable RevCommit end, @Nonnull ObjectReader reader) throws IOException {
+    try(RevWalk rw = new RevWalk(reader)) {
+      return RevWalkUtils.find(rw, start, end);
+    }
+  }
+
+  @Nonnull
+  public static List<RevCommit> findSquashableCommits(@Nonnull RevCommit start, @Nullable RevCommit end, @Nonnull Repository repo) throws IOException {
+    try(ObjectReader reader = repo.newObjectReader()) {
+      return findSquashableCommits(start, end, reader);
+    }
+  }
+
+  @Nonnull
+  public static RevCommit createCommit(@Nonnull String message, @Nonnull AnyObjectId treeId, @Nonnull PersonIdent author, @Nonnull PersonIdent committer, @Nonnull List<? extends AnyObjectId> parents, @Nonnull Repository repo) throws IOException {
     try(ObjectInserter inserter = repo.newObjectInserter()) {
       AnyObjectId commitId = insertCommit(message, treeId, author, committer, parents, inserter);
       inserter.flush();
@@ -121,7 +160,7 @@ public final class CommitUtils {
   }
 
   @Nonnull
-  public static RevCommit createCommit(@Nonnull String message, @Nonnull DirCache cache, @Nonnull PersonIdent author, @Nonnull PersonIdent committer, @Nonnull List<AnyObjectId> parents, @Nonnull Repository repo) throws IOException {
+  public static RevCommit createCommit(@Nonnull String message, @Nonnull DirCache cache, @Nonnull PersonIdent author, @Nonnull PersonIdent committer, @Nonnull List<? extends AnyObjectId> parents, @Nonnull Repository repo) throws IOException {
     try(ObjectInserter inserter = repo.newObjectInserter()) {
       AnyObjectId commitId = insertCommit(message, cache.writeTree(inserter), author, committer, parents, inserter);
       inserter.flush();
@@ -140,7 +179,7 @@ public final class CommitUtils {
   }
 
   @Nonnull
-  private static AnyObjectId insertCommit(@Nonnull String message, @Nonnull AnyObjectId treeId, @Nonnull PersonIdent author, @Nonnull PersonIdent committer, @Nonnull List<AnyObjectId> parents, @Nonnull ObjectInserter inserter) throws IOException {
+  private static AnyObjectId insertCommit(@Nonnull String message, @Nonnull AnyObjectId treeId, @Nonnull PersonIdent author, @Nonnull PersonIdent committer, @Nonnull List<? extends AnyObjectId> parents, @Nonnull ObjectInserter inserter) throws IOException {
     CommitBuilder builder = new CommitBuilder();
     builder.setCommitter(committer);
     builder.setAuthor(author);
@@ -151,7 +190,7 @@ public final class CommitUtils {
   }
 
   @Nonnull
-  private static List<AnyObjectId> toParentList(@Nullable AnyObjectId parent) {
+  private static List<? extends AnyObjectId> toParentList(@Nullable AnyObjectId parent) {
     return parent != null ? Collections.singletonList(parent) : Collections.<AnyObjectId>emptyList();
   }
 

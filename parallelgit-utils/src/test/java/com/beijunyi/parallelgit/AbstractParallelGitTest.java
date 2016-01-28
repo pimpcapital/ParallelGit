@@ -8,6 +8,7 @@ import javax.annotation.Nullable;
 
 import com.beijunyi.parallelgit.utils.*;
 import org.eclipse.jgit.dircache.DirCache;
+import org.eclipse.jgit.dircache.DirCacheBuilder;
 import org.eclipse.jgit.dircache.DirCacheEntry;
 import org.eclipse.jgit.errors.NoWorkTreeException;
 import org.eclipse.jgit.internal.storage.dfs.DfsRepositoryDescription;
@@ -40,7 +41,7 @@ public abstract class AbstractParallelGitTest {
 
   @Nonnull
   protected AnyObjectId writeToCache(@Nonnull String path, @Nonnull byte[] content, @Nonnull FileMode mode) throws IOException {
-    AnyObjectId blobId = repo != null ? ObjectUtils.insertBlob(content, repo) : ObjectUtils.calculateBlobId(content);
+    AnyObjectId blobId = repo != null ? ObjectUtils.insertBlob(content, repo) : calculateBlobId(content);
     CacheUtils.addFile(path, mode, blobId, cache);
     return blobId;
   }
@@ -57,17 +58,21 @@ public abstract class AbstractParallelGitTest {
 
   @Nonnull
   protected AnyObjectId writeToCache(@Nonnull String path) throws IOException {
-    return writeToCache(path, path + "'s unique content");
+    return writeToCache(path, someBytes());
   }
 
   @Nonnull
-  protected AnyObjectId writeSomeFileToCache() throws IOException {
+  protected AnyObjectId writeSomethingToCache() throws IOException {
     return writeToCache(UUID.randomUUID().toString() + ".txt");
   }
 
-  protected void writeFilesToCache(@Nonnull String... paths) throws IOException {
-    for(String path : paths)
-      writeToCache(path);
+  protected void writeMultipleToCache(@Nonnull String... paths) throws IOException {
+    DirCacheBuilder builder = CacheUtils.keepEverything(cache);
+    for(String path : paths) {
+      AnyObjectId blobId = repo != null ? ObjectUtils.insertBlob(someBytes(), repo) : someObjectId();
+      CacheUtils.addFile(path, FileMode.REGULAR_FILE, blobId, builder);
+    }
+    builder.finish();
   }
 
   @Nonnull
@@ -83,13 +88,28 @@ public abstract class AbstractParallelGitTest {
   }
 
   @Nonnull
+  protected String someText() {
+    return UUID.randomUUID().toString();
+  }
+
+  @Nonnull
+  protected String someFilename() {
+    return someText() + ".txt";
+  }
+
+  @Nonnull
+  protected byte[] someBytes() {
+    return someText().getBytes();
+  }
+
+  @Nonnull
   protected AnyObjectId someObjectId() {
-    return ObjectUtils.calculateBlobId(UUID.randomUUID().toString().getBytes());
+    return calculateBlobId(someBytes());
   }
 
   @Nonnull
   protected String someCommitMessage() {
-    return getClass().getSimpleName() + " commit: " + UUID.randomUUID().toString();
+    return getClass().getSimpleName() + " commit: " + someText();
   }
 
   @Nonnull
@@ -108,6 +128,11 @@ public abstract class AbstractParallelGitTest {
     return commit(someCommitMessage(), parent);
   }
 
+  @Nonnull
+  protected RevCommit commit() throws IOException {
+    return commit(null);
+  }
+
   protected void updateBranchHead(@Nonnull String branch, @Nonnull AnyObjectId commit, boolean init) throws IOException {
     if(init)
       BranchUtils.initBranch(branch, commit, repo);
@@ -118,7 +143,7 @@ public abstract class AbstractParallelGitTest {
   @Nonnull
   protected RevCommit commitToBranch(@Nonnull String branch, @Nonnull String message, @Nullable AnyObjectId parent) throws IOException {
     if(parent == null && BranchUtils.branchExists(branch, repo))
-      parent = BranchUtils.getBranchHeadCommit(branch, repo);
+      parent = BranchUtils.getHeadCommit(branch, repo);
     RevCommit commitId = commit(message, parent);
     updateBranchHead(branch, commitId, parent == null);
     return commitId;
@@ -191,6 +216,11 @@ public abstract class AbstractParallelGitTest {
     return initRepository(true, true);
   }
 
+  @Nonnull
+  public static AnyObjectId calculateBlobId(@Nonnull byte[] data) {
+    return new ObjectInserter.Formatter().idFor(Constants.OBJ_BLOB, data);
+  }
+
   public static void assertCacheEquals(@Nullable String message, @Nonnull DirCache expected, @Nonnull DirCache actual) {
     if(expected != actual) {
       String header = message == null ? "" : message + ": ";
@@ -235,7 +265,7 @@ public abstract class AbstractParallelGitTest {
     private final File workTree;
 
     public TestRepository(boolean bare) {
-      super(new DfsRepositoryDescription(null));
+      super(new DfsRepositoryDescription());
       File mockLocation = new File(System.getProperty("java.io.tmpdir"));
       directory = bare ? mockLocation : new File(mockLocation, Constants.DOT_GIT);
       workTree = bare ? null : mockLocation;

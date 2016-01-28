@@ -2,11 +2,12 @@ package com.beijunyi.parallelgit.filesystem;
 
 import java.io.IOException;
 import java.net.URI;
+import java.nio.file.FileSystemNotFoundException;
 
-import com.beijunyi.parallelgit.filesystem.utils.GitUriBuilder;
+import com.beijunyi.parallelgit.filesystem.utils.GfsUriBuilder;
 import org.junit.Test;
 
-import static org.junit.Assert.*;
+import static org.junit.Assert.assertEquals;
 
 public class GitFileSystemProviderGetFileSystemTest extends PreSetupGitFileSystemTest {
 
@@ -17,19 +18,19 @@ public class GitFileSystemProviderGetFileSystemTest extends PreSetupGitFileSyste
     assertEquals(gfs, result);
   }
 
-  @Test
-  public void getFileSystemForUriWithInvalidSessionId_theResultShouldBeNull() {
-    URI uri = GitUriBuilder.fromFileSystem(gfs)
+  @Test(expected = FileSystemNotFoundException.class)
+  public void getFileSystemForUriWithInvalidSessionId_shouldThrowFileSystemNotFoundException() {
+    URI uri = GfsUriBuilder.fromFileSystem(gfs)
                 .sid("some_invalid_sid")
                 .build();
-    assertNull(provider.getFileSystem(uri));
+    provider.getFileSystem(uri);
   }
 
-  @Test
-  public void getFileSystemForUriWithNoSessionId_theResultShouldBeNull() {
-    URI uri = GitUriBuilder.fromFileSystem(gfs)
+  @Test(expected = FileSystemNotFoundException.class)
+  public void getFileSystemForUriWithNoSessionId_shouldThrowFileSystemNotFoundException() {
+    URI uri = GfsUriBuilder.fromFileSystem(gfs)
                 .sid(null)
                 .build();
-    assertNull(provider.getFileSystem(uri));
+    provider.getFileSystem(uri);
   }
 }

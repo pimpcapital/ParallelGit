@@ -7,7 +7,7 @@ import javax.annotation.Nullable;
 
 import com.beijunyi.parallelgit.utils.exceptions.NoSuchCacheDirectoryException;
 import com.beijunyi.parallelgit.utils.exceptions.NoSuchCacheEntryException;
-import com.beijunyi.parallelgit.utils.exceptions.NoSuchRevisionException;
+import com.beijunyi.parallelgit.utils.exceptions.NoSuchCommitException;
 import com.beijunyi.parallelgit.utils.io.CacheEntryUpdate;
 import com.beijunyi.parallelgit.utils.io.CacheIterator;
 import com.beijunyi.parallelgit.utils.io.CacheNode;
@@ -76,7 +76,7 @@ public final class CacheUtils {
   public static DirCache forRevision(@Nonnull String revision, @Nonnull Repository repo) throws IOException {
     AnyObjectId revisionId = repo.resolve(revision);
     if(revisionId == null)
-      throw new NoSuchRevisionException(revision);
+      throw new NoSuchCommitException(revision);
     return forRevision(revisionId, repo);
   }
 

@@ -2,7 +2,6 @@ package com.beijunyi.parallelgit.filesystem;
 
 import java.io.IOException;
 
-import com.beijunyi.parallelgit.filesystem.utils.GitFileSystemBuilder;
 import org.junit.Before;
 import org.junit.Test;
 
@@ -42,9 +41,7 @@ public class GitPathEqualTest extends AbstractGitFileSystemTest {
 
   @Test
   public void hashCodesFromDifferentFileSystemTest() throws IOException {
-    GitFileSystem other = GitFileSystemBuilder.prepare()
-                            .repository(repo)
-                            .build();
+    GitFileSystem other = Gfs.newFileSystem(repo);
     GitPath p1 = gfs.getPath("/a/b/c");
     GitPath p2 = other.getPath("/a/b/c");
     assertFalse(p1.equals(p2));

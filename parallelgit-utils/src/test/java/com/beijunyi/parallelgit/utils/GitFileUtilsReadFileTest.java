@@ -21,13 +21,13 @@ public class GitFileUtilsReadFileTest extends AbstractParallelGitTest {
     byte[] expected = "test data".getBytes();
     writeToCache("/test_file.txt", expected);
     AnyObjectId commit = commitToMaster();
-    byte[] actual = GitFileUtils.readFile("/test_file.txt", commit.getName(), repo);
+    byte[] actual = GitFileUtils.readFile("/test_file.txt", commit.getName(), repo).getBytes();
     Assert.assertArrayEquals(expected, actual);
   }
 
   @Test(expected = NoSuchFileException.class)
   public void readFileWhenFileDoesNotExist_shouldThrowNoSuchFileException() throws IOException {
-    writeSomeFileToCache();
+    writeSomethingToCache();
     AnyObjectId commit = commitToMaster();
     GitFileUtils.readFile("/non_existent_file.txt", commit.getName(), repo);
   }

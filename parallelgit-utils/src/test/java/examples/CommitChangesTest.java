@@ -16,7 +16,7 @@ public class CommitChangesTest extends AbstractParallelGitTest {
   @Before
   public void prepareExample() throws IOException {
     initRepository();
-    writeSomeFileToCache();
+    writeSomethingToCache();
     commitToBranch("my_branch");
   }
 
@@ -36,7 +36,7 @@ public class CommitChangesTest extends AbstractParallelGitTest {
     //check
     assertEquals(newCommit, CommitUtils.getCommit("my_branch", repo));         // the branch head equals to the new commit
     assertEquals("This is an example",                                         // the data is correct
-                  new String(GitFileUtils.readFile("/my_file.txt", newCommit, repo)));
+                  new String(GitFileUtils.readFile("/my_file.txt", newCommit, repo).getBytes()));
   }
 
 }

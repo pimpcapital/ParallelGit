@@ -6,14 +6,16 @@ import org.junit.Before;
 
 public abstract class PreSetupGitFileSystemTest extends AbstractGitFileSystemTest {
 
-  protected GitFileStore store;
-  protected String branch;
+  protected GfsObjectService objectService;
+  protected GfsFileStore fileStore;
+  protected GfsStatusProvider statusProvider;
 
   @Before
   public void setupFileSystem() throws IOException {
     initGitFileSystem();
-    store = gfs.getFileStore();
-    branch = gfs.getBranch();
+    objectService = gfs.getObjectService();
+    fileStore = gfs.getFileStore();
+    statusProvider = gfs.getStatusProvider();
   }
 
 }

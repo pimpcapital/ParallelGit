@@ -14,33 +14,26 @@ public class GitFileSystemPersistTest extends PreSetupGitFileSystemTest {
 
   @Test
   public void persistWhenNoChangeIsMade_theResultShouldEqualToThePreviousTree() throws IOException {
-    AnyObjectId previousTree = gfs.getTree();
-    assertEquals(previousTree, gfs.persist());
+    AnyObjectId previousTree = gfs.getStatusProvider().commit().getTree();
+    assertEquals(previousTree, gfs.flush());
   }
 
   @Test
   public void persistAfterChangeIsMade_theResultShouldNotEqualToThePreviousTree() throws IOException {
-    AnyObjectId previousTree = gfs.getTree();
+    AnyObjectId previousTree = gfs.getStatusProvider().commit().getTree();
     Files.write(gfs.getPath("/some_file.txt"), "some text content".getBytes());
-    assertNotEquals(previousTree, gfs.persist());
+    assertNotEquals(previousTree, gfs.flush());
   }
 
   @Test
   public void persistAfterChangeIsMade_theResultShouldReflectTheChanges() throws IOException {
     byte[] expectedContent = "some text content".getBytes();
     Files.write(gfs.getPath("/some_file.txt"), expectedContent);
-    AnyObjectId result = gfs.persist();
+    AnyObjectId result = gfs.flush();
     try(TreeWalk tw = TreeUtils.forPath("/some_file.txt", result, repo)) {
       assert tw != null;
       assertArrayEquals(expectedContent, repo.open(tw.getObjectId(0)).getBytes());
     }
-  }
-
-  @Test
-  public void persistChanges_theFileSystemShouldBecomeClean() throws IOException {
-    Files.write(gfs.getPath("/some_file.txt"), "some text content".getBytes());
-    gfs.persist();
-    assertFalse(gfs.isDirty());
   }
 
 }

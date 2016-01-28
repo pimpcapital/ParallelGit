@@ -35,7 +35,7 @@ public class FilesNewOutputStreamTest extends AbstractGitFileSystemTest {
   @Test
   public void openNewOutputStreamWhenFileDoesNotExist_theNewFileIsEmptyBeforeStreamCloses() throws IOException {
     initGitFileSystem();
-    GitPath file = gfs.getPath("/test_file.txt");
+    GitPath file = gfs.getPath("/non_existent_file.txt");
     try(OutputStream stream = Files.newOutputStream(file)) {
       stream.write("some text data".getBytes());
       assertEquals(0, Files.size(file));

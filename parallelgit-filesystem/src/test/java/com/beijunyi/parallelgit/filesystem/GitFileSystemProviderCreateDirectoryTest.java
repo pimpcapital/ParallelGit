@@ -34,24 +34,18 @@ public class GitFileSystemProviderCreateDirectoryTest extends AbstractGitFileSys
     initGitFileSystem();
     GitPath dir = gfs.getPath("/empty_dir");
     provider.createDirectory(dir);
-    assertFalse(gfs.isDirty());
+    assertFalse(gfs.getStatusProvider().isDirty());
   }
 
   @Test(expected = FileAlreadyExistsException.class)
   public void createNewDirectoryWhenDirectoryExists_shouldThrowFileAlreadyExistsException() throws IOException {
-    initRepository();
-    writeToCache("/a/b.txt");
-    commitToMaster();
-    initGitFileSystem();
+    initGitFileSystem("/a/b.txt");
     provider.createDirectory(gfs.getPath("/a"));
   }
 
   @Test(expected = FileAlreadyExistsException.class)
   public void createNewDirectoryWhenFileExists_shouldThrowFileAlreadyExistsException() throws IOException {
-    initRepository();
-    writeToCache("/a");
-    commitToMaster();
-    initGitFileSystem();
+    initGitFileSystem("/a");
     provider.createDirectory(gfs.getPath("/a"));
   }
 

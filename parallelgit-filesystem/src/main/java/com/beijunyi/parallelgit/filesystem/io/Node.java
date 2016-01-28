@@ -1,101 +1,109 @@
 package com.beijunyi.parallelgit.filesystem.io;
 
+import java.io.IOException;
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 
+import com.beijunyi.parallelgit.filesystem.GfsObjectService;
+import com.beijunyi.parallelgit.utils.io.GitFileEntry;
+import com.beijunyi.parallelgit.utils.io.ObjectSnapshot;
 import org.eclipse.jgit.lib.AnyObjectId;
 import org.eclipse.jgit.lib.FileMode;
 
-public abstract class Node {
+import static org.eclipse.jgit.lib.FileMode.*;
 
-  protected NodeType type;
+public abstract class Node<Snapshot extends ObjectSnapshot> {
+
   protected final DirectoryNode parent;
-  protected volatile AnyObjectId object;
-  protected volatile boolean dirty = false;
+  protected final GfsObjectService objService;
 
-  protected Node(@Nonnull NodeType type, @Nullable AnyObjectId object, @Nullable DirectoryNode parent) {
-    this.type = type;
-    this.object = object;
+  protected volatile AnyObjectId originId;
+  protected volatile AnyObjectId id;
+
+  protected Node(@Nullable AnyObjectId id, @Nonnull GfsObjectService objService) {
+    this.originId = id;
+    this.id = id;
+    this.parent = null;
+    this.objService = objService;
+  }
+
+  protected Node(@Nullable AnyObjectId id, @Nonnull DirectoryNode parent) {
+    this.originId = id;
+    this.id = id;
     this.parent = parent;
+    this.objService = parent.getObjService();
   }
 
   @Nonnull
-  public static Node forObject(@Nonnull AnyObjectId object, @Nonnull FileMode mode, @Nonnull DirectoryNode parent) {
-    if(mode.equals(FileMode.TREE))
-      return DirectoryNode.forTreeObject(object, parent);
-    return FileNode.forBlobObject(object, NodeType.forFileMode(mode), parent);
+  public static Node fromEntry(@Nonnull GitFileEntry entry, @Nonnull DirectoryNode parent) {
+    if(entry.getMode().equals(TREE))
+      return DirectoryNode.fromObject(entry.getId(), parent);
+    return FileNode.fromObject(entry.getId(), entry.getMode(), parent);
   }
 
   @Nonnull
-  public static Node cloneNode(@Nonnull Node node, @Nonnull DirectoryNode parent) {
-    Node ret;
-    if(node instanceof DirectoryNode)
-      ret = DirectoryNode.newDirectory(parent);
-    else
-      ret = FileNode.newFile(node.isExecutableFile(), parent);
-    ret.setDirty(true);
-    return ret;
-  }
-
-  @Nonnull
-  public NodeType getType() {
-    return type;
-  }
-
-  public void setType(@Nonnull NodeType type) {
-    this.type = type;
+  public GfsObjectService getObjService() {
+    return objService;
   }
 
   public boolean isRegularFile() {
-    return type.isRegularFile();
+    return getMode().equals(REGULAR_FILE) || getMode().equals(EXECUTABLE_FILE);
   }
 
   public boolean isExecutableFile() {
-    return type == NodeType.EXECUTABLE_FILE;
+    return getMode().equals(EXECUTABLE_FILE);
   }
 
   public boolean isSymbolicLink() {
-    return type == NodeType.SYMBOLIC_LINK;
+    return getMode().equals(SYMLINK);
   }
 
   public boolean isDirectory() {
-    return type == NodeType.DIRECTORY;
+    return getMode().equals(TREE);
   }
 
   @Nullable
-  public DirectoryNode getParent() {
-    return parent;
-  }
-
-  @Nullable
-  public AnyObjectId getObject() {
-    return object;
-  }
-
-  public void setObject(@Nonnull AnyObjectId object) {
-    this.object = object;
-  }
-
-  public boolean isDirty() {
-    return dirty;
-  }
-
-  public void setDirty(boolean dirty) {
-    this.dirty = dirty;
-  }
-
-  public void markDirty() {
-    if(!isDirty()) {
-      setDirty(true);
-      DirectoryNode parent = getParent();
-      if(parent != null)
-        parent.markDirty();
+  public AnyObjectId getObjectId(boolean persist) throws IOException {
+    if(id == null || persist && !objService.hasObject(id)) {
+      Snapshot snapshot = takeSnapshot(persist);
+      id = snapshot != null ? snapshot.getId() : null;
     }
+    if(persist)
+      originId = id;
+    return id;
   }
 
-  public void markClean(@Nonnull AnyObjectId object) {
-    setObject(object);
-    setDirty(false);
+  public boolean isDirty() throws IOException {
+    if(originId != null)
+      return !originId.equals(getObjectId(false));
+    return getObjectId(false) != null;
+  }
+
+  public abstract long getSize() throws IOException;
+
+  @Nonnull
+  public abstract FileMode getMode();
+
+  public abstract void setMode(@Nonnull FileMode mode);
+
+  public abstract void reset(@Nonnull AnyObjectId id);
+
+  @Nullable
+  public abstract Snapshot loadSnapshot() throws IOException;
+
+  @Nullable
+  public abstract Snapshot takeSnapshot(boolean persist) throws IOException;
+
+  public abstract boolean isInitialized();
+
+  @Nonnull
+  public abstract Node clone(@Nonnull DirectoryNode parent) throws IOException;
+
+  protected void propagateChange() {
+    if(parent != null) {
+      parent.id = null;
+      parent.propagateChange();
+    }
   }
 
 }

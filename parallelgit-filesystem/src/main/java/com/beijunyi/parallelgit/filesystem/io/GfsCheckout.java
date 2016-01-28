@@ -1,0 +1,115 @@
+package com.beijunyi.parallelgit.filesystem.io;
+
+import java.io.IOException;
+import java.util.*;
+import javax.annotation.Nonnull;
+
+import com.beijunyi.parallelgit.filesystem.GfsStatusProvider;
+import com.beijunyi.parallelgit.filesystem.GitFileSystem;
+import com.beijunyi.parallelgit.utils.io.GitFileEntry;
+import org.eclipse.jgit.dircache.DirCache;
+import org.eclipse.jgit.dircache.DirCacheIterator;
+import org.eclipse.jgit.lib.AnyObjectId;
+import org.eclipse.jgit.lib.ObjectReader;
+import org.eclipse.jgit.treewalk.*;
+
+import static com.beijunyi.parallelgit.filesystem.utils.GfsPathUtils.toAbsolutePath;
+
+public class GfsCheckout {
+
+  private static final int HEAD = 0;
+  private static final int TARGET = 1;
+  private static final int WORKTREE = 2;
+
+  private final GitFileSystem gfs;
+  private final GfsStatusProvider status;
+  private final ObjectReader reader;
+  protected final GfsCheckoutChangesCollector changes;
+
+  private Set<String> ignoredFiles;
+
+  public GfsCheckout(@Nonnull GitFileSystem gfs, boolean failOnConflict) {
+    this.gfs = gfs;
+    this.status = gfs.getStatusProvider();
+    this.reader = gfs.getRepository().newObjectReader();
+    changes = new GfsCheckoutChangesCollector(failOnConflict);
+  }
+
+  public GfsCheckout(@Nonnull GitFileSystem gfs) {
+    this(gfs, true);
+  }
+
+  @Nonnull
+  public GfsCheckout ignoredFiles(@Nonnull Collection<String> ignoredFiles) {
+    this.ignoredFiles = new HashSet<>(ignoredFiles);
+    return this;
+  }
+
+  public void checkout(@Nonnull AbstractTreeIterator iterator) throws IOException {
+    TreeWalk tw = prepareTreeWalk(iterator);
+    collectChanges(tw);
+    applyChanges();
+  }
+
+  public void checkout(@Nonnull AnyObjectId tree) throws IOException {
+    checkout(new CanonicalTreeParser(null, reader, tree));
+  }
+
+  public void checkout(@Nonnull DirCache cache) throws IOException {
+    checkout(new DirCacheIterator(cache));
+  }
+
+  public boolean hasConflicts() {
+    return !changes.isEmpty();
+  }
+
+  @Nonnull
+  public Map<String, GfsCheckoutConflict> getConflicts() {
+    return changes.getConflicts();
+  }
+
+  protected boolean skips(@Nonnull String path) {
+    return ignoredFiles != null && ignoredFiles.contains(path);
+  }
+
+  protected void applyChanges() throws IOException {
+    if(!changes.isEmpty())
+      changes.applyTo(gfs);
+  }
+
+  @Nonnull
+  private TreeWalk prepareTreeWalk(@Nonnull AbstractTreeIterator iterator) throws IOException {
+    TreeWalk ret = new NameConflictTreeWalk(gfs.getRepository());
+    ret.addTree(new CanonicalTreeParser(null, reader, status.commit().getTree()));
+    ret.addTree(iterator);
+    ret.addTree(new GfsTreeIterator(gfs));
+    return ret;
+  }
+
+  private void collectChanges(@Nonnull TreeWalk tw) throws IOException {
+    while(tw.next()) {
+      String path = toAbsolutePath(tw.getPathString());
+      if(skips(path))
+        continue;
+      GitFileEntry head = GitFileEntry.forTreeNode(tw, HEAD);
+      GitFileEntry target = GitFileEntry.forTreeNode(tw, TARGET);
+      GitFileEntry worktree = GitFileEntry.forTreeNode(tw, WORKTREE);
+      if(mergeEntries(path, head, target, worktree))
+        tw.enterSubtree();
+    }
+  }
+
+  private boolean mergeEntries(@Nonnull String path, @Nonnull GitFileEntry head, @Nonnull GitFileEntry target, @Nonnull GitFileEntry worktree) throws IOException {
+    if(target.equals(worktree) || target.equals(head))
+      return false;
+    if(head.equals(worktree)) {
+      changes.addChange(path, target);
+      return target.isVirtualDirectory();
+    }
+    if(target.isDirectory() && worktree.isDirectory())
+      return true;
+    changes.addConflict(new GfsCheckoutConflict(path, head, target, worktree));
+    return false;
+  }
+
+}

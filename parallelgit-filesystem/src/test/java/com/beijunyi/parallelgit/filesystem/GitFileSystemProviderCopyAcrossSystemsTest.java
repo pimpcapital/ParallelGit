@@ -3,7 +3,6 @@ package com.beijunyi.parallelgit.filesystem;
 import java.io.IOException;
 import java.nio.file.Files;
 
-import com.beijunyi.parallelgit.filesystem.utils.GitFileSystemBuilder;
 import org.eclipse.jgit.lib.Repository;
 import org.junit.After;
 import org.junit.Before;
@@ -19,7 +18,7 @@ public class GitFileSystemProviderCopyAcrossSystemsTest extends AbstractGitFileS
   @Before
   public void setupTargetSystem() throws IOException {
     targetRepo = new TestRepository();
-    targetGfs = GitFileSystemBuilder.prepare().provider(provider).repository(targetRepo).build();
+    targetGfs = Gfs.newFileSystem(targetRepo);
   }
 
   @After
@@ -65,7 +64,7 @@ public class GitFileSystemProviderCopyAcrossSystemsTest extends AbstractGitFileS
     GitPath source = gfs.getPath("/source.txt");
     GitPath target = targetGfs.getPath("/target.txt");
     provider.copy(source, target);
-    assertTrue(targetGfs.isDirty());
+    assertTrue(targetGfs.getStatusProvider().isDirty());
   }
 
   @Test
@@ -123,7 +122,7 @@ public class GitFileSystemProviderCopyAcrossSystemsTest extends AbstractGitFileS
     GitPath source = gfs.getPath("/source");
     GitPath target = targetGfs.getPath("/target");
     provider.copy(source, target);
-    assertTrue(targetGfs.isDirty());
+    assertTrue(targetGfs.getStatusProvider().isDirty());
   }
 
 }

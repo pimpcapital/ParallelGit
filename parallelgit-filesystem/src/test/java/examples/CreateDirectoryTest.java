@@ -5,8 +5,8 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 
 import com.beijunyi.parallelgit.AbstractParallelGitTest;
+import com.beijunyi.parallelgit.filesystem.Gfs;
 import com.beijunyi.parallelgit.filesystem.GitFileSystem;
-import com.beijunyi.parallelgit.filesystem.utils.GitFileSystemBuilder;
 import org.junit.Before;
 import org.junit.Test;
 
@@ -17,13 +17,13 @@ public class CreateDirectoryTest extends AbstractParallelGitTest {
   @Before
   public void prepareExample() throws IOException {
     initRepository();
-    writeSomeFileToCache();
+    writeSomethingToCache();
     commitToBranch("my_branch");
   }
 
   @Test
   public void createDirectory() throws IOException {
-    try(GitFileSystem gfs = GitFileSystemBuilder.forRevision("my_branch", repo)) {       // open git file system
+    try(GitFileSystem gfs = Gfs.newFileSystem("my_branch", repo)) {             // open git file system
       Path dir = gfs.getPath("/new_dir");                                                // convert string to nio path
       Files.createDirectory(dir);                                                        // create directory
 
@@ -34,7 +34,7 @@ public class CreateDirectoryTest extends AbstractParallelGitTest {
 
   @Test
   public void createDirectories() throws IOException {
-    try(GitFileSystem gfs = GitFileSystemBuilder.forRevision("my_branch", repo)) {       // open git file system
+    try(GitFileSystem gfs = Gfs.newFileSystem("my_branch", repo)) {             // open git file system
       Path dir = gfs.getPath("/dir1/dir2");                                              // convert string to nio path
       Files.createDirectories(dir);                                                      // create directories
 

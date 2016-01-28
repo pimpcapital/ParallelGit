@@ -1,0 +1,25 @@
+<nav class="navbar navbar-default">
+  <div class="container">
+    <div class="navbar-header">
+      <a class="navbar-brand" href="#">ParallelGit</a>
+    </div>
+
+    <div>
+      <ul class="nav navbar-nav">
+        <li class="dropdown" uib-dropdown keyboard-nav ng-controller="BranchController">
+          <a href="#" class="dropdown-toggle" uib-dropdown-toggle ng-show="head != null">{{head}}<span class="caret"></span></a>
+          <ul class="dropdown-menu" uib-dropdown-menu ng-show="branches != null">
+            <li ng-repeat="branch in branches"><a ng-click="checkout(branch)">{{branch}}</a></li>
+            <li role="separator" class="divider"></li>
+            <li><a href="#">Separated link</a></li>
+            <li role="separator" class="divider"></li>
+            <li><a href="#">One more separated link</a></li>
+          </ul>
+        </li>
+      </ul>
+      <ul class="nav navbar-nav navbar-right">
+
+      </ul>
+    </div>
+  </div>
+</nav>

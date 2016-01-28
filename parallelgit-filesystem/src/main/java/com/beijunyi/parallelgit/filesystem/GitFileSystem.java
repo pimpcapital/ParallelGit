@@ -8,59 +8,59 @@ import java.util.regex.Pattern;
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 
-import com.beijunyi.parallelgit.filesystem.io.GfsFileAttributeView;
-import com.beijunyi.parallelgit.filesystem.io.GfsIO;
+import com.beijunyi.parallelgit.filesystem.utils.GfsConfiguration;
 import com.beijunyi.parallelgit.filesystem.utils.GitGlobs;
-import org.eclipse.jgit.lib.*;
+import com.beijunyi.parallelgit.utils.CacheUtils;
+import com.beijunyi.parallelgit.utils.RefUtils;
+import com.beijunyi.parallelgit.utils.io.TreeSnapshot;
+import org.eclipse.jgit.dircache.DirCache;
+import org.eclipse.jgit.lib.AnyObjectId;
+import org.eclipse.jgit.lib.Repository;
 import org.eclipse.jgit.revwalk.RevCommit;
+
+import static com.beijunyi.parallelgit.filesystem.io.GfsFileAttributeView.Basic.BASIC_VIEW;
+import static com.beijunyi.parallelgit.filesystem.io.GfsFileAttributeView.Posix.POSIX_VIEW;
+import static java.util.Arrays.asList;
+import static java.util.Collections.unmodifiableSet;
+import static org.eclipse.jgit.lib.Constants.MASTER;
 
 public class GitFileSystem extends FileSystem {
 
+  public static final Set<String> SUPPORTED_VIEWS = unmodifiableSet(new HashSet<>(asList(BASIC_VIEW, POSIX_VIEW)));
+
   private static final String GLOB_SYNTAX = "glob";
   private static final String REGEX_SYNTAX = "regex";
-  private static final Set<String> SUPPORTED_VIEWS =
-    Collections.unmodifiableSet(new HashSet<>(Arrays.asList(
-                                                             GfsFileAttributeView.Basic.BASIC_VIEW,
-                                                             GfsFileAttributeView.Posix.POSIX_VIEW
-    )));
 
-  private final GitFileSystemProvider provider;
-  private final Repository repository;
-  private final String session;
-  private final GitFileStore store;
-  private final GitPath rootPath;
-  private String branch;
-  private RevCommit commit;
+  private final String sid;
+  private final GfsObjectService objService;
+  private final GfsFileStore fileStore;
+  private final GfsStatusProvider statusProvider;
 
-  private ObjectReader reader;
-  private ObjectInserter inserter;
-  private boolean closed = false;
+  private volatile boolean closed = false;
 
-  public GitFileSystem(@Nonnull GitFileSystemProvider provider, @Nonnull Repository repository, @Nullable String branch, @Nullable RevCommit commit, @Nullable AnyObjectId tree) throws IOException {
-    this.provider = provider;
-    this.repository = repository;
-    this.session = UUID.randomUUID().toString();
-    this.rootPath = new GitPath(this, "/");
-    this.branch = branch;
-    this.commit = commit;
-    store = new GitFileStore(this, tree);
+  public GitFileSystem(@Nonnull GfsConfiguration cfg, @Nonnull String sid) throws IOException {
+    this.sid = sid;
+    objService = new GfsObjectService(cfg.repository());
+    RevCommit commit = cfg.commit();
+    String branch = cfg.branch();
+    if(branch == null && commit == null)
+      branch = RefUtils.ensureBranchRefName(MASTER);
+    fileStore = new GfsFileStore(commit != null ? commit.getTree() : null, objService);
+    statusProvider = new GfsStatusProvider(fileStore, branch, commit);
   }
 
   @Nonnull
   @Override
   public GitFileSystemProvider provider() {
-    return provider;
+    return GitFileSystemProvider.getInstance();
   }
 
   @Override
   public synchronized void close() {
     if(!closed) {
-      if(inserter != null)
-        inserter.close();
-      if(reader != null)
-        reader.close();
       closed = true;
-      provider.unregister(this);
+      objService.close();
+      GitFileSystemProvider.getInstance().unregister(this);
     }
   }
 
@@ -83,7 +83,7 @@ public class GitFileSystem extends FileSystem {
   @Nonnull
   @Override
   public Iterable<Path> getRootDirectories() {
-    final List<Path> allowedList = Collections.<Path>singletonList(rootPath);
+    final List<Path> allowedList = Collections.<Path>singletonList(getRootPath());
     return new Iterable<Path>() {
       @Override
       public Iterator<Path> iterator() {
@@ -95,7 +95,7 @@ public class GitFileSystem extends FileSystem {
   @Nonnull
   @Override
   public Iterable<FileStore> getFileStores() {
-    final List<FileStore> allowedList = Collections.<FileStore>singletonList(store);
+    final List<FileStore> allowedList = Collections.<FileStore>singletonList(fileStore);
     return new Iterable<FileStore>() {
       @Override
       public Iterator<FileStore> iterator() {
@@ -174,113 +174,57 @@ public class GitFileSystem extends FileSystem {
   }
 
   @Nonnull
+  public Repository getRepository() {
+    return objService.getRepository();
+  }
+
+  @Nonnull
   public String getSessionId() {
-    return session;
+    return sid;
   }
 
   @Nonnull
   public GitPath getRootPath() {
-    return rootPath;
+    return getPath("/");
   }
 
   @Nonnull
-  public GitFileStore getFileStore() {
-    return store;
+  public GfsObjectService getObjectService() {
+    return objService;
+  }
+
+  @Nonnull
+  public GfsFileStore getFileStore() {
+    return fileStore;
+  }
+
+  @Nonnull
+  public GfsStatusProvider getStatusProvider() {
+    return statusProvider;
+  }
+
+  @Nonnull
+  public AnyObjectId flush() throws IOException {
+    AnyObjectId ret = fileStore.getRoot().getObjectId(true);
+    objService.flush();
+    return ret;
   }
 
   @Override
-  public boolean equals(@Nullable Object o) {
-    if(this == o)
-      return true;
-
-    if(o == null || getClass() != o.getClass())
-      return false;
-
-    GitFileSystem that = (GitFileSystem)o;
-    return session.equals(that.session);
+  public boolean equals(@Nullable Object that) {
+    return this == that
+             || (that != null && getClass() == that.getClass() && sid.equals(((GitFileSystem)that).sid));
 
   }
 
   @Override
   public int hashCode() {
-    return session.hashCode();
+    return sid.hashCode();
   }
 
-  @Nonnull
-  private ObjectReader reader() {
-    if(reader == null)
-      reader = repository.newObjectReader();
-    return reader;
+  @Override
+  protected void finalize() throws Throwable {
+    super.finalize();
+    close();
   }
-
-  public boolean hasObject(@Nonnull AnyObjectId objectId) throws IOException {
-    return reader().has(objectId);
-  }
-
-  @Nonnull
-  public byte[] loadObject(@Nonnull AnyObjectId objectId) throws IOException {
-    return reader().open(objectId).getBytes();
-  }
-
-  public long getBlobSize(@Nonnull AnyObjectId objectId) throws IOException {
-    return reader().getObjectSize(objectId, Constants.OBJ_BLOB);
-  }
-
-  @Nonnull
-  private ObjectInserter inserter() {
-    if(inserter == null)
-      inserter = repository.newObjectInserter();
-    return inserter;
-  }
-
-  @Nonnull
-  public AnyObjectId saveBlob(@Nonnull byte[] bytes) throws IOException {
-    return inserter().insert(Constants.OBJ_BLOB, bytes);
-  }
-
-  @Nonnull
-  public AnyObjectId saveTree(@Nonnull TreeFormatter tf) throws IOException {
-    return inserter().insert(tf);
-  }
-
-  @Nonnull
-  public AnyObjectId persist() throws IOException {
-    AnyObjectId result = GfsIO.persistRoot(this);
-    inserter().flush();
-    return result;
-  }
-
-
-  @Nonnull
-  public Repository getRepository() {
-    return repository;
-  }
-
-  @Nullable
-  public String getBranch() {
-    return branch;
-  }
-
-  public void setBranch(@Nullable String branch) {
-    this.branch = branch;
-  }
-
-  @Nullable
-  public RevCommit getCommit() {
-    return commit;
-  }
-
-  public void setCommit(@Nullable RevCommit commit) {
-    this.commit = commit;
-  }
-
-  @Nullable
-  public AnyObjectId getTree() {
-    return store.getTree();
-  }
-
-  public boolean isDirty() {
-    return store.isDirty();
-  }
-
 }

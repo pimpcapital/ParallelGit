@@ -12,89 +12,80 @@ import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 
 import com.beijunyi.parallelgit.filesystem.io.*;
-import com.beijunyi.parallelgit.filesystem.utils.GitFileSystemBuilder;
-import com.beijunyi.parallelgit.filesystem.utils.GitUriUtils;
+import com.beijunyi.parallelgit.filesystem.utils.GfsConfiguration;
+import com.beijunyi.parallelgit.filesystem.utils.GfsUriUtils;
 
 import static java.nio.file.StandardOpenOption.*;
+import static java.util.Arrays.asList;
+import static java.util.UUID.randomUUID;
 
 public class GitFileSystemProvider extends FileSystemProvider {
 
-  public final static String GIT_FS_SCHEME = "gfs";
+  public static final String GFS = "gfs";
+  public static final String BRANCH = "branch";
+  public static final String COMMIT = "commit";
+  public static final Set<OpenOption> SUPPORTED_OPEN_OPTIONS = new HashSet<>(Arrays.<OpenOption>asList(READ, SPARSE, CREATE, CREATE_NEW, WRITE, APPEND, TRUNCATE_EXISTING));
 
-  public final static Set<OpenOption> SUPPORTED_OPEN_OPTIONS = new HashSet<>(Arrays.<OpenOption>asList(READ, SPARSE, CREATE, CREATE_NEW, WRITE, APPEND, TRUNCATE_EXISTING));
-
-  private final Map<String, GitFileSystem> fsMap = new ConcurrentHashMap<>();
-
-  private static GitFileSystemProvider INSTANCE;
+  private static final GitFileSystemProvider INSTANCE = getInstalledProvider();
+  private static final Map<String, GitFileSystem> FILE_SYSTEMS = new ConcurrentHashMap<>();
 
   @Nonnull
   public static GitFileSystemProvider getInstance() {
-    if(INSTANCE == null) {
-      for(FileSystemProvider provider : FileSystemProvider.installedProviders()) {
-        if(provider instanceof GitFileSystemProvider) {
-          INSTANCE = (GitFileSystemProvider) provider;
-          break;
-        }
-      }
-      if(INSTANCE == null)
-        throw new ProviderNotFoundException(GIT_FS_SCHEME);
-    }
     return INSTANCE;
   }
 
   @Nonnull
   @Override
   public String getScheme() {
-    return GIT_FS_SCHEME;
+    return GFS;
   }
 
   @Nonnull
   @Override
   public GitFileSystem newFileSystem(@Nonnull Path path, @Nonnull Map<String, ?> properties) throws IOException {
-    return GitFileSystemBuilder
-             .fromPath(path, properties)
-             .provider(this)
-             .build();
+    return newFileSystem(GfsConfiguration.fromPath(path, properties));
   }
 
   @Nonnull
   @Override
   public GitFileSystem newFileSystem(@Nonnull URI uri, @Nonnull Map<String, ?> properties) throws IOException {
-    return GitFileSystemBuilder
-             .fromUri(uri, properties)
-             .provider(this)
-             .build();
+    return newFileSystem(GfsConfiguration.fromUri(uri, properties));
   }
 
-  public void register(@Nonnull GitFileSystem gfs) {
-    fsMap.put(gfs.getSessionId(), gfs);
+  @Nonnull
+  public GitFileSystem newFileSystem(@Nonnull GfsConfiguration cfg) throws IOException {
+    String sid = randomUUID().toString();
+    GitFileSystem ret = new GitFileSystem(cfg, sid);
+    FILE_SYSTEMS.put(sid, ret);
+    return ret;
   }
 
   public void unregister(@Nonnull GitFileSystem gfs) {
-    fsMap.remove(gfs.getSessionId());
+    FILE_SYSTEMS.remove(gfs.getSessionId());
   }
 
-  @Nullable
-  public GitFileSystem getFileSystem(@Nonnull String sessionId) {
-    return fsMap.get(sessionId);
-  }
-
-  @Nullable
+  @Nonnull
   @Override
   public GitFileSystem getFileSystem(@Nonnull URI uri) {
-    String session = GitUriUtils.getSession(uri);
+    String session = GfsUriUtils.getSession(uri);
     if(session == null)
-      return null;
+      throw new FileSystemNotFoundException();
     return getFileSystem(session);
+  }
+
+  @Nonnull
+  public GitFileSystem getFileSystem(@Nonnull String sid) {
+    GitFileSystem ret = FILE_SYSTEMS.get(sid);
+    if(ret == null)
+      throw new FileSystemNotFoundException(sid);
+    return ret;
   }
 
   @Nonnull
   @Override
   public GitPath getPath(@Nonnull URI uri) throws FileSystemNotFoundException {
     GitFileSystem gfs = getFileSystem(uri);
-    if(gfs == null)
-      throw new FileSystemNotFoundException(uri.toString());
-    String file = GitUriUtils.getFile(uri);
+    String file = GfsUriUtils.getFile(uri);
     return gfs.getPath(file).toRealPath();
   }
 
@@ -111,7 +102,7 @@ public class GitFileSystemProvider extends FileSystemProvider {
     }
     if(!amended.contains(WRITE))
       amended.add(READ);
-    return GfsIO.newByteChannel(((GitPath)path).toRealPath(), amended, Arrays.<FileAttribute>asList(attrs));
+    return GfsIO.newByteChannel(((GitPath)path).toRealPath(), amended, asList(attrs));
   }
 
   @Nonnull
@@ -132,12 +123,12 @@ public class GitFileSystemProvider extends FileSystemProvider {
 
   @Override
   public void copy(@Nonnull Path source, @Nonnull Path target, @Nonnull CopyOption... options) throws IOException {
-    GfsIO.copy((GitPath)source, (GitPath)target, new HashSet<>(Arrays.asList(options)));
+    GfsIO.copy((GitPath)source, (GitPath)target, new HashSet<>(asList(options)));
   }
 
   @Override
   public void move(@Nonnull Path source, @Nonnull Path target, @Nonnull CopyOption... options) throws IOException {
-    GfsIO.move((GitPath)source, (GitPath)target, new HashSet<>(Arrays.asList(options)));
+    GfsIO.move((GitPath)source, (GitPath)target, new HashSet<>(asList(options)));
   }
 
   @Override
@@ -155,13 +146,13 @@ public class GitFileSystemProvider extends FileSystemProvider {
 
   @Nonnull
   @Override
-  public GitFileStore getFileStore(@Nonnull Path path) {
+  public GfsFileStore getFileStore(@Nonnull Path path) {
     return ((GitPath) path).getFileStore();
   }
 
   @Override
   public void checkAccess(@Nonnull Path path, @Nonnull AccessMode... modes) throws IOException {
-    GfsIO.checkAccess(((GitPath)path).toRealPath(), new HashSet<>(Arrays.asList(modes)));
+    GfsIO.checkAccess(((GitPath)path).toRealPath(), new HashSet<>(asList(modes)));
   }
 
   @Nullable
@@ -210,12 +201,26 @@ public class GitFileSystemProvider extends FileSystemProvider {
     GfsFileAttributeView view = getFileAttributeView(path, viewType, options);
     if(view == null)
       throw new NoSuchFileException(path.toString());
-    return view.readAttributes(Arrays.asList(keys.split(",")));
+    return view.readAttributes(asList(keys.split(",")));
   }
 
   @Override
   public void setAttribute(@Nullable Path path, @Nullable String attribute, @Nullable Object value, @Nullable LinkOption... options) throws UnsupportedOperationException {
     throw new UnsupportedOperationException();
+  }
+
+  @Nonnull
+  private static GitFileSystemProvider getInstalledProvider() {
+    GitFileSystemProvider ret = null;
+    for(FileSystemProvider provider : FileSystemProvider.installedProviders()) {
+      if(provider instanceof GitFileSystemProvider) {
+        ret = (GitFileSystemProvider) provider;
+        break;
+      }
+    }
+    if(ret == null)
+      ret = new GitFileSystemProvider();
+    return ret;
   }
 
 }

@@ -13,7 +13,7 @@ import java.util.NoSuchElementException;
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 
-import com.beijunyi.parallelgit.filesystem.utils.GitUriBuilder;
+import com.beijunyi.parallelgit.filesystem.utils.GfsUriBuilder;
 
 public class GitPath implements Path {
 
@@ -126,7 +126,7 @@ public class GitPath implements Path {
   }
 
   @Nonnull
-  public GitFileStore getFileStore() {
+  public GfsFileStore getFileStore() {
     return gfs.getFileStore();
   }
 
@@ -589,7 +589,7 @@ public class GitPath implements Path {
   @Nonnull
   @Override
   public URI toUri() {
-    return GitUriBuilder.fromFileSystem(gfs).file(this).build();
+    return GfsUriBuilder.fromFileSystem(gfs).file(this).build();
   }
 
   @Nonnull

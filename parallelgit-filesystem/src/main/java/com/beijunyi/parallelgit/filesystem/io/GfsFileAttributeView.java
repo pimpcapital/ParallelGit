@@ -6,7 +6,11 @@ import java.util.*;
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 
-import com.beijunyi.parallelgit.filesystem.GitFileSystem;
+import org.eclipse.jgit.lib.AnyObjectId;
+import org.eclipse.jgit.lib.FileMode;
+
+import static java.nio.file.attribute.PosixFilePermission.OWNER_EXECUTE;
+import static org.eclipse.jgit.lib.FileMode.*;
 
 public abstract class GfsFileAttributeView implements FileAttributeView {
 
@@ -19,53 +23,33 @@ public abstract class GfsFileAttributeView implements FileAttributeView {
   public static final String IS_REGULAR_FILE_NAME = "isRegularFile";
   public static final String IS_SYMBOLIC_LINK_NAME = "isSymbolicLink";
   public static final String IS_OTHER_NAME = "isOther";
+
   public static final String PERMISSIONS_NAME = "permissions";
   public static final String OWNER_NAME = "owner";
   public static final String GROUP_NAME = "group";
 
-  public static final Collection<String> BASIC_KEYS =
-    Collections.unmodifiableCollection(Arrays.asList(
-                                                      SIZE_NAME,
-                                                      CREATION_TIME_NAME,
-                                                      LAST_ACCESS_TIME_NAME,
-                                                      LAST_MODIFIED_TIME_NAME,
-                                                      FILE_KEY_NAME,
-                                                      IS_DIRECTORY_NAME,
-                                                      IS_REGULAR_FILE_NAME,
-                                                      IS_SYMBOLIC_LINK_NAME,
-                                                      IS_OTHER_NAME
-    ));
+  public static final String OBJECT_ID = "objectId";
+  public static final String FILE_MODE = "fileMode";
 
-  public static final Collection<String> POSIX_KEYS =
-    Collections.unmodifiableCollection(Arrays.asList(
-                                                      SIZE_NAME,
-                                                      CREATION_TIME_NAME,
-                                                      LAST_ACCESS_TIME_NAME,
-                                                      LAST_MODIFIED_TIME_NAME,
-                                                      FILE_KEY_NAME,
-                                                      IS_DIRECTORY_NAME,
-                                                      IS_REGULAR_FILE_NAME,
-                                                      IS_SYMBOLIC_LINK_NAME,
-                                                      IS_OTHER_NAME,
-                                                      PERMISSIONS_NAME,
-                                                      OWNER_NAME,
-                                                      GROUP_NAME
-    ));
+  public static final Set<String> BASIC_KEYS = Basic.keys();
+  public static final Set<String> POSIX_KEYS = Posix.keys();
+  public static final Set<String> GIT_KEYS = Git.keys();
+
 
   protected final Node node;
-  protected final GitFileSystem gfs;
 
-  protected GfsFileAttributeView(@Nonnull Node node, @Nonnull GitFileSystem gfs) {
+  protected GfsFileAttributeView(@Nonnull Node node) {
     this.node = node;
-    this.gfs = gfs;
   }
 
   @Nonnull
-  static <V extends FileAttributeView> V forNode(@Nonnull Node node, @Nonnull GitFileSystem gfs, @Nonnull Class<V> type) throws UnsupportedOperationException {
+  static <V extends FileAttributeView> V forNode(@Nonnull Node node, @Nonnull Class<V> type) throws UnsupportedOperationException {
     if(type.isAssignableFrom(GfsFileAttributeView.Basic.class))
-      return type.cast(new GfsFileAttributeView.Basic(node, gfs));
+      return type.cast(new GfsFileAttributeView.Basic(node));
     if(type.isAssignableFrom(GfsFileAttributeView.Posix.class))
-      return type.cast(new GfsFileAttributeView.Posix(node, gfs));
+      return type.cast(new GfsFileAttributeView.Posix(node));
+    if(type.isAssignableFrom(GfsFileAttributeView.Git.class))
+      return type.cast(new GfsFileAttributeView.Git(node));
     throw new UnsupportedOperationException(type.getName());
   }
 
@@ -78,8 +62,8 @@ public abstract class GfsFileAttributeView implements FileAttributeView {
 
     public static final String BASIC_VIEW = "basic";
 
-    protected Basic(@Nonnull Node node, @Nonnull GitFileSystem gfs) {
-      super(node, gfs);
+    protected Basic(@Nonnull Node node) {
+      super(node);
     }
 
     @Nonnull
@@ -106,7 +90,7 @@ public abstract class GfsFileAttributeView implements FileAttributeView {
       for(String key : keys) {
         switch(key) {
           case SIZE_NAME:
-            result.put(key, GfsIO.getSize(node, gfs));
+            result.put(key, node.getSize());
             break;
           case CREATION_TIME_NAME:
             result.put(key, EPOCH);
@@ -138,6 +122,23 @@ public abstract class GfsFileAttributeView implements FileAttributeView {
       }
       return Collections.unmodifiableMap(result);
     }
+
+    @Nonnull
+    private static Set<String> keys() {
+      Set<String> ret = new HashSet<>(Arrays.asList(
+        SIZE_NAME,
+        CREATION_TIME_NAME,
+        LAST_ACCESS_TIME_NAME,
+        LAST_MODIFIED_TIME_NAME,
+        FILE_KEY_NAME,
+        IS_DIRECTORY_NAME,
+        IS_REGULAR_FILE_NAME,
+        IS_SYMBOLIC_LINK_NAME,
+        IS_OTHER_NAME
+      ));
+      return Collections.unmodifiableSet(ret);
+    }
+
   }
 
   public static class Posix extends Basic implements PosixFileAttributeView {
@@ -150,8 +151,8 @@ public abstract class GfsFileAttributeView implements FileAttributeView {
 
     public static final String POSIX_VIEW = "posix";
 
-    protected Posix(@Nonnull Node node, @Nonnull GitFileSystem gfs) {
-      super(node, gfs);
+    protected Posix(@Nonnull Node node) {
+      super(node);
     }
 
     @Nonnull
@@ -170,21 +171,15 @@ public abstract class GfsFileAttributeView implements FileAttributeView {
     public Set<PosixFilePermission> getPermissions() throws IOException {
       Set<PosixFilePermission> perms = new HashSet<>(DEFAULT_PERMISSIONS);
       if(node.isExecutableFile())
-        perms.add(PosixFilePermission.OWNER_EXECUTE);
+        perms.add(OWNER_EXECUTE);
       return Collections.unmodifiableSet(perms);
     }
 
 
     @Override
     public void setPermissions(@Nonnull Set<PosixFilePermission> perms) throws IOException {
-      NodeType type = perms.contains(PosixFilePermission.OWNER_EXECUTE) ? NodeType.EXECUTABLE_FILE : NodeType.NON_EXECUTABLE_FILE;
-      if(!type.equals(node.getType())) {
-        if(node.isRegularFile())
-          node.setType(type);
-        else
-          throw new IllegalArgumentException();
-      }
-
+      FileMode mode = perms.contains(OWNER_EXECUTE) ? EXECUTABLE_FILE : REGULAR_FILE;
+      node.setMode(mode);
     }
 
     @Override
@@ -228,6 +223,87 @@ public abstract class GfsFileAttributeView implements FileAttributeView {
       }
       return Collections.unmodifiableMap(result);
     }
+
+    @Nonnull
+    private static Set<String> keys() {
+      Set<String> ret = new HashSet<>();
+      ret.addAll(BASIC_KEYS);
+      ret.addAll(Arrays.asList(
+        PERMISSIONS_NAME,
+        OWNER_NAME,
+        GROUP_NAME
+      ));
+      return Collections.unmodifiableSet(ret);
+    }
+
+  }
+
+  public static class Git extends Posix implements GitFileAttributeView {
+
+    public static final String GIT_VIEW = "git";
+
+    protected Git(@Nonnull Node node) {
+      super(node);
+    }
+
+    @Nonnull
+    @Override
+    public String name() {
+      return GIT_VIEW;
+    }
+
+    @Nullable
+    @Override
+    public AnyObjectId getObjectId() throws IOException {
+      return node.getObjectId(false);
+    }
+
+    @Nonnull
+    @Override
+    public FileMode getFileMode() {
+      return node.getMode();
+    }
+
+    @Nonnull
+    @Override
+    public PosixFileAttributes readAttributes() throws IOException {
+      throw new UnsupportedOperationException();
+    }
+
+    @Nonnull
+    @Override
+    public Map<String, Object> readAttributes(@Nonnull Collection<String> keys) throws IOException {
+      Set<String> posixKeys = new HashSet<>(keys);
+      posixKeys.retainAll(POSIX_KEYS);
+      Map<String, Object> result = new HashMap<>(super.readAttributes(posixKeys));
+      Set<String> remainKeys = new HashSet<>(keys);
+      remainKeys.removeAll(result.keySet());
+      for(String key : remainKeys) {
+        switch(key) {
+          case OBJECT_ID:
+            result.put(key, getObjectId());
+            break;
+          case FILE_MODE:
+            result.put(key, getFileMode());
+            break;
+          default:
+            throw new UnsupportedOperationException(key);
+        }
+      }
+      return Collections.unmodifiableMap(result);
+    }
+
+    @Nonnull
+    private static Set<String> keys() {
+      Set<String> ret = new HashSet<>();
+      ret.addAll(POSIX_KEYS);
+      ret.addAll(Arrays.asList(
+        OBJECT_ID,
+        FILE_MODE
+      ));
+      return Collections.unmodifiableSet(ret);
+    }
+
   }
 
 }

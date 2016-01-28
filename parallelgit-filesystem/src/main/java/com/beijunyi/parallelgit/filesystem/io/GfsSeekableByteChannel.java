@@ -8,8 +8,6 @@ import java.nio.file.StandardOpenOption;
 import java.util.Set;
 import javax.annotation.Nonnull;
 
-import com.beijunyi.parallelgit.filesystem.GitFileSystem;
-
 public class GfsSeekableByteChannel implements SeekableByteChannel {
 
   private final FileNode file;
@@ -18,20 +16,13 @@ public class GfsSeekableByteChannel implements SeekableByteChannel {
   private ByteBuffer buffer;
   private volatile boolean closed = false;
 
-  GfsSeekableByteChannel(@Nonnull FileNode file, @Nonnull GitFileSystem gfs, @Nonnull Set<OpenOption> options) throws IOException {
+  GfsSeekableByteChannel(@Nonnull FileNode file, @Nonnull Set<? extends OpenOption> options) throws IOException {
     this.file = file;
-    buffer = ByteBuffer.wrap(options.contains(StandardOpenOption.TRUNCATE_EXISTING) ? new byte[0] : GfsIO.getFileData(file, gfs).clone());
+    buffer = ByteBuffer.wrap(options.contains(StandardOpenOption.TRUNCATE_EXISTING) ? new byte[0] : file.getBytes().clone());
     readable = options.contains(StandardOpenOption.READ);
     writable = options.contains(StandardOpenOption.WRITE);
     if(options.contains(StandardOpenOption.APPEND))
       buffer.position(buffer.limit());
-  }
-
-  private static int copyBytes(@Nonnull ByteBuffer dst, @Nonnull ByteBuffer src) {
-    int remaining = Math.min(src.remaining(), dst.remaining());
-    for(int i = 0; i < remaining; i++)
-      dst.put(src.get());
-    return remaining;
   }
 
   @Override
@@ -126,7 +117,7 @@ public class GfsSeekableByteChannel implements SeekableByteChannel {
     synchronized(this) {
       if(!closed) {
         closed = true;
-        file.updateContent(getBytes());
+        file.setBytes(getBytes());
       }
     }
   }
@@ -144,6 +135,13 @@ public class GfsSeekableByteChannel implements SeekableByteChannel {
   private void checkWriteAccess() throws NonWritableChannelException {
     if(!writable)
       throw new NonWritableChannelException();
+  }
+
+  private static int copyBytes(@Nonnull ByteBuffer dst, @Nonnull ByteBuffer src) {
+    int remaining = Math.min(src.remaining(), dst.remaining());
+    for(int i = 0; i < remaining; i++)
+      dst.put(src.get());
+    return remaining;
   }
 
 }
