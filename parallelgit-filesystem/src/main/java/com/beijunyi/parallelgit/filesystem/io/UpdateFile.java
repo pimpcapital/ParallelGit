@@ -3,7 +3,6 @@ package com.beijunyi.parallelgit.filesystem.io;
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 
-import com.beijunyi.parallelgit.filesystem.GfsObjectService;
 import org.eclipse.jgit.lib.FileMode;
 
 public class UpdateFile extends GfsChange {
@@ -28,7 +27,7 @@ public class UpdateFile extends GfsChange {
 
   @Nonnull
   @Override
-  protected Node createNode(@Nullable Node currentNode, @Nonnull GfsObjectService objService) {
-    return FileNode.fromBytes(bytes, mode, objService);
+  protected Node createNode(@Nullable Node currentNode, @Nonnull DirectoryNode parent) {
+    return FileNode.fromBytes(bytes, mode, parent);
   }
 }

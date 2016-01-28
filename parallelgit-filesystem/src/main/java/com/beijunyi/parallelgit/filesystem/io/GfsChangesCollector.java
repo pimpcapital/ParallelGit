@@ -95,7 +95,7 @@ public class GfsChangesCollector {
   private void addSubDirectoryToQueue(@Nonnull String childPath, @Nonnull String childName, @Nonnull DirectoryNode dir) throws IOException {
     DirectoryNode child = (DirectoryNode) dir.getChild(childName);
     if(child == null) {
-      child = DirectoryNode.newDirectory(dir.getObjService());
+      child = DirectoryNode.newDirectory(dir);
       dir.addChild(childName, child, false);
     }
     dirs.add(child);

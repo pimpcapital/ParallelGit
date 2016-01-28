@@ -3,7 +3,6 @@ package com.beijunyi.parallelgit.filesystem.io;
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 
-import com.beijunyi.parallelgit.filesystem.GfsObjectService;
 import com.beijunyi.parallelgit.utils.io.GitFileEntry;
 
 public class UpdateNode extends GfsChange {
@@ -26,7 +25,7 @@ public class UpdateNode extends GfsChange {
 
   @Nonnull
   @Override
-  protected Node createNode(@Nullable Node currentNode, @Nonnull GfsObjectService objService) {
-    return Node.fromEntry(entry, objService);
+  protected Node createNode(@Nullable Node currentNode, @Nonnull DirectoryNode parent) {
+    return Node.fromEntry(entry, parent);
   }
 }

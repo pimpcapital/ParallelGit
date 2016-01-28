@@ -3,11 +3,13 @@ package com.beijunyi.parallelgit.filesystem.io;
 import java.io.IOException;
 import java.util.*;
 import javax.annotation.Nonnull;
+import javax.annotation.Nullable;
 
 import com.beijunyi.parallelgit.filesystem.GfsFileStore;
 import com.beijunyi.parallelgit.filesystem.GitFileSystem;
 import com.beijunyi.parallelgit.utils.io.GitFileEntry;
 import com.beijunyi.parallelgit.utils.io.TreeSnapshot;
+import org.eclipse.jgit.dircache.DirCacheEntry;
 import org.eclipse.jgit.lib.AnyObjectId;
 import org.eclipse.jgit.lib.Constants;
 import org.eclipse.jgit.lib.ObjectReader;
@@ -45,6 +47,14 @@ public class GfsTreeIterator extends WorkingTreeIterator {
   }
 
   @Override
+  public boolean isModified(@Nullable DirCacheEntry entry, boolean forceContentCheck, @Nonnull ObjectReader reader) throws IOException {
+    GitFileEntry current = currentEntry().getValue();
+    if(entry == null)
+      return !current.isMissing();
+    return !current.getId().equals(entry.getObjectId()) || !current.getMode().equals(entry.getFileMode());
+  }
+
+  @Override
   public boolean hasId() {
     return index >= 0 && index < files.size();
   }
@@ -64,7 +74,7 @@ public class GfsTreeIterator extends WorkingTreeIterator {
   @Nonnull
   @Override
   public AbstractTreeIterator createSubtreeIterator(@Nonnull ObjectReader reader) throws IOException {
-    Map.Entry<String, GitFileEntry> tree = files.get(index);
+    Map.Entry<String, GitFileEntry> tree = currentEntry();
     TreeSnapshot snapshot = TreeSnapshot.load(tree.getValue().getId(), reader);
     return new GfsTreeIterator(snapshot, this);
   }
@@ -83,17 +93,22 @@ public class GfsTreeIterator extends WorkingTreeIterator {
   public void next(int delta) {
     index = Math.min(files.size(), index + delta);
     if(!eof())
-      readNode();
+      readEntry();
   }
 
   @Override
   public void back(int delta) {
     index = Math.max(0, index - delta);
-    readNode();
+    readEntry();
   }
 
-  private void readNode() {
-    Map.Entry<String, GitFileEntry> entry = files.get(index);
+  @Nonnull
+  private Map.Entry<String, GitFileEntry> currentEntry() {
+    return files.get(index);
+  }
+
+  private void readEntry() {
+    Map.Entry<String, GitFileEntry> entry = currentEntry();
 
     mode = entry.getValue().getMode().getBits();
     id = entry.getValue().getId();

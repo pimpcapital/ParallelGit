@@ -24,10 +24,15 @@ public class RootNode extends DirectoryNode {
     return new RootNode(null, objService);
   }
 
+  @Nonnull
+  @Override
+  public AnyObjectId getObjectId(boolean persist) throws IOException {
+    return super.getObjectId(persist);
+  }
+
   @Nullable
   @Override
   public TreeSnapshot takeSnapshot(boolean persist) throws IOException {
     return takeSnapshot(persist, true);
   }
-
 }

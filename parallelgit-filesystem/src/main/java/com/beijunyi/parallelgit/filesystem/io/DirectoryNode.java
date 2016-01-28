@@ -11,7 +11,6 @@ import javax.annotation.Nullable;
 
 import com.beijunyi.parallelgit.filesystem.GfsObjectService;
 import com.beijunyi.parallelgit.utils.io.GitFileEntry;
-import com.beijunyi.parallelgit.utils.io.ObjectSnapshot;
 import com.beijunyi.parallelgit.utils.io.TreeSnapshot;
 import org.eclipse.jgit.lib.AnyObjectId;
 import org.eclipse.jgit.lib.FileMode;
@@ -28,14 +27,20 @@ public class DirectoryNode extends Node<TreeSnapshot> {
       setupEmptyDirectory();
   }
 
-  @Nonnull
-  public static DirectoryNode fromObject(@Nonnull AnyObjectId id, @Nonnull GfsObjectService objService) {
-    return new DirectoryNode(id, objService);
+  protected DirectoryNode(@Nullable AnyObjectId id, @Nonnull DirectoryNode parent) {
+    super(id, parent);
+    if(id == null)
+      setupEmptyDirectory();
   }
 
   @Nonnull
-  public static DirectoryNode newDirectory(@Nonnull GfsObjectService objService) {
-    return new DirectoryNode(null, objService);
+  public static DirectoryNode fromObject(@Nonnull AnyObjectId id, @Nonnull DirectoryNode parent) {
+    return new DirectoryNode(id, parent);
+  }
+
+  @Nonnull
+  public static DirectoryNode newDirectory(@Nonnull DirectoryNode parent) {
+    return new DirectoryNode(null, parent);
   }
 
   @Override
@@ -59,6 +64,7 @@ public class DirectoryNode extends Node<TreeSnapshot> {
   public synchronized void reset(@Nonnull AnyObjectId id) {
     this.id = id;
     children = null;
+    propagateChange();
   }
 
   @Nullable
@@ -74,14 +80,13 @@ public class DirectoryNode extends Node<TreeSnapshot> {
     SortedMap<String, GitFileEntry> entries = new TreeMap<>();
     for(Map.Entry<String, Node> child : children.entrySet()) {
       Node node = child.getValue();
-      ObjectSnapshot snapshot = node.takeSnapshot(persist);
-      AnyObjectId id = snapshot != null ? snapshot.getId() : node.getObjectId();
+      AnyObjectId id = node.getObjectId(persist);
       if(id != null)
         entries.put(child.getKey(), new GitFileEntry(id, node.getMode()));
     }
     TreeSnapshot ret = TreeSnapshot.capture(entries, allowEmpty);
-    if(persist)
-      id = ret != null ? objService.write(ret) : null;
+    if(ret != null && persist)
+      objService.write(ret);
     return ret;
   }
 
@@ -93,17 +98,17 @@ public class DirectoryNode extends Node<TreeSnapshot> {
 
   @Nonnull
   @Override
-  public Node clone(@Nonnull GfsObjectService targetObjService) throws IOException {
-    DirectoryNode ret = DirectoryNode.newDirectory(targetObjService);
+  public Node clone(@Nonnull DirectoryNode parent) throws IOException {
+    DirectoryNode ret = DirectoryNode.newDirectory(parent);
     if(isInitialized()) {
       for(Map.Entry<String, Node> child : children.entrySet()) {
         String name = child.getKey();
         Node node = child.getValue();
-        ret.addChild(name, node.clone(targetObjService), false);
+        ret.addChild(name, node.clone(ret), false);
       }
     } else {
       ret.reset(id);
-      targetObjService.pullObject(id, objService);
+      parent.getObjService().pullObject(id, objService);
     }
     return ret;
   }
@@ -130,13 +135,20 @@ public class DirectoryNode extends Node<TreeSnapshot> {
     if(!replace && children.containsKey(name))
       return false;
     children.put(name, child);
+    id = null;
+    propagateChange();
     return true;
   }
 
   public boolean removeChild(@Nonnull String name) throws IOException {
     loadSnapshotIfNotInitilized();
     Node removed = children.remove(name);
-    return removed != null;
+    if(removed != null) {
+      id = null;
+      propagateChange();
+      return true;
+    }
+    return false;
   }
 
   @Nullable
@@ -146,7 +158,7 @@ public class DirectoryNode extends Node<TreeSnapshot> {
       TreeSnapshot snapshot = loadSnapshot();
       if(snapshot != null)
         for(Map.Entry<String, GitFileEntry> entry : snapshot.getChildren().entrySet())
-          children.put(entry.getKey(), Node.fromEntry(entry.getValue(), objService));
+          children.put(entry.getKey(), Node.fromEntry(entry.getValue(), this));
       return snapshot;
     }
     return null;

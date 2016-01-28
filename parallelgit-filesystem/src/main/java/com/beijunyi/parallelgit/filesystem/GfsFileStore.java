@@ -89,7 +89,7 @@ public class GfsFileStore extends FileStore {
   }
 
   @Nonnull
-  public DirectoryNode getRoot() {
+  public RootNode getRoot() {
     return root;
   }
 

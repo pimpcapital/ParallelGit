@@ -4,7 +4,6 @@ import java.io.IOException;
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 
-import com.beijunyi.parallelgit.filesystem.GfsObjectService;
 import com.beijunyi.parallelgit.utils.io.BlobSnapshot;
 import org.eclipse.jgit.lib.AnyObjectId;
 import org.eclipse.jgit.lib.FileMode;
@@ -17,33 +16,33 @@ public class FileNode extends Node<BlobSnapshot> {
   private byte[] bytes;
   private long size = -1;
 
-  private FileNode(@Nullable AnyObjectId id, @Nonnull FileMode mode, @Nonnull GfsObjectService objService) {
-    super(id, objService);
+  private FileNode(@Nullable AnyObjectId id, @Nonnull FileMode mode, @Nonnull DirectoryNode parent) {
+    super(id, parent);
     this.mode = mode;
     if(id == null)
       bytes = new byte[0];
   }
 
   @Nonnull
-  protected static FileNode fromObject(@Nonnull AnyObjectId id, @Nonnull FileMode mode, @Nonnull GfsObjectService objService) {
-    return new FileNode(id, mode, objService);
+  protected static FileNode fromObject(@Nonnull AnyObjectId id, @Nonnull FileMode mode, @Nonnull DirectoryNode parent) {
+    return new FileNode(id, mode, parent);
   }
 
   @Nonnull
-  public static FileNode fromBytes(@Nonnull byte[] bytes, @Nonnull FileMode mode, @Nonnull GfsObjectService objService) {
-    FileNode ret = new FileNode(null, mode, objService);
+  public static FileNode fromBytes(@Nonnull byte[] bytes, @Nonnull FileMode mode, @Nonnull DirectoryNode parent) {
+    FileNode ret = new FileNode(null, mode, parent);
     ret.bytes = bytes;
     return ret;
   }
 
   @Nonnull
-  public static FileNode newFile(@Nonnull FileMode mode, @Nonnull GfsObjectService objService) {
-    return new FileNode(null, mode, objService);
+  public static FileNode newFile(@Nonnull FileMode mode, @Nonnull DirectoryNode parent) {
+    return new FileNode(null, mode, parent);
   }
 
   @Nonnull
-  public static FileNode newFile(boolean executable, @Nonnull GfsObjectService objService) {
-    return newFile(executable ? EXECUTABLE_FILE : REGULAR_FILE, objService);
+  public static FileNode newFile(boolean executable, @Nonnull DirectoryNode parent) {
+    return newFile(executable ? EXECUTABLE_FILE : REGULAR_FILE, parent);
   }
 
   public long getSize() throws IOException {
@@ -64,12 +63,15 @@ public class FileNode extends Node<BlobSnapshot> {
     if(mode.equals(TREE) || mode.equals(GITLINK))
       throw new IllegalArgumentException(mode.toString());
     this.mode = mode;
+    id = null;
+    propagateChange();
   }
 
   @Override
   public synchronized void reset(@Nonnull AnyObjectId id) {
     this.id = id;
     bytes = null;
+    propagateChange();
   }
 
   @Nullable
@@ -85,7 +87,7 @@ public class FileNode extends Node<BlobSnapshot> {
       return null;
     BlobSnapshot ret = BlobSnapshot.capture(bytes);
     if(persist)
-      id = objService.write(ret);
+      objService.write(ret);
     return ret;
   }
 
@@ -96,13 +98,13 @@ public class FileNode extends Node<BlobSnapshot> {
 
   @Nonnull
   @Override
-  public Node clone(@Nonnull GfsObjectService targetObjService) throws IOException {
-    FileNode ret = newFile(mode, targetObjService);
+  public Node clone(@Nonnull DirectoryNode parent) throws IOException {
+    FileNode ret = newFile(mode, parent);
     if(bytes != null)
       ret.bytes = bytes;
     else {
       ret.reset(id);
-      targetObjService.pullObject(id, objService);
+      parent.getObjService().pullObject(id, objService);
     }
     return ret;
   }
@@ -118,6 +120,8 @@ public class FileNode extends Node<BlobSnapshot> {
   public void setBytes(@Nonnull byte[] bytes) {
     this.bytes = bytes;
     this.size = bytes.length;
+    id = null;
+    propagateChange();
   }
 
   private synchronized void initBytes() throws IOException {

@@ -38,11 +38,7 @@ public class GfsStatusProvider implements AutoCloseable {
   }
 
   public boolean isDirty() throws IOException {
-    if(commit == null)
-      return true;
-    TreeSnapshot snapshot = fileStore.getRoot().takeSnapshot(false);
-    AnyObjectId id = snapshot != null ? snapshot.getId() : fileStore.getRoot().getObjectId();
-    return !commit.getTree().equals(id);
+    return fileStore.getRoot().isDirty();
   }
 
   @Nonnull

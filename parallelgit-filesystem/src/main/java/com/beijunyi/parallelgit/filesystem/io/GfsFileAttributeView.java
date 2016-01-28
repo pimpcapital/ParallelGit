@@ -255,7 +255,13 @@ public abstract class GfsFileAttributeView implements FileAttributeView {
     @Nullable
     @Override
     public AnyObjectId getObjectId() throws IOException {
-      return node.getObjectId();
+      return node.getObjectId(false);
+    }
+
+    @Nonnull
+    @Override
+    public FileMode getFileMode() {
+      return node.getMode();
     }
 
     @Nonnull
@@ -275,10 +281,10 @@ public abstract class GfsFileAttributeView implements FileAttributeView {
       for(String key : remainKeys) {
         switch(key) {
           case OBJECT_ID:
-            result.put(key, node.getObjectId());
+            result.put(key, getObjectId());
             break;
           case FILE_MODE:
-            result.put(key, node.getMode());
+            result.put(key, getFileMode());
             break;
           default:
             throw new UnsupportedOperationException(key);

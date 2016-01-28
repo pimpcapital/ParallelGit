@@ -3,8 +3,6 @@ package com.beijunyi.parallelgit.filesystem.io;
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 
-import com.beijunyi.parallelgit.filesystem.GfsObjectService;
-
 public class PrepareDirectory extends GfsChange {
 
   @Override
@@ -19,9 +17,9 @@ public class PrepareDirectory extends GfsChange {
 
   @Nullable
   @Override
-  protected Node createNode(@Nullable Node currentNode, @Nonnull GfsObjectService objService) {
+  protected Node createNode(@Nullable Node currentNode, @Nonnull DirectoryNode parent) {
     if(currentNode == null || !currentNode.isDirectory())
-      return DirectoryNode.newDirectory(objService);
+      return DirectoryNode.newDirectory(parent);
     return null;
   }
 }

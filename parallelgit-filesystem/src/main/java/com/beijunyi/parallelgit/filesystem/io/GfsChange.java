@@ -16,7 +16,7 @@ public abstract class GfsChange {
       return;
     }
 
-    Node newNode = createNode(currentNode, dir.getObjService());
+    Node newNode = createNode(currentNode, dir);
     if(newNode != null)
       dir.addChild(name, newNode, true);
   }
@@ -26,6 +26,6 @@ public abstract class GfsChange {
   protected abstract boolean shouldDelete(@Nullable Node currentNode);
 
   @Nullable
-  protected abstract Node createNode(@Nullable Node currentNode, @Nonnull GfsObjectService objService);
+  protected abstract Node createNode(@Nullable Node currentNode, @Nonnull DirectoryNode parent);
 
 }

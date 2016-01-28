@@ -14,22 +14,31 @@ import static org.eclipse.jgit.lib.FileMode.*;
 
 public abstract class Node<Snapshot extends ObjectSnapshot> {
 
+  protected final DirectoryNode parent;
   protected final GfsObjectService objService;
-  protected final AnyObjectId originId;
 
+  protected volatile AnyObjectId originId;
   protected volatile AnyObjectId id;
 
   protected Node(@Nullable AnyObjectId id, @Nonnull GfsObjectService objService) {
     this.originId = id;
     this.id = id;
+    this.parent = null;
     this.objService = objService;
   }
 
+  protected Node(@Nullable AnyObjectId id, @Nonnull DirectoryNode parent) {
+    this.originId = id;
+    this.id = id;
+    this.parent = parent;
+    this.objService = parent.getObjService();
+  }
+
   @Nonnull
-  public static Node fromEntry(@Nonnull GitFileEntry entry, @Nonnull GfsObjectService objService) {
+  public static Node fromEntry(@Nonnull GitFileEntry entry, @Nonnull DirectoryNode parent) {
     if(entry.getMode().equals(TREE))
-      return DirectoryNode.fromObject(entry.getId(), objService);
-    return FileNode.fromObject(entry.getId(), entry.getMode(), objService);
+      return DirectoryNode.fromObject(entry.getId(), parent);
+    return FileNode.fromObject(entry.getId(), entry.getMode(), parent);
   }
 
   @Nonnull
@@ -54,13 +63,20 @@ public abstract class Node<Snapshot extends ObjectSnapshot> {
   }
 
   @Nullable
-  public AnyObjectId getObjectId() throws IOException {
-    if(isInitialized()) {
-      Snapshot snapshot = takeSnapshot(false);
-      if(snapshot != null)
-        return snapshot.getId();
+  public AnyObjectId getObjectId(boolean persist) throws IOException {
+    if(id == null || persist && !objService.hasObject(id)) {
+      Snapshot snapshot = takeSnapshot(persist);
+      id = snapshot != null ? snapshot.getId() : null;
     }
+    if(persist)
+      originId = id;
     return id;
+  }
+
+  public boolean isDirty() throws IOException {
+    if(originId != null)
+      return !originId.equals(getObjectId(false));
+    return getObjectId(false) != null;
   }
 
   public abstract long getSize() throws IOException;
@@ -81,6 +97,13 @@ public abstract class Node<Snapshot extends ObjectSnapshot> {
   public abstract boolean isInitialized();
 
   @Nonnull
-  public abstract Node clone(@Nonnull GfsObjectService targetObjService) throws IOException;
+  public abstract Node clone(@Nonnull DirectoryNode parent) throws IOException;
+
+  protected void propagateChange() {
+    if(parent != null) {
+      parent.id = null;
+      parent.propagateChange();
+    }
+  }
 
 }
