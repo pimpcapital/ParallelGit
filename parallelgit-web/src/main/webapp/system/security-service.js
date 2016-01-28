@@ -1,7 +1,7 @@
 app.service('SecurityService', function($q, $uibModal, ConnectionService) {
 
   $uibModal.open({
-    templateUrl: 'security/login-modal.html',
+    templateUrl: 'system/login-modal.html',
     backdrop: 'static',
     size: 'sm',
     controller : 'LoginController'

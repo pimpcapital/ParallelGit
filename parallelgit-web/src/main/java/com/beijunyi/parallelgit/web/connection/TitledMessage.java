@@ -1,11 +1,25 @@
 package com.beijunyi.parallelgit.web.connection;
 
-import java.util.Map;
+import javax.annotation.Nonnull;
 
 public class TitledMessage {
 
+  private static final TitledMessage READY = new TitledMessage("ready");
+
   private String title;
-  private Map<String, String> data;
+  private MessageData data;
+
+  public TitledMessage() {
+  }
+
+  public TitledMessage(@Nonnull String title) {
+    this.title = title;
+  }
+
+  @Nonnull
+  public static TitledMessage ready() {
+    return READY;
+  }
 
   public String getTitle() {
     return title;
@@ -15,11 +29,11 @@ public class TitledMessage {
     this.title = title;
   }
 
-  public Map<String, String> getData() {
+  public MessageData getData() {
     return data;
   }
 
-  public void setData(Map<String, String> data) {
+  public void setData(MessageData data) {
     this.data = data;
   }
 }

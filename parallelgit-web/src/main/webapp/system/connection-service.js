@@ -3,8 +3,10 @@ app.service('ConnectionService', function($rootScope, $timeout, EncodeService, D
   function setupConnection() {
     connection = new WebSocket('ws://' + window.location.host + '/ws');
     connection.onmessage = function(response) {
-      var message = DecodeService.decode(response.data);
-      $rootScope.$broadcast(message.title, message.data);
+      $timeout(function() {
+        var message = DecodeService.decode(response.data);
+        $rootScope.$broadcast(message.title, message.data);
+      });
     };
   }
 
