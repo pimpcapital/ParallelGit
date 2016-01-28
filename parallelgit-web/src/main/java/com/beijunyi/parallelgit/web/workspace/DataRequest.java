@@ -31,8 +31,10 @@ public class DataRequest {
     return rid;
   }
 
-  @Nullable
+  @Nonnull
   public String getTarget() {
+    if(target == null)
+      throw new IllegalStateException();
     return target;
   }
 

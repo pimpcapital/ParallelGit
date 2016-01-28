@@ -2,6 +2,9 @@ package com.beijunyi.parallelgit.web.workspace;
 
 import java.io.Closeable;
 import java.io.IOException;
+import java.nio.file.DirectoryStream;
+import java.nio.file.Files;
+import java.nio.file.Path;
 import java.util.*;
 import javax.annotation.Nonnull;
 
@@ -30,6 +33,8 @@ public class Workspace implements Closeable {
     switch(request.getType()) {
       case "branches":
         return getBranches();
+      case "files":
+        return getFiles(request.getTarget());
       default:
         throw new UnsupportedOperationException(request.getType());
     }
@@ -65,6 +70,20 @@ public class Workspace implements Closeable {
       return status.commit().name();
     throw new IllegalStateException();
   }
+
+  @Nonnull
+  public List<FileEntry> getFiles(@Nonnull String dir) throws IOException {
+    List<FileEntry> ret = new ArrayList<>();
+    try(DirectoryStream<Path> children = Files.newDirectoryStream(gfs.getPath(dir))) {
+      for(Path child : children) {
+        ret.add(FileEntry.read(child));
+      }
+    }
+    return ret;
+  }
+
+
+
 
   public void checkout(@Nonnull String branch) throws IOException {
     if(gfs == null) {

@@ -159,7 +159,7 @@ public final class GfsIO {
   public static <V extends FileAttributeView> V getFileAttributeView(@Nonnull GitPath path, @Nonnull Class<V> type) throws IOException, UnsupportedOperationException {
     Node node = findNode(path);
     if(node != null)
-      return GfsFileAttributeView.forNode(node, type);
+      return GfsFileAttributeView.forNode(node, path.isRoot(), type);
     return null;
   }
 

@@ -82,6 +82,11 @@ public class FileNode extends Node<BlobSnapshot> {
     return ret;
   }
 
+  @Override
+  public boolean isInitialized() {
+    return bytes != null;
+  }
+
   @Nonnull
   @Override
   public Node clone(@Nonnull GfsObjectService targetObjService) throws IOException {

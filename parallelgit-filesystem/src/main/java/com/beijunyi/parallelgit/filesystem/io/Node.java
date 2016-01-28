@@ -52,7 +52,12 @@ public abstract class Node<Snapshot extends ObjectSnapshot> {
   }
 
   @Nullable
-  public AnyObjectId getObjectId() {
+  public AnyObjectId getObjectId() throws IOException {
+    if(isInitialized()) {
+      Snapshot snapshot = takeSnapshot(false, true);
+      if(snapshot != null)
+        return snapshot.getId();
+    }
     return id;
   }
 
@@ -70,6 +75,8 @@ public abstract class Node<Snapshot extends ObjectSnapshot> {
 
   @Nullable
   public abstract Snapshot takeSnapshot(boolean persist, boolean allowEmpty) throws IOException;
+
+  public abstract boolean isInitialized();
 
   @Nonnull
   public abstract Node clone(@Nonnull GfsObjectService targetObjService) throws IOException;

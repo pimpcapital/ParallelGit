@@ -147,7 +147,7 @@ public class DirectoryNode extends Node<TreeSnapshot> {
     return null;
   }
 
-  private boolean isInitialized() {
+  public boolean isInitialized() {
     return children != null;
   }
 
