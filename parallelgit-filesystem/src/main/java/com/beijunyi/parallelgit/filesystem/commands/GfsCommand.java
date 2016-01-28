@@ -9,12 +9,14 @@ import org.eclipse.jgit.lib.Repository;
 public abstract class GfsCommand<Result extends GfsCommandResult> {
 
   protected final GitFileSystem gfs;
+  protected final GfsStatusProvider status;
   protected final Repository repo;
 
   protected boolean executed = false;
 
   protected GfsCommand(@Nonnull GitFileSystem gfs) {
     this.gfs = gfs;
+    this.status = gfs.getStatusProvider();
     this.repo = gfs.getRepository();
   }
 

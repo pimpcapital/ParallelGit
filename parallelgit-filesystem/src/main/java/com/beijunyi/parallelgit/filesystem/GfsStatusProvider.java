@@ -1,5 +1,6 @@
 package com.beijunyi.parallelgit.filesystem;
 
+import java.io.Closeable;
 import java.io.IOException;
 import java.nio.file.ClosedFileSystemException;
 import java.util.concurrent.locks.ReentrantLock;
@@ -32,10 +33,8 @@ public class GfsStatusProvider implements AutoCloseable {
 
   public GfsStatusProvider(@Nonnull GfsFileStore fileStore, @Nullable String branch, @Nullable RevCommit commit) {
     this.fileStore = fileStore;
-    if(commit != null)
-      commit(commit);
-    if(branch != null)
-      branch(branch);
+    this.commit = commit;
+    this.branch = branch;
   }
 
   public boolean isDirty() throws IOException {
@@ -46,12 +45,9 @@ public class GfsStatusProvider implements AutoCloseable {
     return !commit.getTree().equals(id);
   }
 
-  public void lock() {
-    lock.lock();
-  }
-
-  public void unlock() {
-    lock.unlock();
+  @Nonnull
+  public Update prepareUpdate() {
+    return new Update();
   }
 
   @Nonnull
@@ -61,32 +57,11 @@ public class GfsStatusProvider implements AutoCloseable {
   }
 
   @Nonnull
-  public GfsStatusProvider state(@Nonnull GfsState state) {
-    checkClosed();
-    this.state = state;
-    return this;
-  }
-
-  @Nonnull
   public String branch() {
     checkClosed();
     if(branch == null)
       throw new NoBranchException();
     return branch.substring(R_HEADS.length());
-  }
-
-  @Nonnull
-  public GfsStatusProvider branch(@Nonnull String branch) {
-    checkClosed();
-    this.branch = RefUtils.ensureBranchRefName(branch);
-    return this;
-  }
-
-  @Nonnull
-  public GfsStatusProvider detach() {
-    checkClosed();
-    branch = null;
-    return this;
   }
 
   public boolean isAttached() {
@@ -101,13 +76,6 @@ public class GfsStatusProvider implements AutoCloseable {
     return commit;
   }
 
-  @Nonnull
-  public GfsStatusProvider commit(@Nonnull RevCommit commit) {
-    checkClosed();
-    this.commit = commit;
-    return this;
-  }
-
   public boolean isInitialized() {
     return branch != null;
   }
@@ -115,23 +83,7 @@ public class GfsStatusProvider implements AutoCloseable {
   @Nonnull
   public GfsMergeNote mergeNote() {
     checkClosed();
-    if(mergeNote == null)
-      throw new MergeNotStartedException();
     return mergeNote;
-  }
-
-
-  @Nonnull
-  public GfsStatusProvider mergeNote(@Nonnull GfsMergeNote mergeNote) {
-    checkClosed();
-    this.mergeNote = mergeNote;
-    return this;
-  }
-
-  @Nonnull
-  public GfsStatusProvider clearMergeNote() {
-    mergeNote = null;
-    return this;
   }
 
   @Override
@@ -144,4 +96,60 @@ public class GfsStatusProvider implements AutoCloseable {
     if(closed)
       throw new ClosedFileSystemException();
   }
+
+  public class Update implements Closeable {
+
+    private Update() {
+      lock.lock();
+    }
+
+    @Override
+    public void close() {
+      lock.unlock();
+    }
+
+    @Nonnull
+    public Update state(@Nonnull GfsState newState) {
+      checkClosed();
+      state = newState;
+      return this;
+    }
+
+    @Nonnull
+    public Update branch(@Nonnull String newBranch) {
+      checkClosed();
+      branch = RefUtils.ensureBranchRefName(newBranch);
+      return this;
+    }
+
+    @Nonnull
+    public Update detach() {
+      checkClosed();
+      branch = null;
+      return this;
+    }
+
+    @Nonnull
+    public Update commit(@Nonnull RevCommit newCommit) {
+      checkClosed();
+      commit = newCommit;
+      return this;
+    }
+
+    @Nonnull
+    public Update mergeNote(@Nonnull GfsMergeNote newMergeNote) {
+      checkClosed();
+      mergeNote = newMergeNote;
+      return this;
+    }
+
+    @Nonnull
+    public Update clearMergeNote() {
+      checkClosed();
+      mergeNote = null;
+      return this;
+    }
+
+  }
+
 }

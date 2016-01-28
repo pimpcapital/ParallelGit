@@ -1,10 +1,7 @@
 package com.beijunyi.parallelgit.filesystem.io;
 
 import java.io.IOException;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Map.Entry;
-import java.util.SortedMap;
+import java.util.*;
 import javax.annotation.Nonnull;
 
 import com.beijunyi.parallelgit.filesystem.GfsFileStore;
@@ -15,24 +12,27 @@ import org.eclipse.jgit.lib.AnyObjectId;
 import org.eclipse.jgit.lib.Constants;
 import org.eclipse.jgit.lib.ObjectReader;
 import org.eclipse.jgit.treewalk.AbstractTreeIterator;
+import org.eclipse.jgit.treewalk.WorkingTreeIterator;
+import org.eclipse.jgit.treewalk.WorkingTreeOptions;
 
 import static java.util.Collections.unmodifiableList;
 import static org.eclipse.jgit.lib.Constants.OBJECT_ID_LENGTH;
 
-public class GfsTreeIterator extends AbstractTreeIterator {
+public class GfsTreeIterator extends WorkingTreeIterator {
 
-  private final List<Entry<String, GitFileEntry>> entries;
+  private final List<Map.Entry<String, GitFileEntry>> files;
   private int index = -1;
   private AnyObjectId id;
 
   public GfsTreeIterator(@Nonnull TreeSnapshot snapshot, @Nonnull GfsTreeIterator parent) {
     super(parent);
-    entries = toList(snapshot);
+    files = toList(snapshot);
     next(1);
   }
 
   public GfsTreeIterator(@Nonnull TreeSnapshot snapshot) {
-    entries = toList(snapshot);
+    super((WorkingTreeOptions) null);
+    files = toList(snapshot);
     next(1);
   }
 
@@ -46,7 +46,7 @@ public class GfsTreeIterator extends AbstractTreeIterator {
 
   @Override
   public boolean hasId() {
-    return index >= 0 && index < entries.size();
+    return index >= 0 && index < files.size();
   }
 
   @Override
@@ -64,7 +64,7 @@ public class GfsTreeIterator extends AbstractTreeIterator {
   @Nonnull
   @Override
   public AbstractTreeIterator createSubtreeIterator(@Nonnull ObjectReader reader) throws IOException {
-    Entry<String, GitFileEntry> tree = entries.get(index);
+    Map.Entry<String, GitFileEntry> tree = files.get(index);
     TreeSnapshot snapshot = TreeSnapshot.load(tree.getValue().getId(), reader);
     return new GfsTreeIterator(snapshot, this);
   }
@@ -76,12 +76,12 @@ public class GfsTreeIterator extends AbstractTreeIterator {
 
   @Override
   public boolean eof() {
-    return index == entries.size();
+    return index == files.size();
   }
 
   @Override
   public void next(int delta) {
-    index = Math.min(entries.size(), index + delta);
+    index = Math.min(files.size(), index + delta);
     if(!eof())
       readNode();
   }
@@ -93,7 +93,7 @@ public class GfsTreeIterator extends AbstractTreeIterator {
   }
 
   private void readNode() {
-    Entry<String, GitFileEntry> entry = entries.get(index);
+    Map.Entry<String, GitFileEntry> entry = files.get(index);
 
     mode = entry.getValue().getMode().getBits();
     id = entry.getValue().getId();
@@ -105,10 +105,10 @@ public class GfsTreeIterator extends AbstractTreeIterator {
   }
 
   @Nonnull
-  private static List<Entry<String, GitFileEntry>> toList(@Nonnull TreeSnapshot snapshot) {
+  private static List<Map.Entry<String, GitFileEntry>> toList(@Nonnull TreeSnapshot snapshot) {
     SortedMap<String, GitFileEntry> children = snapshot.getChildren();
-    List<Entry<String, GitFileEntry>> ret = new ArrayList<>(children.size());
-    for(Entry<String, GitFileEntry> entry : children.entrySet())
+    List<Map.Entry<String, GitFileEntry>> ret = new ArrayList<>(children.size());
+    for(Map.Entry<String, GitFileEntry> entry : children.entrySet())
       ret.add(entry);
     return unmodifiableList(ret);
   }

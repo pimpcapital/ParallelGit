@@ -17,32 +17,42 @@ public class GfsStatusProviderBranchTest extends PreSetupGitFileSystemTest {
 
   @Test
   public void setBranch_theFileSystemShouldBecomeAttached() {
-    statusProvider.detach();
-    statusProvider.branch("test_branch");
+    try(GfsStatusProvider.Update update = statusProvider.prepareUpdate()) {
+      update.detach();
+      update.branch("test_branch");
+    }
     assertTrue(statusProvider.isAttached());
   }
 
   @Test
   public void setBranch_theBranchOfTheFileSystemShouldBecomeTheSpecifiedBranch() {
-    statusProvider.branch("test_branch");
+    try(GfsStatusProvider.Update update = statusProvider.prepareUpdate()) {
+      update.branch("test_branch");
+    }
     assertEquals("test_branch", statusProvider.branch());
   }
 
   @Test
   public void setBranchUsingFullBranchRef_theBranchOfTheFileSystemShouldBecomeTheSpecifiedBranch() {
-    statusProvider.branch("refs/heads/test_branch");
+    try(GfsStatusProvider.Update update = statusProvider.prepareUpdate()) {
+      update.branch("refs/heads/test_branch");
+    }
     assertEquals("test_branch", statusProvider.branch());
   }
 
   @Test
   public void detach_theFileSystemShouldBecomeDetached() {
-    statusProvider.detach();
+    try(GfsStatusProvider.Update update = statusProvider.prepareUpdate()) {
+      update.detach();
+    }
     assertFalse(statusProvider.isAttached());
   }
 
   @Test(expected = NoBranchException.class)
   public void detachAndGetBranch_shouldThrowNoBranchException() {
-    statusProvider.detach();
-    statusProvider.branch();
+    try(GfsStatusProvider.Update update = statusProvider.prepareUpdate()) {
+      update.detach();
+      statusProvider.branch();
+    }
   }
 }

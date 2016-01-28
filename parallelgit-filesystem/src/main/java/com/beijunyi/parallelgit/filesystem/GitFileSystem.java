@@ -216,11 +216,6 @@ public class GitFileSystem extends FileSystem {
     return id;
   }
 
-  @Nonnull
-  public DirCache toDirCache() throws IOException {
-    return CacheUtils.forTree(flush(), objService.getRepository());
-  }
-
   @Override
   public boolean equals(@Nullable Object that) {
     return this == that
