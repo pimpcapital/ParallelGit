@@ -9,16 +9,17 @@ import javax.annotation.Nullable;
 
 import com.beijunyi.parallelgit.filesystem.io.DirectoryNode;
 import com.beijunyi.parallelgit.filesystem.io.GfsFileAttributeView;
+import com.beijunyi.parallelgit.filesystem.io.RootNode;
 import org.eclipse.jgit.lib.AnyObjectId;
 
 import static com.beijunyi.parallelgit.filesystem.GitFileSystemProvider.GFS;
 
 public class GfsFileStore extends FileStore {
 
-  private final DirectoryNode root;
+  private final RootNode root;
 
   public GfsFileStore(@Nullable AnyObjectId rootTree, @Nonnull GfsObjectService gos) {
-    root = rootTree != null ? DirectoryNode.fromObject(rootTree, gos) : DirectoryNode.newDirectory(gos);
+    root = rootTree != null ? RootNode.fromObject(rootTree, gos) : RootNode.newRoot(gos);
   }
 
   @Nonnull

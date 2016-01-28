@@ -205,7 +205,7 @@ public class GitFileSystem extends FileSystem {
 
   @Nonnull
   public AnyObjectId flush() throws IOException {
-    TreeSnapshot snapshot = fileStore.getRoot().takeSnapshot(true, true);
+    TreeSnapshot snapshot = fileStore.getRoot().takeSnapshot(true);
     AnyObjectId id;
     if(snapshot != null) {
       id = snapshot.getId();

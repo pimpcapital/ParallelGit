@@ -73,7 +73,7 @@ public class FileNode extends Node<BlobSnapshot> {
 
   @Nullable
   @Override
-  public BlobSnapshot takeSnapshot(boolean persist, boolean allowEmpty) throws IOException {
+  public BlobSnapshot takeSnapshot(boolean persist) throws IOException {
     if(bytes == null)
       return null;
     BlobSnapshot ret = BlobSnapshot.capture(bytes);

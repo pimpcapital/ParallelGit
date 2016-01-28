@@ -54,7 +54,7 @@ public abstract class Node<Snapshot extends ObjectSnapshot> {
   @Nullable
   public AnyObjectId getObjectId() throws IOException {
     if(isInitialized()) {
-      Snapshot snapshot = takeSnapshot(false, true);
+      Snapshot snapshot = takeSnapshot(false);
       if(snapshot != null)
         return snapshot.getId();
     }
@@ -74,7 +74,7 @@ public abstract class Node<Snapshot extends ObjectSnapshot> {
   public abstract Snapshot loadSnapshot() throws IOException;
 
   @Nullable
-  public abstract Snapshot takeSnapshot(boolean persist, boolean allowEmpty) throws IOException;
+  public abstract Snapshot takeSnapshot(boolean persist) throws IOException;
 
   public abstract boolean isInitialized();
 

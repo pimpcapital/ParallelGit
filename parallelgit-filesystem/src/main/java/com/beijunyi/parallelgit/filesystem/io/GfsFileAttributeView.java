@@ -6,7 +6,6 @@ import java.util.*;
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 
-import com.beijunyi.parallelgit.utils.io.ObjectSnapshot;
 import org.eclipse.jgit.lib.AnyObjectId;
 import org.eclipse.jgit.lib.FileMode;
 
@@ -30,6 +29,7 @@ public abstract class GfsFileAttributeView implements FileAttributeView {
   public static final String GROUP_NAME = "group";
 
   public static final String OBJECT_ID = "objectId";
+  public static final String FILE_MODE = "fileMode";
 
   public static final Set<String> BASIC_KEYS = Basic.keys();
   public static final Set<String> POSIX_KEYS = Posix.keys();
@@ -43,13 +43,13 @@ public abstract class GfsFileAttributeView implements FileAttributeView {
   }
 
   @Nonnull
-  static <V extends FileAttributeView> V forNode(@Nonnull Node node, boolean isRoot, @Nonnull Class<V> type) throws UnsupportedOperationException {
+  static <V extends FileAttributeView> V forNode(@Nonnull Node node, @Nonnull Class<V> type) throws UnsupportedOperationException {
     if(type.isAssignableFrom(GfsFileAttributeView.Basic.class))
       return type.cast(new GfsFileAttributeView.Basic(node));
     if(type.isAssignableFrom(GfsFileAttributeView.Posix.class))
       return type.cast(new GfsFileAttributeView.Posix(node));
     if(type.isAssignableFrom(GfsFileAttributeView.Git.class))
-      return type.cast(new GfsFileAttributeView.Git(node, isRoot));
+      return type.cast(new GfsFileAttributeView.Git(node));
     throw new UnsupportedOperationException(type.getName());
   }
 
@@ -242,11 +242,8 @@ public abstract class GfsFileAttributeView implements FileAttributeView {
 
     public static final String GIT_VIEW = "git";
 
-    private final boolean isRoot;
-
-    protected Git(@Nonnull Node node, boolean isRoot) {
+    protected Git(@Nonnull Node node) {
       super(node);
-      this.isRoot = isRoot;
     }
 
     @Nonnull
@@ -258,7 +255,7 @@ public abstract class GfsFileAttributeView implements FileAttributeView {
     @Nullable
     @Override
     public AnyObjectId getObjectId() throws IOException {
-      throw new UnsupportedOperationException();
+      return node.getObjectId();
     }
 
     @Nonnull
@@ -278,9 +275,10 @@ public abstract class GfsFileAttributeView implements FileAttributeView {
       for(String key : remainKeys) {
         switch(key) {
           case OBJECT_ID:
-            node.takeSnapshot(false, true);
-
-            result.put(key, node.takeSnapshot(false, isRoot));
+            result.put(key, node.getObjectId());
+            break;
+          case FILE_MODE:
+            result.put(key, node.getMode());
             break;
           default:
             throw new UnsupportedOperationException(key);
@@ -294,7 +292,8 @@ public abstract class GfsFileAttributeView implements FileAttributeView {
       Set<String> ret = new HashSet<>();
       ret.addAll(POSIX_KEYS);
       ret.addAll(Arrays.asList(
-        OBJECT_ID
+        OBJECT_ID,
+        FILE_MODE
       ));
       return Collections.unmodifiableSet(ret);
     }

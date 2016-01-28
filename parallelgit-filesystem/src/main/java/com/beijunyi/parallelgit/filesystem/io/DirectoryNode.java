@@ -24,6 +24,8 @@ public class DirectoryNode extends Node<TreeSnapshot> {
 
   protected DirectoryNode(@Nullable AnyObjectId id, @Nonnull GfsObjectService objService) {
     super(id, objService);
+    if(id == null)
+      setupEmptyDirectory();
   }
 
   @Nonnull
@@ -33,9 +35,7 @@ public class DirectoryNode extends Node<TreeSnapshot> {
 
   @Nonnull
   public static DirectoryNode newDirectory(@Nonnull GfsObjectService objService) {
-    DirectoryNode ret = new DirectoryNode(null, objService);
-    ret.setupEmptyDirectory();
-    return ret;
+    return new DirectoryNode(null, objService);
   }
 
   @Override
@@ -68,14 +68,13 @@ public class DirectoryNode extends Node<TreeSnapshot> {
   }
 
   @Nullable
-  @Override
-  public TreeSnapshot takeSnapshot(boolean persist, boolean allowEmpty) throws IOException {
+  protected TreeSnapshot takeSnapshot(boolean persist, boolean allowEmpty) throws IOException {
     if(!isInitialized())
       return null;
     SortedMap<String, GitFileEntry> entries = new TreeMap<>();
     for(Map.Entry<String, Node> child : children.entrySet()) {
       Node node = child.getValue();
-      ObjectSnapshot snapshot = node.takeSnapshot(persist, false);
+      ObjectSnapshot snapshot = node.takeSnapshot(persist);
       AnyObjectId id = snapshot != null ? snapshot.getId() : node.getObjectId();
       if(id != null)
         entries.put(child.getKey(), new GitFileEntry(id, node.getMode()));
@@ -86,18 +85,25 @@ public class DirectoryNode extends Node<TreeSnapshot> {
     return ret;
   }
 
+  @Nullable
+  @Override
+  public TreeSnapshot takeSnapshot(boolean persist) throws IOException {
+    return takeSnapshot(persist, false);
+  }
+
   @Nonnull
   @Override
   public Node clone(@Nonnull GfsObjectService targetObjService) throws IOException {
-    DirectoryNode ret = new DirectoryNode(null, targetObjService);
+    DirectoryNode ret;
     if(isInitialized()) {
+      ret = new DirectoryNode(null, targetObjService);
       for(Map.Entry<String, Node> child : children.entrySet()) {
         String name = child.getKey();
         Node node = child.getValue();
         ret.addChild(name, node.clone(targetObjService), false);
       }
     } else {
-      ret.id = id;
+      ret = new DirectoryNode(id, targetObjService);
       targetObjService.pullObject(id, objService);
     }
     return ret;
