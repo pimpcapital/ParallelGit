@@ -15,10 +15,12 @@ import static org.eclipse.jgit.lib.FileMode.*;
 public abstract class Node<Snapshot extends ObjectSnapshot> {
 
   protected final GfsObjectService objService;
+  protected final AnyObjectId originId;
 
   protected volatile AnyObjectId id;
 
   protected Node(@Nullable AnyObjectId id, @Nonnull GfsObjectService objService) {
+    this.originId = id;
     this.id = id;
     this.objService = objService;
   }

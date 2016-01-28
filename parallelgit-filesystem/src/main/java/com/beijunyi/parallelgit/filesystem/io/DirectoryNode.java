@@ -94,16 +94,15 @@ public class DirectoryNode extends Node<TreeSnapshot> {
   @Nonnull
   @Override
   public Node clone(@Nonnull GfsObjectService targetObjService) throws IOException {
-    DirectoryNode ret;
+    DirectoryNode ret = DirectoryNode.newDirectory(targetObjService);
     if(isInitialized()) {
-      ret = new DirectoryNode(null, targetObjService);
       for(Map.Entry<String, Node> child : children.entrySet()) {
         String name = child.getKey();
         Node node = child.getValue();
         ret.addChild(name, node.clone(targetObjService), false);
       }
     } else {
-      ret = new DirectoryNode(id, targetObjService);
+      ret.reset(id);
       targetObjService.pullObject(id, objService);
     }
     return ret;

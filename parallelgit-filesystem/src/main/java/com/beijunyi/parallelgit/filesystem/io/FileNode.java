@@ -20,6 +20,8 @@ public class FileNode extends Node<BlobSnapshot> {
   private FileNode(@Nullable AnyObjectId id, @Nonnull FileMode mode, @Nonnull GfsObjectService objService) {
     super(id, objService);
     this.mode = mode;
+    if(id == null)
+      bytes = new byte[0];
   }
 
   @Nonnull
@@ -35,8 +37,13 @@ public class FileNode extends Node<BlobSnapshot> {
   }
 
   @Nonnull
+  public static FileNode newFile(@Nonnull FileMode mode, @Nonnull GfsObjectService objService) {
+    return new FileNode(null, mode, objService);
+  }
+
+  @Nonnull
   public static FileNode newFile(boolean executable, @Nonnull GfsObjectService objService) {
-    return new FileNode(null, executable ? EXECUTABLE_FILE : REGULAR_FILE, objService);
+    return newFile(executable ? EXECUTABLE_FILE : REGULAR_FILE, objService);
   }
 
   public long getSize() throws IOException {
@@ -90,11 +97,11 @@ public class FileNode extends Node<BlobSnapshot> {
   @Nonnull
   @Override
   public Node clone(@Nonnull GfsObjectService targetObjService) throws IOException {
-    FileNode ret = new FileNode(null, mode, targetObjService);
+    FileNode ret = newFile(mode, targetObjService);
     if(bytes != null)
       ret.bytes = bytes;
     else {
-      ret.id = id;
+      ret.reset(id);
       targetObjService.pullObject(id, objService);
     }
     return ret;
@@ -108,9 +115,9 @@ public class FileNode extends Node<BlobSnapshot> {
     return bytes;
   }
 
-  public void setBytes(@Nullable byte[] bytes) {
+  public void setBytes(@Nonnull byte[] bytes) {
     this.bytes = bytes;
-    this.size = bytes != null ? bytes.length : -1;
+    this.size = bytes.length;
   }
 
   private synchronized void initBytes() throws IOException {
