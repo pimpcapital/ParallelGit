@@ -1,4 +1,4 @@
-package com.beijunyi.parallelgit.web;
+package com.beijunyi.parallelgit.web.connection;
 
 import java.util.Collections;
 import java.util.Set;

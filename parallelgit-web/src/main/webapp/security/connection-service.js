@@ -2,26 +2,26 @@ app.service('ConnectionService', function($rootScope, $timeout, EncodeService, D
   var connection;
   function setupConnection() {
     connection = new WebSocket('ws://' + window.location.host + '/ws');
-    connection.onmessage = function(raw) {
-      var message = DecodeService.decode(raw);
-      $rootScope.$broadcast(message.topic, message.data);
+    connection.onmessage = function(response) {
+      var message = DecodeService.decode(response.data);
+      $rootScope.$broadcast(message.title, message.data);
     };
   }
 
-  function send(message) {
+  function send(title, data) {
     if(connection != null) {
       if(connection.readyState == 1)
-        connection.send(EncodeService.encode(message));
+        connection.send(EncodeService.encode({title: title, data: data}));
       else
         $timeout(function() {
-          send(message, 500);
+          send(title, data);
         });
     }
   }
 
   this.init = function(credential) {
     setupConnection();
-    send({topic: 'login', message: credential});
+    send('login', credential);
   };
 
   this.send = function(message) {
