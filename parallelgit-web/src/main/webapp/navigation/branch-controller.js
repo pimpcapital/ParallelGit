@@ -20,13 +20,14 @@ app.controller('BranchController', function($scope, $cookies, WorkspaceService) 
   }
 
   function checkout(branch) {
+    $scope.head = null;
     WorkspaceService.update('checkout', null, branch);
   }
 
   function checkoutDefaultBranch() {
     var head = $cookies.get('head');
     if($scope.branches.indexOf(head) < 0) {
-      if($scope.branches.length > 0)
+      if($scope.branches.indexOf('master') < 0 && $scope.branches.length > 0)
         head = $scope.branches[0];
       else
         head = 'master';

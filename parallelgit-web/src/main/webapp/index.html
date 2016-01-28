@@ -2,18 +2,30 @@
 <html>
 <head>
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/twitter-bootstrap/3.3.6/css/bootstrap.min.css">
+  <link rel="stylesheet" href="lib/angular-tree-control/css/tree-control.css">
+  <link rel="stylesheet" href="lib/angular-tree-control/css/tree-control-attribute.css">
   <link rel="stylesheet" href="style.css">
 </head>
 <body ng-app="parallel" ng-controller="MainController">
 <div ng-show="ready">
   <div ng-include="'navigation/navbar.html'"></div>
+  <div class="container">
+    <div class="row">
+      <div class="col-md-4">
+        <div ng-include="'filesystem/filetree.html'"></div>
+      </div>
+      <div class="col-md-8"></div>
+    </div>
+  </div>
 </div>
 
 <script src="https://cdnjs.cloudflare.com/ajax/libs/angular.js/1.4.9/angular.min.js"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/angular.js/1.4.9/angular-route.min.js"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/angular.js/1.4.9/angular-cookies.min.js"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/angular-ui-bootstrap/1.1.1/ui-bootstrap-tpls.min.js"></script>
+<script src="lib/angular-tree-control/angular-tree-control.js"></script>
 <script src="app.js"></script>
+<script src="filesystem/file-system-controller.js"></script>
 <script src="system/connection-service.js"></script>
 <script src="system/encode-service.js"></script>
 <script src="system/decode-service.js"></script>
