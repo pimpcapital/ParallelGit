@@ -1,10 +1,14 @@
 package com.beijunyi.parallelgit.filesystem.commands;
 
 import java.io.IOException;
+import java.util.EnumSet;
 import javax.annotation.Nonnull;
 
 import com.beijunyi.parallelgit.filesystem.*;
+import com.beijunyi.parallelgit.filesystem.exceptions.BadGfsStateException;
 import org.eclipse.jgit.lib.Repository;
+
+import static com.beijunyi.parallelgit.filesystem.GfsState.MERGING;
 
 public abstract class GfsCommand<Result extends GfsCommandResult> {
 
@@ -24,11 +28,28 @@ public abstract class GfsCommand<Result extends GfsCommandResult> {
   public synchronized Result execute() throws IOException {
     checkExecuted();
     executed = true;
-    return doExecute();
+    try(GfsStatusProvider.Update update = status.prepareUpdate()) {
+      prepareState(update);
+      return doExecute(update);
+    }
+  }
+
+  protected void prepareState(@Nonnull GfsStatusProvider.Update update) {
+    if(!getAcceptableStates().contains(status.state()))
+      throw new BadGfsStateException(status.state());
+    update.state(getCommandState());
   }
 
   @Nonnull
-  protected abstract Result doExecute() throws IOException;
+  protected EnumSet<GfsState> getAcceptableStates() {
+     return EnumSet.of(GfsState.NORMAL);
+  }
+
+  @Nonnull
+  protected abstract GfsState getCommandState();
+
+  @Nonnull
+  protected abstract Result doExecute(@Nonnull GfsStatusProvider.Update update) throws IOException;
 
   private void checkExecuted() {
     if(executed)
