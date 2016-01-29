@@ -10,7 +10,7 @@ app.controller('FileSystemController', function($rootScope, $scope, WorkspaceSer
     $scope.requests = {};
     $scope.root = {name: '/', path: '', children : []};
     $scope.tree = [$scope.root];
-    $scope.expanded = [];
+    $scope.expanded = [$scope.root];
   }
 
   function addPendingRequest(request) {

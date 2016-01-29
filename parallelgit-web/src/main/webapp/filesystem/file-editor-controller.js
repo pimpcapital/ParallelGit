@@ -3,7 +3,6 @@ app.controller('FileEditorController', function($scope, WorkspaceService) {
   $scope.requests = null;
   $scope.files = null;
 
-
   function addPendingRequest(request) {
     $scope.requests[request.rid] = request;
   }
