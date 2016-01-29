@@ -12,6 +12,7 @@ import com.beijunyi.parallelgit.filesystem.Gfs;
 import com.beijunyi.parallelgit.filesystem.GfsStatusProvider;
 import com.beijunyi.parallelgit.filesystem.GitFileSystem;
 import com.beijunyi.parallelgit.utils.BranchUtils;
+import com.beijunyi.parallelgit.web.data.FileEntry;
 import org.eclipse.jgit.lib.Repository;
 
 public class Workspace implements Closeable {

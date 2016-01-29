@@ -9,13 +9,13 @@ app.service('WorkspaceService', function(ConnectionService) {
   }
 
   this.request = function(type, target) {
-    var rid = guid();
-    ConnectionService.send('request', {
-      rid: rid,
+    var request = {
+      rid: guid(),
       target: target,
       type: type
-    });
-    return rid;
+    };
+    ConnectionService.send('request', request);
+    return request;
   };
 
   this.update = function(type, target, value) {

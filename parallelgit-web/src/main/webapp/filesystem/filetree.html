@@ -1,11 +1,10 @@
 <div ng-controller="FileSystemController">
 
-  <treecontrol class="tree-classic"
-               tree-model="dataForTheTree"
-               options="treeOptions"
-               on-selection="showSelected(node)"
-               selected-node="node1">
-    employee: {{node.name}} age {{node.age}}
-  </treecontrol>
+  <div ng-if="tree != null">
+    <treecontrol class="tree-classic" tree-model="tree" expanded-nodes="expanded" options="treeOptions" on-selection="showSelected(node)" selected-node="node1">
+      {{node.name}}
+    </treecontrol>
+  </div>
+
 
 </div>

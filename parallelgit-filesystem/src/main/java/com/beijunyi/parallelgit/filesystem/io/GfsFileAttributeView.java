@@ -252,6 +252,16 @@ public abstract class GfsFileAttributeView implements FileAttributeView {
       return GIT_VIEW;
     }
 
+    @Override
+    public boolean isNew() {
+      return false;
+    }
+
+    @Override
+    public boolean isModified() {
+      return false;
+    }
+
     @Nullable
     @Override
     public AnyObjectId getObjectId() throws IOException {
