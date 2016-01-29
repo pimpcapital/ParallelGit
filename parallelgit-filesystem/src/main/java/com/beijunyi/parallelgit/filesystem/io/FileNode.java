@@ -76,13 +76,16 @@ public class FileNode extends Node<BlobSnapshot> {
 
   @Nullable
   @Override
-  public BlobSnapshot loadSnapshot() throws IOException {
-    return id != null ? objService.readBlob(id) : null;
+  public BlobSnapshot getSnapshot(boolean persist) throws IOException {
+    BlobSnapshot ret = takeSnapshot(persist);
+    if(ret == null && id != null)
+      ret = objService.readBlob(id);
+    return ret;
   }
 
   @Nullable
   @Override
-  public BlobSnapshot takeSnapshot(boolean persist) throws IOException {
+  protected BlobSnapshot takeSnapshot(boolean persist) throws IOException {
     if(bytes == null)
       return null;
     BlobSnapshot ret = BlobSnapshot.capture(bytes);
@@ -126,7 +129,7 @@ public class FileNode extends Node<BlobSnapshot> {
 
   private synchronized void initBytes() throws IOException {
     if(bytes == null) {
-      BlobSnapshot snapshot = loadSnapshot();
+      BlobSnapshot snapshot = id != null ? objService.readBlob(id) : null;
       bytes = snapshot != null ? snapshot.getBytes() : new byte[0];
       size = bytes.length;
     }
