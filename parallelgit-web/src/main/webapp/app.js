@@ -1,1 +1,1 @@
-app = angular.module('parallel', ['ngRoute', 'ngCookies', 'ui.bootstrap', 'treeControl']);
+app = angular.module('parallel', ['ngRoute', 'ngCookies', 'ui.bootstrap', 'ui.ace', 'treeControl']);

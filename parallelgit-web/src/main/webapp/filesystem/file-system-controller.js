@@ -1,4 +1,4 @@
-app.controller('FileSystemController', function($scope, WorkspaceService) {
+app.controller('FileSystemController', function($rootScope, $scope, WorkspaceService) {
 
   $scope.requests = null;
   $scope.root = null;
@@ -24,8 +24,8 @@ app.controller('FileSystemController', function($scope, WorkspaceService) {
     return request;
   }
 
-  function requestFiles(dir) {
-    var request = WorkspaceService.request('files', dir);
+  function requestDirectory(dir) {
+    var request = WorkspaceService.request('directory', dir);
     addPendingRequest(request);
   }
 
@@ -59,59 +59,34 @@ app.controller('FileSystemController', function($scope, WorkspaceService) {
   }
 
   $scope.select = function(node) {
-    console.log(node.name);
+    $rootScope.$broadcast('open-file', node.path);
   };
 
   $scope.toggleNode = function(node, expanded) {
     if(expanded && node.children == null) {
       node.children = [];
-      requestFiles(node.path);
+      requestDirectory(node.path);
     }
   };
 
   $scope.$on('head', function() {
     reset();
-    requestFiles('/');
+    requestDirectory('/');
   });
 
-  $scope.$on('files', function(event, response) {
+  $scope.$on('directory', function(event, response) {
     var request = removePendingRequest(response.rid);
     var dir = request.target;
     var files = response.data;
     updateTree(dir, files);
   });
 
-
   $scope.treeOptions = {
     nodeChildren: 'children',
     dirSelectable: false,
     isLeaf: function(node) {
       return node.type == 'REGULAR_FILE'
-    },
-    injectClasses: {
-      ul: "a1",
-      li: "a2",
-      liSelected: "a7",
-      iExpanded: "a3",
-      iCollapsed: "a4",
-      iLeaf: "a5",
-      label: "a6",
-      labelSelected: "a8"
     }
   };
 
-  $scope.dataForTheTree =
-    [
-      { "name" : "Joe", "age" : "21", "children" : [
-        { "name" : "Smith", "age" : "42", "children" : [] },
-        { "name" : "Gary", "age" : "21", "children" : [
-          { "name" : "Jenifer", "age" : "23", "children" : [
-            { "name" : "Dani", "age" : "32", "children" : [] },
-            { "name" : "Max", "age" : "34", "children" : [] }
-          ]}
-        ]}
-      ]},
-      { "name" : "Albert", "age" : "33", "children" : [] },
-      { "name" : "Ron", "age" : "29", "children" : [] }
-    ];
 });

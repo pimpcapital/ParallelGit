@@ -36,8 +36,10 @@ public class Workspace implements Closeable {
         return getHead();
       case "branches":
         return getBranches();
-      case "files":
-        return getFiles(request.getTarget());
+      case "directory":
+        return getDirectory(request.getTarget());
+      case "file":
+        return getFile(request.getTarget());
       case "checkout":
         return checkout(request.getValue());
       default:
@@ -57,16 +59,22 @@ public class Workspace implements Closeable {
   }
 
   @Nonnull
-  public List<FileEntry> getFiles(@Nonnull String dir) throws IOException {
+  public List<FileEntry> getDirectory(@Nonnull String path) throws IOException {
     checkFileSystemInitialized();
     List<FileEntry> ret = new ArrayList<>();
-    try(DirectoryStream<Path> children = Files.newDirectoryStream(gfs.getPath(dir))) {
+    try(DirectoryStream<Path> children = Files.newDirectoryStream(gfs.getPath(path))) {
       for(Path child : children) {
         ret.add(FileEntry.read(child));
       }
     }
     Collections.sort(ret);
     return ret;
+  }
+
+  @Nonnull
+  public String getFile(@Nonnull String path) throws IOException {
+    checkFileSystemInitialized();
+    return new String(Files.readAllBytes(gfs.getPath(path)));
   }
 
   @Nonnull
