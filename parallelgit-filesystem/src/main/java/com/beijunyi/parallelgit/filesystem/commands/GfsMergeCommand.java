@@ -65,7 +65,7 @@ public final class GfsMergeCommand extends GfsCommand<GfsMergeCommand.Result> {
     prepareMessage();
 
     if(isUpToDate()) {
-
+      terminateMerge();
       return Result.upToDate(headCommit);
     }
 

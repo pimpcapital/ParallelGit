@@ -30,9 +30,15 @@ public class RootNode extends DirectoryNode {
     return super.getObjectId(persist);
   }
 
+  @Nonnull
+  @Override
+  public TreeSnapshot getSnapshot(boolean persist) throws IOException {
+    return super.getSnapshot(persist);
+  }
+
   @Nullable
   @Override
-  public TreeSnapshot takeSnapshot(boolean persist) throws IOException {
+  protected TreeSnapshot takeSnapshot(boolean persist) throws IOException {
     return takeSnapshot(persist, true);
   }
 }

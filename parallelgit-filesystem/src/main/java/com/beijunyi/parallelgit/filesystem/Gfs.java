@@ -4,6 +4,7 @@ import java.io.File;
 import java.io.IOException;
 import javax.annotation.Nonnull;
 
+import com.beijunyi.parallelgit.filesystem.commands.GfsCheckoutCommand;
 import com.beijunyi.parallelgit.filesystem.commands.GfsCommitCommand;
 import com.beijunyi.parallelgit.filesystem.commands.GfsMergeCommand;
 import com.beijunyi.parallelgit.filesystem.utils.GfsConfiguration;
@@ -53,6 +54,11 @@ public final class Gfs {
   @Nonnull
   public static GitFileSystem newFileSystem(@Nonnull AnyObjectId commit, @Nonnull Repository repo) throws IOException {
     return newFileSystem(repo(repo).commit(commit));
+  }
+
+  @Nonnull
+  public static GfsCheckoutCommand checkout(@Nonnull GitFileSystem gfs) {
+    return new GfsCheckoutCommand(gfs);
   }
 
   @Nonnull

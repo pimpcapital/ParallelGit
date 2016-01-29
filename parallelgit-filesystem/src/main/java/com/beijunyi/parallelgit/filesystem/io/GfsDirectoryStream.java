@@ -20,8 +20,7 @@ public class GfsDirectoryStream implements DirectoryStream<Path> {
   public GfsDirectoryStream(@Nonnull DirectoryNode dir, @Nonnull GitPath parent, @Nullable Filter<? super Path> filter) throws IOException {
     this.parent = parent;
     this.filter = filter;
-    children = new ArrayList<>(dir.getChildren().keySet());
-    Collections.sort(children);
+    children = dir.listChildren();
   }
 
   @Nonnull

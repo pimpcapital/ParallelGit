@@ -14,9 +14,9 @@ import static org.eclipse.jgit.lib.FileMode.*;
 
 public abstract class Node<Snapshot extends ObjectSnapshot> {
 
-  protected final DirectoryNode parent;
   protected final GfsObjectService objService;
 
+  protected volatile DirectoryNode parent;
   protected volatile AnyObjectId originId;
   protected volatile AnyObjectId id;
 
@@ -89,10 +89,7 @@ public abstract class Node<Snapshot extends ObjectSnapshot> {
   public abstract void reset(@Nonnull AnyObjectId id);
 
   @Nullable
-  public abstract Snapshot loadSnapshot() throws IOException;
-
-  @Nullable
-  public abstract Snapshot takeSnapshot(boolean persist) throws IOException;
+  public abstract Snapshot getSnapshot(boolean persist) throws IOException;
 
   public abstract boolean isInitialized();
 
@@ -105,5 +102,12 @@ public abstract class Node<Snapshot extends ObjectSnapshot> {
       parent.propagateChange();
     }
   }
+
+  protected void disconnectParent() {
+    parent = null;
+  }
+
+  @Nullable
+  protected abstract Snapshot takeSnapshot(boolean persist) throws IOException;
 
 }
