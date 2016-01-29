@@ -8,7 +8,7 @@ app.controller('FileSystemController', function($scope, WorkspaceService) {
 
   function reset() {
     $scope.requests = {};
-    $scope.root = {name: '/', children : []};
+    $scope.root = {name: '/', path: '/', children : []};
     $scope.tree = [$scope.root];
     $scope.expanded = [];
   }
@@ -41,13 +41,14 @@ app.controller('FileSystemController', function($scope, WorkspaceService) {
     return current;
   }
 
-  function createFileNode(file) {
+  function createFileNode(dir, file) {
+    file.path = dir.path + '/' + file.name;
     return file;
   }
 
   function populateDirectory(dir, files) {
     angular.forEach(files, function(file) {
-      var node = createFileNode(file);
+      var node = createFileNode(dir, file);
       dir.children.push(node);
     });
   }

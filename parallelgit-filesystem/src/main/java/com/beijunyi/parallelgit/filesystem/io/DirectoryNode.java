@@ -20,13 +20,13 @@ public class DirectoryNode extends Node<TreeSnapshot> {
   private ConcurrentMap<String, Node> children;
 
   protected DirectoryNode(@Nullable AnyObjectId id, @Nonnull GfsObjectService objService) {
-    super(id, objService);
+    super(id, FileMode.TREE, objService);
     if(id == null)
       setupEmptyDirectory();
   }
 
   protected DirectoryNode(@Nullable AnyObjectId id, @Nonnull DirectoryNode parent) {
-    super(id, parent);
+    super(id, FileMode.TREE, parent);
     if(id == null)
       setupEmptyDirectory();
   }
@@ -54,15 +54,36 @@ public class DirectoryNode extends Node<TreeSnapshot> {
 
   @Override
   public void setMode(@Nonnull FileMode mode) {
-    if(mode.equals(TREE))
-      throw new IllegalArgumentException(mode.toString());
+    checkFileMode(mode);
   }
 
   @Override
-  public synchronized void reset(@Nonnull AnyObjectId id) {
+  public synchronized void reset(@Nonnull AnyObjectId id, @Nonnull FileMode mode) {
+    checkFileMode(mode);
     this.id = id;
     children = null;
     propagateChange();
+  }
+
+  @Override
+  public synchronized void updateOrigin(@Nonnull AnyObjectId id, @Nonnull FileMode mode) throws IOException {
+    checkFileMode(mode);
+    if(children != null) {
+      TreeSnapshot snapshot = objService.readTree(id);
+      for(Map.Entry<String, GitFileEntry> child : snapshot.getChildren().entrySet()) {
+        String name = child.getKey();
+        Node node = children.get(name);
+        if(node != null) {
+          GitFileEntry entry = child.getValue();
+          node.updateOrigin(entry.getId(), entry.getMode());
+        }
+      }
+    }
+    originId = getObjectId(true);
+  }
+
+  public void updateOrigin(@Nonnull AnyObjectId id) throws IOException {
+    updateOrigin(id, FileMode.TREE);
   }
 
   @Nullable
@@ -85,7 +106,7 @@ public class DirectoryNode extends Node<TreeSnapshot> {
         ret.addChild(name, node.clone(ret), false);
       }
     } else {
-      ret.reset(id);
+      ret.reset(id, mode);
       parent.getObjService().pullObject(id, objService);
     }
     return ret;
@@ -194,6 +215,11 @@ public class DirectoryNode extends Node<TreeSnapshot> {
 
   private void setupEmptyDirectory() {
     children = new ConcurrentHashMap<>();
+  }
+
+  private static void checkFileMode(@Nonnull FileMode mode) {
+    if(!mode.equals(TREE))
+      throw new IllegalArgumentException(mode.toString());
   }
 
 }

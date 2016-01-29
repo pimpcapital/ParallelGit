@@ -12,12 +12,11 @@ import static org.eclipse.jgit.lib.FileMode.*;
 
 public class FileNode extends Node<BlobSnapshot> {
 
-  private FileMode mode;
   private byte[] bytes;
   private long size = -1;
 
   private FileNode(@Nullable AnyObjectId id, @Nonnull FileMode mode, @Nonnull DirectoryNode parent) {
-    super(id, parent);
+    super(id, mode, parent);
     this.mode = mode;
     if(id == null)
       bytes = new byte[0];
@@ -60,18 +59,24 @@ public class FileNode extends Node<BlobSnapshot> {
 
   @Override
   public void setMode(@Nonnull FileMode mode) {
-    if(mode.equals(TREE) || mode.equals(GITLINK))
-      throw new IllegalArgumentException(mode.toString());
+    checkFileMode(mode);
     this.mode = mode;
-    id = null;
     propagateChange();
   }
 
   @Override
-  public synchronized void reset(@Nonnull AnyObjectId id) {
+  public synchronized void reset(@Nonnull AnyObjectId id, @Nonnull FileMode mode) {
+    checkFileMode(mode);
     this.id = id;
+    this.mode = mode;
     bytes = null;
     propagateChange();
+  }
+
+  @Override
+  public void updateOrigin(@Nonnull AnyObjectId id, @Nonnull FileMode mode) throws IOException {
+    originId = id;
+    originMode = mode;
   }
 
   @Nullable
@@ -106,7 +111,7 @@ public class FileNode extends Node<BlobSnapshot> {
     if(bytes != null)
       ret.bytes = bytes;
     else {
-      ret.reset(id);
+      ret.reset(id, mode);
       parent.getObjService().pullObject(id, objService);
     }
     return ret;
@@ -133,6 +138,11 @@ public class FileNode extends Node<BlobSnapshot> {
       bytes = snapshot != null ? snapshot.getBytes() : new byte[0];
       size = bytes.length;
     }
+  }
+
+  private static void checkFileMode(@Nonnull FileMode mode) {
+    if(mode.equals(TREE) || mode.equals(GITLINK))
+      throw new IllegalArgumentException(mode.toString());
   }
 
 }

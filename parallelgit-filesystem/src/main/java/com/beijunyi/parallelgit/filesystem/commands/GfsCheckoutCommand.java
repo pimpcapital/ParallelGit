@@ -43,6 +43,7 @@ public final class GfsCheckoutCommand extends GfsCommand<GfsCheckoutCommand.Resu
     update.state(NORMAL);
     if(checkout.hasConflicts())
       return Result.checkoutConflicts(checkout.getConflicts());
+    store.getRoot().updateOrigin(targetCommit.getTree());
     updateHead(update);
     return Result.success();
   }
