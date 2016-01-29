@@ -1,7 +1,7 @@
 <div ng-controller="FileSystemController">
 
   <div ng-if="tree != null">
-    <treecontrol class="tree-classic" tree-model="tree" expanded-nodes="expanded" options="treeOptions" on-selection="showSelected(node)" selected-node="node1">
+    <treecontrol class="tree-classic" tree-model="tree" expanded-nodes="expanded" options="treeOptions" on-selection="select(node)" on-node-toggle="toggleNode(node, expanded)">
       {{node.name}}
     </treecontrol>
   </div>

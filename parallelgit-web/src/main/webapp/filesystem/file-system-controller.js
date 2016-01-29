@@ -57,6 +57,14 @@ app.controller('FileSystemController', function($scope, WorkspaceService) {
     populateDirectory(dir, files);
   }
 
+  $scope.select = function(node) {
+    console.log(node.name);
+  };
+
+  $scope.toggleNode = function(node, expanded) {
+    console.log(node.name);
+  };
+
   $scope.$on('head', function() {
     requestFiles('/');
   });
@@ -69,11 +77,9 @@ app.controller('FileSystemController', function($scope, WorkspaceService) {
   });
 
 
-
-
   $scope.treeOptions = {
     nodeChildren: "children",
-    dirSelectable: true,
+    dirSelectable: false,
     injectClasses: {
       ul: "a1",
       li: "a2",
