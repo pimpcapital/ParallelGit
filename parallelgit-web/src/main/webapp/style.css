@@ -20,6 +20,10 @@
   height: 100%;
 }
 
+.tree-label {
+  white-space: nowrap;
+}
+
 #nav {
   position: absolute;
   top: 0;
