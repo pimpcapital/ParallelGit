@@ -8,7 +8,7 @@ app.controller('FileSystemController', function($scope, WorkspaceService) {
 
   function reset() {
     $scope.requests = {};
-    $scope.root = {name: '/', path: '/', children : []};
+    $scope.root = {name: '/', path: '', children : []};
     $scope.tree = [$scope.root];
     $scope.expanded = [];
   }
@@ -26,7 +26,6 @@ app.controller('FileSystemController', function($scope, WorkspaceService) {
 
   function requestFiles(dir) {
     var request = WorkspaceService.request('files', dir);
-    reset();
     addPendingRequest(request);
   }
 
@@ -50,13 +49,13 @@ app.controller('FileSystemController', function($scope, WorkspaceService) {
     angular.forEach(files, function(file) {
       var node = createFileNode(dir, file);
       dir.children.push(node);
+      dir.children[node.name] = node;
     });
   }
 
   function updateTree(path, files) {
     var dir = findDirectory(path);
     populateDirectory(dir, files);
-    $scope.expanded.push(dir);
   }
 
   $scope.select = function(node) {
@@ -64,10 +63,14 @@ app.controller('FileSystemController', function($scope, WorkspaceService) {
   };
 
   $scope.toggleNode = function(node, expanded) {
-    console.log(node.name);
+    if(expanded && node.children == null) {
+      node.children = [];
+      requestFiles(node.path);
+    }
   };
 
   $scope.$on('head', function() {
+    reset();
     requestFiles('/');
   });
 
