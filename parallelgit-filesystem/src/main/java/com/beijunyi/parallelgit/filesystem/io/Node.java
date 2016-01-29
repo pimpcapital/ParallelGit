@@ -83,6 +83,12 @@ public abstract class Node<Snapshot extends ObjectSnapshot> {
     return getObjectId(false) != null;
   }
 
+  public void reset() {
+    if(originId == null)
+      throw new IllegalStateException();
+    reset(originId);
+  }
+
   public abstract long getSize() throws IOException;
 
   @Nonnull

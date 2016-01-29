@@ -8,12 +8,11 @@ import com.beijunyi.parallelgit.filesystem.*;
 import com.beijunyi.parallelgit.filesystem.exceptions.BadGfsStateException;
 import org.eclipse.jgit.lib.Repository;
 
-import static com.beijunyi.parallelgit.filesystem.GfsState.MERGING;
-
 public abstract class GfsCommand<Result extends GfsCommandResult> {
 
   protected final GitFileSystem gfs;
   protected final GfsStatusProvider status;
+  protected final GfsFileStore store;
   protected final Repository repo;
 
   protected boolean executed = false;
@@ -21,6 +20,7 @@ public abstract class GfsCommand<Result extends GfsCommandResult> {
   protected GfsCommand(@Nonnull GitFileSystem gfs) {
     this.gfs = gfs;
     this.status = gfs.getStatusProvider();
+    this.store = gfs.getFileStore();
     this.repo = gfs.getRepository();
   }
 

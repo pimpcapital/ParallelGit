@@ -8,22 +8,15 @@ app.service('WorkspaceService', function(ConnectionService) {
     return _p8() + _p8(true) + _p8(true) + _p8();
   }
 
-  this.request = function(type, target) {
+  this.request = function(type, target, value) {
     var request = {
       rid: guid(),
       target: target,
-      type: type
+      type: type,
+      value: value
     };
     ConnectionService.send('request', request);
     return request;
   };
-
-  this.update = function(type, target, value) {
-    ConnectionService.send('update', {
-      target: target,
-      type: type,
-      value: value
-    })
-  }
 
 });

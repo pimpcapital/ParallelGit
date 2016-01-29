@@ -14,6 +14,15 @@ app.controller('BranchController', function($scope, $cookies, WorkspaceService) 
     requestBranches();
   });
 
+  $scope.$on('checkout', function() {
+    requestHead();
+  });
+
+  function requestHead() {
+    $scope.head = null;
+    WorkspaceService.request('head');
+  }
+
   function requestBranches() {
     $scope.branches = null;
     WorkspaceService.request('branches');
@@ -21,7 +30,7 @@ app.controller('BranchController', function($scope, $cookies, WorkspaceService) 
 
   function checkout(branch) {
     $scope.head = null;
-    WorkspaceService.update('checkout', null, branch);
+    WorkspaceService.request('checkout', null, branch);
   }
 
   function checkoutDefaultBranch() {

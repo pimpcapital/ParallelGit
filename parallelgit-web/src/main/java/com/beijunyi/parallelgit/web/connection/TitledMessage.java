@@ -28,7 +28,7 @@ public class TitledMessage {
   }
 
   @Nonnull
-  public static TitledMessage resource(@Nonnull String type, @Nullable String rid, @Nonnull Object data) {
+  public static TitledMessage resource(@Nonnull String type, @Nonnull String rid, @Nonnull Object data) {
     return new TitledMessage(type, new MessageData(rid, data));
   }
 

@@ -55,6 +55,7 @@ app.controller('FileSystemController', function($scope, WorkspaceService) {
   function updateTree(path, files) {
     var dir = findDirectory(path);
     populateDirectory(dir, files);
+    $scope.expanded.push(dir);
   }
 
   $scope.select = function(node) {
@@ -78,8 +79,11 @@ app.controller('FileSystemController', function($scope, WorkspaceService) {
 
 
   $scope.treeOptions = {
-    nodeChildren: "children",
+    nodeChildren: 'children',
     dirSelectable: false,
+    isLeaf: function(node) {
+      return node.type == 'REGULAR_FILE'
+    },
     injectClasses: {
       ul: "a1",
       li: "a2",
