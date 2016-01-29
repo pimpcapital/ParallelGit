@@ -7,7 +7,7 @@ import javax.annotation.Nonnull;
 import com.beijunyi.parallelgit.filesystem.io.GitFileAttributeView;
 import org.eclipse.jgit.lib.FileMode;
 
-public class FileEntry {
+public class FileEntry implements Comparable<FileEntry> {
 
   private final String name;
   private final FileType type;
@@ -28,6 +28,29 @@ public class FileEntry {
     return new FileEntry(name, type, state);
   }
 
+  @Override
+  public int compareTo(@Nonnull FileEntry that) {
+    int typeCompare = getType().compareTo(that.getType());
+    if(typeCompare != 0)
+      return typeCompare;
+    return getName().compareTo(that.getName());
+  }
+
+  @Nonnull
+  public String getName() {
+    return name;
+  }
+
+  @Nonnull
+  public FileType getType() {
+    return type;
+  }
+
+  @Nonnull
+  public FileState getState() {
+    return state;
+  }
+
   @Nonnull
   private static FileType readType(@Nonnull GitFileAttributeView view) {
     FileMode mode = view.getFileMode();
@@ -45,19 +68,6 @@ public class FileEntry {
     return FileState.NORMAL;
   }
 
-  @Nonnull
-  public String getName() {
-    return name;
-  }
 
-  @Nonnull
-  public FileType getType() {
-    return type;
-  }
-
-  @Nonnull
-  public FileState getState() {
-    return state;
-  }
 
 }

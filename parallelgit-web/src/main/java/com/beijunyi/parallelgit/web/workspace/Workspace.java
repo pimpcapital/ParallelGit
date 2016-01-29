@@ -65,6 +65,7 @@ public class Workspace implements Closeable {
         ret.add(FileEntry.read(child));
       }
     }
+    Collections.sort(ret);
     return ret;
   }
 
