@@ -9,9 +9,10 @@ import java.util.*;
 import javax.annotation.Nonnull;
 
 import com.beijunyi.parallelgit.filesystem.Gfs;
-import com.beijunyi.parallelgit.filesystem.GfsStatusProvider;
 import com.beijunyi.parallelgit.filesystem.GitFileSystem;
 import com.beijunyi.parallelgit.utils.BranchUtils;
+import com.beijunyi.parallelgit.web.data.FileEntry;
+import com.beijunyi.parallelgit.web.data.Head;
 import org.eclipse.jgit.lib.Repository;
 
 public class Workspace implements Closeable {
@@ -29,29 +30,27 @@ public class Workspace implements Closeable {
   }
 
   @Nonnull
-  public Object getData(@Nonnull DataRequest request) throws IOException {
+  public Object processRequest(@Nonnull WorkspaceRequest request) throws IOException {
     switch(request.getType()) {
+      case "head":
+        return getHead();
       case "branches":
         return getBranches();
-      case "files":
-        return getFiles(request.getTarget());
+      case "directory":
+        return getDirectory(request.getTarget());
+      case "file":
+        return getFile(request.getTarget());
+      case "checkout":
+        return checkout(request.getValue());
       default:
         throw new UnsupportedOperationException(request.getType());
     }
   }
 
   @Nonnull
-  public Map<String, Object> updateData(@Nonnull DataUpdate update) throws IOException {
-    Map<String, Object> updated = new HashMap<>();
-    switch(update.getType()) {
-      case "checkout":
-        checkout(update.getValue());
-        updated.put("head", getHead());
-        break;
-      default:
-        throw new UnsupportedOperationException();
-    }
-    return updated;
+  public Head getHead() throws IOException {
+    checkFileSystemInitialized();
+    return Head.of(gfs);
   }
 
   @Nonnull
@@ -60,43 +59,42 @@ public class Workspace implements Closeable {
   }
 
   @Nonnull
-  public String getHead() {
-    if(gfs == null)
-      throw new IllegalStateException();
-    GfsStatusProvider status = gfs.getStatusProvider();
-    if(status.isAttached())
-      return status.branch();
-    if(status.isInitialized())
-      return status.commit().name();
-    throw new IllegalStateException();
-  }
-
-  @Nonnull
-  public List<FileEntry> getFiles(@Nonnull String dir) throws IOException {
+  public List<FileEntry> getDirectory(@Nonnull String path) throws IOException {
+    checkFileSystemInitialized();
     List<FileEntry> ret = new ArrayList<>();
-    try(DirectoryStream<Path> children = Files.newDirectoryStream(gfs.getPath(dir))) {
+    try(DirectoryStream<Path> children = Files.newDirectoryStream(gfs.getPath(path))) {
       for(Path child : children) {
         ret.add(FileEntry.read(child));
       }
     }
+    Collections.sort(ret);
     return ret;
   }
 
+  @Nonnull
+  public String getFile(@Nonnull String path) throws IOException {
+    checkFileSystemInitialized();
+    return new String(Files.readAllBytes(gfs.getPath(path)));
+  }
 
-
-
-  public void checkout(@Nonnull String branch) throws IOException {
+  @Nonnull
+  public CheckoutResult checkout(@Nonnull String branch) throws IOException {
     if(gfs == null) {
       gfs = Gfs.newFileSystem(branch, repo);
-      return;
+      return CheckoutResult.success();
     }
-    throw new UnsupportedOperationException();
+    return CheckoutResult.wrap(Gfs.checkout(gfs).setTarget(branch).execute());
   }
 
   @Override
   public void close() throws IOException {
     if(gfs != null)
       gfs.close();
+  }
+
+  private void checkFileSystemInitialized() {
+    if(gfs == null)
+      throw new IllegalStateException();
   }
 
 }

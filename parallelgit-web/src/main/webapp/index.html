@@ -8,13 +8,15 @@
 </head>
 <body ng-app="parallel" ng-controller="MainController">
 <div ng-show="ready">
-  <div ng-include="'navigation/navbar.html'"></div>
-  <div class="container">
-    <div class="row">
-      <div class="col-md-4">
+  <div id="nav" ng-include="'navigation/navbar.html'"></div>
+  <div id="main" class="container">
+    <div class="row fill-height">
+      <div class="col-md-4 fill-height">
         <div ng-include="'filesystem/filetree.html'"></div>
       </div>
-      <div class="col-md-8"></div>
+      <div class="col-md-8 fill-height">
+        <div class="fill-height" ng-include="'filesystem/editor.html'"></div>
+      </div>
     </div>
   </div>
 </div>
@@ -23,9 +25,13 @@
 <script src="https://cdnjs.cloudflare.com/ajax/libs/angular.js/1.4.9/angular-route.min.js"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/angular.js/1.4.9/angular-cookies.min.js"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/angular-ui-bootstrap/1.1.1/ui-bootstrap-tpls.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/ace/1.2.3/ace.js"></script>
 <script src="lib/angular-tree-control/angular-tree-control.js"></script>
+<script src="lib/ui-ace/ui-ace.js"></script>
 <script src="app.js"></script>
 <script src="filesystem/file-system-controller.js"></script>
+<script src="filesystem/file-editor-controller.js"></script>
+<script src="filesystem/filename-filter.js"></script>
 <script src="system/connection-service.js"></script>
 <script src="system/encode-service.js"></script>
 <script src="system/decode-service.js"></script>
@@ -33,6 +39,7 @@
 <script src="system/workspace-service.js"></script>
 <script src="system/security-service.js"></script>
 <script src="navigation/branch-controller.js"></script>
+<script src="navigation/head-filter.js"></script>
 <script src="main-controller.js"></script>
 </body>
 </html>

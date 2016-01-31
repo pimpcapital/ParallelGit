@@ -19,17 +19,23 @@ public abstract class Node<Snapshot extends ObjectSnapshot> {
   protected volatile DirectoryNode parent;
   protected volatile AnyObjectId originId;
   protected volatile AnyObjectId id;
+  protected volatile FileMode originMode;
+  protected volatile FileMode mode;
 
-  protected Node(@Nullable AnyObjectId id, @Nonnull GfsObjectService objService) {
+  protected Node(@Nullable AnyObjectId id, @Nullable FileMode mode, @Nonnull GfsObjectService objService) {
     this.originId = id;
     this.id = id;
+    this.originMode = mode;
+    this.mode = mode;
     this.parent = null;
     this.objService = objService;
   }
 
-  protected Node(@Nullable AnyObjectId id, @Nonnull DirectoryNode parent) {
+  protected Node(@Nullable AnyObjectId id, @Nullable FileMode mode, @Nonnull DirectoryNode parent) {
     this.originId = id;
     this.id = id;
+    this.originMode = mode;
+    this.mode = mode;
     this.parent = parent;
     this.objService = parent.getObjService();
   }
@@ -73,20 +79,34 @@ public abstract class Node<Snapshot extends ObjectSnapshot> {
     return id;
   }
 
+  @Nonnull
+  public FileMode getMode() {
+    return mode;
+  }
+
+  public boolean isNew() throws IOException {
+    return originId == null && getObjectId(false) != null;
+  }
+
   public boolean isDirty() throws IOException {
     if(originId != null)
       return !originId.equals(getObjectId(false));
     return getObjectId(false) != null;
   }
 
-  public abstract long getSize() throws IOException;
+  public void reset() {
+    if(originId == null)
+      throw new IllegalStateException();
+    reset(originId, originMode);
+  }
 
-  @Nonnull
-  public abstract FileMode getMode();
+  public abstract long getSize() throws IOException;
 
   public abstract void setMode(@Nonnull FileMode mode);
 
-  public abstract void reset(@Nonnull AnyObjectId id);
+  public abstract void reset(@Nonnull AnyObjectId id, @Nonnull FileMode mode);
+
+  public abstract void updateOrigin(@Nonnull AnyObjectId id, @Nonnull FileMode mode) throws IOException;
 
   @Nullable
   public abstract Snapshot getSnapshot(boolean persist) throws IOException;

@@ -48,7 +48,8 @@ public class GfsCheckout {
   public void checkout(@Nonnull AbstractTreeIterator iterator) throws IOException {
     TreeWalk tw = prepareTreeWalk(iterator);
     collectChanges(tw);
-    applyChanges();
+    if(!hasConflicts())
+      applyChanges();
   }
 
   public void checkout(@Nonnull AnyObjectId tree) throws IOException {
@@ -60,7 +61,7 @@ public class GfsCheckout {
   }
 
   public boolean hasConflicts() {
-    return !changes.isEmpty();
+    return changes.hasConflicts();
   }
 
   @Nonnull

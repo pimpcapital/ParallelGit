@@ -5,20 +5,22 @@ import javax.annotation.Nullable;
 
 import com.beijunyi.parallelgit.web.connection.MessageData;
 
-public class DataRequest {
+public class WorkspaceRequest {
 
   private final String rid;
   private final String type;
   private final String target;
+  private final String value;
 
-  public DataRequest(@Nonnull String rid, @Nonnull String type, @Nullable String target) {
+  public WorkspaceRequest(@Nonnull String rid, @Nonnull String type, @Nullable String target, @Nullable String value) {
     this.rid = rid;
     this.type = type;
     this.target = target;
+    this.value = value;
   }
 
-  public DataRequest(@Nonnull MessageData msg) {
-    this(msg.getString("rid"), msg.getString("type"), msg.getString("target"));
+  public WorkspaceRequest(@Nonnull MessageData msg) {
+    this(msg.getString("rid"), msg.getString("type"), msg.getString("target"), msg.getString("value"));
   }
 
   @Nonnull
@@ -38,4 +40,10 @@ public class DataRequest {
     return target;
   }
 
+  @Nonnull
+  public String getValue() {
+    if(value == null)
+      throw new IllegalStateException();
+    return value;
+  }
 }

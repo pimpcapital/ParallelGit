@@ -36,9 +36,6 @@ public class EndPoint {
       case "request":
         processRequest(msg.getData(), session);
         break;
-      case "update":
-        processUpdate(msg.getData(), session);
-        break;
       default:
         throw new UnsupportedOperationException();
     }
@@ -56,19 +53,9 @@ public class EndPoint {
   }
 
   private void processRequest(@Nonnull MessageData msg, @Nonnull Session session) throws EncodeException, IOException {
-    DataRequest request = new DataRequest(msg);
-    Object data = workspace.getData(request);
+    WorkspaceRequest request = new WorkspaceRequest(msg);
+    Object data = workspace.processRequest(request);
     session.getBasicRemote().sendObject(TitledMessage.resource(request.getType(), request.getRequestId(), data));
-  }
-
-  private void processUpdate(@Nonnull MessageData msg, @Nonnull Session session) throws EncodeException, IOException {
-    DataUpdate update = new DataUpdate(msg);
-    Map<String, Object> updated = workspace.updateData(update);
-    for(Map.Entry<String, Object> entry : updated.entrySet()) {
-      String type = entry.getKey();
-      Object data = entry.getValue();
-      session.getBasicRemote().sendObject(TitledMessage.resource(type, null, data));
-    }
   }
 
 }

@@ -1,0 +1,9 @@
+<div class="fill-height" ng-controller="FileEditorController">
+  <uib-tabset class="fill-height" ng-if="files != null">
+    <uib-tab ng-repeat="(path, data) in files">
+      <uib-tab-heading>{{path | filename}}</uib-tab-heading>
+      <div class="fill-height" ui-ace ng-model="data"></div>
+    </uib-tab>
+  </uib-tabset>
+
+</div>
