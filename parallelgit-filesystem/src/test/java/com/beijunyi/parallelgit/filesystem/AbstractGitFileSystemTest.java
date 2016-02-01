@@ -6,6 +6,7 @@ import javax.annotation.Nonnull;
 
 import com.beijunyi.parallelgit.AbstractParallelGitTest;
 import org.eclipse.jgit.lib.Constants;
+import org.junit.After;
 
 public abstract class AbstractGitFileSystemTest extends AbstractParallelGitTest {
 
@@ -15,6 +16,12 @@ public abstract class AbstractGitFileSystemTest extends AbstractParallelGitTest 
   protected GfsStatusProvider status;
   protected GfsObjectService objService;
   protected GitPath root;
+
+  @After
+  public void closeFileSystem() throws IOException {
+    if(gfs != null)
+      gfs.close();
+  }
 
   protected void writeToGfs(@Nonnull String path, @Nonnull byte[] data) throws IOException {
     GitPath file = gfs.getPath(path);
@@ -35,7 +42,6 @@ public abstract class AbstractGitFileSystemTest extends AbstractParallelGitTest 
   protected void writeSomeFileToGfs() throws IOException {
     writeToGfs("some_file.txt");
   }
-
 
   protected void initGitFileSystemForBranch(@Nonnull String branch) throws IOException {
     assert repo != null;

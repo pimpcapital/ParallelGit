@@ -6,7 +6,6 @@ import java.util.*;
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 
-import org.eclipse.jgit.lib.AnyObjectId;
 import org.eclipse.jgit.lib.FileMode;
 
 import static java.nio.file.attribute.PosixFilePermission.OWNER_EXECUTE;
@@ -28,6 +27,8 @@ public abstract class GfsFileAttributeView implements FileAttributeView {
   public static final String OWNER_NAME = "owner";
   public static final String GROUP_NAME = "group";
 
+  public static final String IS_NEW = "isNew";
+  public static final String IS_MODIFIED = "isModified";
   public static final String OBJECT_ID = "objectId";
   public static final String FILE_MODE = "fileMode";
 
@@ -253,31 +254,14 @@ public abstract class GfsFileAttributeView implements FileAttributeView {
     }
 
     @Override
-    public boolean isNew() {
-      return false;
-    }
-
-    @Override
-    public boolean isModified() {
-      return false;
-    }
-
-    @Nullable
-    @Override
-    public AnyObjectId getObjectId() throws IOException {
-      return node.getObjectId(false);
+    public void setFileMode(@Nonnull FileMode mode) {
+      node.setMode(mode);
     }
 
     @Nonnull
     @Override
-    public FileMode getFileMode() {
-      return node.getMode();
-    }
-
-    @Nonnull
-    @Override
-    public PosixFileAttributes readAttributes() throws IOException {
-      throw new UnsupportedOperationException();
+    public GitFileAttributes readAttributes() throws IOException {
+      return new GfsFileAttributes.Git(this);
     }
 
     @Nonnull
@@ -290,11 +274,17 @@ public abstract class GfsFileAttributeView implements FileAttributeView {
       remainKeys.removeAll(result.keySet());
       for(String key : remainKeys) {
         switch(key) {
+          case IS_NEW:
+            result.put(key, node.isNew());
+            break;
+          case IS_MODIFIED:
+            result.put(key, node.isModified());
+            break;
           case OBJECT_ID:
-            result.put(key, getObjectId());
+            result.put(key, node.getObjectId(false));
             break;
           case FILE_MODE:
-            result.put(key, getFileMode());
+            result.put(key, node.getMode());
             break;
           default:
             throw new UnsupportedOperationException(key);
@@ -308,6 +298,8 @@ public abstract class GfsFileAttributeView implements FileAttributeView {
       Set<String> ret = new HashSet<>();
       ret.addAll(POSIX_KEYS);
       ret.addAll(Arrays.asList(
+        IS_NEW,
+        IS_MODIFIED,
         OBJECT_ID,
         FILE_MODE
       ));

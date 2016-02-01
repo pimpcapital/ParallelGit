@@ -85,10 +85,10 @@ public abstract class Node<Snapshot extends ObjectSnapshot> {
   }
 
   public boolean isNew() throws IOException {
-    return originId == null && getObjectId(false) != null;
+    return originId == null;
   }
 
-  public boolean isDirty() throws IOException {
+  public boolean isModified() throws IOException {
     if(originId != null)
       return !originId.equals(getObjectId(false));
     return getObjectId(false) != null;

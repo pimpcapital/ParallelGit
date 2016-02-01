@@ -7,13 +7,10 @@ import java.util.concurrent.locks.ReentrantLock;
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 
-import com.beijunyi.parallelgit.filesystem.exceptions.MergeNotStartedException;
 import com.beijunyi.parallelgit.filesystem.exceptions.NoBranchException;
 import com.beijunyi.parallelgit.filesystem.exceptions.NoHeadCommitException;
 import com.beijunyi.parallelgit.filesystem.merge.GfsMergeNote;
 import com.beijunyi.parallelgit.utils.RefUtils;
-import com.beijunyi.parallelgit.utils.io.TreeSnapshot;
-import org.eclipse.jgit.lib.AnyObjectId;
 import org.eclipse.jgit.revwalk.RevCommit;
 
 import static org.eclipse.jgit.lib.Constants.R_HEADS;
@@ -38,7 +35,7 @@ public class GfsStatusProvider implements AutoCloseable {
   }
 
   public boolean isDirty() throws IOException {
-    return fileStore.getRoot().isDirty();
+    return fileStore.getRoot().isModified();
   }
 
   @Nonnull

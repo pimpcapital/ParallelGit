@@ -4,6 +4,7 @@ import java.io.IOException;
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 
+import com.beijunyi.parallelgit.filesystem.exceptions.IncompatibleFileModeException;
 import com.beijunyi.parallelgit.utils.io.BlobSnapshot;
 import org.eclipse.jgit.lib.AnyObjectId;
 import org.eclipse.jgit.lib.FileMode;
@@ -140,9 +141,9 @@ public class FileNode extends Node<BlobSnapshot> {
     }
   }
 
-  private static void checkFileMode(@Nonnull FileMode mode) {
-    if(mode.equals(TREE) || mode.equals(GITLINK))
-      throw new IllegalArgumentException(mode.toString());
+  private void checkFileMode(@Nonnull FileMode proposed) {
+    if(TREE.equals(proposed) || GITLINK.equals(proposed))
+      throw new IncompatibleFileModeException(mode, proposed);
   }
 
 }

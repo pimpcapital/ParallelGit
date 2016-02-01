@@ -8,6 +8,7 @@ import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 
 import com.beijunyi.parallelgit.filesystem.GfsObjectService;
+import com.beijunyi.parallelgit.filesystem.exceptions.IncompatibleFileModeException;
 import com.beijunyi.parallelgit.utils.io.GitFileEntry;
 import com.beijunyi.parallelgit.utils.io.TreeSnapshot;
 import org.eclipse.jgit.lib.AnyObjectId;
@@ -217,9 +218,9 @@ public class DirectoryNode extends Node<TreeSnapshot> {
     children = new ConcurrentHashMap<>();
   }
 
-  private static void checkFileMode(@Nonnull FileMode mode) {
+  private void checkFileMode(@Nonnull FileMode mode) {
     if(!mode.equals(TREE))
-      throw new IllegalArgumentException(mode.toString());
+      throw new IncompatibleFileModeException(TREE, mode);
   }
 
 }

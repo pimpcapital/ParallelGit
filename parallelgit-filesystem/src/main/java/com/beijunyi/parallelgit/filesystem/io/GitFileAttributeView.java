@@ -10,14 +10,9 @@ import org.eclipse.jgit.lib.FileMode;
 
 public interface GitFileAttributeView extends PosixFileAttributeView {
 
-  boolean isNew();
-
-  boolean isModified();
-
-  @Nullable
-  AnyObjectId getObjectId() throws IOException;
-
   @Nonnull
-  FileMode getFileMode();
+  GitFileAttributes readAttributes() throws IOException;
+
+  void setFileMode(@Nonnull FileMode mode);
 
 }
