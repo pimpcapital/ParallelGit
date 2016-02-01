@@ -1,44 +1,49 @@
 package com.beijunyi.parallelgit.filesystem.io;
 
 import java.io.IOException;
+import java.util.Map;
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 
 import com.beijunyi.parallelgit.filesystem.GfsObjectService;
+import com.beijunyi.parallelgit.utils.io.GitFileEntry;
 import com.beijunyi.parallelgit.utils.io.TreeSnapshot;
 import org.eclipse.jgit.lib.AnyObjectId;
+import org.eclipse.jgit.lib.FileMode;
+import org.eclipse.jgit.revwalk.RevCommit;
+
+import static org.eclipse.jgit.lib.FileMode.TREE;
 
 public class RootNode extends DirectoryNode {
 
-  public RootNode(@Nullable AnyObjectId id, @Nonnull GfsObjectService objService) {
+  public RootNode(@Nonnull AnyObjectId id, @Nonnull GfsObjectService objService) {
     super(id, objService);
   }
 
+  public RootNode(@Nonnull GfsObjectService objService) {
+    super(objService);
+  }
+
   @Nonnull
-  public static RootNode fromObject(@Nonnull AnyObjectId id, @Nonnull GfsObjectService objService) {
-    return new RootNode(id, objService);
+  public static RootNode fromCommit(@Nonnull RevCommit commit, @Nonnull GfsObjectService objService) {
+    return new RootNode(commit.getTree(), objService);
   }
 
   @Nonnull
   public static RootNode newRoot(@Nonnull GfsObjectService objService) {
-    return new RootNode(null, objService);
+    return new RootNode(objService);
   }
 
   @Nonnull
   @Override
   public AnyObjectId getObjectId(boolean persist) throws IOException {
-    return super.getObjectId(persist);
+    AnyObjectId ret = super.getObjectId(persist);
+    assert ret != null;
+    return ret;
   }
 
-  @Nonnull
   @Override
-  public TreeSnapshot getSnapshot(boolean persist) throws IOException {
-    return super.getSnapshot(persist);
-  }
-
-  @Nullable
-  @Override
-  protected TreeSnapshot takeSnapshot(boolean persist) throws IOException {
-    return takeSnapshot(persist, true);
+  protected boolean isTrivial(@Nonnull Map<String, Node> data) {
+    return false;
   }
 }

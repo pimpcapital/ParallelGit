@@ -132,7 +132,7 @@ public class GfsTreeIterator extends WorkingTreeIterator {
   private static TreeSnapshot getSnapshot(@Nonnull GfsFileStore store) throws IOException {
     RootNode root = store.getRoot();
     TreeSnapshot ret = root.getSnapshot(true);
-    root.getObjService().flush();
+    root.getObjectService().flush();
     return ret;
   }
 

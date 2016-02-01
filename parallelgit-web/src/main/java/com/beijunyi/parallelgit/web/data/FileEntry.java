@@ -53,18 +53,18 @@ public class FileEntry implements Comparable<FileEntry> {
 
   @Nonnull
   private static FileType readType(@Nonnull GitFileAttributeView view) {
-    FileMode mode = view.getFileMode();
-    if(mode.equals(FileMode.TREE))
-      return FileType.DIRECTORY;
-    if(mode.equals(FileMode.REGULAR_FILE) || mode.equals(FileMode.EXECUTABLE_FILE))
-      return FileType.REGULAR_FILE;
+//    FileMode mode = view.getFileMode();
+//    if(mode.equals(FileMode.TREE))
+//      return FileType.DIRECTORY;
+//    if(mode.equals(FileMode.REGULAR_FILE) || mode.equals(FileMode.EXECUTABLE_FILE))
+//      return FileType.REGULAR_FILE;
     throw new UnsupportedOperationException();
   }
 
   @Nonnull
   private static FileState readState(@Nonnull GitFileAttributeView view) {
-    if(view.isModified())
-      return view.isNew() ? FileState.NEW : FileState.MODIFIED;
+//    if(view.isModified())
+//      return view.isNew() ? FileState.NEW : FileState.MODIFIED;
     return FileState.NORMAL;
   }
 

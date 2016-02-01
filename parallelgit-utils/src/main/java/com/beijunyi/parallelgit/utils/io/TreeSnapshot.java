@@ -5,7 +5,6 @@ import java.util.Map;
 import java.util.SortedMap;
 import java.util.TreeMap;
 import javax.annotation.Nonnull;
-import javax.annotation.Nullable;
 
 import com.beijunyi.parallelgit.utils.TreeUtils;
 import org.eclipse.jgit.lib.*;
@@ -14,8 +13,6 @@ import org.eclipse.jgit.treewalk.TreeWalk;
 import static java.util.Collections.unmodifiableSortedMap;
 
 public class TreeSnapshot extends ObjectSnapshot {
-
-  private static final TreeSnapshot EMPTY_TREE_SNAPSHOT = new TreeSnapshot(new TreeMap<String, GitFileEntry>());
 
   private final SortedMap<String, GitFileEntry> children;
 
@@ -49,16 +46,8 @@ public class TreeSnapshot extends ObjectSnapshot {
   }
 
   @Nonnull
-  public static TreeSnapshot emptySnapshot() {
-    return EMPTY_TREE_SNAPSHOT;
-  }
-
-  @Nullable
-  public static TreeSnapshot capture(@Nonnull SortedMap<String, GitFileEntry> children, boolean allowEmpty) {
-    if(!children.isEmpty())
-      return new TreeSnapshot(children);
-    else
-      return allowEmpty ? emptySnapshot() : null;
+  public static TreeSnapshot capture(@Nonnull SortedMap<String, GitFileEntry> children) {
+    return new TreeSnapshot(children);
   }
 
   @Nonnull

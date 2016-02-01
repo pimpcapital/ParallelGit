@@ -2,47 +2,55 @@ package com.beijunyi.parallelgit.filesystem.io;
 
 import java.io.IOException;
 import javax.annotation.Nonnull;
-import javax.annotation.Nullable;
 
 import com.beijunyi.parallelgit.filesystem.exceptions.IncompatibleFileModeException;
 import com.beijunyi.parallelgit.utils.io.BlobSnapshot;
-import org.eclipse.jgit.lib.AnyObjectId;
+import com.beijunyi.parallelgit.utils.io.GitFileEntry;
 import org.eclipse.jgit.lib.FileMode;
 
 import static org.eclipse.jgit.lib.FileMode.*;
 
-public class FileNode extends Node<BlobSnapshot> {
+public class FileNode extends Node<BlobSnapshot, byte[]> {
 
-  private byte[] bytes;
+  private static final byte[] EMPTY_BYTE_ARRAY = new byte[0];
+
   private long size = -1;
 
-  private FileNode(@Nullable AnyObjectId id, @Nonnull FileMode mode, @Nonnull DirectoryNode parent) {
-    super(id, mode, parent);
-    this.mode = mode;
-    if(id == null)
-      bytes = new byte[0];
+  private FileNode(@Nonnull GitFileEntry entry, @Nonnull DirectoryNode parent) {
+    super(entry, parent);
+  }
+
+  private FileNode(@Nonnull FileMode mode, @Nonnull DirectoryNode parent) {
+    super(mode, parent);
+  }
+
+  private FileNode(@Nonnull byte[] bytes, @Nonnull FileMode mode, @Nonnull DirectoryNode parent) {
+    super(bytes, mode, parent);
   }
 
   @Nonnull
-  protected static FileNode fromObject(@Nonnull AnyObjectId id, @Nonnull FileMode mode, @Nonnull DirectoryNode parent) {
-    return new FileNode(id, mode, parent);
+  protected static FileNode fromFile(@Nonnull GitFileEntry entry, @Nonnull DirectoryNode parent) {
+    return new FileNode(entry, parent);
   }
 
   @Nonnull
   public static FileNode fromBytes(@Nonnull byte[] bytes, @Nonnull FileMode mode, @Nonnull DirectoryNode parent) {
-    FileNode ret = new FileNode(null, mode, parent);
-    ret.bytes = bytes;
-    return ret;
+    return new FileNode(bytes, mode, parent);
   }
 
   @Nonnull
   public static FileNode newFile(@Nonnull FileMode mode, @Nonnull DirectoryNode parent) {
-    return new FileNode(null, mode, parent);
+    return new FileNode(mode, parent);
   }
 
   @Nonnull
   public static FileNode newFile(boolean executable, @Nonnull DirectoryNode parent) {
     return newFile(executable ? EXECUTABLE_FILE : REGULAR_FILE, parent);
+  }
+
+  @Override
+  protected Class<? extends BlobSnapshot> getSnapshotType() {
+    return BlobSnapshot.class;
   }
 
   public long getSize() throws IOException {
@@ -54,94 +62,48 @@ public class FileNode extends Node<BlobSnapshot> {
 
   @Nonnull
   @Override
-  public FileMode getMode() {
-    return mode;
+  protected byte[] getDefaultData() {
+    return EMPTY_BYTE_ARRAY;
+  }
+
+  @Nonnull
+  @Override
+  protected byte[] loadData(@Nonnull BlobSnapshot snapshot) {
+    return snapshot.getBytes();
   }
 
   @Override
-  public void setMode(@Nonnull FileMode mode) {
-    checkFileMode(mode);
-    this.mode = mode;
-    propagateChange();
+  protected boolean isTrivial(@Nonnull byte[] data) {
+    return false;
   }
 
+  @Nonnull
   @Override
-  public synchronized void reset(@Nonnull AnyObjectId id, @Nonnull FileMode mode) {
-    checkFileMode(mode);
-    this.id = id;
-    this.mode = mode;
-    bytes = null;
-    propagateChange();
-  }
-
-  @Override
-  public void updateOrigin(@Nonnull AnyObjectId id, @Nonnull FileMode mode) throws IOException {
-    originId = id;
-    originMode = mode;
-  }
-
-  @Nullable
-  @Override
-  public BlobSnapshot getSnapshot(boolean persist) throws IOException {
-    BlobSnapshot ret = takeSnapshot(persist);
-    if(ret == null && id != null)
-      ret = objService.readBlob(id);
-    return ret;
-  }
-
-  @Nullable
-  @Override
-  protected BlobSnapshot takeSnapshot(boolean persist) throws IOException {
-    if(bytes == null)
-      return null;
-    BlobSnapshot ret = BlobSnapshot.capture(bytes);
-    if(persist)
-      objService.write(ret);
-    return ret;
-  }
-
-  @Override
-  public boolean isInitialized() {
-    return bytes != null;
+  protected BlobSnapshot captureData(@Nonnull byte[] data, boolean persist) {
+    return BlobSnapshot.capture(data);
   }
 
   @Nonnull
   @Override
   public Node clone(@Nonnull DirectoryNode parent) throws IOException {
     FileNode ret = newFile(mode, parent);
-    if(bytes != null)
-      ret.bytes = bytes;
+    if(data != null)
+      ret.data = data;
     else {
-      ret.reset(id, mode);
-      parent.getObjService().pullObject(id, objService);
+      ret.reset(origin);
+      parent.getObjectService().pullObject(origin.getId(), objService);
     }
     return ret;
   }
 
-  @Nonnull
-  public byte[] getBytes() throws IOException {
-    if(bytes != null)
-      return bytes;
-    initBytes();
-    return bytes;
-  }
-
   public void setBytes(@Nonnull byte[] bytes) {
-    this.bytes = bytes;
+    this.data = bytes;
     this.size = bytes.length;
     id = null;
-    propagateChange();
+    invalidateParentCache();
   }
 
-  private synchronized void initBytes() throws IOException {
-    if(bytes == null) {
-      BlobSnapshot snapshot = id != null ? objService.readBlob(id) : null;
-      bytes = snapshot != null ? snapshot.getBytes() : new byte[0];
-      size = bytes.length;
-    }
-  }
-
-  private void checkFileMode(@Nonnull FileMode proposed) {
+  protected void checkFileMode(@Nonnull FileMode proposed) {
     if(TREE.equals(proposed) || GITLINK.equals(proposed))
       throw new IncompatibleFileModeException(mode, proposed);
   }

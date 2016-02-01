@@ -18,7 +18,7 @@ public class GfsSeekableByteChannel implements SeekableByteChannel {
 
   GfsSeekableByteChannel(@Nonnull FileNode file, @Nonnull Set<? extends OpenOption> options) throws IOException {
     this.file = file;
-    buffer = ByteBuffer.wrap(options.contains(StandardOpenOption.TRUNCATE_EXISTING) ? new byte[0] : file.getBytes().clone());
+    buffer = ByteBuffer.wrap(options.contains(StandardOpenOption.TRUNCATE_EXISTING) ? new byte[0] : file.getData().clone());
     readable = options.contains(StandardOpenOption.READ);
     writable = options.contains(StandardOpenOption.WRITE);
     if(options.contains(StandardOpenOption.APPEND))

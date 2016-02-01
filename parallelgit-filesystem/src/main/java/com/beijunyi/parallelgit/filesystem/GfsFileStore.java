@@ -7,19 +7,20 @@ import java.nio.file.attribute.FileStoreAttributeView;
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 
-import com.beijunyi.parallelgit.filesystem.io.DirectoryNode;
 import com.beijunyi.parallelgit.filesystem.io.GfsFileAttributeView;
 import com.beijunyi.parallelgit.filesystem.io.RootNode;
-import org.eclipse.jgit.lib.AnyObjectId;
+import org.eclipse.jgit.revwalk.RevCommit;
 
 import static com.beijunyi.parallelgit.filesystem.GitFileSystemProvider.GFS;
+import static com.beijunyi.parallelgit.filesystem.io.RootNode.fromCommit;
+import static com.beijunyi.parallelgit.filesystem.io.RootNode.newRoot;
 
 public class GfsFileStore extends FileStore {
 
   private final RootNode root;
 
-  public GfsFileStore(@Nullable AnyObjectId rootTree, @Nonnull GfsObjectService gos) {
-    root = rootTree != null ? RootNode.fromObject(rootTree, gos) : RootNode.newRoot(gos);
+  public GfsFileStore(@Nullable RevCommit commit, @Nonnull GfsObjectService objService) {
+    root = commit != null ? fromCommit(commit, objService) : newRoot(objService);
   }
 
   @Nonnull

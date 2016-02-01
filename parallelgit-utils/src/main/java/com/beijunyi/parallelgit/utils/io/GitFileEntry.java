@@ -21,6 +21,11 @@ public class GitFileEntry {
   }
 
   @Nonnull
+  public static GitFileEntry tree(@Nonnull AnyObjectId id) {
+    return new GitFileEntry(id, TREE);
+  }
+
+  @Nonnull
   public static GitFileEntry forTreeNode(@Nonnull TreeWalk tw, int index) {
     return new GitFileEntry(tw.getObjectId(index), tw.getFileMode(index));
   }

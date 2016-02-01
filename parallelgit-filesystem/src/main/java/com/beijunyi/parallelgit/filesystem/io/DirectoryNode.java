@@ -3,7 +3,6 @@ package com.beijunyi.parallelgit.filesystem.io;
 import java.io.IOException;
 import java.util.*;
 import java.util.concurrent.ConcurrentHashMap;
-import java.util.concurrent.ConcurrentMap;
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 
@@ -16,30 +15,45 @@ import org.eclipse.jgit.lib.FileMode;
 
 import static org.eclipse.jgit.lib.FileMode.TREE;
 
-public class DirectoryNode extends Node<TreeSnapshot> {
+public class DirectoryNode extends Node<TreeSnapshot, Map<String, Node>> {
 
-  private ConcurrentMap<String, Node> children;
-
-  protected DirectoryNode(@Nullable AnyObjectId id, @Nonnull GfsObjectService objService) {
-    super(id, FileMode.TREE, objService);
-    if(id == null)
-      setupEmptyDirectory();
+  protected DirectoryNode(@Nonnull GitFileEntry entry, @Nonnull GfsObjectService objService) {
+    super(entry, objService);
   }
 
-  protected DirectoryNode(@Nullable AnyObjectId id, @Nonnull DirectoryNode parent) {
-    super(id, FileMode.TREE, parent);
-    if(id == null)
-      setupEmptyDirectory();
+  protected DirectoryNode(@Nonnull AnyObjectId id, @Nonnull GfsObjectService objService) {
+    this(new GitFileEntry(id, TREE), objService);
+  }
+
+  protected DirectoryNode(@Nonnull GfsObjectService objService) {
+    super(TREE, objService);
+  }
+
+  protected DirectoryNode(@Nonnull GitFileEntry entry, @Nonnull DirectoryNode parent) {
+    super(entry, parent);
+  }
+
+  protected DirectoryNode(@Nonnull AnyObjectId id, @Nonnull DirectoryNode parent) {
+    this(GitFileEntry.tree(id), parent);
+  }
+
+  protected DirectoryNode(@Nonnull DirectoryNode parent) {
+    super(TREE, parent);
   }
 
   @Nonnull
-  public static DirectoryNode fromObject(@Nonnull AnyObjectId id, @Nonnull DirectoryNode parent) {
-    return new DirectoryNode(id, parent);
+  public static DirectoryNode fromFileEntry(@Nonnull GitFileEntry entry, @Nonnull DirectoryNode parent) {
+    return new DirectoryNode(entry, parent);
   }
 
   @Nonnull
   public static DirectoryNode newDirectory(@Nonnull DirectoryNode parent) {
-    return new DirectoryNode(null, parent);
+    return new DirectoryNode(parent);
+  }
+
+  @Override
+  protected Class<? extends TreeSnapshot> getSnapshotType() {
+    return TreeSnapshot.class;
   }
 
   @Override
@@ -47,53 +61,48 @@ public class DirectoryNode extends Node<TreeSnapshot> {
     return 0;
   }
 
-  @Nonnull
   @Override
-  public FileMode getMode() {
-    return TREE;
-  }
-
-  @Override
-  public void setMode(@Nonnull FileMode mode) {
-    checkFileMode(mode);
-  }
-
-  @Override
-  public synchronized void reset(@Nonnull AnyObjectId id, @Nonnull FileMode mode) {
-    checkFileMode(mode);
-    this.id = id;
-    children = null;
-    propagateChange();
-  }
-
-  @Override
-  public synchronized void updateOrigin(@Nonnull AnyObjectId id, @Nonnull FileMode mode) throws IOException {
-    checkFileMode(mode);
-    if(children != null) {
-      TreeSnapshot snapshot = objService.readTree(id);
+  public synchronized void updateOrigin(@Nonnull GitFileEntry entry) throws IOException {
+    super.updateOrigin(entry);
+    if(isInitialized()) {
+      snapshot = objService.readTree(id);
       for(Map.Entry<String, GitFileEntry> child : snapshot.getChildren().entrySet()) {
         String name = child.getKey();
-        Node node = children.get(name);
-        if(node != null) {
-          GitFileEntry entry = child.getValue();
-          node.updateOrigin(entry.getId(), entry.getMode());
-        }
+        Node node = data.get(name);
+        if(node != null)
+          node.updateOrigin(child.getValue());
       }
     }
-    originId = getObjectId(true);
   }
 
   public void updateOrigin(@Nonnull AnyObjectId id) throws IOException {
-    updateOrigin(id, FileMode.TREE);
+    updateOrigin(GitFileEntry.tree(id));
   }
 
-  @Nullable
+  @Nonnull
   @Override
-  public TreeSnapshot getSnapshot(boolean persist) throws IOException {
-    TreeSnapshot ret = takeSnapshot(persist);
-    if(ret == null && id != null)
-      ret = objService.readTree(id);
+  protected Map<String, Node> loadData(@Nonnull TreeSnapshot snapshot) {
+    Map<String, Node> ret = getDefaultData();
+    for(Map.Entry<String, GitFileEntry> entry : snapshot.getChildren().entrySet())
+      data.put(entry.getKey(), Node.fromEntry(entry.getValue(), this));
     return ret;
+  }
+
+  @Override
+  protected boolean isTrivial(@Nonnull Map<String, Node> data) {
+    return data.isEmpty();
+  }
+
+  @Nonnull
+  protected TreeSnapshot captureData(@Nonnull Map<String, Node> data, boolean persist) throws IOException {
+    SortedMap<String, GitFileEntry> entries = new TreeMap<>();
+    for(Map.Entry<String, Node> child : data.entrySet()) {
+      Node node = child.getValue();
+      AnyObjectId id = node.getObjectId(persist);
+      if(id != null)
+        entries.put(child.getKey(), new GitFileEntry(id, node.getMode()));
+    }
+    return TreeSnapshot.capture(entries);
   }
 
   @Nonnull
@@ -101,14 +110,14 @@ public class DirectoryNode extends Node<TreeSnapshot> {
   public Node clone(@Nonnull DirectoryNode parent) throws IOException {
     DirectoryNode ret = DirectoryNode.newDirectory(parent);
     if(isInitialized()) {
-      for(Map.Entry<String, Node> child : children.entrySet()) {
+      for(Map.Entry<String, Node> child : data.entrySet()) {
         String name = child.getKey();
         Node node = child.getValue();
         ret.addChild(name, node.clone(ret), false);
       }
     } else {
-      ret.reset(id, mode);
-      parent.getObjService().pullObject(id, objService);
+      ret.reset(origin);
+      parent.getObjectService().pullObject(origin.getId(), objService);
     }
     return ret;
   }
@@ -118,7 +127,7 @@ public class DirectoryNode extends Node<TreeSnapshot> {
     List<String> ret;
     synchronized(this) {
       prepareChildren();
-      ret = new ArrayList<>(children.keySet());
+      ret = new ArrayList<>(data.keySet());
     }
     Collections.sort(ret);
     return Collections.unmodifiableList(ret);
@@ -127,7 +136,7 @@ public class DirectoryNode extends Node<TreeSnapshot> {
   public boolean hasChild(@Nonnull String name) throws IOException {
     synchronized(this) {
       prepareChildren();
-      return children.containsKey(name);
+      return data.containsKey(name);
     }
   }
 
@@ -135,19 +144,19 @@ public class DirectoryNode extends Node<TreeSnapshot> {
   public Node getChild(@Nonnull String name) throws IOException {
     synchronized(this) {
       prepareChildren();
-      return children.get(name);
+      return data.get(name);
     }
   }
 
   public boolean addChild(@Nonnull String name, @Nonnull Node child, boolean replace) throws IOException {
     synchronized(this) {
       prepareChildren();
-      if(!replace && children.containsKey(name))
+      if(!replace && data.containsKey(name))
         return false;
-      children.put(name, child);
+      data.put(name, child);
     }
     id = null;
-    propagateChange();
+    invalidateParentCache();
     return true;
   }
 
@@ -155,72 +164,47 @@ public class DirectoryNode extends Node<TreeSnapshot> {
     Node removed;
     synchronized(this) {
       prepareChildren();
-      removed = children.remove(name);
+      removed = data.remove(name);
     }
     if(removed != null) {
-      removed.disconnectParent();
+      removed.exile();
       id = null;
-      propagateChange();
+      invalidateParentCache();
       return true;
     }
     return false;
   }
 
-  public void prepareChildren() throws IOException {
+  private void prepareChildren() throws IOException {
     if(!isInitialized()) {
-      setupEmptyDirectory();
-      TreeSnapshot snapshot = id != null ? objService.readTree(id) : null;
-      if(snapshot != null)
-        for(Map.Entry<String, GitFileEntry> entry : snapshot.getChildren().entrySet())
-          children.put(entry.getKey(), Node.fromEntry(entry.getValue(), this));
+      initialize();
+      snapshot = objService.readTree(origin.getId());
+      for(Map.Entry<String, GitFileEntry> entry : snapshot.getChildren().entrySet())
+        data.put(entry.getKey(), Node.fromEntry(entry.getValue(), this));
     }
   }
 
-  public boolean isInitialized() {
-    return children != null;
-  }
-
-  @Nullable
-  protected TreeSnapshot takeSnapshot(boolean persist, boolean allowEmpty) throws IOException {
-    if(!isInitialized())
-      return null;
-    SortedMap<String, GitFileEntry> entries = new TreeMap<>();
-    for(Map.Entry<String, Node> child : children.entrySet()) {
-      Node node = child.getValue();
-      AnyObjectId id = node.getObjectId(persist);
-      if(id != null)
-        entries.put(child.getKey(), new GitFileEntry(id, node.getMode()));
-    }
-    TreeSnapshot ret = TreeSnapshot.capture(entries, allowEmpty);
-    if(ret != null && persist)
-      objService.write(ret);
-    return ret;
-  }
-
-  @Nullable
   @Override
-  protected TreeSnapshot takeSnapshot(boolean persist) throws IOException {
-    return takeSnapshot(persist, false);
+  protected void checkFileMode(@Nonnull FileMode proposed) {
+    if(!TREE.equals(proposed))
+      throw new IncompatibleFileModeException(TREE, proposed);
+  }
+
+  @Nonnull
+  @Override
+  protected Map<String, Node> getDefaultData() {
+    return new ConcurrentHashMap<>();
   }
 
   @Override
-  protected void disconnectParent() {
-    super.disconnectParent();
+  protected void exile() {
+    super.exile();
     synchronized(this) {
       if(isInitialized()) {
-        for(Node child : children.values())
-          child.disconnectParent();
+        for(Node child : data.values())
+          child.exile();
       }
     }
-  }
-
-  private void setupEmptyDirectory() {
-    children = new ConcurrentHashMap<>();
-  }
-
-  private void checkFileMode(@Nonnull FileMode mode) {
-    if(!mode.equals(TREE))
-      throw new IncompatibleFileModeException(TREE, mode);
   }
 
 }

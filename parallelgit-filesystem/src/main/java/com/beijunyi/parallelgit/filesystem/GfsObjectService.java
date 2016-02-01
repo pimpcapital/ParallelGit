@@ -46,6 +46,15 @@ public class GfsObjectService implements Closeable {
   }
 
   @Nonnull
+  public <S extends ObjectSnapshot> S read(@Nonnull AnyObjectId id, @Nonnull Class<S> type) throws IOException {
+    if(BlobSnapshot.class.isAssignableFrom(type))
+      return type.cast(readBlob(id));
+    if(TreeSnapshot.class.isAssignableFrom(type))
+      return type.cast(readTree(id));
+    throw new UnsupportedOperationException(type.getName());
+  }
+
+  @Nonnull
   public BlobSnapshot readBlob(@Nonnull AnyObjectId id) throws IOException {
     checkClosed();
     synchronized(reader) {

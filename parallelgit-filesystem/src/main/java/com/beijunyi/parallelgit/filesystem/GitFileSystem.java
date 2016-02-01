@@ -8,6 +8,7 @@ import java.util.regex.Pattern;
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 
+import com.beijunyi.parallelgit.filesystem.io.RootNode;
 import com.beijunyi.parallelgit.filesystem.utils.GfsConfiguration;
 import com.beijunyi.parallelgit.filesystem.utils.GitGlobs;
 import com.beijunyi.parallelgit.utils.CacheUtils;
@@ -45,7 +46,7 @@ public class GitFileSystem extends FileSystem {
     String branch = cfg.branch();
     if(branch == null && commit == null)
       branch = RefUtils.ensureBranchRefName(MASTER);
-    fileStore = new GfsFileStore(commit != null ? commit.getTree() : null, objService);
+    fileStore = new GfsFileStore(commit, objService);
     statusProvider = new GfsStatusProvider(fileStore, branch, commit);
   }
 
@@ -205,8 +206,10 @@ public class GitFileSystem extends FileSystem {
 
   @Nonnull
   public AnyObjectId flush() throws IOException {
-    AnyObjectId ret = fileStore.getRoot().getObjectId(true);
+    RootNode root = fileStore.getRoot();
+    AnyObjectId ret = root.getObjectId(true);
     objService.flush();
+    root.updateOrigin(ret);
     return ret;
   }
 
