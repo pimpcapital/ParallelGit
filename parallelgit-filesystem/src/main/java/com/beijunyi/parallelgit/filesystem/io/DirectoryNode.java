@@ -62,7 +62,7 @@ public class DirectoryNode extends Node<TreeSnapshot, Map<String, Node>> {
   }
 
   @Override
-  public synchronized void updateOrigin(@Nonnull GitFileEntry entry) throws IOException {
+  public void updateOrigin(@Nonnull GitFileEntry entry) throws IOException {
     super.updateOrigin(entry);
     if(isInitialized()) {
       snapshot = objService.readTree(id);
@@ -84,7 +84,7 @@ public class DirectoryNode extends Node<TreeSnapshot, Map<String, Node>> {
   protected Map<String, Node> loadData(@Nonnull TreeSnapshot snapshot) {
     Map<String, Node> ret = getDefaultData();
     for(Map.Entry<String, GitFileEntry> entry : snapshot.getChildren().entrySet())
-      data.put(entry.getKey(), Node.fromEntry(entry.getValue(), this));
+      ret.put(entry.getKey(), Node.fromEntry(entry.getValue(), this));
     return ret;
   }
 
@@ -124,48 +124,31 @@ public class DirectoryNode extends Node<TreeSnapshot, Map<String, Node>> {
 
   @Nonnull
   public List<String> listChildren() throws IOException {
-    List<String> ret;
-    synchronized(this) {
-      prepareChildren();
-      ret = new ArrayList<>(data.keySet());
-    }
+    List<String> ret = new ArrayList<>(getData().keySet());
     Collections.sort(ret);
     return Collections.unmodifiableList(ret);
   }
 
   public boolean hasChild(@Nonnull String name) throws IOException {
-    synchronized(this) {
-      prepareChildren();
-      return data.containsKey(name);
-    }
+    return getData().containsKey(name);
   }
 
   @Nullable
   public Node getChild(@Nonnull String name) throws IOException {
-    synchronized(this) {
-      prepareChildren();
-      return data.get(name);
-    }
+    return getData().get(name);
   }
 
   public boolean addChild(@Nonnull String name, @Nonnull Node child, boolean replace) throws IOException {
-    synchronized(this) {
-      prepareChildren();
-      if(!replace && data.containsKey(name))
-        return false;
-      data.put(name, child);
-    }
+    if(!replace && getData().containsKey(name))
+      return false;
+    getData().put(name, child);
     id = null;
     invalidateParentCache();
     return true;
   }
 
   public boolean removeChild(@Nonnull String name) throws IOException {
-    Node removed;
-    synchronized(this) {
-      prepareChildren();
-      removed = data.remove(name);
-    }
+    Node removed = getData().remove(name);
     if(removed != null) {
       removed.exile();
       id = null;
@@ -173,15 +156,6 @@ public class DirectoryNode extends Node<TreeSnapshot, Map<String, Node>> {
       return true;
     }
     return false;
-  }
-
-  private void prepareChildren() throws IOException {
-    if(!isInitialized()) {
-      initialize();
-      snapshot = objService.readTree(origin.getId());
-      for(Map.Entry<String, GitFileEntry> entry : snapshot.getChildren().entrySet())
-        data.put(entry.getKey(), Node.fromEntry(entry.getValue(), this));
-    }
   }
 
   @Override
@@ -199,11 +173,9 @@ public class DirectoryNode extends Node<TreeSnapshot, Map<String, Node>> {
   @Override
   protected void exile() {
     super.exile();
-    synchronized(this) {
-      if(isInitialized()) {
-        for(Node child : data.values())
-          child.exile();
-      }
+    if(isInitialized()) {
+      for(Node child : data.values())
+        child.exile();
     }
   }
 

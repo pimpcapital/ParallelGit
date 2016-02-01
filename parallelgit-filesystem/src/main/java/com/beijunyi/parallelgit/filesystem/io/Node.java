@@ -119,7 +119,7 @@ public abstract class Node<Snapshot extends ObjectSnapshot, Data> {
   protected Data getData() throws IOException {
     if(data != null)
       return data;
-    if(origin == null)
+    if(id == null)
       throw new IllegalStateException();
     data = loadData(loadSnapshot());
     return data;
@@ -127,13 +127,17 @@ public abstract class Node<Snapshot extends ObjectSnapshot, Data> {
 
   @Nonnull
   private Snapshot loadSnapshot() throws IOException {
-    snapshot = objService.read(origin.getId(), getSnapshotType());
+    if(id == null)
+      throw new IllegalStateException();
+    snapshot = objService.read(id, getSnapshotType());
     return snapshot;
   }
 
   @Nullable
   protected Snapshot takeSnapshot(boolean persist) throws IOException {
-    if(data == null || isTrivial(data))
+    if(data == null)
+      throw new IllegalStateException();
+    if(isTrivial(data))
       return null;
     Snapshot snapshot = captureData(data, persist);
     if(persist)
@@ -141,16 +145,15 @@ public abstract class Node<Snapshot extends ObjectSnapshot, Data> {
     return snapshot;
   }
 
-  @Nonnull
+  @Nullable
   public Snapshot getSnapshot(boolean persist) throws IOException {
-    Snapshot ret = takeSnapshot(persist);
-    if(ret != null)
-      return ret;
+    if(data != null)
+      return takeSnapshot(persist);
     return loadSnapshot();
   }
 
   protected boolean isInitialized() {
-    return data == null;
+    return data != null;
   }
 
   protected void initialize() {
