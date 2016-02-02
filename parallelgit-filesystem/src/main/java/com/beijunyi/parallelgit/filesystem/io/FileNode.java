@@ -5,7 +5,7 @@ import javax.annotation.Nonnull;
 
 import com.beijunyi.parallelgit.filesystem.exceptions.IncompatibleFileModeException;
 import com.beijunyi.parallelgit.utils.io.BlobSnapshot;
-import com.beijunyi.parallelgit.utils.io.GitFileEntry;
+import org.eclipse.jgit.lib.AnyObjectId;
 import org.eclipse.jgit.lib.FileMode;
 
 import static org.eclipse.jgit.lib.FileMode.*;
@@ -16,8 +16,8 @@ public class FileNode extends Node<BlobSnapshot, byte[]> {
 
   private long size = -1;
 
-  private FileNode(@Nonnull GitFileEntry entry, @Nonnull DirectoryNode parent) {
-    super(entry, parent);
+  private FileNode(@Nonnull AnyObjectId id, @Nonnull FileMode mode, @Nonnull DirectoryNode parent) {
+    super(id, mode, parent);
   }
 
   private FileNode(@Nonnull FileMode mode, @Nonnull DirectoryNode parent) {
@@ -29,8 +29,8 @@ public class FileNode extends Node<BlobSnapshot, byte[]> {
   }
 
   @Nonnull
-  protected static FileNode fromFile(@Nonnull GitFileEntry entry, @Nonnull DirectoryNode parent) {
-    return new FileNode(entry, parent);
+  protected static FileNode fromObject(@Nonnull AnyObjectId id, @Nonnull FileMode mode, @Nonnull DirectoryNode parent) {
+    return new FileNode(id, mode, parent);
   }
 
   @Nonnull
@@ -69,7 +69,7 @@ public class FileNode extends Node<BlobSnapshot, byte[]> {
   @Nonnull
   @Override
   protected byte[] loadData(@Nonnull BlobSnapshot snapshot) {
-    return snapshot.getBytes();
+    return snapshot.getData();
   }
 
   @Override
@@ -86,13 +86,16 @@ public class FileNode extends Node<BlobSnapshot, byte[]> {
   @Nonnull
   @Override
   public Node clone(@Nonnull DirectoryNode parent) throws IOException {
-    FileNode ret = newFile(mode, parent);
-    if(data != null)
+    FileNode ret;
+    if(isInitialized()) {
+      ret = newFile(mode, parent);
       ret.data = data;
-    else {
-      ret.reset(origin);
-      parent.getObjectService().pullObject(origin.getId(), objService);
-    }
+      ret.size = data.length;
+    } else if(id != null) {
+      ret = FileNode.fromObject(id , mode, parent);
+      parent.getObjectService().pullObject(id, objService);
+    } else
+      throw new IllegalStateException();
     return ret;
   }
 

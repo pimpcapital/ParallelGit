@@ -21,7 +21,7 @@ public class TreeUtilsReadFileTest extends AbstractParallelGitTest {
     byte[] expected = "test data".getBytes();
     writeToCache("/test_file.txt", expected);
     RevCommit commit = commitToMaster();
-    byte[] actual = TreeUtils.readFile("/test_file.txt", commit.getTree(), repo).getBytes();
+    byte[] actual = TreeUtils.readFile("/test_file.txt", commit.getTree(), repo).getData();
     Assert.assertArrayEquals(expected, actual);
   }
 

@@ -5,34 +5,26 @@ import java.util.Map;
 import java.util.SortedMap;
 import java.util.TreeMap;
 import javax.annotation.Nonnull;
+import javax.annotation.Nullable;
 
 import com.beijunyi.parallelgit.utils.TreeUtils;
 import org.eclipse.jgit.lib.*;
 import org.eclipse.jgit.treewalk.TreeWalk;
 
-import static java.util.Collections.unmodifiableSortedMap;
+public class TreeSnapshot extends ObjectSnapshot<SortedMap<String, GitFileEntry>> {
 
-public class TreeSnapshot extends ObjectSnapshot {
-
-  private final SortedMap<String, GitFileEntry> children;
-
-  private TreeSnapshot(@Nonnull SortedMap<String, GitFileEntry> children) {
-    this.children = unmodifiableSortedMap(children);
+  private TreeSnapshot(@Nonnull AnyObjectId id, @Nonnull SortedMap<String, GitFileEntry> data) {
+    super(id, data);
   }
 
-  @Nonnull
-  public SortedMap<String, GitFileEntry> getChildren() {
-    return children;
-  }
-
-  @Nonnull
-  public AnyObjectId computeId() {
-    return new ObjectInserter.Formatter().idFor(Constants.OBJ_TREE, format().toByteArray());
+  @Nullable
+  public GitFileEntry getChild(@Nonnull String name) {
+    return data.get(name);
   }
 
   @Nonnull
   public AnyObjectId persist(@Nonnull ObjectInserter inserter) throws IOException {
-    return inserter.insert(format());
+    return inserter.insert(format(data));
   }
 
   @Nonnull
@@ -42,23 +34,28 @@ public class TreeSnapshot extends ObjectSnapshot {
       while(tw.next())
         ret.put(tw.getNameString(), new GitFileEntry(tw.getObjectId(0), tw.getFileMode(0)));
     }
-    return new TreeSnapshot(ret);
+    return new TreeSnapshot(id, ret);
   }
 
   @Nonnull
   public static TreeSnapshot capture(@Nonnull SortedMap<String, GitFileEntry> children) {
-    return new TreeSnapshot(children);
+    return new TreeSnapshot(computeTreeId(children), children);
   }
 
   @Nonnull
-  private TreeFormatter format() {
+  private static TreeFormatter format(@Nonnull SortedMap<String, GitFileEntry> data) {
     TreeFormatter formatter = new TreeFormatter();
-    for(Map.Entry<String, GitFileEntry> child : children.entrySet()) {
+    for(Map.Entry<String, GitFileEntry> child : data.entrySet()) {
       String name = child.getKey();
       GitFileEntry entry = child.getValue();
       formatter.append(name, entry.getMode(), entry.getId());
     }
     return formatter;
+  }
+
+  @Nonnull
+  private static AnyObjectId computeTreeId(@Nonnull SortedMap<String, GitFileEntry> data) {
+    return new ObjectInserter.Formatter().idFor(Constants.OBJ_TREE, format(data).toByteArray());
   }
 
 }

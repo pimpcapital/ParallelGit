@@ -16,8 +16,9 @@ import static org.eclipse.jgit.lib.FileMode.TREE;
 
 public class RootNode extends DirectoryNode {
 
-  public RootNode(@Nonnull AnyObjectId id, @Nonnull GfsObjectService objService) {
+  public RootNode(@Nonnull AnyObjectId id, @Nonnull GfsObjectService objService) throws IOException {
     super(id, objService);
+    updateOrigin(id);
   }
 
   public RootNode(@Nonnull GfsObjectService objService) {
@@ -25,7 +26,7 @@ public class RootNode extends DirectoryNode {
   }
 
   @Nonnull
-  public static RootNode fromCommit(@Nonnull RevCommit commit, @Nonnull GfsObjectService objService) {
+  public static RootNode fromCommit(@Nonnull RevCommit commit, @Nonnull GfsObjectService objService) throws IOException {
     return new RootNode(commit.getTree(), objService);
   }
 

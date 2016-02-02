@@ -21,7 +21,7 @@ public class GitFileUtilsReadFileTest extends AbstractParallelGitTest {
     byte[] expected = "test data".getBytes();
     writeToCache("/test_file.txt", expected);
     AnyObjectId commit = commitToMaster();
-    byte[] actual = GitFileUtils.readFile("/test_file.txt", commit.getName(), repo).getBytes();
+    byte[] actual = GitFileUtils.readFile("/test_file.txt", commit.getName(), repo).getData();
     Assert.assertArrayEquals(expected, actual);
   }
 

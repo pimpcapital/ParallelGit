@@ -22,7 +22,7 @@ public class ReadFileTest extends AbstractParallelGitTest {
   @Test
   public void readBytes() throws IOException {
     String fileContent =                                                       // read file
-      new String(GitFileUtils.readFile("/example.txt", "my_branch", repo).getBytes());
+      new String(GitFileUtils.readFile("/example.txt", "my_branch", repo).getData());
 
     // check
     assertEquals("This is an example", fileContent);                           // the data is correct

@@ -35,7 +35,7 @@ public class CommitChangesTest extends AbstractParallelGitTest {
     assertNotNull(commit);                                                               // new commit is created
     assertTrue(GitFileUtils.exists("/my_file.txt", commit, repo));                       // the file exists in the commit
     assertEquals("my text data",                                                         // the data is correct
-                  new String(GitFileUtils.readFile("/my_file.txt", commit, repo).getBytes()));
+                  new String(GitFileUtils.readFile("/my_file.txt", commit, repo).getData()));
   }
 
 

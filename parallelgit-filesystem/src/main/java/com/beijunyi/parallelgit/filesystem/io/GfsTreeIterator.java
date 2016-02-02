@@ -121,7 +121,7 @@ public class GfsTreeIterator extends WorkingTreeIterator {
 
   @Nonnull
   private static List<Map.Entry<String, GitFileEntry>> toList(@Nonnull TreeSnapshot snapshot) {
-    SortedMap<String, GitFileEntry> children = snapshot.getChildren();
+    SortedMap<String, GitFileEntry> children = snapshot.getData();
     List<Map.Entry<String, GitFileEntry>> ret = new ArrayList<>(children.size());
     for(Map.Entry<String, GitFileEntry> entry : children.entrySet())
       ret.add(entry);

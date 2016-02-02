@@ -4,40 +4,35 @@ import java.io.IOException;
 import javax.annotation.Nonnull;
 
 import org.eclipse.jgit.lib.*;
+import org.eclipse.jgit.lib.ObjectInserter.Formatter;
 
-public class BlobSnapshot extends ObjectSnapshot {
+import static org.eclipse.jgit.lib.Constants.OBJ_BLOB;
 
-  private byte[] bytes;
+public class BlobSnapshot extends ObjectSnapshot<byte[]> {
 
-  private BlobSnapshot(@Nonnull byte[] bytes) {
-    this.bytes = bytes;
+  private BlobSnapshot(@Nonnull AnyObjectId id, @Nonnull byte[] bytes) {
+    super(id, bytes);
   }
 
   @Nonnull
-  public byte[] getBytes() {
-    return bytes;
+  public static BlobSnapshot load(@Nonnull AnyObjectId id, @Nonnull ObjectReader reader) throws IOException {
+    return new BlobSnapshot(id, reader.open(id).getBytes());
   }
 
   @Nonnull
-  @Override
-  public AnyObjectId computeId() {
-    return new ObjectInserter.Formatter().idFor(Constants.OBJ_BLOB, bytes);
+  public static BlobSnapshot capture(@Nonnull byte[] bytes) {
+    return new BlobSnapshot(computeBlobId(bytes), bytes);
   }
 
   @Nonnull
   @Override
   public AnyObjectId persist(@Nonnull ObjectInserter inserter) throws IOException {
-    return inserter.insert(Constants.OBJ_BLOB, bytes);
+    return inserter.insert(OBJ_BLOB, getData());
   }
 
   @Nonnull
-  public static BlobSnapshot load(@Nonnull AnyObjectId id, @Nonnull ObjectReader reader) throws IOException {
-    return new BlobSnapshot(reader.open(id).getBytes());
-  }
-
-  @Nonnull
-  public static BlobSnapshot capture(@Nonnull byte[] bytes) {
-    return new BlobSnapshot(bytes);
+  private static AnyObjectId computeBlobId(@Nonnull byte[] data) {
+    return new Formatter().idFor(OBJ_BLOB, data);
   }
 
 }

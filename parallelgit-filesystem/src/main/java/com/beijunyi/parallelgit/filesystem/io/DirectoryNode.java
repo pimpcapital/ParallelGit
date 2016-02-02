@@ -17,24 +17,16 @@ import static org.eclipse.jgit.lib.FileMode.TREE;
 
 public class DirectoryNode extends Node<TreeSnapshot, Map<String, Node>> {
 
-  protected DirectoryNode(@Nonnull GitFileEntry entry, @Nonnull GfsObjectService objService) {
-    super(entry, objService);
-  }
-
   protected DirectoryNode(@Nonnull AnyObjectId id, @Nonnull GfsObjectService objService) {
-    this(new GitFileEntry(id, TREE), objService);
+    super(id, TREE, objService);
   }
 
   protected DirectoryNode(@Nonnull GfsObjectService objService) {
     super(TREE, objService);
   }
 
-  protected DirectoryNode(@Nonnull GitFileEntry entry, @Nonnull DirectoryNode parent) {
-    super(entry, parent);
-  }
-
   protected DirectoryNode(@Nonnull AnyObjectId id, @Nonnull DirectoryNode parent) {
-    this(GitFileEntry.tree(id), parent);
+    super(id, TREE, parent);
   }
 
   protected DirectoryNode(@Nonnull DirectoryNode parent) {
@@ -42,9 +34,10 @@ public class DirectoryNode extends Node<TreeSnapshot, Map<String, Node>> {
   }
 
   @Nonnull
-  public static DirectoryNode fromFileEntry(@Nonnull GitFileEntry entry, @Nonnull DirectoryNode parent) {
-    return new DirectoryNode(entry, parent);
+  public static DirectoryNode fromObject(@Nonnull AnyObjectId id, @Nonnull DirectoryNode parent) {
+    return new DirectoryNode(id, parent);
   }
+
 
   @Nonnull
   public static DirectoryNode newDirectory(@Nonnull DirectoryNode parent) {
@@ -64,9 +57,9 @@ public class DirectoryNode extends Node<TreeSnapshot, Map<String, Node>> {
   @Override
   public void updateOrigin(@Nonnull GitFileEntry entry) throws IOException {
     super.updateOrigin(entry);
-    if(isInitialized()) {
-      snapshot = objService.readTree(id);
-      for(Map.Entry<String, GitFileEntry> child : snapshot.getChildren().entrySet()) {
+    if(isInitialized() && origin.isDirectory()) {
+      snapshot = objService.readTree(entry.getId());
+      for(Map.Entry<String, GitFileEntry> child : snapshot.getData().entrySet()) {
         String name = child.getKey();
         Node node = data.get(name);
         if(node != null)
@@ -81,10 +74,16 @@ public class DirectoryNode extends Node<TreeSnapshot, Map<String, Node>> {
 
   @Nonnull
   @Override
-  protected Map<String, Node> loadData(@Nonnull TreeSnapshot snapshot) {
+  protected Map<String, Node> loadData(@Nonnull TreeSnapshot snapshot) throws IOException {
     Map<String, Node> ret = getDefaultData();
-    for(Map.Entry<String, GitFileEntry> entry : snapshot.getChildren().entrySet())
-      ret.put(entry.getKey(), Node.fromEntry(entry.getValue(), this));
+    boolean updateOrigin = origin != null && origin.getId().equals(snapshot.getId());
+    for(Map.Entry<String, GitFileEntry> child : snapshot.getData().entrySet()) {
+      GitFileEntry entry = child.getValue();
+      Node node = Node.fromEntry(entry, this);
+      ret.put(child.getKey(), node);
+      if(updateOrigin)
+        node.updateOrigin(entry);
+    }
     return ret;
   }
 
@@ -108,17 +107,19 @@ public class DirectoryNode extends Node<TreeSnapshot, Map<String, Node>> {
   @Nonnull
   @Override
   public Node clone(@Nonnull DirectoryNode parent) throws IOException {
-    DirectoryNode ret = DirectoryNode.newDirectory(parent);
+    DirectoryNode ret;
     if(isInitialized()) {
+      ret = DirectoryNode.newDirectory(parent);
       for(Map.Entry<String, Node> child : data.entrySet()) {
         String name = child.getKey();
         Node node = child.getValue();
         ret.addChild(name, node.clone(ret), false);
       }
-    } else {
-      ret.reset(origin);
-      parent.getObjectService().pullObject(origin.getId(), objService);
-    }
+    } else if(id != null) {
+      ret = DirectoryNode.fromObject(id, parent);
+      parent.getObjectService().pullObject(id, objService);
+    } else
+      throw new IllegalStateException();
     return ret;
   }
 
@@ -141,6 +142,11 @@ public class DirectoryNode extends Node<TreeSnapshot, Map<String, Node>> {
   public boolean addChild(@Nonnull String name, @Nonnull Node child, boolean replace) throws IOException {
     if(!replace && getData().containsKey(name))
       return false;
+    if(snapshot != null) {
+      GitFileEntry origin = snapshot.getChild(name);
+      if(origin != null)
+        child.updateOrigin(origin);
+    }
     getData().put(name, child);
     id = null;
     invalidateParentCache();

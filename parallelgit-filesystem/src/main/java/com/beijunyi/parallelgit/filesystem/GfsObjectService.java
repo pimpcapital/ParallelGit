@@ -123,7 +123,7 @@ public class GfsObjectService implements Closeable {
 
   private void pullTree(@Nonnull AnyObjectId id, @Nonnull GfsObjectService sourceObjService) throws IOException {
     TreeSnapshot tree = sourceObjService.readTree(id);
-    for(GitFileEntry entry : tree.getChildren().values())
+    for(GitFileEntry entry : tree.getData().values())
       pullObject(entry.getId(), false, sourceObjService);
     write(tree);
   }

@@ -2,31 +2,48 @@ package com.beijunyi.parallelgit.utils.io;
 
 import java.io.IOException;
 import javax.annotation.Nonnull;
+import javax.annotation.Nullable;
 
 import org.eclipse.jgit.lib.AnyObjectId;
 import org.eclipse.jgit.lib.ObjectInserter;
 
-public abstract class ObjectSnapshot {
+public abstract class ObjectSnapshot<Data> {
 
-  private AnyObjectId id;
+  protected final AnyObjectId id;
+  protected final Data data;
+
+  protected ObjectSnapshot(@Nonnull AnyObjectId id, @Nonnull Data data) {
+    this.id = id;
+    this.data = data;
+  }
+
+  @Nonnull
+  public Data getData() {
+    return data;
+  }
 
   @Nonnull
   public AnyObjectId getId() {
-    if(id == null)
-      id = computeId();
     return id;
   }
 
   @Nonnull
   public AnyObjectId insert(@Nonnull ObjectInserter inserter) throws IOException {
-    id = persist(inserter);
-    return id;
+    return persist(inserter);
   }
 
   @Nonnull
   protected abstract AnyObjectId persist(@Nonnull ObjectInserter inserter) throws IOException;
 
-  @Nonnull
-  protected abstract AnyObjectId computeId();
+  @Override
+  public boolean equals(@Nullable Object that) {
+    return this == that ||
+             that != null && that instanceof ObjectSnapshot && id.equals(((ObjectSnapshot)that).id);
 
+  }
+
+  @Override
+  public int hashCode() {
+    return id.hashCode();
+  }
 }

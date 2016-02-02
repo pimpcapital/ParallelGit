@@ -19,7 +19,7 @@ public class GfsFileStore extends FileStore {
 
   private final RootNode root;
 
-  public GfsFileStore(@Nullable RevCommit commit, @Nonnull GfsObjectService objService) {
+  public GfsFileStore(@Nullable RevCommit commit, @Nonnull GfsObjectService objService) throws IOException {
     root = commit != null ? fromCommit(commit, objService) : newRoot(objService);
   }
 
