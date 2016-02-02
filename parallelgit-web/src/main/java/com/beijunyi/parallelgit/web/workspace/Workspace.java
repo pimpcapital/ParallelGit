@@ -10,6 +10,7 @@ import javax.annotation.Nonnull;
 
 import com.beijunyi.parallelgit.filesystem.Gfs;
 import com.beijunyi.parallelgit.filesystem.GitFileSystem;
+import com.beijunyi.parallelgit.filesystem.io.GitFileAttributeView;
 import com.beijunyi.parallelgit.utils.BranchUtils;
 import com.beijunyi.parallelgit.web.data.FileEntry;
 import com.beijunyi.parallelgit.web.data.Head;
@@ -42,6 +43,8 @@ public class Workspace implements Closeable {
         return getFile(request.getTarget());
       case "checkout":
         return checkout(request.getValue());
+      case "edit":
+        return edit(request.getTarget(), request.getValue());
       default:
         throw new UnsupportedOperationException(request.getType());
     }
@@ -49,7 +52,7 @@ public class Workspace implements Closeable {
 
   @Nonnull
   public Head getHead() throws IOException {
-    checkFileSystemInitialized();
+    checkFS();
     return Head.of(gfs);
   }
 
@@ -60,7 +63,7 @@ public class Workspace implements Closeable {
 
   @Nonnull
   public List<FileEntry> getDirectory(@Nonnull String path) throws IOException {
-    checkFileSystemInitialized();
+    checkFS();
     List<FileEntry> ret = new ArrayList<>();
     try(DirectoryStream<Path> children = Files.newDirectoryStream(gfs.getPath(path))) {
       for(Path child : children) {
@@ -73,7 +76,7 @@ public class Workspace implements Closeable {
 
   @Nonnull
   public String getFile(@Nonnull String path) throws IOException {
-    checkFileSystemInitialized();
+    checkFS();
     return new String(Files.readAllBytes(gfs.getPath(path)));
   }
 
@@ -86,13 +89,21 @@ public class Workspace implements Closeable {
     return CheckoutResult.wrap(Gfs.checkout(gfs).setTarget(branch).execute());
   }
 
+  @Nonnull
+  public GitFileAttributeView edit(@Nonnull String path, @Nonnull String content) throws IOException {
+    checkFS();
+    Path file = gfs.getPath(path);
+    Files.write(file, content.getBytes());
+    return Files.getFileAttributeView(file, GitFileAttributeView.class);
+  }
+
   @Override
   public void close() throws IOException {
     if(gfs != null)
       gfs.close();
   }
 
-  private void checkFileSystemInitialized() {
+  private void checkFS() {
     if(gfs == null)
       throw new IllegalStateException();
   }

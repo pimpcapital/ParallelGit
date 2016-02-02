@@ -10,6 +10,9 @@ import org.eclipse.jgit.lib.FileMode;
 
 public interface GitFileAttributeView extends PosixFileAttributeView {
 
+  @Override
+  String name();
+
   @Nonnull
   GitFileAttributes readAttributes() throws IOException;
 

@@ -3,16 +3,17 @@ package com.beijunyi.parallelgit.web.connection;
 import javax.annotation.Nonnull;
 import javax.websocket.*;
 
+import com.beijunyi.parallelgit.web.config.GsonFactory;
 import com.google.gson.Gson;
 
 public class JsonEncoder implements Encoder.Text<TitledMessage> {
 
-  private static final Gson MAPPER = new Gson();
+  private final Gson gson = GsonFactory.getInstance();
 
   @Nonnull
   @Override
   public String encode(@Nonnull TitledMessage obj) throws EncodeException {
-    return MAPPER.toJson(obj);
+    return gson.toJson(obj);
   }
 
   @Override
