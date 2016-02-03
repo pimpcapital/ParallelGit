@@ -24,6 +24,10 @@
   white-space: nowrap;
 }
 
+.ui-tabs-scrollable {
+  height: 100%;
+}
+
 #nav {
   position: absolute;
   top: 0;
