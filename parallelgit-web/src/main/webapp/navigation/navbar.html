@@ -10,7 +10,7 @@
           <a href="#" class="dropdown-toggle" uib-dropdown-toggle ng-show="head != null">{{head | head}}<span class="caret"></span></a>
           <ul class="dropdown-menu" uib-dropdown-menu ng-show="branches != null">
             <li ng-repeat="branch in branches"><a ng-click="checkout(branch)">{{branch}}</a></li>
-            <li role="separator" class="divider"></li>
+            <li role="separator" class="divider" ng-show="branches.length > 0"></li>
             <li><a ng-click="createBranch()">Create new branch</a></li>
           </ul>
         </li>
