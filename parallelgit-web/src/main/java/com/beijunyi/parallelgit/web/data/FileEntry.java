@@ -1,11 +1,15 @@
 package com.beijunyi.parallelgit.web.data;
 
+import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import javax.annotation.Nonnull;
 
+import com.beijunyi.parallelgit.filesystem.io.GfsFileAttributeView;
 import com.beijunyi.parallelgit.filesystem.io.GitFileAttributeView;
 import org.eclipse.jgit.lib.FileMode;
+
+import static com.beijunyi.parallelgit.filesystem.io.GfsFileAttributeView.*;
 
 public class FileEntry implements Comparable<FileEntry> {
 
@@ -20,8 +24,8 @@ public class FileEntry implements Comparable<FileEntry> {
   }
 
   @Nonnull
-  public static FileEntry read(@Nonnull Path path) {
-    GitFileAttributeView view = Files.getFileAttributeView(path, GitFileAttributeView.class);
+  public static FileEntry read(@Nonnull Path path) throws IOException {
+    GfsFileAttributeView.Git view = Files.getFileAttributeView(path, GfsFileAttributeView.Git.class);
     String name = path.getFileName().toString();
     FileType type = readType(view);
     FileState state = readState(view);
@@ -52,19 +56,19 @@ public class FileEntry implements Comparable<FileEntry> {
   }
 
   @Nonnull
-  private static FileType readType(@Nonnull GitFileAttributeView view) {
-//    FileMode mode = view.getFileMode();
-//    if(mode.equals(FileMode.TREE))
-//      return FileType.DIRECTORY;
-//    if(mode.equals(FileMode.REGULAR_FILE) || mode.equals(FileMode.EXECUTABLE_FILE))
-//      return FileType.REGULAR_FILE;
+  private static FileType readType(@Nonnull GfsFileAttributeView.Git view) throws IOException {
+    FileMode mode = view.getAttribute(FILE_MODE, FileMode.class);
+    if(mode.equals(FileMode.TREE))
+      return FileType.DIRECTORY;
+    if(mode.equals(FileMode.REGULAR_FILE) || mode.equals(FileMode.EXECUTABLE_FILE))
+      return FileType.REGULAR_FILE;
     throw new UnsupportedOperationException();
   }
 
   @Nonnull
-  private static FileState readState(@Nonnull GitFileAttributeView view) {
-//    if(view.isModified())
-//      return view.isNew() ? FileState.NEW : FileState.MODIFIED;
+  private static FileState readState(@Nonnull GfsFileAttributeView.Git view) throws IOException {
+    if(view.getBoolean(IS_MODIFIED))
+      return view.getBoolean(IS_NEW) ? FileState.NEW : FileState.MODIFIED;
     return FileState.NORMAL;
   }
 

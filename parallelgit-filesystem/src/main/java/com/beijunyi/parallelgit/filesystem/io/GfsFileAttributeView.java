@@ -54,6 +54,28 @@ public abstract class GfsFileAttributeView implements FileAttributeView {
     throw new UnsupportedOperationException(type.getName());
   }
 
+  @Nullable
+  public Object readAttribute(@Nonnull String attribute) throws IOException {
+    return readAttributes(Collections.singleton(attribute)).get(attribute);
+  }
+
+  @Nullable
+  public <T> T readAttribute(@Nonnull String attribute, @Nonnull Class<T> clazz) throws IOException {
+    return clazz.cast(readAttribute(attribute));
+  }
+
+  @Nonnull
+  public <T> T getAttribute(@Nonnull String attribute, @Nonnull Class<T> clazz) throws IOException {
+    T ret = readAttribute(attribute, clazz);
+    if(ret == null)
+      throw new IllegalStateException();
+    return ret;
+  }
+
+  public boolean getBoolean(@Nonnull String attribute) throws IOException {
+    return getAttribute(attribute, Boolean.class);
+  }
+
   @Nonnull
   public abstract Map<String, Object> readAttributes(@Nonnull Collection<String> attributes) throws IOException;
 

@@ -195,6 +195,9 @@ public class GitFileSystemProvider extends FileSystemProvider {
       case GfsFileAttributeView.Posix.POSIX_VIEW:
         viewType = GfsFileAttributeView.Posix.class;
         break;
+      case GfsFileAttributeView.Git.GIT_VIEW:
+        viewType = GfsFileAttributeView.Git.class;
+        break;
       default:
         throw new UnsupportedOperationException("View \"" + viewName + "\" is not available");
     }
