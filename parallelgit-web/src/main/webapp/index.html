@@ -5,7 +5,7 @@
   <link rel="stylesheet" href="lib/angular-tree-control/css/tree-control.css">
   <link rel="stylesheet" href="lib/angular-tree-control/css/tree-control-attribute.css">
   <link rel="stylesheet" href="style.css">
-  <link rel="stylesheet" href="filesystem/editor.css">
+  <link rel="stylesheet" href="filesystem/filesystem.css">
 </head>
 <body ng-app="parallel" ng-controller="MainController">
 <div ng-show="ready">
@@ -13,7 +13,7 @@
   <div id="main" class="container">
     <div class="row fill-height">
       <div class="col-md-4 fill-height">
-        <div ng-include="'filesystem/filetree.html'"></div>
+        <div ng-include="'filesystem/file-tree.html'"></div>
       </div>
       <div class="col-md-8 fill-height">
         <div class="fill-height" ng-include="'filesystem/editor.html'"></div>

@@ -25,8 +25,23 @@ app.controller('FileSystemController', function($rootScope, $scope, WorkspaceSer
   }
 
   function requestDirectory(dir) {
-    var request = WorkspaceService.request('directory', dir);
+    var request = WorkspaceService.request('list-children', dir);
     addPendingRequest(request);
+  }
+
+  function getParent(path) {
+    if(path == '/')
+      return null;
+    var parentEnd = path.lastIndexOf('/');
+    return path.substring(0, Math.max(parentEnd, 1));
+  }
+
+  function updateParents(path) {
+    var parent = getParent(path);
+    while(parent != null) {
+      WorkspaceService.request('get-file-attributes', parent);
+      parent = getParent(parent);
+    }
   }
 
   function findFile(path) {
@@ -45,17 +60,12 @@ app.controller('FileSystemController', function($rootScope, $scope, WorkspaceSer
     return file;
   }
 
-  function populateDirectory(dir, files) {
+  function initializeDirectory(dir, files) {
     angular.forEach(files, function(file) {
       var node = createFileNode(dir, file);
       dir.children.push(node);
       dir.children[node.name] = node;
     });
-  }
-
-  function updateTree(path, files) {
-    var dir = findFile(path);
-    populateDirectory(dir, files);
   }
 
   $scope.select = function(node) {
@@ -74,20 +84,25 @@ app.controller('FileSystemController', function($rootScope, $scope, WorkspaceSer
     requestDirectory('/');
   });
 
-  $scope.$on('directory', function(event, response) {
+  $scope.$on('list-children', function(event, response) {
     var request = removePendingRequest(response.rid);
     var path = request.target;
-    var children = response.data.children;
-    updateTree(path, children);
+    var view = response.data;
+    var dir = findFile(path);
+    initializeDirectory(dir, view);
+  });
+
+  $scope.$on('get-file-attributes', function(event, response) {
+    var path = response.target;
+    var file = findFile(path);
+    angular.extend(file, response.data);
   });
 
   $scope.$on('save', function(event, response) {
     var path = response.target;
     var file = findFile(path);
-    var attribute = response.data;
-    if(file.hash != attribute.hash) {
-
-    }
+    angular.extend(file, response.data);
+    updateParents(file.path);
   });
 
   $scope.treeOptions = {

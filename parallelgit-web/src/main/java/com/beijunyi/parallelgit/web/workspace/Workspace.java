@@ -2,6 +2,7 @@ package com.beijunyi.parallelgit.web.workspace;
 
 import java.io.Closeable;
 import java.io.IOException;
+import java.nio.file.DirectoryStream;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.*;
@@ -10,7 +11,6 @@ import javax.annotation.Nonnull;
 import com.beijunyi.parallelgit.filesystem.Gfs;
 import com.beijunyi.parallelgit.filesystem.GitFileSystem;
 import com.beijunyi.parallelgit.utils.BranchUtils;
-import com.beijunyi.parallelgit.web.data.DirectoryView;
 import com.beijunyi.parallelgit.web.data.FileAttributes;
 import com.beijunyi.parallelgit.web.data.Head;
 import org.eclipse.jgit.lib.Repository;
@@ -36,10 +36,12 @@ public class Workspace implements Closeable {
         return getHead();
       case "branches":
         return getBranches();
-      case "directory":
-        return getDirectory(request);
+      case "list-children":
+        return listChildren(request);
       case "file":
         return getFile(request);
+      case "get-file-attributes":
+        return getFileAttributes(request);
       case "checkout":
         return checkout(request);
       case "save":
@@ -61,12 +63,15 @@ public class Workspace implements Closeable {
   }
 
   @Nonnull
-  public DirectoryView getDirectory(@Nonnull WorkspaceRequest request) throws IOException {
-    checkFS();
-    String path = request.getTarget();
-    if(path == null)
-      throw new IllegalStateException();
-    return DirectoryView.open(gfs.getPath(path));
+  public List<FileAttributes> listChildren(@Nonnull WorkspaceRequest request) throws IOException {
+    List<FileAttributes> ret = new ArrayList<>();
+    try(DirectoryStream<Path> stream = Files.newDirectoryStream(getGitPath(request))) {
+      for(Path child : stream) {
+        ret.add(FileAttributes.read(child));
+      }
+    }
+    Collections.sort(ret);
+    return ret;
   }
 
   @Nonnull
@@ -76,6 +81,11 @@ public class Workspace implements Closeable {
     if(path == null)
       throw new IllegalStateException();
     return new String(Files.readAllBytes(gfs.getPath(path)));
+  }
+
+  @Nonnull
+  public FileAttributes getFileAttributes(@Nonnull WorkspaceRequest request) throws IOException {
+    return FileAttributes.read(getGitPath(request));
   }
 
   @Nonnull
@@ -111,6 +121,15 @@ public class Workspace implements Closeable {
   private void checkFS() {
     if(gfs == null)
       throw new IllegalStateException();
+  }
+
+  @Nonnull
+  private Path getGitPath(@Nonnull WorkspaceRequest request) {
+    checkFS();
+    String path = request.getTarget();
+    if(path == null)
+      throw new IllegalStateException();
+    return gfs.getPath(path);
   }
 
 }

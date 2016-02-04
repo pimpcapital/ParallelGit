@@ -1,0 +1,13 @@
+#file-tree span.tree-node-modified {
+  color: #31708f;
+}
+
+#file-tree span.tree-node-new {
+  color: #3c763d;
+}
+
+#editor li.file-dirty>a {
+  color: #a94442;
+  background-color: #f2dede;
+  border-color: #ebccd1;
+}
