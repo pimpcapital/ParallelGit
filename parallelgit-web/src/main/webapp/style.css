@@ -1,3 +1,27 @@
+body {
+  background: #3C3F41;
+}
+
+*::-webkit-scrollbar {
+  width: 1em;
+}
+
+*::-webkit-scrollbar-track {
+  background: #383838;;
+  -webkit-box-shadow: inset 0 0 6px rgba(0,0,0,0.3);
+}
+
+*::-webkit-scrollbar-thumb {
+  background-color: darkgrey;
+  outline: 1px solid slategrey;
+}
+
+.navbar-inverse .navbar-nav>.open>a,
+.navbar-inverse .navbar-nav>.open>a:focus,
+.navbar-inverse .navbar-nav>.open>a:hover {
+  background-color: #1C1C1C;
+}
+
 .modal-sm {
   width: 500px;
 }
@@ -6,6 +30,17 @@
   height: auto;
   max-height: 400px;
   overflow-x: hidden;
+  border-radius: 0;
+  background: #1C1C1C;
+}
+
+.dropdown-menu .divider {
+  margin: 2px 0;
+  background-color: #ADADAD;
+}
+
+.dropdown-menu>li>a {
+  color: #ADADAD;
 }
 
 [ng-click] {
@@ -13,7 +48,33 @@
 }
 
 .tab-content {
-  height: calc(100% - 42px);
+  height: calc(100% - 28px);
+  border: 1px solid #282828;
+}
+
+ul.nav-tabs {
+  border-bottom: 0;
+}
+
+ul.nav-tabs>li>a {
+  border: 1px solid transparent;
+  border-radius: 0;
+  padding: 3px 12px;
+}
+
+ul.nav-tabs>li>a,
+ul.nav-tabs>li>a:hover {
+  background: #3C3E3F;
+  border: 1px solid #282828;
+  color: #ADADAD;
+}
+
+ul.nav-tabs>li.active>a,
+ul.nav-tabs>li.active>a:hover,
+ul.nav-tabs>li.active>a:focus {
+  background: #515658;
+  border: 1px solid #282828;
+  color: #ADADAD;
 }
 
 .tab-pane {
@@ -39,9 +100,9 @@
 #main {
   position: absolute;
   top: 60px;
-  left: 0;
-  right: 0;
-  bottom: 40px;
+  left: 30px;
+  right: 30px;
+  bottom: 30px;
 }
 
 .fill-height {

@@ -1,5 +1,7 @@
 app.controller('FileEditorController', function($scope, $timeout, WorkspaceService) {
 
+  var aceModeList = ace.require("ace/ext/modelist");
+
   $scope.files = null;
 
   function findCurrentActiveFile() {
@@ -57,7 +59,14 @@ app.controller('FileEditorController', function($scope, $timeout, WorkspaceServi
       }
     }
     if(file == null) {
-      file = {path: path, data: data};
+      file = {
+        path: path,
+        data: data,
+        aceOptions: {
+          theme: 'merbivore_soft',
+          mode: aceModeList.getModeForPath(path).name
+        }
+      };
       $scope.files.splice(pos, 0, file);
       startWatchingFile(file);
     }

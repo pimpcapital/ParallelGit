@@ -1,3 +1,38 @@
+treecontrol {
+  color: #ADADAD;
+}
+
+treecontrol li>.tree-selected {
+  background-color: #0D293E !important;
+}
+
+treecontrol li>.tree-selected>span {
+  font-weight: normal !important;
+  color: #ADADAD !important;
+}
+
+treecontrol li {
+  white-space: nowrap;
+}
+
+treecontrol li>i {
+  z-index: 200;
+  position: relative;
+}
+
+treecontrol li>.tree-label {
+  width: 100%;
+  display: inline-block;
+  z-index: 100;
+}
+
+#file-tree {
+  border: 1px solid #282828;
+  padding: 15px 0;
+  background: #383838;
+  overflow-y: scroll;
+}
+
 #file-tree span.tree-node-modified {
   color: #31708f;
 }
