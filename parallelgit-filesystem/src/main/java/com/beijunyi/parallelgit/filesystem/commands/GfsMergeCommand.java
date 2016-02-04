@@ -41,6 +41,7 @@ public final class GfsMergeCommand extends GfsCommand<GfsMergeCommand.Result> {
   private String source;
   private Ref sourceRef;
   private RevCommit sourceHeadCommit;
+  private boolean fastForwardOnly = false;
   private boolean squash = false;
   private boolean commit = true;
 
@@ -63,13 +64,18 @@ public final class GfsMergeCommand extends GfsCommand<GfsMergeCommand.Result> {
     prepareSourceCommit();
     prepareMessage();
 
-    if(isUpToDate()) {
-      update.state(NORMAL);
-      return Result.upToDate(headCommit);
-    }
+    Result result = null;
+    if(isUpToDate())
+      result = Result.upToDate(headCommit);
+    else if(canBeFastForwarded())
+      result = fastForward(update);
+    else if(fastForwardOnly)
+      result = Result.aborted();
 
-    if(canBeFastForwarded())
-      return fastForward(update);
+    if(result != null) {
+      update.state(NORMAL);
+      return result;
+    }
 
     return threeWayMerge(update);
   }
@@ -83,6 +89,12 @@ public final class GfsMergeCommand extends GfsCommand<GfsMergeCommand.Result> {
   @Nonnull
   public GfsMergeCommand source(@Nullable Ref branchRef) {
     this.sourceRef = branchRef;
+    return this;
+  }
+
+  @Nonnull
+  public GfsMergeCommand fastForwardOnly(boolean fastForwardOnly) {
+    this.fastForwardOnly = fastForwardOnly;
     return this;
   }
 
@@ -183,7 +195,6 @@ public final class GfsMergeCommand extends GfsCommand<GfsMergeCommand.Result> {
       BranchUtils.mergeBranch(branch, sourceHeadCommit, sourceRef, FAST_FORWARD.toString(), repo);
       result = Result.fastForward(sourceHeadCommit);
     }
-    update.state(NORMAL);
     return result;
   }
 
@@ -290,6 +301,11 @@ public final class GfsMergeCommand extends GfsCommand<GfsMergeCommand.Result> {
     @Nonnull
     public static Result checkoutConflict() {
       return new Result(CHECKOUT_CONFLICT, null);
+    }
+
+    @Nonnull
+    public static Result aborted() {
+      return new Result(ABORTED, null);
     }
 
     @Nonnull
