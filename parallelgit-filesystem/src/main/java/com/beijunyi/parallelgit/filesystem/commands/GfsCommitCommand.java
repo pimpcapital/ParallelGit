@@ -36,7 +36,7 @@ public final class GfsCommitCommand extends GfsCommand<GfsCommitCommand.Result> 
     if(status.isAttached()) {
       if(!isHeadSynchonized()) {
         update.state(NORMAL);
-        return Result.offSync();
+        return Result.outOfSync();
       }
     }
     prepareMessage();
@@ -156,7 +156,7 @@ public final class GfsCommitCommand extends GfsCommand<GfsCommitCommand.Result> 
   public enum CommitStatus {
     COMMITTED,
     NO_CHANGE,
-    OFF_SYNC
+    OUT_OF_SYNC
   }
 
   public static class Result implements GfsCommandResult {
@@ -180,8 +180,8 @@ public final class GfsCommitCommand extends GfsCommand<GfsCommitCommand.Result> 
     }
 
     @Nonnull
-    public static Result offSync() {
-      return new Result(null, CommitStatus.OFF_SYNC);
+    public static Result outOfSync() {
+      return new Result(null, CommitStatus.OUT_OF_SYNC);
     }
 
     @Override
