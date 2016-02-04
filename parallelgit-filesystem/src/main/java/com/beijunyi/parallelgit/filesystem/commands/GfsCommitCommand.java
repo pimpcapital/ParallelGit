@@ -34,7 +34,7 @@ public final class GfsCommitCommand extends GfsCommand<GfsCommitCommand.Result> 
   @Override
   protected Result doExecute(@Nonnull GfsStatusProvider.Update update) throws IOException {
     if(status.isAttached()) {
-      if(!isHeadSynchonized()) {
+      if(!isHeadSynchronized()) {
         update.state(NORMAL);
         return Result.outOfSync();
       }
@@ -93,7 +93,7 @@ public final class GfsCommitCommand extends GfsCommand<GfsCommitCommand.Result> 
     return GfsState.COMMITTING;
   }
 
-  private boolean isHeadSynchonized() throws IOException {
+  private boolean isHeadSynchronized() throws IOException {
     if(BranchUtils.branchExists(status.branch(), repo)) {
       RevCommit head = BranchUtils.getHeadCommit(status.branch(), repo);
       return head.equals(status.commit());
