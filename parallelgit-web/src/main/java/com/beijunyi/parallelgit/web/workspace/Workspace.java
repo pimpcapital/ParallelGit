@@ -2,7 +2,6 @@ package com.beijunyi.parallelgit.web.workspace;
 
 import java.io.Closeable;
 import java.io.IOException;
-import java.nio.file.DirectoryStream;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.*;
@@ -10,9 +9,9 @@ import javax.annotation.Nonnull;
 
 import com.beijunyi.parallelgit.filesystem.Gfs;
 import com.beijunyi.parallelgit.filesystem.GitFileSystem;
-import com.beijunyi.parallelgit.filesystem.io.GitFileAttributeView;
 import com.beijunyi.parallelgit.utils.BranchUtils;
-import com.beijunyi.parallelgit.web.data.FileEntry;
+import com.beijunyi.parallelgit.web.data.DirectoryView;
+import com.beijunyi.parallelgit.web.data.FileAttributes;
 import com.beijunyi.parallelgit.web.data.Head;
 import org.eclipse.jgit.lib.Repository;
 
@@ -62,19 +61,12 @@ public class Workspace implements Closeable {
   }
 
   @Nonnull
-  public List<FileEntry> getDirectory(@Nonnull WorkspaceRequest request) throws IOException {
+  public DirectoryView getDirectory(@Nonnull WorkspaceRequest request) throws IOException {
     checkFS();
     String path = request.getTarget();
     if(path == null)
       throw new IllegalStateException();
-    List<FileEntry> ret = new ArrayList<>();
-    try(DirectoryStream<Path> children = Files.newDirectoryStream(gfs.getPath(path))) {
-      for(Path child : children) {
-        ret.add(FileEntry.read(child));
-      }
-    }
-    Collections.sort(ret);
-    return ret;
+    return DirectoryView.open(gfs.getPath(path));
   }
 
   @Nonnull
@@ -99,7 +91,7 @@ public class Workspace implements Closeable {
   }
 
   @Nonnull
-  public FileEntry save(@Nonnull WorkspaceRequest request) throws IOException {
+  public FileAttributes save(@Nonnull WorkspaceRequest request) throws IOException {
     checkFS();
     String path = request.getTarget();
     String data = request.getValue();
@@ -107,7 +99,7 @@ public class Workspace implements Closeable {
       throw new IllegalStateException();
     Path file = gfs.getPath(path);
     Files.write(file, data.getBytes());
-    return FileEntry.read(file);
+    return FileAttributes.read(file);
   }
 
   @Override

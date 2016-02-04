@@ -6,43 +6,53 @@ import java.nio.file.Path;
 import javax.annotation.Nonnull;
 
 import com.beijunyi.parallelgit.filesystem.io.GfsFileAttributeView;
-import com.beijunyi.parallelgit.filesystem.io.GitFileAttributeView;
+import org.eclipse.jgit.lib.AnyObjectId;
 import org.eclipse.jgit.lib.FileMode;
+import org.eclipse.jgit.lib.ObjectId;
 
 import static com.beijunyi.parallelgit.filesystem.io.GfsFileAttributeView.*;
 
-public class FileEntry implements Comparable<FileEntry> {
+public class FileAttributes implements Comparable<FileAttributes> {
 
   private final String name;
+  private final String hash;
   private final FileType type;
   private final FileState state;
 
-  public FileEntry(@Nonnull String name, @Nonnull FileType type, @Nonnull FileState state) {
+  public FileAttributes(@Nonnull String name, @Nonnull String hash, @Nonnull FileType type, @Nonnull FileState state) {
     this.name = name;
+    this.hash = hash;
     this.type = type;
     this.state = state;
   }
 
   @Nonnull
-  public static FileEntry read(@Nonnull Path path) throws IOException {
+  public static FileAttributes read(@Nonnull Path path) throws IOException {
     GfsFileAttributeView.Git view = Files.getFileAttributeView(path, GfsFileAttributeView.Git.class);
-    String name = path.getFileName().toString();
+    Path namePath = path.getFileName();
+    String name = namePath != null ? namePath.toString() : "";
+    String hash = readHash(view);
     FileType type = readType(view);
     FileState state = readState(view);
-    return new FileEntry(name, type, state);
+    return new FileAttributes(name, hash, type, state);
   }
 
   @Override
-  public int compareTo(@Nonnull FileEntry that) {
-    int typeCompare = getType().compareTo(that.getType());
+  public int compareTo(@Nonnull FileAttributes other) {
+    int typeCompare = getType().compareTo(other.getType());
     if(typeCompare != 0)
       return typeCompare;
-    return getName().compareTo(that.getName());
+    return getName().compareTo(other.getName());
   }
 
   @Nonnull
   public String getName() {
     return name;
+  }
+
+  @Nonnull
+  public String getHash() {
+    return hash;
   }
 
   @Nonnull
@@ -53,6 +63,12 @@ public class FileEntry implements Comparable<FileEntry> {
   @Nonnull
   public FileState getState() {
     return state;
+  }
+
+  @Nonnull
+  private static String readHash(@Nonnull GfsFileAttributeView.Git view) throws IOException {
+    AnyObjectId id = view.readAttribute(OBJECT_ID, AnyObjectId.class);
+    return id != null ? id.getName() : ObjectId.zeroId().getName();
   }
 
   @Nonnull

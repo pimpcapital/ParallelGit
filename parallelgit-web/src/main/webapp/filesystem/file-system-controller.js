@@ -29,7 +29,7 @@ app.controller('FileSystemController', function($rootScope, $scope, WorkspaceSer
     addPendingRequest(request);
   }
 
-  function findDirectory(path) {
+  function findFile(path) {
     var dirs = path.split('/');
     var current = $scope.root;
     while(dirs.length > 0) {
@@ -54,7 +54,7 @@ app.controller('FileSystemController', function($rootScope, $scope, WorkspaceSer
   }
 
   function updateTree(path, files) {
-    var dir = findDirectory(path);
+    var dir = findFile(path);
     populateDirectory(dir, files);
   }
 
@@ -76,9 +76,18 @@ app.controller('FileSystemController', function($rootScope, $scope, WorkspaceSer
 
   $scope.$on('directory', function(event, response) {
     var request = removePendingRequest(response.rid);
-    var dir = request.target;
-    var files = response.data;
-    updateTree(dir, files);
+    var path = request.target;
+    var children = response.data.children;
+    updateTree(path, children);
+  });
+
+  $scope.$on('save', function(event, response) {
+    var path = response.target;
+    var file = findFile(path);
+    var attribute = response.data;
+    if(file.hash != attribute.hash) {
+
+    }
   });
 
   $scope.treeOptions = {
