@@ -356,7 +356,7 @@ public final class GfsMergeCommand extends GfsCommand<GfsMergeCommand.Result> {
     @Nonnull
     public RevCommit getCommit() {
       if(commit == null)
-        throw new NoChangeException();
+        throw new UnsuccessfulOperationException();
       return commit;
     }
 

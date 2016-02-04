@@ -8,8 +8,7 @@ import javax.annotation.Nullable;
 import com.beijunyi.parallelgit.filesystem.GfsState;
 import com.beijunyi.parallelgit.filesystem.GfsStatusProvider;
 import com.beijunyi.parallelgit.filesystem.GitFileSystem;
-import com.beijunyi.parallelgit.filesystem.exceptions.BadGfsStateException;
-import com.beijunyi.parallelgit.filesystem.exceptions.NoChangeException;
+import com.beijunyi.parallelgit.filesystem.exceptions.UnsuccessfulOperationException;
 import com.beijunyi.parallelgit.utils.BranchUtils;
 import com.beijunyi.parallelgit.utils.CommitUtils;
 import org.eclipse.jgit.lib.AnyObjectId;
@@ -34,6 +33,12 @@ public final class GfsCommitCommand extends GfsCommand<GfsCommitCommand.Result> 
   @Nonnull
   @Override
   protected Result doExecute(@Nonnull GfsStatusProvider.Update update) throws IOException {
+    if(status.isAttached()) {
+      if(!isHeadSynchonized()) {
+        update.state(NORMAL);
+        return Result.offSync();
+      }
+    }
     prepareMessage();
     prepareCommitter();
     prepareAuthor();
@@ -88,6 +93,14 @@ public final class GfsCommitCommand extends GfsCommand<GfsCommitCommand.Result> 
     return GfsState.COMMITTING;
   }
 
+  private boolean isHeadSynchonized() throws IOException {
+    if(BranchUtils.branchExists(status.branch(), repo)) {
+      RevCommit head = BranchUtils.getHeadCommit(status.branch(), repo);
+      return head.equals(status.commit());
+    }
+    return true;
+  }
+
   private void prepareMessage() {
     if(message == null) {
       if(status.state() == GfsState.MERGING || status.state() == GfsState.CHERRY_PICKING)
@@ -140,22 +153,35 @@ public final class GfsCommitCommand extends GfsCommand<GfsCommitCommand.Result> 
     update.clearMergeNote();
   }
 
+  public enum CommitStatus {
+    COMMITTED,
+    NO_CHANGE,
+    OFF_SYNC
+  }
+
   public static class Result implements GfsCommandResult {
 
     private final RevCommit commit;
+    private final CommitStatus status;
 
-    private Result(@Nullable RevCommit commit) {
+    private Result(@Nullable RevCommit commit, @Nonnull CommitStatus status) {
       this.commit = commit;
+      this.status = status;
     }
 
     @Nonnull
     public static Result success(@Nonnull RevCommit commit) {
-      return new Result(commit);
+      return new Result(commit, CommitStatus.COMMITTED);
     }
 
     @Nonnull
     public static Result noChange() {
-      return new Result(null);
+      return new Result(null, CommitStatus.NO_CHANGE);
+    }
+
+    @Nonnull
+    public static Result offSync() {
+      return new Result(null, CommitStatus.OFF_SYNC);
     }
 
     @Override
@@ -166,9 +192,14 @@ public final class GfsCommitCommand extends GfsCommand<GfsCommitCommand.Result> 
     @Nonnull
     public RevCommit getCommit() {
       if(commit == null)
-        throw new NoChangeException();
+        throw new UnsuccessfulOperationException();
       return commit;
     }
 
+    @Nonnull
+    public CommitStatus getStatus() {
+      return status;
+    }
   }
+
 }
