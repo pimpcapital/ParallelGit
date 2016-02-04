@@ -1,18 +1,6 @@
 app.controller('FileEditorController', function($scope, $timeout, WorkspaceService) {
 
-  $scope.requests = null;
   $scope.files = null;
-
-  function addPendingRequest(request) {
-    $scope.requests[request.rid] = request;
-  }
-
-  function removePendingRequest(rid) {
-    var request = $scope.requests[rid];
-    if(request != null)
-      delete $scope.requests[rid];
-    return request;
-  }
 
   function findCurrentActiveFile() {
     for(var i = 0; i < $scope.files.length; i++) {
@@ -58,7 +46,7 @@ app.controller('FileEditorController', function($scope, $timeout, WorkspaceServi
     file.dismiss();
   }
 
-  function showFile(path, data) {
+  function initFile(path, data) {
     var pos = findCurrentActiveFile() + 1;
     deactivateAll();
     var file;
@@ -73,6 +61,11 @@ app.controller('FileEditorController', function($scope, $timeout, WorkspaceServi
       $scope.files.splice(pos, 0, file);
       startWatchingFile(file);
     }
+    file.active = true;
+  }
+
+  function showFile(file) {
+    deactivateAll();
     file.active = true;
   }
 
@@ -105,19 +98,19 @@ app.controller('FileEditorController', function($scope, $timeout, WorkspaceServi
   };
 
   $scope.$on('ready', function() {
-    $scope.requests = {};
     $scope.files = [];
   });
 
   $scope.$on('open-file', function(event, path) {
-    var request = WorkspaceService.request('file', path);
-    addPendingRequest(request);
+    var file = $scope.files[path];
+    if(file != null)
+      showFile(file);
+    else
+      WorkspaceService.request('file', path);
   });
+
   $scope.$on('file', function(event, response) {
-    var request = removePendingRequest(response.rid);
-    var path = request.target;
-    var data = response.data;
-    showFile(path, data);
+    initFile(response.target, response.data);
   });
 
 });
