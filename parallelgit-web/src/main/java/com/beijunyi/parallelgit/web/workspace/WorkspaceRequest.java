@@ -33,17 +33,13 @@ public class WorkspaceRequest {
     return rid;
   }
 
-  @Nonnull
+  @Nullable
   public String getTarget() {
-    if(target == null)
-      throw new IllegalStateException();
     return target;
   }
 
-  @Nonnull
+  @Nullable
   public String getValue() {
-    if(value == null)
-      throw new IllegalStateException();
     return value;
   }
 }

@@ -1,0 +1,5 @@
+#editor li.file-dirty>a {
+  color: #a94442;
+  background-color: #f2dede;
+  border-color: #ebccd1;
+}

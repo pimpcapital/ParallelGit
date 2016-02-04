@@ -1,7 +1,7 @@
-<div class="fill-height" ng-controller="FileEditorController">
+<div id="editor" class="fill-height" ng-controller="FileEditorController">
   <uib-tabset class="fill-height" ng-if="files != null && files.length > 0">
-    <uib-tab ng-repeat="file in files" active="file.active">
-      <uib-tab-heading>{{file.path | filename}} <a ng-click="close(file)"><i class="glyphicon glyphicon-remove"></i></a></uib-tab-heading>
+    <uib-tab ng-repeat="file in files" class="{{_fileClass(file)}}" active="file.active" select="focusFile(file)">
+      <uib-tab-heading>{{file.path | filename}} <a ng-click="closeFile(file)"><i class="glyphicon glyphicon-remove"></i></a></uib-tab-heading>
       <div class="fill-height" ui-ace ng-model="file.data"></div>
     </uib-tab>
   </uib-tabset>

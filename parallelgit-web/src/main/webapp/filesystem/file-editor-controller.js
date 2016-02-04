@@ -1,4 +1,4 @@
-app.controller('FileEditorController', function($scope, WorkspaceService) {
+app.controller('FileEditorController', function($scope, $timeout, WorkspaceService) {
 
   $scope.requests = null;
   $scope.files = null;
@@ -28,6 +28,36 @@ app.controller('FileEditorController', function($scope, WorkspaceService) {
     });
   }
 
+  function saveFile(file) {
+    cancelScheduledSave(file);
+    WorkspaceService.request('save', file.path, file.data);
+  }
+
+  function cancelScheduledSave(file) {
+    $timeout.cancel(file.scheduledSave);
+    delete file.scheduledSave;
+  }
+
+  function scheduleFileSave(file) {
+    cancelScheduledSave(file);
+    file.scheduledSave = $timeout(function() {
+      saveFile(file);
+    }, 1000);
+  }
+
+  function startWatchingFile(file) {
+    $scope.files[file.path] = file;
+    file.dismiss = $scope.$watch('files["' + file.path + '"].data', function(newData, oldData) {
+      if(newData != oldData)
+        scheduleFileSave(file);
+    });
+  }
+
+  function stopWatchFile(file) {
+    delete $scope.files[file.path];
+    file.dismiss();
+  }
+
   function showFile(path, data) {
     var pos = findCurrentActiveFile() + 1;
     deactivateAll();
@@ -41,11 +71,20 @@ app.controller('FileEditorController', function($scope, WorkspaceService) {
     if(file == null) {
       file = {path: path, data: data};
       $scope.files.splice(pos, 0, file);
+      startWatchingFile(file);
     }
     file.active = true;
   }
 
-  $scope.close = function(file) {
+  $scope.focusFile = function() {
+    for(var i = 0; i < $scope.files.length; i++) {
+      var file = $scope.files[i];
+      if(file.scheduledSave != null)
+        saveFile(file);
+    }
+  };
+
+  $scope.closeFile = function(file) {
     var index = $scope.files.indexOf(file);
     if(file.active) {
       file.active = false;
@@ -54,6 +93,15 @@ app.controller('FileEditorController', function($scope, WorkspaceService) {
         neighbour.active = true;
     }
     $scope.files.splice(index, 1);
+    stopWatchFile(file);
+    saveFile(file);
+  };
+
+  $scope._fileClass = function(file) {
+    var classes = [];
+    if(file.scheduledSave != null)
+      classes.push('file-dirty');
+    return classes.join(' ');
   };
 
   $scope.$on('ready', function() {

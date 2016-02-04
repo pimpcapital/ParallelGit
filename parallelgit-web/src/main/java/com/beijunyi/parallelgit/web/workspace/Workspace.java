@@ -38,13 +38,13 @@ public class Workspace implements Closeable {
       case "branches":
         return getBranches();
       case "directory":
-        return getDirectory(request.getTarget());
+        return getDirectory(request);
       case "file":
-        return getFile(request.getTarget());
+        return getFile(request);
       case "checkout":
-        return checkout(request.getValue());
-      case "edit":
-        return edit(request.getTarget(), request.getValue());
+        return checkout(request);
+      case "save":
+        return save(request);
       default:
         throw new UnsupportedOperationException(request.getType());
     }
@@ -62,8 +62,11 @@ public class Workspace implements Closeable {
   }
 
   @Nonnull
-  public List<FileEntry> getDirectory(@Nonnull String path) throws IOException {
+  public List<FileEntry> getDirectory(@Nonnull WorkspaceRequest request) throws IOException {
     checkFS();
+    String path = request.getTarget();
+    if(path == null)
+      throw new IllegalStateException();
     List<FileEntry> ret = new ArrayList<>();
     try(DirectoryStream<Path> children = Files.newDirectoryStream(gfs.getPath(path))) {
       for(Path child : children) {
@@ -75,13 +78,19 @@ public class Workspace implements Closeable {
   }
 
   @Nonnull
-  public String getFile(@Nonnull String path) throws IOException {
+  public String getFile(@Nonnull WorkspaceRequest request) throws IOException {
     checkFS();
+    String path = request.getTarget();
+    if(path == null)
+      throw new IllegalStateException();
     return new String(Files.readAllBytes(gfs.getPath(path)));
   }
 
   @Nonnull
-  public CheckoutResult checkout(@Nonnull String branch) throws IOException {
+  public CheckoutResult checkout(@Nonnull WorkspaceRequest request) throws IOException {
+    String branch = request.getValue();
+    if(branch == null)
+      throw new IllegalStateException();
     if(gfs == null) {
       gfs = Gfs.newFileSystem(branch, repo);
       return CheckoutResult.success();
@@ -90,11 +99,15 @@ public class Workspace implements Closeable {
   }
 
   @Nonnull
-  public GitFileAttributeView edit(@Nonnull String path, @Nonnull String content) throws IOException {
+  public FileEntry save(@Nonnull WorkspaceRequest request) throws IOException {
     checkFS();
+    String path = request.getTarget();
+    String data = request.getValue();
+    if(path == null || data == null)
+      throw new IllegalStateException();
     Path file = gfs.getPath(path);
-    Files.write(file, content.getBytes());
-    return Files.getFileAttributeView(file, GitFileAttributeView.class);
+    Files.write(file, data.getBytes());
+    return FileEntry.read(file);
   }
 
   @Override

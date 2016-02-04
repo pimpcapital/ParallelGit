@@ -9,8 +9,9 @@ public class MessageData extends HashMap<String, Object> {
   public MessageData() {
   }
 
-  public MessageData(@Nonnull String rid, @Nonnull Object data) {
+  public MessageData(@Nonnull String rid, @Nullable String target, @Nonnull Object data) {
     put("rid", rid);
+    put("target", target);
     put("data", data);
   }
 

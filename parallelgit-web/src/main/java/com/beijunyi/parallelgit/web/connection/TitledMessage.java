@@ -28,8 +28,8 @@ public class TitledMessage {
   }
 
   @Nonnull
-  public static TitledMessage resource(@Nonnull String type, @Nonnull String rid, @Nonnull Object data) {
-    return new TitledMessage(type, new MessageData(rid, data));
+  public static TitledMessage response(@Nonnull String type, @Nonnull String rid, @Nullable String target, @Nonnull Object data) {
+    return new TitledMessage(type, new MessageData(rid, target, data));
   }
 
   public String getTitle() {

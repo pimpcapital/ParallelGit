@@ -1,7 +1,6 @@
 package com.beijunyi.parallelgit.web.connection;
 
 import java.io.IOException;
-import java.util.Map;
 import javax.annotation.Nonnull;
 import javax.inject.Inject;
 import javax.websocket.*;
@@ -25,6 +24,7 @@ public class EndPoint {
   @OnOpen
   public void handleConnection(@Nonnull Session session) {
     id = session.getId();
+    session.setMaxTextMessageBufferSize(64 * 1024);
   }
 
   @OnMessage
@@ -55,7 +55,7 @@ public class EndPoint {
   private void processRequest(@Nonnull MessageData msg, @Nonnull Session session) throws EncodeException, IOException {
     WorkspaceRequest request = new WorkspaceRequest(msg);
     Object data = workspace.processRequest(request);
-    session.getBasicRemote().sendObject(TitledMessage.resource(request.getType(), request.getRequestId(), data));
+    session.getBasicRemote().sendObject(TitledMessage.response(request.getType(), request.getRequestId(), request.getTarget(), data));
   }
 
 }
