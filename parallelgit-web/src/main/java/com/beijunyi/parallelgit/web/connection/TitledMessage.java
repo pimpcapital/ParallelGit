@@ -3,9 +3,9 @@ package com.beijunyi.parallelgit.web.connection;
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 
-public class TitledMessage {
+import com.beijunyi.parallelgit.web.workspace.GitUser;
 
-  private static final TitledMessage READY = new TitledMessage("ready");
+public class TitledMessage {
 
   private String title;
   private MessageData data;
@@ -23,8 +23,8 @@ public class TitledMessage {
   }
 
   @Nonnull
-  public static TitledMessage ready() {
-    return READY;
+  public static TitledMessage ready(@Nonnull GitUser user) {
+    return new TitledMessage("ready", new MessageData(null, null, user));
   }
 
   @Nonnull

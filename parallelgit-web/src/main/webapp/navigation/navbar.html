@@ -22,7 +22,14 @@
         </li>
       </ul>
       <ul class="nav navbar-nav navbar-right">
-
+        <li class="dropdown" uib-dropdown keyboard-nav ng-controller="AdminController">
+          <a class="dropdown-toggle" uib-dropdown-toggle ng-show="credential != null">{{credential.username}}<span class="caret"></span></a>
+          <ul class="dropdown-menu" uib-dropdown-menu>
+            <li><a ng-click="manageRepositories(branch)">Manage Repositories</a></li>
+            <li role="separator" class="divider"></li>
+            <li><a ng-click="logout()">Sign out</a></li>
+          </ul>
+        </li>
       </ul>
     </div>
   </div>

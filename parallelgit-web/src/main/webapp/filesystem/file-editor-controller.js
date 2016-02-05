@@ -108,6 +108,9 @@ app.controller('FileEditorController', function($scope, $timeout, WorkspaceServi
   $scope.$on('ready', function() {
     $scope.files = [];
   });
+  $scope.$on('disconnect', function() {
+    $scope.files = null;
+  });
 
   $scope.$on('open-file', function(event, path) {
     var file = $scope.files[path];

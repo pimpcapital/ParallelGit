@@ -49,7 +49,7 @@ public class EndPoint {
   private void processLogin(@Nonnull MessageData data, @Nonnull Session session) throws EncodeException, IOException {
     GitUser user = new GitUser(data);
     workspace = workspaces.prepareWorkspace(id, user);
-    session.getBasicRemote().sendObject(TitledMessage.ready());
+    session.getBasicRemote().sendObject(TitledMessage.ready(user));
   }
 
   private void processRequest(@Nonnull MessageData msg, @Nonnull Session session) throws EncodeException, IOException {

@@ -21,9 +21,14 @@ app.service('ConnectionService', function($rootScope, $timeout, EncodeService, D
     }
   }
 
-  this.init = function(credential) {
+  this.connect = function(credential) {
     setupConnection();
     send('login', credential);
+  };
+
+  this.disconnect = function() {
+    connection.close();
+    connection = null;
   };
 
   this.send = function(title, data) {
