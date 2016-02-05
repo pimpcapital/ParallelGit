@@ -15,6 +15,24 @@ treecontrol li {
   white-space: nowrap;
 }
 
+treecontrol li.tree-collapsed:before,
+treecontrol li.tree-expanded:before {
+  position: relative;
+  top: 1px;
+  font-family: 'Glyphicons Halflings', serif;
+  line-height: 1;
+  margin-left: -18px;
+  margin-right: 5px;
+}
+
+treecontrol li.tree-collapsed:before {
+  content: "\e250";
+}
+
+treecontrol li.tree-expanded:before {
+  content: "\e252";
+}
+
 treecontrol li>i {
   z-index: 200;
   position: relative;
