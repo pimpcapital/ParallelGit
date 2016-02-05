@@ -3,6 +3,7 @@ app.controller('FileEditorController', function($scope, $timeout, WorkspaceServi
   var aceModeList = ace.require("ace/ext/modelist");
 
   $scope.files = null;
+  $scope.tabsScroll = {};
 
   function findCurrentActiveFile() {
     for(var i = 0; i < $scope.files.length; i++) {
@@ -50,7 +51,6 @@ app.controller('FileEditorController', function($scope, $timeout, WorkspaceServi
 
   function initFile(path, data) {
     var pos = findCurrentActiveFile() + 1;
-    deactivateAll();
     var file;
     for(var i = 0; i < $scope.files.length; i++) {
       if($scope.files[i].path == path) {
@@ -70,12 +70,20 @@ app.controller('FileEditorController', function($scope, $timeout, WorkspaceServi
       $scope.files.splice(pos, 0, file);
       startWatchingFile(file);
     }
-    file.active = true;
+    showFile(file)
+  }
+
+  function prepareTabScroll() {
+    $timeout(function() {
+      $scope.tabsScroll.doRecalculate();
+      $scope.tabsScroll.scrollTabIntoView();
+    });
   }
 
   function showFile(file) {
     deactivateAll();
     file.active = true;
+    prepareTabScroll();
   }
 
   $scope.focusFile = function() {
@@ -95,6 +103,7 @@ app.controller('FileEditorController', function($scope, $timeout, WorkspaceServi
         neighbour.active = true;
     }
     $scope.files.splice(index, 1);
+    prepareTabScroll();
     stopWatchFile(file);
     saveFile(file);
   };

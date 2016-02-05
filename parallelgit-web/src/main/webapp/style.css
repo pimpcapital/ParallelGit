@@ -51,7 +51,8 @@ body {
   cursor: pointer;
 }
 
-.tab-content {
+.tab-content,
+.ui-tabs-scrollable > .spacer > div:first-child > .tab-content {
   height: calc(100% - 28px);
   border: 1px solid #282828;
 }
@@ -79,6 +80,20 @@ ul.nav-tabs>li.active>a:focus {
   background: #515658;
   border: 1px solid #282828;
   color: #ADADAD;
+}
+
+.ui-tabs-scrollable > .spacer > div:first-child > .nav-tabs > li > a {
+  height: 28px;
+}
+
+.ui-tabs-scrollable > .nav-button {
+  height: 28px;
+  line-height: 28px;
+  border-radius: 0 !important;
+  color: #ADADAD;
+  border: 1px solid #282828;
+  background-color: #3C3E3F;
+  outline: none;
 }
 
 .tab-pane {
