@@ -31,6 +31,7 @@ public abstract class GfsFileAttributeView implements FileAttributeView {
   public static final String IS_MODIFIED = "isModified";
   public static final String OBJECT_ID = "objectId";
   public static final String FILE_MODE = "fileMode";
+  public static final String DELTA = "delta";
 
   public static final Set<String> BASIC_KEYS = Basic.keys();
   public static final Set<String> POSIX_KEYS = Posix.keys();
