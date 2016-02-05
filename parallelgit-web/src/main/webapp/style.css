@@ -16,6 +16,10 @@ body {
   outline: 1px solid slategrey;
 }
 
+.glyphicon {
+  top: 2px;
+}
+
 .navbar-inverse .navbar-nav>.open>a,
 .navbar-inverse .navbar-nav>.open>a:focus,
 .navbar-inverse .navbar-nav>.open>a:hover {
