@@ -36,40 +36,30 @@ app.controller('FileEditorController', function($scope, $timeout, WorkspaceServi
     }, 1000);
   }
 
-  function startWatchingFile(file) {
-    $scope.files[file.path] = file;
-    file.dismiss = $scope.$watch('files["' + file.path + '"].data', function(newData, oldData) {
-      if(newData != oldData)
-        scheduleFileSave(file);
-    });
-  }
-
-  function stopWatchFile(file) {
-    delete $scope.files[file.path];
-    file.dismiss();
+  function createFileTab(path, data) {
+    var ret = {
+      path: path,
+      data: data,
+      initialized: false,
+      aceOptions: {
+        theme: 'merbivore_soft',
+        mode: aceModeList.getModeForPath(path).name,
+        onChange: function() {
+          if(!ret.initialized)
+            ret.initialized = true;
+          else
+            scheduleFileSave(ret);
+        }
+      }
+    };
+    return ret;
   }
 
   function initFile(path, data) {
     var pos = findCurrentActiveFile() + 1;
-    var file;
-    for(var i = 0; i < $scope.files.length; i++) {
-      if($scope.files[i].path == path) {
-        file = $scope.files[i];
-        break;
-      }
-    }
-    if(file == null) {
-      file = {
-        path: path,
-        data: data,
-        aceOptions: {
-          theme: 'merbivore_soft',
-          mode: aceModeList.getModeForPath(path).name
-        }
-      };
-      $scope.files.splice(pos, 0, file);
-      startWatchingFile(file);
-    }
+    var file = createFileTab(path, data);
+    $scope.files.splice(pos, 0, file);
+    $scope.files[path] = file;
     showFile(file)
   }
 
@@ -103,8 +93,8 @@ app.controller('FileEditorController', function($scope, $timeout, WorkspaceServi
         neighbour.active = true;
     }
     $scope.files.splice(index, 1);
+    delete $scope.files[file.path];
     prepareTabScroll();
-    stopWatchFile(file);
     saveFile(file);
   };
 
