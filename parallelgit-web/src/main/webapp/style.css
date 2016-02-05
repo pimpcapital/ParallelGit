@@ -47,7 +47,8 @@ body {
   color: #ADADAD;
 }
 
-[ng-click] {
+[ng-click],
+.dropdown-toggle {
   cursor: pointer;
 }
 

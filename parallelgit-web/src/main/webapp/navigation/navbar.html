@@ -7,11 +7,17 @@
     <div>
       <ul class="nav navbar-nav">
         <li class="dropdown" uib-dropdown keyboard-nav ng-controller="BranchController">
-          <a href="#" class="dropdown-toggle" uib-dropdown-toggle ng-show="head != null">{{head | head}}<span class="caret"></span></a>
+          <a class="dropdown-toggle" uib-dropdown-toggle ng-show="head != null">{{head | head}}<span class="caret"></span></a>
           <ul class="dropdown-menu" uib-dropdown-menu ng-show="branches != null">
             <li ng-repeat="branch in branches"><a ng-click="checkout(branch)">{{branch}}</a></li>
             <li role="separator" class="divider" ng-show="branches.length > 0"></li>
             <li><a ng-click="createBranch()">Create new branch</a></li>
+          </ul>
+        </li>
+        <li class="dropdown" uib-dropdown keyboard-nav ng-controller="VersionControlController">
+          <a class="dropdown-toggle" uib-dropdown-toggle>Version Control<span class="caret"></span></a>
+          <ul class="dropdown-menu" uib-dropdown-menu>
+            <li><a ng-click="commit()">Commit</a></li>
           </ul>
         </li>
       </ul>
