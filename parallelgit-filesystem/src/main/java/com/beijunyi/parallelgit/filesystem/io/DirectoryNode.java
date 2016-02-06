@@ -89,7 +89,13 @@ public class DirectoryNode extends Node<TreeSnapshot, Map<String, Node>> {
 
   @Override
   protected boolean isTrivial(@Nonnull Map<String, Node> data) {
-    return data.isEmpty();
+    boolean ret = true;
+    for(Node child : data.values())
+      if(!child.isTrivial()) {
+        ret = false;
+        break;
+      }
+    return ret;
   }
 
   @Nonnull

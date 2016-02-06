@@ -116,6 +116,13 @@ public class GitFileAttributeViewTest extends AbstractGitFileSystemTest {
   }
 
   @Test
+  public void whenEmptyChildrenDirectoriesAreCreated_isModifiedAttributeOfTheDirectoryShouldBeFalse() throws IOException {
+    initGitFileSystem("/dir/some_file.txt");
+    Files.createDirectories(gfs.getPath("/dir/empty_dir1/empty_dir2"));
+    assertFalse(isModified("/dir"));
+  }
+
+  @Test
   public void whenFileIsDeletedAndThenAddedWithTheSameContent_isModifiedAttributeShouldBeFalse() throws IOException {
     byte[] data = someBytes();
     writeToCache("/some_file.txt", data);
@@ -157,6 +164,14 @@ public class GitFileAttributeViewTest extends AbstractGitFileSystemTest {
     initGitFileSystem();
     RevCommit head = gfs.getStatusProvider().commit();
     assertEquals(getObjectId("/dir", head.getTree(), repo), objectId("/dir"));
+  }
+
+  @Test
+  public void whenEmptyChildrenDirectoriesIAreCreated_getObjectIdShouldReturnSameValue() throws IOException {
+    initGitFileSystem("/dir/some_file.txt");
+    AnyObjectId original = objectId("/dir");
+    Files.createDirectories(gfs.getPath("/dir/empty_dir1/empty_dir2"));
+    assertEquals(original, objectId("/dir"));
   }
 
   @Test

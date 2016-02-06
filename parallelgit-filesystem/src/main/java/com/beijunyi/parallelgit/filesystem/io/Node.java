@@ -123,6 +123,10 @@ public abstract class Node<Snapshot extends ObjectSnapshot, Data> {
     return data;
   }
 
+  protected boolean isTrivial() {
+    return data != null && isTrivial(data);
+  }
+
   @Nonnull
   private Snapshot loadSnapshot(@Nonnull AnyObjectId id) throws IOException {
     Snapshot ret = objService.read(id, getSnapshotType());
@@ -135,7 +139,7 @@ public abstract class Node<Snapshot extends ObjectSnapshot, Data> {
   protected Snapshot takeSnapshot(boolean persist) throws IOException {
     if(data == null)
       throw new IllegalStateException();
-    if(isTrivial(data))
+    if(isTrivial())
       return null;
     Snapshot snapshot = captureData(data, persist);
     if(persist)
