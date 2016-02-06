@@ -1,4 +1,4 @@
-app.controller('FileSystemController', function($rootScope, $scope, WorkspaceService) {
+app.controller('FileSystemController', function($rootScope, $scope, $uibModal, WorkspaceService) {
 
   $scope.requests = null;
   $scope.root = null;
@@ -57,6 +57,7 @@ app.controller('FileSystemController', function($rootScope, $scope, WorkspaceSer
 
   function createFileNode(dir, file) {
     file.path = dir.path + '/' + file.name;
+    file.parent = dir.path;
     return file;
   }
 
@@ -67,6 +68,37 @@ app.controller('FileSystemController', function($rootScope, $scope, WorkspaceSer
       dir.children[node.name] = node;
     });
   }
+
+  function addNewFile(file) {
+    $uibModal.open({
+      templateUrl: 'filesystem/new-file-modal.html',
+      size: 'sm',
+      resolve: {
+        location: function() {
+          return file.type == 'DIRECTORY' ? file.path : file.parent;
+        }
+      },
+      controller : 'NewFileController'
+    });
+  }
+
+  $scope.contextMenu = function(file) {
+    return [
+      ['New File', function() {
+        addNewFile(file);
+      }],
+      ['Cut', function() {
+      }],
+      ['Copy', function() {
+      }],
+      ['Paste', function() {
+      }],
+      ['Rename', function() {
+      }],
+      ['Delete', function() {
+      }]
+    ]
+  };
 
   $scope.select = function(node) {
     $rootScope.$broadcast('open-file', node.path);

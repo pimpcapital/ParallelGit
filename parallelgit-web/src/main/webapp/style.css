@@ -4,6 +4,7 @@ body {
 
 * {
   outline: none !important;
+  border-radius: 0 !important;
 }
 
 *::-webkit-scrollbar {
@@ -30,16 +31,56 @@ body {
   background-color: #1C1C1C;
 }
 
+.btn {
+  box-shadow: inset 0 30px 20px #282828 !important;
+  border: 1px solid #282828 !important;
+}
+
+.btn-primary {
+  background: #286090;
+}
+
+.btn-primary.active,
+.btn-primary:active,
+.btn-primary.active.hover,
+.btn-primary:active:hover,
+.btn-primary:active.focus,
+.btn-primary:active:focus {
+  background: #337ab7;
+}
+
 .modal-sm {
   width: 500px;
+}
+
+.modal-content {
+  background-color: #383838;
+  color: #ADADAD;
+}
+
+.modal-header {
+  border-bottom: 1px solid #1C1C1C;
+}
+
+.modal-footer {
+  border-top: 1px solid #1C1C1C;
+}
+
+.form-control {
+  background-color: #1C1C1C;
+  color: #ADADAD;
+  border: solid 1px transparent;
+}
+
+.form-control:focus {
+  box-shadow: inset 0 1px 1px rgba(0,0,0,.075),0 0 20px rgba(102,175,233,.6);
 }
 
 .dropdown-menu {
   height: auto;
   max-height: 400px;
   overflow-x: hidden;
-  border-radius: 0;
-  background: #1C1C1C;
+  background: rgba(28, 28, 28, 0.9);
 }
 
 .dropdown-menu .divider {
@@ -68,7 +109,6 @@ ul.nav-tabs {
 
 ul.nav-tabs>li>a {
   border: 1px solid transparent;
-  border-radius: 0;
   padding: 3px 12px;
 }
 
@@ -94,7 +134,6 @@ ul.nav-tabs>li.active>a:focus {
 .ui-tabs-scrollable > .nav-button {
   height: 28px;
   line-height: 28px;
-  border-radius: 0 !important;
   color: #ADADAD;
   border: 1px solid #282828;
   background-color: #3C3E3F;

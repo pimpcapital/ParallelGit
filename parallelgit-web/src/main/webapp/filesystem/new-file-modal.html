@@ -1,0 +1,15 @@
+<form ng-submit="ok()" id="login-form">
+  <div class="modal-header">
+    <h3 class="modal-title">Create new file</h3>
+  </div>
+  <div class="modal-body">
+    <div class="form-group">
+      <label for="login-username">Username</label>
+      <input type="text" class="form-control" name="username" ng-model="username" id="login-username" required/>
+    </div>
+  </div>
+  <div class="modal-footer">
+    <button class="btn btn-primary" type="submit">OK</button>
+    <button class="btn btn-primary" ng-click="cancel()">Cancel</button>
+  </div>
+</form>
