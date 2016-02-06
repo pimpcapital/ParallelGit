@@ -1,7 +1,7 @@
 <nav class="navbar navbar-inverse">
   <div class="container">
     <div class="navbar-header">
-      <a class="navbar-brand" href="#">ParallelGit</a>
+      <a class="navbar-brand">ParallelGit</a>
     </div>
 
     <div>
@@ -23,7 +23,7 @@
       </ul>
       <ul class="nav navbar-nav navbar-right">
         <li class="dropdown" uib-dropdown keyboard-nav ng-controller="AdminController">
-          <a class="dropdown-toggle" uib-dropdown-toggle ng-show="credential != null">{{credential.username}}<span class="caret"></span></a>
+          <a class="dropdown-toggle" uib-dropdown-toggle ng-show="credential != null"><i class="glyphicon glyphicon-user"></i> {{credential.username}}<span class="caret"></span></a>
           <ul class="dropdown-menu" uib-dropdown-menu>
             <li><a ng-click="manageRepositories(branch)">Manage Repositories</a></li>
             <li role="separator" class="divider"></li>

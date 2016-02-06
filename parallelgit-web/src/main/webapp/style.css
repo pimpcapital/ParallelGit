@@ -2,6 +2,10 @@ body {
   background: #3C3F41;
 }
 
+* {
+  outline: none !important;
+}
+
 *::-webkit-scrollbar {
   width: 1em;
 }

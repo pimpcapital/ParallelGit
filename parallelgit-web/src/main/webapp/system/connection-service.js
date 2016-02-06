@@ -1,5 +1,8 @@
 app.service('ConnectionService', function($rootScope, $timeout, EncodeService, DecodeService) {
-  var connection;
+
+  var connection = null;
+  var requests = null;
+
   function setupConnection() {
     connection = new WebSocket('ws://' + window.location.host + '/ws');
     connection.onmessage = function(response) {
