@@ -1,10 +1,15 @@
 .cg-notify-message {
   border-radius: 0;
-  background: #383838;
+  color: #d9edf7;
+  background: #31708f;
   padding: 10px 50px 10px 30px;
-  box-shadow: inset 0 0 10px #282828;
+  box-shadow: inset 0 0 20px #282828;
   border: 1px solid #282828;
-  color: #ADADAD;
+}
+
+.cg-notify-message-error {
+  color: #f2dede;
+  background: #a94442;
 }
 
 .cg-notify-close {
@@ -18,6 +23,6 @@
 
 .cg-notify-close:hover,
 .cg-notify-close:focus {
-  color: #ADADAD;
+  color: inherit;
   opacity: 1;
 }

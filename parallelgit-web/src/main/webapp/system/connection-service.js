@@ -1,4 +1,4 @@
-app.service('ConnectionService', function($rootScope, $timeout, EncodeService, DecodeService) {
+app.service('ConnectionService', function($rootScope, $timeout, NotificationService, EncodeService, DecodeService) {
 
   var connection = null;
   var requests = null;
@@ -17,6 +17,8 @@ app.service('ConnectionService', function($rootScope, $timeout, EncodeService, D
     if(connection != null) {
       if(connection.readyState == 1)
         connection.send(EncodeService.encode({title: title, data: data}));
+      else if(connection.readyState == 3)
+        NotificationService.error('Lost connection with server');
       else
         $timeout(function() {
           send(title, data);
