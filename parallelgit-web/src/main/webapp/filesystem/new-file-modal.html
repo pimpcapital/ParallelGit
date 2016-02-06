@@ -1,11 +1,11 @@
 <form ng-submit="ok()" id="login-form">
   <div class="modal-header">
-    <h3 class="modal-title">Create new file</h3>
+    <h3 class="modal-title">Enter a new file name</h3>
   </div>
   <div class="modal-body">
     <div class="form-group">
-      <label for="login-username">Username</label>
-      <input type="text" class="form-control" name="username" ng-model="username" id="login-username" required/>
+      <span class="mono">{{location | hierarchy}}</span>
+      <input id="new-file-filename" type="text" class="form-control">
     </div>
   </div>
   <div class="modal-footer">
