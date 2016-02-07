@@ -1,4 +1,4 @@
-app.controller('MainController', function($scope, NotificationService, SecurityService) {
+app.controller('MainController', function($scope, ConnectionService, NotificationService, SecurityService) {
 
   $scope.ready = false;
   $scope.$on('ready', function() {
