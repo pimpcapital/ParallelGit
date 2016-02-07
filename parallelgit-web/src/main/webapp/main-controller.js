@@ -10,6 +10,11 @@ app.controller('MainController', function($scope, NotificationService, SecurityS
     NotificationService.info('Disconnected from Server');
   });
 
+  $scope.layout = {
+    flow: 'column',
+    disableToggle: true
+  };
+
   SecurityService.login();
 
 });

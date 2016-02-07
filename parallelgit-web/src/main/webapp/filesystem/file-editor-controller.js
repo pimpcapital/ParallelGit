@@ -63,17 +63,18 @@ app.controller('FileEditorController', function($scope, $timeout, WorkspaceServi
     showFile(file)
   }
 
-  function prepareTabScroll() {
+  function prepareTabScroll(focus) {
     $timeout(function() {
       $scope.tabsScroll.doRecalculate();
-      $scope.tabsScroll.scrollTabIntoView();
+      if(focus)
+        $scope.tabsScroll.scrollTabIntoView();
     });
   }
 
   function showFile(file) {
     deactivateAll();
     file.active = true;
-    prepareTabScroll();
+    prepareTabScroll(true);
   }
 
   $scope.focusFile = function() {
@@ -94,7 +95,7 @@ app.controller('FileEditorController', function($scope, $timeout, WorkspaceServi
     }
     $scope.files.splice(index, 1);
     delete $scope.files[file.path];
-    prepareTabScroll();
+    prepareTabScroll(true);
     saveFile(file);
   };
 
@@ -110,6 +111,10 @@ app.controller('FileEditorController', function($scope, $timeout, WorkspaceServi
   });
   $scope.$on('disconnect', function() {
     $scope.files = null;
+  });
+
+  $scope.$on('ui.layout.resize', function(){
+    prepareTabScroll(false);
   });
 
   $scope.$on('open-file', function(event, path) {

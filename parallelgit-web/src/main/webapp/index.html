@@ -6,6 +6,7 @@
   <link rel="stylesheet" href="lib/angular-tree-control/css/tree-control.css">
   <link rel="stylesheet" href="lib/angular-tree-control/css/tree-control-attribute.css">
   <link rel="stylesheet" href="lib/angular-ui-tab-scroll/angular-ui-tab-scroll.css">
+  <link rel="stylesheet" href="lib/ui-layout/ui-layout.css">
   <link rel="stylesheet" href="style.css">
   <link rel="stylesheet" href="filesystem/filesystem.css">
   <link rel="stylesheet" href="system/system.css">
@@ -14,14 +15,14 @@
 <div ng-show="ready">
   <div id="nav" ng-include="'navigation/navbar.html'"></div>
   <div id="main">
-    <div class="row fill-height">
-      <div class="col-md-4 fill-height">
+    <ui-layout options="layout">
+      <div ui-layout-container class="fill-height" size="30%">
         <div class="fill-height" ng-include="'filesystem/file-tree.html'"></div>
       </div>
-      <div class="col-md-8 fill-height">
+      <div ui-layout-container class="fill-height" size="70%">
         <div class="fill-height" ng-include="'filesystem/editor.html'"></div>
       </div>
-    </div>
+    </ui-layout>
   </div>
 </div>
 
@@ -36,6 +37,7 @@
 <script src="lib/angular-ui-tab-scroll/angular-ui-tab-scroll.js"></script>
 <script src="lib/ui-ace/ui-ace.js"></script>
 <script src="lib/ui-bootstrap-context-menu/context-menu.js"></script>
+<script src="lib/ui-layout/ui-layout.js"></script>
 <script src="app.js"></script>
 <script src="filesystem/file-system-controller.js"></script>
 <script src="filesystem/file-editor-controller.js"></script>
