@@ -8,7 +8,6 @@ import javax.annotation.Nonnull;
 import com.beijunyi.parallelgit.filesystem.io.GfsFileAttributeView;
 import org.eclipse.jgit.lib.AnyObjectId;
 import org.eclipse.jgit.lib.FileMode;
-import org.eclipse.jgit.lib.ObjectId;
 
 import static com.beijunyi.parallelgit.filesystem.io.GfsFileAttributeView.*;
 
