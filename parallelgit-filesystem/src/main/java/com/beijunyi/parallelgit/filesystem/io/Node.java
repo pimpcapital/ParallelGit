@@ -5,10 +5,12 @@ import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 
 import com.beijunyi.parallelgit.filesystem.GfsObjectService;
+import com.beijunyi.parallelgit.utils.ObjectUtils;
 import com.beijunyi.parallelgit.utils.io.GitFileEntry;
 import com.beijunyi.parallelgit.utils.io.ObjectSnapshot;
 import org.eclipse.jgit.lib.AnyObjectId;
 import org.eclipse.jgit.lib.FileMode;
+import org.eclipse.jgit.lib.ObjectId;
 
 import static org.eclipse.jgit.lib.FileMode.*;
 
@@ -16,8 +18,8 @@ public abstract class Node<Snapshot extends ObjectSnapshot, Data> {
 
   protected final GfsObjectService objService;
 
+  protected volatile GitFileEntry origin = GitFileEntry.TRIVIAL;
   protected volatile DirectoryNode parent;
-  protected volatile GitFileEntry origin;
   protected volatile Snapshot snapshot;
   protected volatile AnyObjectId id;
   protected volatile FileMode mode;
@@ -78,11 +80,11 @@ public abstract class Node<Snapshot extends ObjectSnapshot, Data> {
     return TREE.equals(getMode());
   }
 
-  @Nullable
+  @Nonnull
   public AnyObjectId getObjectId(boolean persist) throws IOException {
     if(id == null || persist && !objService.hasObject(id)) {
       Snapshot snapshot = takeSnapshot(persist);
-      id = snapshot != null ? snapshot.getId() : null;
+      id = snapshot != null ? snapshot.getId() : ObjectId.zeroId();
     }
     return id;
   }
@@ -103,13 +105,11 @@ public abstract class Node<Snapshot extends ObjectSnapshot, Data> {
   }
 
   public boolean isNew() throws IOException {
-    return origin == null;
+    return origin.isMissing();
   }
 
   public boolean isModified() throws IOException {
     AnyObjectId id = getObjectId(false);
-    if(origin == null)
-      return id != null;
     return !origin.getId().equals(id) || !origin.getMode().equals(mode);
   }
 
@@ -123,14 +123,14 @@ public abstract class Node<Snapshot extends ObjectSnapshot, Data> {
     return data;
   }
 
-  protected boolean isTrivial() {
-    return data != null && isTrivial(data);
+  protected boolean isTrivial() throws IOException {
+    return ObjectUtils.isZeroId(getObjectId(false));
   }
 
   @Nonnull
   private Snapshot loadSnapshot(@Nonnull AnyObjectId id) throws IOException {
     Snapshot ret = objService.read(id, getSnapshotType());
-    if(origin != null && origin.getId().equals(id))
+    if(origin.getId().equals(id))
       snapshot = ret;
     return ret;
   }
@@ -139,7 +139,7 @@ public abstract class Node<Snapshot extends ObjectSnapshot, Data> {
   protected Snapshot takeSnapshot(boolean persist) throws IOException {
     if(data == null)
       throw new IllegalStateException();
-    if(isTrivial())
+    if(isTrivial(data))
       return null;
     Snapshot snapshot = captureData(data, persist);
     if(persist)
@@ -165,7 +165,7 @@ public abstract class Node<Snapshot extends ObjectSnapshot, Data> {
   }
 
   public void reset() {
-    if(origin == null)
+    if(origin.isMissing())
       throw new IllegalStateException();
     reset(origin);
   }
@@ -201,7 +201,7 @@ public abstract class Node<Snapshot extends ObjectSnapshot, Data> {
   @Nonnull
   protected abstract Data loadData(@Nonnull Snapshot snapshot) throws IOException;
 
-  protected abstract boolean isTrivial(@Nonnull Data data);
+  protected abstract boolean isTrivial(@Nonnull Data data) throws IOException;
 
   @Nonnull
   protected abstract Snapshot captureData(@Nonnull Data data, boolean persist) throws IOException;

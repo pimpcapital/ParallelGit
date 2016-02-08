@@ -5,12 +5,15 @@ import javax.annotation.Nullable;
 
 import org.eclipse.jgit.lib.AnyObjectId;
 import org.eclipse.jgit.lib.FileMode;
+import org.eclipse.jgit.lib.ObjectId;
 import org.eclipse.jgit.treewalk.TreeWalk;
 
 import static org.eclipse.jgit.lib.FileMode.*;
 import static org.eclipse.jgit.lib.ObjectId.zeroId;
 
 public class GitFileEntry {
+
+  public static final GitFileEntry TRIVIAL = new GitFileEntry(ObjectId.zeroId(), FileMode.MISSING);
 
   private final AnyObjectId id;
   private final FileMode mode;

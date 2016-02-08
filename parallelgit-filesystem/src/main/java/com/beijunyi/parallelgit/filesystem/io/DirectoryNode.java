@@ -8,6 +8,7 @@ import javax.annotation.Nullable;
 
 import com.beijunyi.parallelgit.filesystem.GfsObjectService;
 import com.beijunyi.parallelgit.filesystem.exceptions.IncompatibleFileModeException;
+import com.beijunyi.parallelgit.utils.ObjectUtils;
 import com.beijunyi.parallelgit.utils.io.GitFileEntry;
 import com.beijunyi.parallelgit.utils.io.TreeSnapshot;
 import org.eclipse.jgit.lib.AnyObjectId;
@@ -88,7 +89,7 @@ public class DirectoryNode extends Node<TreeSnapshot, Map<String, Node>> {
   }
 
   @Override
-  protected boolean isTrivial(@Nonnull Map<String, Node> data) {
+  protected boolean isTrivial(@Nonnull Map<String, Node> data) throws IOException {
     boolean ret = true;
     for(Node child : data.values())
       if(!child.isTrivial()) {
@@ -104,7 +105,7 @@ public class DirectoryNode extends Node<TreeSnapshot, Map<String, Node>> {
     for(Map.Entry<String, Node> child : data.entrySet()) {
       Node node = child.getValue();
       AnyObjectId id = node.getObjectId(persist);
-      if(id != null)
+      if(!ObjectUtils.isZeroId(id))
         entries.put(child.getKey(), new GitFileEntry(id, node.getMode()));
     }
     return TreeSnapshot.capture(entries);

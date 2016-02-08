@@ -3,16 +3,11 @@ package com.beijunyi.parallelgit.filesystem.io;
 import java.io.IOException;
 import java.util.Map;
 import javax.annotation.Nonnull;
-import javax.annotation.Nullable;
 
 import com.beijunyi.parallelgit.filesystem.GfsObjectService;
-import com.beijunyi.parallelgit.utils.io.GitFileEntry;
-import com.beijunyi.parallelgit.utils.io.TreeSnapshot;
 import org.eclipse.jgit.lib.AnyObjectId;
-import org.eclipse.jgit.lib.FileMode;
 import org.eclipse.jgit.revwalk.RevCommit;
 
-import static org.eclipse.jgit.lib.FileMode.TREE;
 
 public class RootNode extends DirectoryNode {
 
@@ -33,14 +28,6 @@ public class RootNode extends DirectoryNode {
   @Nonnull
   public static RootNode newRoot(@Nonnull GfsObjectService objService) {
     return new RootNode(objService);
-  }
-
-  @Nonnull
-  @Override
-  public AnyObjectId getObjectId(boolean persist) throws IOException {
-    AnyObjectId ret = super.getObjectId(persist);
-    assert ret != null;
-    return ret;
   }
 
   @Override

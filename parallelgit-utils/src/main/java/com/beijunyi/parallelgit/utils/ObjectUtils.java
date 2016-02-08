@@ -13,6 +13,12 @@ import static org.eclipse.jgit.lib.Constants.OBJ_BLOB;
 
 public final class ObjectUtils {
 
+  public static final AnyObjectId TRIVIAL_OBJECT = ObjectId.zeroId();
+
+  public static boolean isZeroId(@Nonnull AnyObjectId id) {
+    return TRIVIAL_OBJECT.equals(id);
+  }
+
   @Nonnull
   public static AnyObjectId insertBlob(@Nonnull byte[] data, @Nonnull Repository repo) throws IOException {
     try(ObjectInserter inserter = repo.newObjectInserter()) {

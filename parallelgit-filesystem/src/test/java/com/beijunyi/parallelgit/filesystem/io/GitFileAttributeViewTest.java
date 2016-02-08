@@ -11,6 +11,7 @@ import com.beijunyi.parallelgit.filesystem.AbstractGitFileSystemTest;
 import com.beijunyi.parallelgit.filesystem.exceptions.IncompatibleFileModeException;
 import org.eclipse.jgit.lib.AnyObjectId;
 import org.eclipse.jgit.lib.FileMode;
+import org.eclipse.jgit.lib.ObjectId;
 import org.eclipse.jgit.revwalk.RevCommit;
 import org.junit.Test;
 
@@ -175,10 +176,10 @@ public class GitFileAttributeViewTest extends AbstractGitFileSystemTest {
   }
 
   @Test
-  public void whenDirectoryIsEmpty_getObjectIdShouldReturnNull() throws IOException {
+  public void whenDirectoryIsEmpty_getObjectIdShouldReturnZeroId() throws IOException {
     initGitFileSystem();
     Files.createDirectory(gfs.getPath("/dir"));
-    assertNull(objectId("/dir"));
+    assertEquals(ObjectId.zeroId(), objectId("/dir"));
   }
 
   @Test

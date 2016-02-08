@@ -67,8 +67,7 @@ public class FileAttributes implements Comparable<FileAttributes> {
 
   @Nonnull
   private static String readHash(@Nonnull GfsFileAttributeView.Git view) throws IOException {
-    AnyObjectId id = view.readAttribute(OBJECT_ID, AnyObjectId.class);
-    return id != null ? id.getName() : ObjectId.zeroId().getName();
+    return view.getAttribute(OBJECT_ID, AnyObjectId.class).getName();
   }
 
   @Nonnull
