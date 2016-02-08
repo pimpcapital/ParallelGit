@@ -6,56 +6,35 @@ import javax.inject.Inject;
 import javax.websocket.*;
 import javax.websocket.server.ServerEndpoint;
 
+import com.beijunyi.parallelgit.web.protocol.*;
 import com.beijunyi.parallelgit.web.workspace.*;
 
 @ServerEndpoint(value = "/ws", decoders = JsonDecoder.class, encoders = JsonEncoder.class, configurator = EndPointConfigurator.class)
 public class EndPoint {
 
-  private final WorkspaceManager workspaces;
-
-  private String id;
-  private Workspace workspace;
+  private final RequestDelegate delegate;
+  private final Workspace workspace;
 
   @Inject
-  public EndPoint(@Nonnull WorkspaceManager workspaces) {
-    this.workspaces = workspaces;
+  public EndPoint(@Nonnull RequestDelegate delegate, @Nonnull WorkspaceManager workspaceManager) {
+    this.delegate = delegate;
+    this.workspace = workspaceManager.prepareWorkspace();
   }
 
   @OnOpen
   public void handleConnection(@Nonnull Session session) {
-    id = session.getId();
     session.setMaxTextMessageBufferSize(64 * 1024);
   }
 
   @OnMessage
-  public void handleRequest(@Nonnull TitledMessage msg, @Nonnull Session session) throws EncodeException, IOException {
-    switch(msg.getTitle()) {
-      case "login":
-        processLogin(msg.getData(), session);
-        break;
-      case "request":
-        processRequest(msg.getData(), session);
-        break;
-      default:
-        throw new UnsupportedOperationException();
-    }
+  public void handleRequest(@Nonnull ClientRequest request, @Nonnull Session session) throws EncodeException, IOException {
+    ServerResponse response = delegate.handle(request, workspace);
+    session.getBasicRemote().sendObject(response);
   }
 
   @OnClose
   public void handleClose() throws IOException {
-    workspaces.destroyWorkspace(id);
-  }
-
-  private void processLogin(@Nonnull MessageData data, @Nonnull Session session) throws EncodeException, IOException {
-    GitUser user = new GitUser(data);
-    workspace = workspaces.prepareWorkspace(id, user);
-    session.getBasicRemote().sendObject(TitledMessage.ready(user));
-  }
-
-  private void processRequest(@Nonnull MessageData msg, @Nonnull Session session) throws EncodeException, IOException {
-    WorkspaceRequest request = new WorkspaceRequest(msg);
-    Object data = workspace.processRequest(request);
-    session.getBasicRemote().sendObject(TitledMessage.response(request.getType(), request.getRequestId(), request.getTarget(), data));
+    workspace.destroy();
   }
 
 }

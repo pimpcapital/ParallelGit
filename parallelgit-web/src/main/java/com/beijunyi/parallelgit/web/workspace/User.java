@@ -4,18 +4,14 @@ import javax.annotation.Nonnull;
 
 import com.beijunyi.parallelgit.web.connection.MessageData;
 
-public class GitUser {
+public class User {
 
   private final String username;
   private final String email;
 
-  public GitUser(@Nonnull String username, @Nonnull String email) {
+  public User(@Nonnull String username, @Nonnull String email) {
     this.username = username;
     this.email = email;
-  }
-
-  public GitUser(@Nonnull MessageData msg) {
-    this(msg.getString("user"), msg.getString("email"));
   }
 
   @Nonnull

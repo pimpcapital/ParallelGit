@@ -1,13 +1,8 @@
-app.controller('MainController', function($scope, ConnectionService, NotificationService, SecurityService) {
+app.controller('MainController', function($scope, $rootScope, ConnectionService, NotificationService, SecurityService) {
 
   $scope.ready = false;
   $scope.$on('ready', function() {
     $scope.ready = true;
-    NotificationService.info('Connected to Server');
-  });
-  $scope.$on('disconnect', function() {
-    $scope.ready = false;
-    NotificationService.info('Disconnected from Server');
   });
 
   $scope.layout = {
@@ -15,6 +10,16 @@ app.controller('MainController', function($scope, ConnectionService, Notificatio
     disableToggle: true
   };
 
-  SecurityService.login();
+  function login() {
+    return SecurityService.login();
+  }
+
+  function broadcastReady() {
+    $rootScope.$broadcast('ready');
+  }
+
+  ConnectionService.connect()
+    .then(login)
+    .then(broadcastReady);
 
 });

@@ -1,6 +1,5 @@
 package com.beijunyi.parallelgit.web.workspace;
 
-import java.io.Closeable;
 import java.io.IOException;
 import java.nio.file.DirectoryStream;
 import java.nio.file.Files;
@@ -15,18 +14,27 @@ import com.beijunyi.parallelgit.web.data.FileAttributes;
 import com.beijunyi.parallelgit.web.data.Head;
 import org.eclipse.jgit.lib.Repository;
 
-public class Workspace implements Closeable {
+public class Workspace {
 
   private final String id;
-  private final GitUser user;
-  private final Repository repo;
+  private final WorkspaceManager workspaceManager;
+
+  private Repository repo;
+  private User user;
 
   private GitFileSystem gfs;
 
-  public Workspace(@Nonnull String id, @Nonnull GitUser user, @Nonnull Repository repo) {
+  public Workspace(@Nonnull String id, @Nonnull WorkspaceManager workspaceManager) {
     this.id = id;
-    this.user = user;
+    this.workspaceManager = workspaceManager;
+  }
+
+  public void setRepo(@Nonnull Repository repo) {
     this.repo = repo;
+  }
+
+  public void setUser(@Nonnull User user) {
+    this.user = user;
   }
 
   @Nonnull
@@ -112,10 +120,10 @@ public class Workspace implements Closeable {
     return FileAttributes.read(file);
   }
 
-  @Override
-  public void close() throws IOException {
+  public void destroy() throws IOException {
     if(gfs != null)
       gfs.close();
+    workspaceManager.destroyWorkspace(id);
   }
 
   private void checkFS() {

@@ -10,7 +10,7 @@ app.controller('AdminController', function($scope, SecurityService)  {
   $scope.$on('ready', function() {
     $scope.credential = SecurityService.getCredential();
   });
-  $scope.$on('disconnect', function() {
+  $scope.$on('lockdown', function() {
     $scope.credential = null;
   });
 

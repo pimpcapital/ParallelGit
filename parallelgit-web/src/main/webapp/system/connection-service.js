@@ -3,6 +3,30 @@ app.service('ConnectionService', function($rootScope, $q, $timeout, Notification
   var connection = null;
   var requests = null;
 
+  function randomRequestId() {
+    function _p8(s) {
+      var p = (Math.random().toString(16) + '000000000"').substr(2,8);
+      return s ? "-" + p.substr(0,4) + '-' + p.substr(4,4) : p ;
+    }
+    return _p8() + _p8(true) + _p8(true) + _p8();
+  }
+
+  function createRequest(type, data) {
+    return {
+      type: type, data: data
+    };
+  }
+
+  function registerRequest(request) {
+    var rid = randomRequestId();
+    requests[rid] = request;
+    request.rid = rid;
+  }
+
+  function encodeRequest(request) {
+    return EncodeService.encode(request);
+  }
+
   function handleResponse(response) {
     $timeout(function() {
       var message = DecodeService.decode(response.data);
@@ -14,42 +38,42 @@ app.service('ConnectionService', function($rootScope, $q, $timeout, Notification
     });
   }
 
-  function setupConnection() {
-    connection = new WebSocket('ws://' + window.location.host + '/ws');
-    requests = {};
-    connection.onmessage = handleResponse;
-  }
-
-  function send(title, data) {
-    if(connection.readyState == 1)
-      connection.send(EncodeService.encode({title: title, data: data}));
-    else if(connection.readyState == 3)
-      NotificationService.error('Lost connection with server');
-    else
-      $timeout(function() {
-        send(title, data);
-      });
-  }
-
-  this.connect = function(credential) {
-    setupConnection();
-    send('login', credential);
-  };
-
-  this.disconnect = function() {
-    connection.close();
-    connection = null;
-    requests = null;
-  };
-
-  this.send = function(title, data) {
-    send(title, data)
-  };
-
-  this.sendAsync = function(title, data) {
+  function handshake(connection) {
     var deferred = $q.defer();
-    requests[data.rid] = deferred;
+    function checkReady() {
+      if(connection.readyState != 0)
+        deferred.resolve(connection.readyState);
+      else
+        $timeout(checkReady);
+    }
+    checkReady();
     return deferred.promise;
   }
+
+  this.connect = function() {
+    var deferred = $q.defer();
+    connection = new WebSocket('ws://' + window.location.host + '/ws');
+    connection.onmessage = handleResponse;
+    requests = {};
+    handshake(connection).then(function(state) {
+      if(state == 1) {
+        NotificationService.info('Connected to server');
+        deferred.resolve(connection);
+      } else {
+        deferred.reject();
+        NotificationService.error("Could not connect to server");
+      }
+    });
+    return deferred.promise;
+  };
+
+  this.send = function(type, data) {
+    var deferred = $q.defer();
+    var request = createRequest(type, data);
+    registerRequest(request);
+    var encoded = encodeRequest(request);
+    connection.send(encoded);
+    return deferred.promise;
+  };
 
 });

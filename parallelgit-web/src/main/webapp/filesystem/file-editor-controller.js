@@ -109,7 +109,7 @@ app.controller('FileEditorController', function($scope, $timeout, WorkspaceServi
   $scope.$on('ready', function() {
     $scope.files = [];
   });
-  $scope.$on('disconnect', function() {
+  $scope.$on('lockdown', function() {
     $scope.files = null;
   });
 

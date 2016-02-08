@@ -1,4 +1,4 @@
-app.controller('BranchController', function($scope, $cookies, WorkspaceService) {
+app.controller('BranchController', function($scope, $cookies, ConnectionService, WorkspaceService) {
 
   $scope.branches = null;
   $scope.head = null;
@@ -8,7 +8,7 @@ app.controller('BranchController', function($scope, $cookies, WorkspaceService) 
   }
 
   function requestBranches() {
-    WorkspaceService.request('branches');
+    return WorkspaceService.request('branches');
   }
 
   function checkout(branch) {
@@ -33,7 +33,7 @@ app.controller('BranchController', function($scope, $cookies, WorkspaceService) 
   $scope.$on('ready', function() {
     requestBranches();
   });
-  $scope.$on('disconnect', function() {
+  $scope.$on('lockdown', function() {
     $scope.branches = null;
     $scope.head = null;
   });

@@ -2,6 +2,7 @@ package com.beijunyi.parallelgit.web.workspace;
 
 import java.io.IOException;
 import java.util.Map;
+import java.util.UUID;
 import java.util.concurrent.ConcurrentHashMap;
 import javax.annotation.Nonnull;
 import javax.inject.Inject;
@@ -14,32 +15,20 @@ import com.beijunyi.parallelgit.web.data.RepositoryManager;
 @Singleton
 public class WorkspaceManager {
 
-  private final RepositoryManager repositories;
   private final Map<String, Workspace> workspaces = new ConcurrentHashMap<>();
 
-  @Inject
-  public WorkspaceManager(@Nonnull RepositoryManager repositories) {
-    this.repositories = repositories;
-  }
-
   @Nonnull
-  public Workspace prepareWorkspace(@Nonnull String id, @Nonnull GitUser user) {
-    synchronized(workspaces) {
-      if(workspaces.containsKey(id))
-        throw new IllegalStateException();
-
-      Workspace ret = new Workspace(id, user, repositories.getRepository());
-      workspaces.put(id, ret);
-      return ret;
-    }
+  public Workspace prepareWorkspace() {
+    String id = UUID.randomUUID().toString();
+    Workspace ret = new Workspace(id, this);
+    workspaces.put(id, ret);
+    return ret;
   }
 
   public void destroyWorkspace(@Nonnull String id) throws IOException {
-    synchronized(workspaces) {
-      Workspace workspace = workspaces.remove(id);
-      if(workspace != null)
-        workspace.close();
-    }
+    Workspace workspace = workspaces.remove(id);
+    if(workspace != null)
+      workspace.destroy();
   }
 
 }
