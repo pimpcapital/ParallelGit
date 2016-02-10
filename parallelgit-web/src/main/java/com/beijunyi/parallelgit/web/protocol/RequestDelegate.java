@@ -4,11 +4,13 @@ import java.util.*;
 import javax.annotation.Nonnull;
 
 import com.beijunyi.parallelgit.web.workspace.Workspace;
+import com.google.inject.Inject;
 
 public class RequestDelegate {
 
   private final Map<String, RequestHandler> lookup;
 
+  @Inject
   public RequestDelegate(@Nonnull Set<RequestHandler> handlers) {
     lookup = indexHandlers(handlers);
   }

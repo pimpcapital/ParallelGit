@@ -4,16 +4,16 @@ import javax.annotation.Nonnull;
 import javax.websocket.*;
 
 import com.beijunyi.parallelgit.web.config.GsonFactory;
-import com.beijunyi.parallelgit.web.protocol.ClientRequest;
+import com.beijunyi.parallelgit.web.protocol.ServerResponse;
 import com.google.gson.Gson;
 
-public class JsonEncoder implements Encoder.Text<ClientRequest> {
+public class JsonEncoder implements Encoder.Text<ServerResponse> {
 
   private final Gson gson = GsonFactory.getInstance();
 
   @Nonnull
   @Override
-  public String encode(@Nonnull ClientRequest obj) throws EncodeException {
+  public String encode(@Nonnull ServerResponse obj) throws EncodeException {
     return gson.toJson(obj);
   }
 
