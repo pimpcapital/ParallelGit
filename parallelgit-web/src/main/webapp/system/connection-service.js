@@ -17,9 +17,9 @@ app.service('ConnectionService', function($rootScope, $q, $timeout, Notification
     };
   }
 
-  function registerRequest(request) {
+  function registerRequest(request, deferred) {
     var rid = randomRequestId();
-    requests[rid] = request;
+    requests[rid] = deferred;
     request.rid = rid;
   }
 
@@ -30,11 +30,14 @@ app.service('ConnectionService', function($rootScope, $q, $timeout, Notification
   function handleResponse(response) {
     $timeout(function() {
       var message = DecodeService.decode(response.data);
-      var deferred = requests[message.data.rid];
-      if(deferred != null)
+      var deferred = requests[message.rid];
+      delete requests[message.rid];
+      if(message.successful)
         deferred.resolve(message.data);
-      else
-        $rootScope.$broadcast(message.title, message.data);
+      else {
+        NotificationService.error(message.data);
+        deferred.reject(message.data);
+      }
     });
   }
 
@@ -70,7 +73,7 @@ app.service('ConnectionService', function($rootScope, $q, $timeout, Notification
   this.send = function(type, data) {
     var deferred = $q.defer();
     var request = createRequest(type, data);
-    registerRequest(request);
+    registerRequest(request, deferred);
     var encoded = encodeRequest(request);
     connection.send(encoded);
     return deferred.promise;

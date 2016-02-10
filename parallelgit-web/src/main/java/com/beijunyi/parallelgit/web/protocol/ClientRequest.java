@@ -33,6 +33,11 @@ public class ClientRequest {
     return ret;
   }
 
+  @Nonnull
+  public ResponseBuilder respond() {
+    return new ResponseBuilder(rid);
+  }
+
 
 
 }

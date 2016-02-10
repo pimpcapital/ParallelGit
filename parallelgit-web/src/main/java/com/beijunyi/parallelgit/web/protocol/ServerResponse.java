@@ -9,10 +9,20 @@ public class ServerResponse {
   private final boolean successful;
   private final Object data;
 
-  public ServerResponse(@Nonnull String rid, boolean successful, @Nullable Object data) {
+  private ServerResponse(@Nonnull String rid, boolean successful, @Nullable Object data) {
     this.rid = rid;
     this.successful = successful;
     this.data = data;
+  }
+
+  @Nonnull
+  public static ServerResponse ok(@Nonnull String rid, @Nullable Object data) {
+    return new ServerResponse(rid, true, data);
+  }
+
+  @Nonnull
+  public static ServerResponse error(@Nonnull String rid, @Nonnull String message) {
+    return new ServerResponse(rid, false, message);
   }
 
   @Nonnull

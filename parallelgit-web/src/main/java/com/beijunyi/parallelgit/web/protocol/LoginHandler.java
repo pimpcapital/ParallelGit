@@ -27,7 +27,7 @@ public class LoginHandler implements RequestHandler {
     User user = new User(request.getString("username"), request.getString("email"));
     workspace.setRepo(repoManager.getRepository());
     workspace.setUser(user);
-    return new ServerResponse(request.getRid(), true, user);
+    return request.respond().ok(user);
   }
 
 

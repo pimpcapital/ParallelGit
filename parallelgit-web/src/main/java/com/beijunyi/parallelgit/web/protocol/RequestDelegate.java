@@ -19,7 +19,7 @@ public class RequestDelegate {
   public ServerResponse handle(@Nonnull ClientRequest request, @Nonnull Workspace workspace) {
     RequestHandler ret = lookup.get(request.getType());
     if(ret == null)
-      throw new UnsupportedOperationException(request.getType());
+      return request.respond().error("Unknown operation \"" + request.getType() + "\"");
     return ret.handle(request, workspace);
   }
 
