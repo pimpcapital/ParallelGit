@@ -5,8 +5,12 @@ import javax.annotation.Nonnull;
 
 import com.beijunyi.parallelgit.web.workspace.Workspace;
 import com.google.inject.Inject;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 public class RequestDelegate {
+
+  private static final Logger LOG = LoggerFactory.getLogger(RequestDelegate.class);
 
   private final Map<String, RequestHandler> lookup;
 
@@ -19,8 +23,13 @@ public class RequestDelegate {
   public ServerResponse handle(@Nonnull ClientRequest request, @Nonnull Workspace workspace) {
     RequestHandler ret = lookup.get(request.getType());
     if(ret == null)
-      return request.respond().error("Unknown operation \"" + request.getType() + "\"");
-    return ret.handle(request, workspace);
+      return request.respond().error("Unsupported operation \"" + request.getType() + "\"");
+    try {
+      return ret.handle(request, workspace);
+    } catch(Throwable e) {
+      LOG.error("Unknown error", e);
+      return request.respond().error(e.getMessage());
+    }
   }
 
   @Nonnull

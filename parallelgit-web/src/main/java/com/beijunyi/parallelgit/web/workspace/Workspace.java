@@ -6,6 +6,7 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.*;
 import javax.annotation.Nonnull;
+import javax.annotation.Nullable;
 
 import com.beijunyi.parallelgit.filesystem.Gfs;
 import com.beijunyi.parallelgit.filesystem.GitFileSystem;
@@ -29,12 +30,38 @@ public class Workspace {
     this.workspaceManager = workspaceManager;
   }
 
+  @Nonnull
+  public Repository getRepo() {
+    if(repo == null)
+      throw new IllegalStateException();
+    return repo;
+  }
+
   public void setRepo(@Nonnull Repository repo) {
+    if(this.repo != null)
+      throw new IllegalStateException();
     this.repo = repo;
   }
 
   public void setUser(@Nonnull User user) {
     this.user = user;
+  }
+
+  public boolean isInitialized() {
+    return gfs != null;
+  }
+
+  @Nonnull
+  public GitFileSystem getFileSystem() {
+    if(gfs == null)
+      throw new IllegalStateException();
+    return gfs;
+  }
+
+  public void setFileSystem(@Nonnull GitFileSystem gfs) {
+    if(this.gfs != null)
+      throw new IllegalStateException();
+    this.gfs = gfs;
   }
 
   @Nonnull

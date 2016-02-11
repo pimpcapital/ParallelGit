@@ -1,29 +1,39 @@
-app.controller('BranchController', function($scope, $cookies, ConnectionService, WorkspaceService) {
+app.controller('BranchController', function($q, $scope, $cookies, ConnectionService, WorkspaceService) {
 
   $scope.branches = null;
-  $scope.head = null;
+  $scope.status = null;
 
   function requestHead() {
     WorkspaceService.request('head');
   }
 
-  function requestBranches() {
-    return WorkspaceService.request('branches');
+  function setupBranches() {
+    var deferred = $q.defer();
+    ConnectionService.send('list-branches').then(function(branches) {
+      $scope.branches = branches;
+      deferred.resolve(branches);
+    });
+    return deferred.promise;
   }
 
   function checkout(branch) {
-    WorkspaceService.request('checkout', null, branch);
+    var deferred = $q.defer();
+    ConnectionService.send('checkout', {branch: branch}).then(function(status) {
+      $scope.status = status;
+      deferred.resolve(status);
+    });
+    return deferred.promise;
   }
 
-  function checkoutDefaultBranch() {
+  function checkoutDefaultBranch(branches) {
     var head = $cookies.get('head');
-    if($scope.branches.indexOf(head) < 0) {
-      if($scope.branches.indexOf('master') < 0 && $scope.branches.length > 0) {
-        head = $scope.branches[0];
+    if(branches.indexOf(head) < 0) {
+      if(branches.indexOf('master') < 0 && branches.length > 0) {
+        head = branches[0];
       } else
       head = 'master';
     }
-    checkout(head);
+    return checkout(head);
   }
 
   $scope.checkout = function(branch) {
@@ -31,7 +41,8 @@ app.controller('BranchController', function($scope, $cookies, ConnectionService,
   };
 
   $scope.$on('ready', function() {
-    requestBranches();
+    setupBranches()
+      .then(checkoutDefaultBranch);
   });
   $scope.$on('lockdown', function() {
     $scope.branches = null;
