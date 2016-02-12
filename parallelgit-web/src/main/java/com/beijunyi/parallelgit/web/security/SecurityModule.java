@@ -4,6 +4,7 @@ import java.nio.file.Path;
 import java.util.Arrays;
 import java.util.Collection;
 
+import com.beijunyi.parallelgit.web.security.config.LdapConfig;
 import com.beijunyi.parallelgit.web.security.config.SecurityConfig;
 import com.google.inject.AbstractModule;
 import com.google.inject.multibindings.Multibinder;
@@ -26,6 +27,7 @@ public class SecurityModule extends AbstractModule {
     for(Class<? extends Realm> realm : REALMS)
       binder.addBinding().to(realm);
 
+    bind(LdapConfig.class).toInstance(LdapConfig.bindFile());
     bind(SecurityConfig.class).toInstance(SecurityConfig.bindFile());
   }
 
