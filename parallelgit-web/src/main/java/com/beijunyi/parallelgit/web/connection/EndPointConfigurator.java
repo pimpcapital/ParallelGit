@@ -1,9 +1,12 @@
 package com.beijunyi.parallelgit.web.connection;
 
 import javax.annotation.Nonnull;
+import javax.websocket.HandshakeResponse;
+import javax.websocket.server.HandshakeRequest;
 import javax.websocket.server.ServerEndpointConfig;
 
 import com.beijunyi.parallelgit.web.config.InjectorFactory;
+import org.apache.shiro.SecurityUtils;
 
 public class EndPointConfigurator extends ServerEndpointConfig.Configurator {
 
@@ -12,4 +15,8 @@ public class EndPointConfigurator extends ServerEndpointConfig.Configurator {
     return InjectorFactory.getInstance().getInstance(clazz);
   }
 
+  @Override
+  public void modifyHandshake(@Nonnull ServerEndpointConfig sec, @Nonnull HandshakeRequest request, @Nonnull HandshakeResponse response) {
+    sec.getUserProperties().put("Subject", SecurityUtils.getSubject());
+  }
 }

@@ -6,11 +6,16 @@ import javax.inject.Inject;
 import javax.websocket.*;
 import javax.websocket.server.ServerEndpoint;
 
-import com.beijunyi.parallelgit.web.protocol.*;
-import com.beijunyi.parallelgit.web.workspace.*;
+import com.beijunyi.parallelgit.web.protocol.ClientRequest;
+import com.beijunyi.parallelgit.web.protocol.RequestDelegate;
+import com.beijunyi.parallelgit.web.protocol.ServerResponse;
+import com.beijunyi.parallelgit.web.workspace.Workspace;
+import com.beijunyi.parallelgit.web.workspace.WorkspaceManager;
 
 @ServerEndpoint(value = "/api/ws", decoders = JsonDecoder.class, encoders = JsonEncoder.class, configurator = EndPointConfigurator.class)
 public class EndPoint {
+
+  public static final String SUBJECT_KEY = "subject";
 
   private final RequestDelegate delegate;
   private final Workspace workspace;

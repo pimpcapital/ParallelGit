@@ -6,6 +6,8 @@ import javax.servlet.ServletContextListener;
 import javax.servlet.annotation.WebListener;
 
 import com.beijunyi.parallelgit.web.config.InjectorFactory;
+import org.apache.shiro.SecurityUtils;
+import org.apache.shiro.mgt.SecurityManager;
 import org.apache.shiro.web.env.DefaultWebEnvironment;
 import org.apache.shiro.web.env.EnvironmentLoaderListener;
 import org.apache.shiro.web.env.WebEnvironment;
@@ -15,13 +17,13 @@ import org.apache.shiro.web.filter.authc.LogoutFilter;
 import org.apache.shiro.web.filter.mgt.*;
 
 @WebListener
-public class ShiroInitializer extends EnvironmentLoaderListener implements ServletContextListener {
+public class ShiroWebListener extends EnvironmentLoaderListener implements ServletContextListener {
 
   @Override
   public WebEnvironment createEnvironment(@Nonnull ServletContext servletContext) throws IllegalStateException {
     DefaultWebEnvironment ret = new DefaultWebEnvironment();
     ret.setFilterChainResolver(prepareFilterChainResolver());
-    ret.setSecurityManager(InjectorFactory.getInstance().getInstance(ConfigurableSecurityManager.class));
+    ret.setSecurityManager(prepareSecurityManager());
     return ret;
   }
 
@@ -54,6 +56,13 @@ public class ShiroInitializer extends EnvironmentLoaderListener implements Servl
     authenticate.setLoginUrl("/login.html");
     fcManager.addFilter("authenticate", authenticate);
     fcManager.createChain("/**", "authenticate");
+  }
+
+  @Nonnull
+  private static SecurityManager prepareSecurityManager() {
+    SecurityManager ret = InjectorFactory.getInstance().getInstance(ConfigurableSecurityManager.class);
+    SecurityUtils.setSecurityManager(ret);
+    return ret;
   }
 
 }

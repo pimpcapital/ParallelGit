@@ -5,5 +5,5 @@ import javax.servlet.annotation.WebFilter;
 import org.apache.shiro.web.servlet.ShiroFilter;
 
 @WebFilter("/*")
-public class AuthenticationFilter extends ShiroFilter {
+public class ShiroWebFilter extends ShiroFilter {
 }
