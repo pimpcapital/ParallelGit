@@ -9,7 +9,7 @@ import javax.websocket.server.ServerEndpoint;
 import com.beijunyi.parallelgit.web.protocol.*;
 import com.beijunyi.parallelgit.web.workspace.*;
 
-@ServerEndpoint(value = "/ws", decoders = JsonDecoder.class, encoders = JsonEncoder.class, configurator = EndPointConfigurator.class)
+@ServerEndpoint(value = "/api/ws", decoders = JsonDecoder.class, encoders = JsonEncoder.class, configurator = EndPointConfigurator.class)
 public class EndPoint {
 
   private final RequestDelegate delegate;

@@ -66,6 +66,24 @@
       <version>4.0</version>
     </dependency>
 
+    <dependency>
+      <groupId>org.apache.shiro</groupId>
+      <artifactId>shiro-core</artifactId>
+      <version>1.2.4</version>
+    </dependency>
+
+    <dependency>
+      <groupId>org.apache.shiro</groupId>
+      <artifactId>shiro-web</artifactId>
+      <version>1.2.4</version>
+    </dependency>
+
+    <dependency>
+      <groupId>org.cfg4j</groupId>
+      <artifactId>cfg4j-core</artifactId>
+      <version>4.1.4</version>
+    </dependency>
+
   </dependencies>
 
   <build>

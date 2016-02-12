@@ -55,7 +55,7 @@ app.service('ConnectionService', function($rootScope, $q, $timeout, Notification
 
   this.connect = function() {
     var deferred = $q.defer();
-    connection = new WebSocket('ws://' + window.location.host + '/ws');
+    connection = new WebSocket('ws://' + window.location.host + '/api/ws');
     connection.onmessage = handleResponse;
     requests = {};
     handshake(connection).then(function(state) {
