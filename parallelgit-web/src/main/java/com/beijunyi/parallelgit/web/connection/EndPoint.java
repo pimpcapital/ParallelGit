@@ -15,8 +15,6 @@ import com.beijunyi.parallelgit.web.workspace.WorkspaceManager;
 @ServerEndpoint(value = "/api/ws", decoders = JsonDecoder.class, encoders = JsonEncoder.class, configurator = EndPointConfigurator.class)
 public class EndPoint {
 
-  public static final String SUBJECT_KEY = "subject";
-
   private final RequestDelegate delegate;
   private final Workspace workspace;
 

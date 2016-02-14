@@ -1,0 +1,36 @@
+package com.beijunyi.parallelgit.web.protocol;
+
+import java.io.IOException;
+import java.nio.file.DirectoryStream;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.List;
+import javax.annotation.Nonnull;
+
+import com.beijunyi.parallelgit.filesystem.GitFileSystem;
+import com.beijunyi.parallelgit.web.protocol.model.FileAttributes;
+import com.beijunyi.parallelgit.web.workspace.Workspace;
+
+public class ListFilesHandler implements RequestHandler {
+
+  @Override
+  public String getType() {
+    return "list-files";
+  }
+
+  @Nonnull
+  @Override
+  public ServerResponse handle(@Nonnull ClientRequest request, @Nonnull Workspace workspace) throws IOException {
+    GitFileSystem gfs = workspace.getFileSystem();
+    List<FileAttributes> ret = new ArrayList<>();
+    try(DirectoryStream<Path> stream = Files.newDirectoryStream(gfs.getPath(request.getString("path")))) {
+      for(Path child : stream) {
+        ret.add(FileAttributes.read(child));
+      }
+    }
+    Collections.sort(ret);
+    return request.respond().ok(ret);
+  }
+}

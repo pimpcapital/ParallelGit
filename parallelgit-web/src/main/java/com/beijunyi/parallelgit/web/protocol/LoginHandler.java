@@ -1,5 +1,6 @@
 package com.beijunyi.parallelgit.web.protocol;
 
+import java.io.IOException;
 import javax.annotation.Nonnull;
 
 import com.beijunyi.parallelgit.web.data.RepositoryManager;
@@ -23,11 +24,10 @@ public class LoginHandler implements RequestHandler {
 
   @Nonnull
   @Override
-  public ServerResponse handle(@Nonnull ClientRequest request, @Nonnull Workspace workspace) {
+  public ServerResponse handle(@Nonnull ClientRequest request, @Nonnull Workspace workspace) throws IOException {
     User user = new User(request.getString("username"), request.getString("email"));
-    workspace.setRepo(repoManager.getRepository());
-    workspace.setUser(user);
-    return request.respond().ok(user);
+    workspace.init(user, repoManager.getRepository());
+    return request.respond().ok();
   }
 
 

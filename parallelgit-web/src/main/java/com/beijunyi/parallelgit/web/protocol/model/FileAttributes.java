@@ -1,4 +1,4 @@
-package com.beijunyi.parallelgit.web.data;
+package com.beijunyi.parallelgit.web.protocol.model;
 
 import java.io.IOException;
 import java.nio.file.Files;
@@ -6,6 +6,8 @@ import java.nio.file.Path;
 import javax.annotation.Nonnull;
 
 import com.beijunyi.parallelgit.filesystem.io.GfsFileAttributeView;
+import com.beijunyi.parallelgit.web.data.FileState;
+import com.beijunyi.parallelgit.web.data.FileType;
 import org.eclipse.jgit.lib.AnyObjectId;
 import org.eclipse.jgit.lib.FileMode;
 

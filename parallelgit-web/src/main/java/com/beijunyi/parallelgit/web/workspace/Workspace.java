@@ -6,13 +6,13 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.*;
 import javax.annotation.Nonnull;
-import javax.annotation.Nullable;
 
 import com.beijunyi.parallelgit.filesystem.Gfs;
 import com.beijunyi.parallelgit.filesystem.GitFileSystem;
 import com.beijunyi.parallelgit.utils.BranchUtils;
-import com.beijunyi.parallelgit.web.data.FileAttributes;
-import com.beijunyi.parallelgit.web.data.Head;
+import com.beijunyi.parallelgit.web.protocol.model.FileAttributes;
+import com.beijunyi.parallelgit.web.workspace.status.Head;
+import org.eclipse.jgit.lib.Constants;
 import org.eclipse.jgit.lib.Repository;
 
 public class Workspace {
@@ -20,14 +20,24 @@ public class Workspace {
   private final String id;
   private final WorkspaceManager workspaceManager;
 
-  private Repository repo;
   private User user;
-
+  private Repository repo;
   private GitFileSystem gfs;
 
   public Workspace(@Nonnull String id, @Nonnull WorkspaceManager workspaceManager) {
     this.id = id;
     this.workspaceManager = workspaceManager;
+  }
+
+  public void init(@Nonnull User user, @Nonnull Repository repo) throws IOException {
+    this.user = user;
+    this.repo = repo;
+    gfs = Gfs.newFileSystem(getDefaultBranch(repo), repo);
+  }
+
+  @Nonnull
+  public WorkspaceStatus getStatus() {
+    return new WorkspaceStatus(Head.of(gfs));
   }
 
   @Nonnull
@@ -65,28 +75,6 @@ public class Workspace {
   }
 
   @Nonnull
-  public Object processRequest(@Nonnull WorkspaceRequest request) throws IOException {
-    switch(request.getType()) {
-      case "head":
-        return getHead();
-      case "branches":
-        return getBranches();
-      case "list-children":
-        return listChildren(request);
-      case "file":
-        return getFile(request);
-      case "get-file-attributes":
-        return getFileAttributes(request);
-      case "checkout":
-        return checkout(request);
-      case "save":
-        return save(request);
-      default:
-        throw new UnsupportedOperationException(request.getType());
-    }
-  }
-
-  @Nonnull
   public Head getHead() throws IOException {
     checkFS();
     return Head.of(gfs);
@@ -95,18 +83,6 @@ public class Workspace {
   @Nonnull
   public SortedSet<String> getBranches() throws IOException {
     return new TreeSet<>(BranchUtils.getBranches(repo).keySet());
-  }
-
-  @Nonnull
-  public List<FileAttributes> listChildren(@Nonnull WorkspaceRequest request) throws IOException {
-    List<FileAttributes> ret = new ArrayList<>();
-    try(DirectoryStream<Path> stream = Files.newDirectoryStream(getGitPath(request))) {
-      for(Path child : stream) {
-        ret.add(FileAttributes.read(child));
-      }
-    }
-    Collections.sort(ret);
-    return ret;
   }
 
   @Nonnull
@@ -165,6 +141,17 @@ public class Workspace {
     if(path == null)
       throw new IllegalStateException();
     return gfs.getPath(path);
+  }
+
+  @Nonnull
+  private static String getDefaultBranch(@Nonnull Repository repo) throws IOException {
+    if(BranchUtils.branchExists(Constants.MASTER, repo))
+      return Constants.MASTER;
+    List<String> branches = new ArrayList<>(BranchUtils.getBranches(repo).keySet());
+    if(branches.isEmpty())
+      return Constants.MASTER;
+    Collections.sort(branches);
+    return branches.get(0);
   }
 
 }

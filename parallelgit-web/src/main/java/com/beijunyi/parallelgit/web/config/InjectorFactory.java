@@ -5,7 +5,6 @@ import javax.servlet.annotation.WebListener;
 
 import com.beijunyi.parallelgit.web.connection.ConnectionModule;
 import com.beijunyi.parallelgit.web.protocol.ProtocolModule;
-import com.beijunyi.parallelgit.web.security.SecurityModule;
 import com.beijunyi.parallelgit.web.workspace.WorkspaceModule;
 import com.google.inject.Guice;
 import com.google.inject.Injector;
@@ -25,7 +24,7 @@ public class InjectorFactory extends GuiceServletContextListener {
   }
 
   private static class GuiceHolder {
-    private static final Injector INSTANCE = Guice.createInjector(new ConnectionModule(), new ProtocolModule(), new SecurityModule(), new WorkspaceModule());
+    private static final Injector INSTANCE = Guice.createInjector(new ConnectionModule(), new ProtocolModule(), new WorkspaceModule());
   }
 
 }

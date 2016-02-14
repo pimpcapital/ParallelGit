@@ -2,8 +2,8 @@ app.filter('head', function() {
   return function(status) {
     if(status == null)
       return '';
-    if(status.attached)
-      return 'Branch: ' + status.head;
-    return status.head;
+    if(status.head.type == 'BRANCH')
+      return 'Branch: ' + status.head.name;
+    return status.head.name;
   }
 });

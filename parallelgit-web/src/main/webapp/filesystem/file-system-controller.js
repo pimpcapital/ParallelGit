@@ -1,32 +1,25 @@
-app.controller('FileSystemController', function($rootScope, $scope, $uibModal, WorkspaceService) {
+app.controller('FileSystemController', function($rootScope, $scope, $uibModal, ConnectionService, WorkspaceService) {
 
-  $scope.requests = null;
   $scope.root = null;
   $scope.tree = null;
   $scope.expanded = null;
   $scope.index = null;
 
   function reset() {
-    $scope.requests = {};
     $scope.root = {name: '/', path: '', children : []};
     $scope.tree = [$scope.root];
     $scope.expanded = [$scope.root];
   }
 
-  function addPendingRequest(request) {
-    $scope.requests[request.rid] = request;
-  }
-
-  function removePendingRequest(rid) {
-    var request = $scope.requests[rid];
-    if(request != null)
-      delete $scope.requests[rid];
-    return request;
-  }
-
-  function requestDirectory(dir) {
-    var request = WorkspaceService.request('list-children', dir);
-    addPendingRequest(request);
+  function listFiles(path) {
+    ConnectionService.send('list-files', {path: path}).then(function(files) {
+      var dir = findFile(path);
+      angular.forEach(files, function(file) {
+        var node = createFileNode(dir, file);
+        dir.children.push(node);
+        dir.children[node.name] = node;
+      });
+    })
   }
 
   function getParent(path) {
@@ -107,13 +100,13 @@ app.controller('FileSystemController', function($rootScope, $scope, $uibModal, W
   $scope.toggleNode = function(node, expanded) {
     if(expanded && node.children == null) {
       node.children = [];
-      requestDirectory(node.path);
+      listFiles(node.path);
     }
   };
 
-  $scope.$on('head', function() {
+  $scope.$on('reload-filesystem', function() {
     reset();
-    requestDirectory('/');
+    listFiles('/');
   });
 
   $scope.$on('list-children', function(event, response) {

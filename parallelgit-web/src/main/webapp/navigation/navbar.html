@@ -6,7 +6,7 @@
 
     <div>
       <ul class="nav navbar-nav">
-        <li class="dropdown" uib-dropdown keyboard-nav ng-controller="BranchController">
+        <li class="dropdown" uib-dropdown keyboard-nav ng-controller="StatusController">
           <a class="dropdown-toggle" uib-dropdown-toggle ng-show="status != null">{{status | head}}<span class="caret"></span></a>
           <ul class="dropdown-menu" uib-dropdown-menu ng-show="branches != null">
             <li ng-repeat="branch in branches"><a ng-click="checkout(branch)">{{branch}}</a></li>

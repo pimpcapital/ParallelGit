@@ -1,4 +1,4 @@
-package com.beijunyi.parallelgit.web.data;
+package com.beijunyi.parallelgit.web.workspace.status;
 
 import javax.annotation.Nonnull;
 
