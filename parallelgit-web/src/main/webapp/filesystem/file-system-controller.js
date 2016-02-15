@@ -1,24 +1,42 @@
-app.controller('FileSystemController', function($rootScope, $scope, $uibModal, ConnectionService, WorkspaceService) {
+app.controller('FileSystemController', function($rootScope, $scope, $uibModal, File, ConnectionService, WorkspaceService) {
 
   $scope.root = null;
   $scope.tree = null;
   $scope.expanded = null;
   $scope.index = null;
 
+  function broadcast(message, data) {
+    return function() {
+      $rootScope.$broadcast(message, data);
+    }
+  }
+
   function reset() {
-    $scope.root = {name: '/', path: '', children : []};
+    $scope.root = {name: '', path: '/', children : []};
     $scope.tree = [$scope.root];
     $scope.expanded = [$scope.root];
   }
 
-  function listFiles(path) {
-    ConnectionService.send('list-files', {path: path}).then(function(files) {
-      var dir = findFile(path);
+  function listFiles(dir) {
+    ConnectionService.send('list-files', {path: dir.path}).then(function(files) {
       angular.forEach(files, function(file) {
-        var node = createFileNode(dir, file);
+        var node = new File(dir, file);
         dir.children.push(node);
         dir.children[node.name] = node;
       });
+    })
+  }
+
+  function updateFileAttributes(path) {
+    ConnectionService.send('get-file-attributes', {path: path}).then(function(attributes) {
+      var file = findFile(path);
+      var updated = file.updateAttributes(attributes);
+      if(updated) {
+        updateFileAttributes(file.getParent());
+        if(file.isDirectory()) {
+
+        }
+      }
     })
   }
 
@@ -48,31 +66,24 @@ app.controller('FileSystemController', function($rootScope, $scope, $uibModal, C
     return current;
   }
 
-  function createFileNode(dir, file) {
-    file.path = dir.path + '/' + file.name;
-    file.parent = dir.path;
-    return file;
-  }
-
-  function initializeDirectory(dir, files) {
-    angular.forEach(files, function(file) {
-      var node = createFileNode(dir, file);
-      dir.children.push(node);
-      dir.children[node.name] = node;
-    });
-  }
-
   function addNewFile(file) {
     $uibModal.open({
       templateUrl: 'filesystem/new-file-modal.html',
       size: 'sm',
       resolve: {
         location: function() {
-          return file.type == 'DIRECTORY' ? file.path : file.parent;
+          return file.isDirectory() ? file.getPath() : file.getParent();
         }
       },
       controller : 'NewFileController'
     });
+  }
+
+  function deleteFile(file) {
+    return function() {
+      ConnectionService.send('delete-file', {path: file.path})
+        .then(broadcast('file-deleted', file));
+    }
   }
 
   $scope.contextMenu = function(file) {
@@ -88,8 +99,7 @@ app.controller('FileSystemController', function($rootScope, $scope, $uibModal, C
       }],
       ['Rename', function() {
       }],
-      ['Delete', function() {
-      }]
+      ['Delete', deleteFile(file)]
     ]
   };
 
@@ -100,21 +110,18 @@ app.controller('FileSystemController', function($rootScope, $scope, $uibModal, C
   $scope.toggleNode = function(node, expanded) {
     if(expanded && node.children == null) {
       node.children = [];
-      listFiles(node.path);
+      listFiles(node);
     }
   };
 
   $scope.$on('reload-filesystem', function() {
     reset();
-    listFiles('/');
+    listFiles($scope.root);
   });
 
-  $scope.$on('list-children', function(event, response) {
-    var request = removePendingRequest(response.rid);
-    var path = request.target;
-    var view = response.data;
-    var dir = findFile(path);
-    initializeDirectory(dir, view);
+  $scope.$on('file-deleted', function(event, file) {
+    var parent = file.getParent();
+    updateFileAttributes(parent);
   });
 
   $scope.$on('get-file-attributes', function(event, response) {

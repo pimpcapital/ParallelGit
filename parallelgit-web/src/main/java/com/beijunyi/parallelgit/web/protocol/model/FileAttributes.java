@@ -31,7 +31,7 @@ public class FileAttributes implements Comparable<FileAttributes> {
   public static FileAttributes read(@Nonnull Path path) throws IOException {
     GfsFileAttributeView.Git view = Files.getFileAttributeView(path, GfsFileAttributeView.Git.class);
     Path namePath = path.getFileName();
-    String name = namePath != null ? namePath.toString() : "/";
+    String name = namePath != null ? namePath.toString() : "";
     String hash = readHash(view);
     FileType type = readType(view);
     FileState state = readState(view);
