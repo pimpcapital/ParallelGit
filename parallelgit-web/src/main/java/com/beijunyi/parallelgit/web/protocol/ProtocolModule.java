@@ -10,12 +10,16 @@ public class ProtocolModule extends AbstractModule {
 
   private static final Collection<Class<? extends RequestHandler>> HANDLERS = Arrays.asList(
     CheckoutRequestHandler.class,
+    CopyFileHandler.class,
+    CreateNewFileHandler.class,
     DeleteFileHandler.class,
     GetFileAttributesHandler.class,
+    GetStatusHandler.class,
     ListBranchesHandler.class,
     ListFilesHandler.class,
     LoginHandler.class,
-    GetStatusHandler.class
+    MoveFileHandler.class,
+    RenameFileHandler.class
   );
 
   @Override

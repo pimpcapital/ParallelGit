@@ -7,9 +7,9 @@ public class ClientRequest {
 
   private final String type;
   private final String rid;
-  private final Map<String, String> data;
+  private final Map<String, Object> data;
 
-  public ClientRequest(@Nonnull String type, @Nonnull String rid, @Nonnull Map<String, String> data) {
+  public ClientRequest(@Nonnull String type, @Nonnull String rid, @Nonnull Map<String, Object> data) {
     this.type = type;
     this.rid = rid;
     this.data = data;
@@ -27,10 +27,18 @@ public class ClientRequest {
 
   @Nonnull
   public String getString(@Nonnull String key) {
-    String ret = data.get(key);
-    if(ret == null)
+    Object value = data.get(key);
+    if(value == null)
       throw new IllegalStateException();
-    return ret;
+    return String.class.cast(value);
+  }
+
+  @Nonnull
+  public Boolean getBoolean(@Nonnull String key) {
+    Object value = data.get(key);
+    if(value == null)
+      throw new IllegalStateException();
+    return Boolean.class.cast(value);
   }
 
   @Nonnull
