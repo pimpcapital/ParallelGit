@@ -30,14 +30,15 @@ app.controller('FileSystemController', function($rootScope, $scope, $uibModal, F
   function updateFileAttributes(path) {
     ConnectionService.send('get-file-attributes', {path: path}).then(function(attributes) {
       var file = findFile(path);
-      var updated = file.updateAttributes(attributes);
-      if(updated) {
-        updateFileAttributes(file.getParent());
-        if(file.isDirectory()) {
-
-        }
-      }
+      file.updateAttributes(attributes);
     })
+  }
+
+  function propagateChanges(file) {
+    var parent;
+    while((parent = file.getParent()) != null) {
+      updateFileAttributes(parent);
+    }
   }
 
   function getParent(path) {
@@ -120,8 +121,9 @@ app.controller('FileSystemController', function($rootScope, $scope, $uibModal, F
   });
 
   $scope.$on('file-deleted', function(event, file) {
-    var parent = file.getParent();
-    updateFileAttributes(parent);
+    propagateChanges(file);
+
+
   });
 
   $scope.$on('get-file-attributes', function(event, response) {
