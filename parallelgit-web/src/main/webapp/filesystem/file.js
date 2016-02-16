@@ -2,7 +2,8 @@ app.factory('File', function() {
 
   function File(parent, attributes) {
     this.name = attributes.name;
-    this.path = (parent != null ? parent : '') + '/' + attributes.name;
+    this.parent = parent;
+    this.path = (parent != null ? parent.getPath() : '') + '/' + attributes.name;
     this.hash = attributes.hash;
     this.type = attributes.type;
     this.state = attributes.state;
@@ -12,16 +13,8 @@ app.factory('File', function() {
     return this.path;
   };
 
-  File.prototype.isRoot = function() {
-    return '/' == this.getPath();
-  };
-
   File.prototype.getParent = function() {
-    if(this.isRoot())
-      return null;
-    var path = this.getPath();
-    var parentEnd = path.lastIndexOf('/');
-    return path.substring(0., parentEnd);
+    return this.parent;
   };
 
   File.prototype.isDirectory = function() {
@@ -34,6 +27,10 @@ app.factory('File', function() {
     this.type = attributes.type;
     this.state = attributes.state;
     return changed;
+  };
+
+  File.prototype.removeChild = function(file) {
+    this.children.splice(this.children.indexOf(file), 1);
   };
 
   return File;

@@ -13,7 +13,7 @@ import org.eclipse.jgit.lib.FileMode;
 
 import static com.beijunyi.parallelgit.filesystem.io.GfsFileAttributeView.*;
 
-public class FileAttributes implements Comparable<FileAttributes> {
+public class FileAttributes {
 
   private final String name;
   private final String hash;
@@ -36,14 +36,6 @@ public class FileAttributes implements Comparable<FileAttributes> {
     FileType type = readType(view);
     FileState state = readState(view);
     return new FileAttributes(name, hash, type, state);
-  }
-
-  @Override
-  public int compareTo(@Nonnull FileAttributes other) {
-    int typeCompare = getType().compareTo(other.getType());
-    if(typeCompare != 0)
-      return typeCompare;
-    return getName().compareTo(other.getName());
   }
 
   @Nonnull

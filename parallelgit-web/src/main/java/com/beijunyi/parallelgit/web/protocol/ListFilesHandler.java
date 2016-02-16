@@ -5,7 +5,6 @@ import java.nio.file.DirectoryStream;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.ArrayList;
-import java.util.Collections;
 import java.util.List;
 import javax.annotation.Nonnull;
 
@@ -30,7 +29,6 @@ public class ListFilesHandler implements RequestHandler {
         ret.add(FileAttributes.read(child));
       }
     }
-    Collections.sort(ret);
     return request.respond().ok(ret);
   }
 }

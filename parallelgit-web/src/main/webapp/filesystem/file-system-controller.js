@@ -1,4 +1,4 @@
-app.controller('FileSystemController', function($rootScope, $scope, $uibModal, File, ConnectionService, WorkspaceService) {
+app.controller('FileSystemController', function($rootScope, $scope, $q, $uibModal, File, ConnectionService, WorkspaceService) {
 
   $scope.root = null;
   $scope.tree = null;
@@ -12,47 +12,52 @@ app.controller('FileSystemController', function($rootScope, $scope, $uibModal, F
   }
 
   function reset() {
-    $scope.root = {name: '', path: '/', children : []};
-    $scope.tree = [$scope.root];
-    $scope.expanded = [$scope.root];
+    var deferred = $q.defer();
+    getFileAttributes('/').then(function(attributes) {
+      $scope.root = new File(null, attributes);
+      $scope.tree = [$scope.root];
+      $scope.expanded = [$scope.root];
+      deferred.resolve($scope.root);
+    });
+    return deferred.promise;
+  }
+
+  function sortFiles(dir) {
+    dir.children.sort(function(a, b) {
+      if(a.isDirectory() && !b.isDirectory())
+        return -1;
+      if(!a.isDirectory() && b.isDirectory())
+        return 1;
+      return a.name - b.name;
+    });
+  }
+
+  function getFileAttributes(path) {
+    return ConnectionService.send('get-file-attributes', {path: path});
   }
 
   function listFiles(dir) {
     ConnectionService.send('list-files', {path: dir.path}).then(function(files) {
+      dir.children = [];
       angular.forEach(files, function(file) {
         var node = new File(dir, file);
         dir.children.push(node);
         dir.children[node.name] = node;
       });
+      sortFiles(dir);
     })
   }
 
-  function updateFileAttributes(path) {
-    ConnectionService.send('get-file-attributes', {path: path}).then(function(attributes) {
-      var file = findFile(path);
+  function updateFileAttributes(file) {
+    getFileAttributes(file.path).then(function(attributes) {
       file.updateAttributes(attributes);
     })
   }
 
   function propagateChanges(file) {
-    var parent;
-    while((parent = file.getParent()) != null) {
-      updateFileAttributes(parent);
-    }
-  }
-
-  function getParent(path) {
-    if(path == '/')
-      return null;
-    var parentEnd = path.lastIndexOf('/');
-    return path.substring(0, Math.max(parentEnd, 1));
-  }
-
-  function updateParents(path) {
-    var parent = getParent(path);
-    while(parent != null) {
-      WorkspaceService.request('get-file-attributes', parent);
-      parent = getParent(parent);
+    while(file != null) {
+      updateFileAttributes(file);
+      file = file.getParent();
     }
   }
 
@@ -73,7 +78,7 @@ app.controller('FileSystemController', function($rootScope, $scope, $uibModal, F
       size: 'sm',
       resolve: {
         location: function() {
-          return file.isDirectory() ? file.getPath() : file.getParent();
+          return file.isDirectory() ? file.getPath() : file.getParent().getPath();
         }
       },
       controller : 'NewFileController'
@@ -110,33 +115,26 @@ app.controller('FileSystemController', function($rootScope, $scope, $uibModal, F
 
   $scope.toggleNode = function(node, expanded) {
     if(expanded && node.children == null) {
-      node.children = [];
       listFiles(node);
     }
   };
 
   $scope.$on('reload-filesystem', function() {
-    reset();
-    listFiles($scope.root);
+    reset().then(function(root) {
+      listFiles(root);
+    });
   });
 
   $scope.$on('file-deleted', function(event, file) {
-    propagateChanges(file);
-
-
+    var parent = file.getParent();
+    propagateChanges(parent);
+    parent.removeChild(file);
   });
 
   $scope.$on('get-file-attributes', function(event, response) {
     var path = response.target;
     var file = findFile(path);
     angular.extend(file, response.data);
-  });
-
-  $scope.$on('save', function(event, response) {
-    var path = response.target;
-    var file = findFile(path);
-    angular.extend(file, response.data);
-    updateParents(file.path);
   });
 
   $scope.treeOptions = {
