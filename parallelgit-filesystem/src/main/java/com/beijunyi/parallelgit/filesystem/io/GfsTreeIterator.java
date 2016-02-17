@@ -7,39 +7,38 @@ import javax.annotation.Nullable;
 
 import com.beijunyi.parallelgit.filesystem.GfsFileStore;
 import com.beijunyi.parallelgit.filesystem.GitFileSystem;
-import com.beijunyi.parallelgit.utils.io.GitFileEntry;
-import com.beijunyi.parallelgit.utils.io.TreeSnapshot;
 import org.eclipse.jgit.dircache.DirCacheEntry;
-import org.eclipse.jgit.lib.AnyObjectId;
-import org.eclipse.jgit.lib.Constants;
-import org.eclipse.jgit.lib.ObjectReader;
+import org.eclipse.jgit.lib.*;
 import org.eclipse.jgit.treewalk.AbstractTreeIterator;
 import org.eclipse.jgit.treewalk.WorkingTreeIterator;
 import org.eclipse.jgit.treewalk.WorkingTreeOptions;
 
-import static java.util.Collections.unmodifiableList;
 import static org.eclipse.jgit.lib.Constants.OBJECT_ID_LENGTH;
 
 public class GfsTreeIterator extends WorkingTreeIterator {
 
-  private final List<Map.Entry<String, GitFileEntry>> files;
+  private final List<GfsTreeEntry> files;
   private int index = -1;
   private AnyObjectId id;
 
-  public GfsTreeIterator(@Nonnull TreeSnapshot snapshot, @Nonnull GfsTreeIterator parent) {
+  public GfsTreeIterator(@Nonnull List<GfsTreeEntry> files, @Nonnull GfsTreeIterator parent) {
     super(parent);
-    files = toList(snapshot);
+    this.files = files;
     next(1);
   }
 
-  public GfsTreeIterator(@Nonnull TreeSnapshot snapshot) {
+  public GfsTreeIterator(@Nonnull List<GfsTreeEntry> files) {
     super((WorkingTreeOptions) null);
-    files = toList(snapshot);
+    this.files = files;
     next(1);
+  }
+
+  public GfsTreeIterator(@Nonnull RootNode node) throws IOException {
+    this(GfsTreeEntry.listChildren(node));
   }
 
   public GfsTreeIterator(@Nonnull GfsFileStore store) throws IOException {
-    this(getSnapshot(store));
+    this(store.getRoot());
   }
 
   public GfsTreeIterator(@Nonnull GitFileSystem gfs) throws IOException {
@@ -48,10 +47,8 @@ public class GfsTreeIterator extends WorkingTreeIterator {
 
   @Override
   public boolean isModified(@Nullable DirCacheEntry entry, boolean forceContentCheck, @Nonnull ObjectReader reader) throws IOException {
-    GitFileEntry current = currentEntry().getValue();
-    if(entry == null)
-      return !current.isMissing();
-    return !current.getId().equals(entry.getObjectId()) || !current.getMode().equals(entry.getFileMode());
+    GfsTreeEntry current = currentEntry();
+    return entry == null || !current.getId().equals(entry.getObjectId()) || !current.getMode().equals(entry.getFileMode());
   }
 
   @Override
@@ -74,9 +71,8 @@ public class GfsTreeIterator extends WorkingTreeIterator {
   @Nonnull
   @Override
   public AbstractTreeIterator createSubtreeIterator(@Nonnull ObjectReader reader) throws IOException {
-    Map.Entry<String, GitFileEntry> tree = currentEntry();
-    TreeSnapshot snapshot = TreeSnapshot.load(tree.getValue().getId(), reader);
-    return new GfsTreeIterator(snapshot, this);
+    GfsTreeEntry entry = currentEntry();
+    return new GfsTreeIterator(entry.listChildren(), this);
   }
 
   @Override
@@ -103,37 +99,70 @@ public class GfsTreeIterator extends WorkingTreeIterator {
   }
 
   @Nonnull
-  private Map.Entry<String, GitFileEntry> currentEntry() {
+  private GfsTreeEntry currentEntry() {
     return files.get(index);
   }
 
   private void readEntry() {
-    Map.Entry<String, GitFileEntry> entry = currentEntry();
+    GfsTreeEntry entry = currentEntry();
 
-    mode = entry.getValue().getMode().getBits();
-    id = entry.getValue().getId();
+    mode = entry.getMode().getBits();
+    id = entry.getId();
 
-    byte[] name = Constants.encode(entry.getKey());
+    byte[] name = Constants.encode(entry.getName());
     ensurePathCapacity(pathOffset + name.length, pathOffset);
     System.arraycopy(name, 0, path, pathOffset, name.length);
     pathLen = pathOffset + name.length;
   }
 
-  @Nonnull
-  private static List<Map.Entry<String, GitFileEntry>> toList(@Nonnull TreeSnapshot snapshot) {
-    SortedMap<String, GitFileEntry> children = snapshot.getData();
-    List<Map.Entry<String, GitFileEntry>> ret = new ArrayList<>(children.size());
-    for(Map.Entry<String, GitFileEntry> entry : children.entrySet())
-      ret.add(entry);
-    return unmodifiableList(ret);
-  }
+  private static class GfsTreeEntry implements Comparable<GfsTreeEntry> {
+    private final String name;
+    private final Node node;
 
-  @Nonnull
-  private static TreeSnapshot getSnapshot(@Nonnull GfsFileStore store) throws IOException {
-    RootNode root = store.getRoot();
-    TreeSnapshot ret = root.getSnapshot(true);
-    root.getObjectService().flush();
-    return ret;
+    public GfsTreeEntry(@Nonnull String name, @Nonnull Node node) {
+      this.name = name;
+      this.node = node;
+    }
+
+    @Override
+    public int compareTo(@Nonnull GfsTreeEntry that) {
+      return getName().compareTo(that.getName());
+    }
+
+    @Nonnull
+    public String getName() {
+      return name;
+    }
+
+    @Nonnull
+    public AnyObjectId getId() {
+      try {
+        return node.getObjectId(false);
+      } catch(IOException e) {
+        throw new IllegalStateException();
+      }
+    }
+
+    @Nonnull
+    public FileMode getMode() {
+      return node.getMode();
+    }
+
+    @Nonnull
+    public List<GfsTreeEntry> listChildren() throws IOException {
+      if(!node.isDirectory())
+        throw new IllegalStateException();
+      return listChildren((DirectoryNode) node);
+    }
+
+    @Nonnull
+    public static List<GfsTreeEntry> listChildren(@Nonnull DirectoryNode dir) throws IOException {
+      List<GfsTreeEntry> ret = new ArrayList<>();
+      for(Map.Entry<String, Node> child : dir.getData().entrySet())
+        ret.add(new GfsTreeEntry(child.getKey(), child.getValue()));
+      Collections.sort(ret);
+      return ret;
+    }
   }
 
 }
