@@ -83,8 +83,10 @@ app.controller('FileSystemController', function($rootScope, $scope, $q, File, Co
 
   function deleteFile(file) {
     return function() {
-      ConnectionService.send('delete-file', {path: file.path})
-        .then(broadcast('file-deleted', file));
+      DialogService.confirm('Delete file', 'Are you sure you want to delete ' + file.getName()).then(function() {
+        ConnectionService.send('delete-file', {path: file.path})
+          .then(broadcast('file-deleted', file));
+      });
     }
   }
 

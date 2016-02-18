@@ -1,5 +1,5 @@
-app.controller('PromptDialogController', function($scope, $uibModalInstance, text, fields) {
-  $scope.text = text;
+app.controller('PromptDialogController', function($scope, $uibModalInstance, title, fields) {
+  $scope.title = title;
   $scope.fields = fields;
 
   $scope.ok = function () {

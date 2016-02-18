@@ -9,6 +9,10 @@ app.factory('File', function() {
     this.state = attributes.state;
   }
 
+  File.prototype.getName = function() {
+    return this.name;
+  };
+
   File.prototype.getPath = function() {
     return this.path;
   };
