@@ -8,7 +8,7 @@ import javax.annotation.Nonnull;
 import com.beijunyi.parallelgit.filesystem.GitFileSystem;
 import com.beijunyi.parallelgit.web.workspace.Workspace;
 
-public class ReadFileHandler implements RequestHandler {
+public class ReadFileHandler extends AbstractGfsRequestHandler {
 
   @Override
   public String getType() {
@@ -17,8 +17,7 @@ public class ReadFileHandler implements RequestHandler {
 
   @Nonnull
   @Override
-  public ServerResponse handle(@Nonnull ClientRequest request, @Nonnull Workspace workspace) throws IOException {
-    GitFileSystem gfs = workspace.getFileSystem();
+  public ServerResponse handle(@Nonnull ClientRequest request, @Nonnull GitFileSystem gfs) throws IOException {
     Path path = gfs.getPath(request.getString("path"));
     String data = new String(Files.readAllBytes(path));
     return request.respond().ok(data);

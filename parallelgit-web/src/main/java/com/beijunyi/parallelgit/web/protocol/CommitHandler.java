@@ -3,9 +3,10 @@ package com.beijunyi.parallelgit.web.protocol;
 import java.io.IOException;
 import javax.annotation.Nonnull;
 
+import com.beijunyi.parallelgit.filesystem.GitFileSystem;
 import com.beijunyi.parallelgit.web.workspace.Workspace;
 
-public class CommitHandler implements RequestHandler {
+public class CommitHandler extends AbstractGfsRequestHandler {
 
   @Override
   public String getType() {
@@ -14,7 +15,7 @@ public class CommitHandler implements RequestHandler {
 
   @Nonnull
   @Override
-  public ServerResponse handle(@Nonnull ClientRequest request, @Nonnull Workspace workspace) throws IOException {
+  public ServerResponse handle(@Nonnull ClientRequest request, @Nonnull GitFileSystem gfs) throws IOException {
     throw new UnsupportedOperationException();
   }
 }

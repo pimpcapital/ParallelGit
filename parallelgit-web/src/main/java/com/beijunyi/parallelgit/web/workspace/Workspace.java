@@ -5,6 +5,7 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 import javax.annotation.Nonnull;
+import javax.annotation.Nullable;
 
 import com.beijunyi.parallelgit.filesystem.Gfs;
 import com.beijunyi.parallelgit.filesystem.GitFileSystem;
@@ -55,10 +56,8 @@ public class Workspace {
     this.user = user;
   }
 
-  @Nonnull
+  @Nullable
   public GitFileSystem getFileSystem() {
-    if(gfs == null)
-      throw new IllegalStateException();
     return gfs;
   }
 

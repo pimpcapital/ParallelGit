@@ -66,11 +66,7 @@ public class FileAttributes {
   @Nonnull
   private static FileType readType(@Nonnull GfsFileAttributeView.Git view) throws IOException {
     FileMode mode = view.getAttribute(FILE_MODE, FileMode.class);
-    if(mode.equals(FileMode.TREE))
-      return FileType.DIRECTORY;
-    if(mode.equals(FileMode.REGULAR_FILE) || mode.equals(FileMode.EXECUTABLE_FILE))
-      return FileType.REGULAR_FILE;
-    throw new UnsupportedOperationException();
+    return FileType.fromMode(mode);
   }
 
   @Nonnull

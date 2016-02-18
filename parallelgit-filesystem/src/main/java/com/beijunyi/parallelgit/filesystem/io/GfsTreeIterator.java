@@ -158,8 +158,11 @@ public class GfsTreeIterator extends WorkingTreeIterator {
     @Nonnull
     public static List<GfsTreeEntry> listChildren(@Nonnull DirectoryNode dir) throws IOException {
       List<GfsTreeEntry> ret = new ArrayList<>();
-      for(Map.Entry<String, Node> child : dir.getData().entrySet())
-        ret.add(new GfsTreeEntry(child.getKey(), child.getValue()));
+      for(Map.Entry<String, Node> child : dir.getData().entrySet()) {
+        Node node = child.getValue();
+        if(!node.isTrivial())
+          ret.add(new GfsTreeEntry(child.getKey(), node));
+      }
       Collections.sort(ret);
       return ret;
     }
