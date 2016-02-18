@@ -1,4 +1,4 @@
-app.controller('FileSystemController', function($rootScope, $scope, $q, $uibModal, File, ConnectionService, WorkspaceService) {
+app.controller('FileSystemController', function($rootScope, $scope, $q, File, ConnectionService, DialogService) {
 
   $scope.root = null;
   $scope.tree = null;
@@ -73,15 +73,11 @@ app.controller('FileSystemController', function($rootScope, $scope, $q, $uibModa
   }
 
   function addNewFile(file) {
-    $uibModal.open({
-      templateUrl: 'filesystem/new-file-modal.html',
-      size: 'sm',
-      resolve: {
-        location: function() {
-          return file.isDirectory() ? file.getPath() : file.getParent().getPath();
-        }
-      },
-      controller : 'NewFileController'
+    DialogService.prompt('New file', {
+      filename: {
+        label: 'Enter a new file name',
+        value: ''
+      }
     });
   }
 
@@ -141,7 +137,7 @@ app.controller('FileSystemController', function($rootScope, $scope, $q, $uibModa
     nodeChildren: 'children',
     dirSelectable: false,
     isLeaf: function(node) {
-      return node.type == 'REGULAR_FILE'
+      return node.type != 'DIRECTORY'
     }
   };
 

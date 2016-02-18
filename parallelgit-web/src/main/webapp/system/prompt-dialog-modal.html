@@ -1,11 +1,11 @@
-<form ng-submit="ok()" id="login-form">
+<form ng-submit="ok()">
   <div class="modal-header">
-    <h3 class="modal-title">Enter a new file name</h3>
+    <h3 class="modal-title">{{text}}</h3>
   </div>
   <div class="modal-body">
-    <div class="form-group">
-      <span class="mono">{{location | hierarchy}}</span>
-      <input id="new-file-filename" type="text" class="form-control">
+    <div class="form-group" ng-repeat="(key, field) in fields">
+      <label for="{{key}}">{{field.label}}</label>
+      <input id="{{key}}" type="text" class="form-control" ng-model="field.value">
     </div>
   </div>
   <div class="modal-footer">
