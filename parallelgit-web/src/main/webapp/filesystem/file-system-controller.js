@@ -1,9 +1,8 @@
-app.controller('FileSystemController', function($rootScope, $scope, $q, File, ConnectionService, DialogService) {
+app.controller('FileSystemController', function($rootScope, $scope, $q, File, ClipboardService, ConnectionService, DialogService) {
 
   $scope.root = null;
   $scope.tree = null;
   $scope.expanded = null;
-  $scope.index = null;
 
   function broadcast(message, data) {
     return function() {
@@ -72,13 +71,51 @@ app.controller('FileSystemController', function($rootScope, $scope, $q, File, Co
     return current;
   }
 
-  function addNewFile(file) {
-    DialogService.prompt('New file', {
-      filename: {
-        label: 'Enter a new file name',
-        value: ''
-      }
-    });
+  function newFile(file) {
+    return function() {
+      DialogService.prompt('New file', {
+        name: {
+          label: 'Enter a new file name',
+          value: ''
+        }
+      });
+    }
+  }
+
+  function newDirectory(file) {
+    return function() {
+      DialogService.prompt('New directory', {
+        name: {
+          label: 'Enter a new directory name',
+          value: ''
+        }
+      });
+    }
+  }
+
+  function cutFile(file) {
+    return function() {
+      ClipboardService.cut(file);
+    }
+  }
+
+  function copyFile(file) {
+    return function() {
+      ClipboardService.copy(file);
+    }
+  }
+
+  function pasteFile(file) {
+    return function() {
+      var dir = file.isDirectory() ? file : file.getParent();
+      ClipboardService.paste(dir);
+    }
+  }
+
+  function renameFile(file) {
+    return function() {
+
+    }
   }
 
   function deleteFile(file) {
@@ -92,17 +129,12 @@ app.controller('FileSystemController', function($rootScope, $scope, $q, File, Co
 
   $scope.contextMenu = function(file) {
     return [
-      ['New File', function() {
-        addNewFile(file);
-      }],
-      ['Cut', function() {
-      }],
-      ['Copy', function() {
-      }],
-      ['Paste', function() {
-      }],
-      ['Rename', function() {
-      }],
+      ['New File', newFile(file)],
+      ['New Directory', newDirectory(file)],
+      ['Cut', cutFile(file)],
+      ['Copy', copyFile(file)],
+      ['Paste', pasteFile(file)],
+      ['Rename', renameFile(file)],
       ['Delete', deleteFile(file)]
     ]
   };
