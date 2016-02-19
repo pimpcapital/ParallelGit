@@ -37,31 +37,6 @@ app.factory('File', function() {
     this.children.splice(this.children.indexOf(file), 1);
   };
 
-  File.prototype.getData = function() {
-    return this.data;
-  };
-
-  File.prototype.isLoaded = function() {
-    return this.data != null;
-  };
-
-  File.prototype.setData = function(data) {
-    this.data = data;
-  };
-
-  File.prototype.isActive = function() {
-    return this.active;
-  };
-
-  File.prototype.setActive = function(active) {
-    this.active = active;
-  };
-
-  File.prototype.unload = function() {
-    delete this.data;
-    delete this.active;
-  };
-
   return File;
 
 });

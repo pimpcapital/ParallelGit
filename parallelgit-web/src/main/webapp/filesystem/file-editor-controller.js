@@ -1,17 +1,7 @@
-app.controller('FileEditorController', function($scope, $q, $timeout, ConnectionService) {
-
-  var aceModeList = ace.require("ace/ext/modelist");
+app.controller('FileEditorController', function($scope, $q, $timeout, FileTab, ConnectionService) {
 
   $scope.tabs = null;
   $scope.tabsScroll = {};
-
-  function findCurrentActiveFile() {
-    for(var i = 0; i < $scope.tabs.length; i++) {
-      if($scope.tabs[i].active)
-        return i;
-    }
-    return -1;
-  }
 
   function blurAll() {
     for(var i = 0; i < $scope.tabs.length; i++) {
@@ -23,20 +13,20 @@ app.controller('FileEditorController', function($scope, $q, $timeout, Connection
     }
   }
 
-  function saveFile(file) {
-    cancelScheduledSave(file);
-    WorkspaceService.request('save', file.path, file.data);
+  function save(tab) {
+    cancelScheduledSave(tab);
+    WorkspaceService.request('save', tab.path, tab.data);
   }
 
-  function cancelScheduledSave(file) {
-    $timeout.cancel(file.scheduledSave);
-    delete file.scheduledSave;
+  function cancelScheduledSave(tab) {
+    $timeout.cancel(tab.scheduledSave);
+    delete tab.scheduledSave;
   }
 
-  function scheduleFileSave(file) {
-    cancelScheduledSave(file);
-    file.scheduledSave = $timeout(function() {
-      saveFile(file);
+  function scheduleSave(tab) {
+    cancelScheduledSave(tab);
+    tab.scheduledSave = $timeout(function() {
+      save(tab);
     }, 1000);
   }
 
@@ -53,37 +43,9 @@ app.controller('FileEditorController', function($scope, $q, $timeout, Connection
         activeTabIndex = i;
     }
     if(ret == null) {
-      ret = {
-        file: file,
-        data: null,
-        aceOptions: {
-          theme: 'merbivore_soft',
-          mode: aceModeList.getModeForPath(file.getName()).name,
-          onChange: function() {
-          }
-        }
-      };
+      ret = new FileTab(file);
       $scope.tabs.splice(activeTabIndex, 0, ret);
     }
-    return ret;
-  }
-
-  function createFileTab(path, data) {
-    var ret = {
-      path: path,
-      data: data,
-      initialized: false,
-      aceOptions: {
-        theme: 'merbivore_soft',
-        mode: aceModeList.getModeForPath(path).name,
-        onChange: function() {
-          if(!ret.initialized)
-            ret.initialized = true;
-          else
-            scheduleFileSave(ret);
-        }
-      }
-    };
     return ret;
   }
 
@@ -103,7 +65,7 @@ app.controller('FileEditorController', function($scope, $q, $timeout, Connection
     return function() {
       blurAll();
       tab.active = true;
-      scrollToActiveTab(true);
+      scrollToActiveTab();
     }
   }
 
@@ -112,19 +74,10 @@ app.controller('FileEditorController', function($scope, $q, $timeout, Connection
     loadData(tab).then(focusTab(tab));
   }
 
-  function initFile(path, data) {
-    var pos = findCurrentActiveFile() + 1;
-    var file = createFileTab(path, data);
-    $scope.tabs.splice(pos, 0, file);
-    $scope.tabs[path] = file;
-    focusTab(file)
-  }
-
-  function scrollToActiveTab(focus) {
+  function scrollToActiveTab() {
     $timeout(function() {
       $scope.tabsScroll.doRecalculate();
-      if(focus)
-        $scope.tabsScroll.scrollTabIntoView();
+      $scope.tabsScroll.scrollTabIntoView();
     });
   }
 
@@ -132,22 +85,21 @@ app.controller('FileEditorController', function($scope, $q, $timeout, Connection
     for(var i = 0; i < $scope.tabs.length; i++) {
       var file = $scope.tabs[i];
       if(file.scheduledSave != null)
-        saveFile(file);
+        save(file);
     }
   };
 
-  $scope.closeFile = function(file) {
-    var index = $scope.tabs.indexOf(file);
-    if(file.active) {
-      file.active = false;
+  $scope.closeTab = function(tab) {
+    var index = $scope.tabs.indexOf(tab);
+    if(tab.active) {
+      tab.active = false;
       var neighbour = index == $scope.tabs.length - 1 ? $scope.tabs[index - 1] : $scope.tabs[index + 1];
       if(neighbour != null)
         neighbour.active = true;
     }
     $scope.tabs.splice(index, 1);
-    delete $scope.tabs[file.path];
-    scrollToActiveTab(true);
-    saveFile(file);
+    scrollToActiveTab();
+    save(tab);
   };
 
   $scope._fileClass = function(file) {
@@ -165,7 +117,7 @@ app.controller('FileEditorController', function($scope, $q, $timeout, Connection
   });
 
   $scope.$on('ui.layout.resize', function() {
-    scrollToActiveTab(false);
+    scrollToActiveTab();
   });
 
   $scope.$on('open-file', function(event, file) {
