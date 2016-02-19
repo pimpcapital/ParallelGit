@@ -64,9 +64,9 @@ app.controller('FileEditorController', function($scope, $q, $timeout, FileTab) {
     scrollToActiveTab();
   };
 
-  $scope._fileClass = function(file) {
+  $scope._fileClass = function(tab) {
     var classes = [];
-    if(file.getHash() != null)
+    if(tab.file.getHash() != null)
       classes.push('file-dirty');
     return classes.join(' ');
   };
