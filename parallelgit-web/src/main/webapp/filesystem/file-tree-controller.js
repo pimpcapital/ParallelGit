@@ -1,4 +1,4 @@
-app.controller('FileSystemController', function($rootScope, $scope, $q, File, ClipboardService, ConnectionService, DialogService) {
+app.controller('FileTreeController', function($rootScope, $scope, $q, File, ClipboardService, ConnectionService, DialogService) {
 
   $scope.root = null;
   $scope.tree = null;
@@ -139,8 +139,8 @@ app.controller('FileSystemController', function($rootScope, $scope, $q, File, Cl
     ]
   };
 
-  $scope.select = function(node) {
-    $rootScope.$broadcast('open-file', node.path);
+  $scope.select = function(file) {
+    $rootScope.$broadcast('open-file', file);
   };
 
   $scope.toggleNode = function(node, expanded) {
@@ -159,12 +159,6 @@ app.controller('FileSystemController', function($rootScope, $scope, $q, File, Cl
     var parent = file.getParent();
     propagateChanges(parent);
     parent.removeChild(file);
-  });
-
-  $scope.$on('get-file-attributes', function(event, response) {
-    var path = response.target;
-    var file = findFile(path);
-    angular.extend(file, response.data);
   });
 
   $scope.treeOptions = {

@@ -13,7 +13,7 @@ app.service('DialogService', function($uibModal) {
         }
       },
       controller : 'ConfirmDialogController'
-    });
+    }).result;
   };
 
   this.prompt = function(title, fields) {
@@ -29,6 +29,6 @@ app.service('DialogService', function($uibModal) {
         }
       },
       controller : 'PromptDialogController'
-    });
+    }).result;
   }
 });
