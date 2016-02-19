@@ -21,6 +21,14 @@ app.factory('File', function() {
     return this.parent;
   };
 
+  File.prototype.getHash = function() {
+    return this.hash;
+  };
+
+  File.prototype.unsetHash = function() {
+    this.hash = null;
+  };
+
   File.prototype.isDirectory = function() {
     return this.type == 'DIRECTORY';
   };

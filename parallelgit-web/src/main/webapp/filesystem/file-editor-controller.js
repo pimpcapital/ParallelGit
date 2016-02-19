@@ -1,4 +1,4 @@
-app.controller('FileEditorController', function($scope, $q, $timeout, FileTab, ConnectionService) {
+app.controller('FileEditorController', function($scope, $q, $timeout, FileTab) {
 
   $scope.tabs = null;
   $scope.tabsScroll = {};
@@ -11,23 +11,6 @@ app.controller('FileEditorController', function($scope, $q, $timeout, FileTab, C
         break;
       }
     }
-  }
-
-  function save(tab) {
-    cancelScheduledSave(tab);
-    WorkspaceService.request('save', tab.path, tab.data);
-  }
-
-  function cancelScheduledSave(tab) {
-    $timeout.cancel(tab.scheduledSave);
-    delete tab.scheduledSave;
-  }
-
-  function scheduleSave(tab) {
-    cancelScheduledSave(tab);
-    tab.scheduledSave = $timeout(function() {
-      save(tab);
-    }, 1000);
   }
 
   function setupTab(file) {
@@ -49,18 +32,6 @@ app.controller('FileEditorController', function($scope, $q, $timeout, FileTab, C
     return ret;
   }
 
-  function loadData(tab) {
-    var deferred = $q.defer();
-    if(tab.data != null)
-      deferred.resolve(tab.data);
-    else
-      ConnectionService.send('read-file', {path: tab.file.getPath()}).then(function(data) {
-        tab.data = data;
-        deferred.resolve(data);
-      });
-    return deferred.promise;
-  }
-
   function focusTab(tab) {
     return function() {
       blurAll();
@@ -71,7 +42,7 @@ app.controller('FileEditorController', function($scope, $q, $timeout, FileTab, C
 
   function openFile(file) {
     var tab = setupTab(file);
-    loadData(tab).then(focusTab(tab));
+    focusTab(tab);
   }
 
   function scrollToActiveTab() {
@@ -80,14 +51,6 @@ app.controller('FileEditorController', function($scope, $q, $timeout, FileTab, C
       $scope.tabsScroll.scrollTabIntoView();
     });
   }
-
-  $scope.focusFile = function() {
-    for(var i = 0; i < $scope.tabs.length; i++) {
-      var file = $scope.tabs[i];
-      if(file.scheduledSave != null)
-        save(file);
-    }
-  };
 
   $scope.closeTab = function(tab) {
     var index = $scope.tabs.indexOf(tab);
@@ -99,12 +62,11 @@ app.controller('FileEditorController', function($scope, $q, $timeout, FileTab, C
     }
     $scope.tabs.splice(index, 1);
     scrollToActiveTab();
-    save(tab);
   };
 
   $scope._fileClass = function(file) {
     var classes = [];
-    if(file.scheduledSave != null)
+    if(file.getHash() != null)
       classes.push('file-dirty');
     return classes.join(' ');
   };
