@@ -1,9 +1,9 @@
-app.factory('File', function(ConnectionService) {
+app.factory('File', function($q, ConnectionService) {
 
   function File(parent, attributes) {
     this.name = attributes.name;
     this.parent = parent;
-    this.path = (parent != null ? parent.getPath() : '') + '/' + attributes.name;
+    this.path = resolvePath(parent, attributes.name);
     this.hash = attributes.hash;
     this.type = attributes.type;
     this.state = attributes.state;
@@ -33,42 +33,56 @@ app.factory('File', function(ConnectionService) {
     return this.type == 'DIRECTORY';
   };
 
-  function updateFileAttributes(file) {
-    getFileAttributes(file.path).then(function(attributes) {
-      file.updateAttributes(attributes);
-    })
-  }
-
-  File.prototype.updateAttributes = function(attributes) {
-    var changed = this.hash != attributes.hash || this.type != attributes.type;
-    this.hash = attributes.hash;
-    this.type = attributes.type;
-    this.state = attributes.state;
-    return changed;
+  File.prototype.loadAttributes = function() {
+    var deferred = $q.defer();
+    var file = this;
+    ConnectionService.send('get-file-attributes', {path: file.getPath()}).then(function(attributes) {
+      file.hash = attributes.hash;
+      file.type = attributes.type;
+      file.state = attributes.state;
+      deferred.resolve(attributes);
+    });
+    return deferred.promise;
   };
 
   File.prototype.loadChildren = function() {
+    var deferred = $q.defer();
     var dir = this;
     ConnectionService.send('list-files', {path: this.path}).then(function(files) {
-      angular.forEach(files, function(file) {
-        var node = new File(dir, file);
-        dir.children.push(node);
+      var children = [];
+      angular.forEach(files, function(attributes) {
+        var node = new File(dir, attributes);
+        children.push(node);
       });
-      sortChildren();
-    })
+      sortFiles(children);
+      dir.children = children;
+      deferred.resolve(children);
+    });
+    return deferred.promise;
   };
 
   File.prototype.removeChild = function(file) {
     this.children.splice(this.children.indexOf(file), 1);
   };
 
-  function sortChildren() {
-    this.children.sort(function(a, b) {
+  function resolvePath(parent, name) {
+    if(parent != null) {
+      var ret = parent.getPath();
+      if(ret.charAt(ret.length - 1) != '/')
+        ret += '/';
+      return ret + name;
+    }
+    else
+      return '/';
+  }
+
+  function sortFiles(files) {
+    files.sort(function(a, b) {
       if(a.isDirectory() && !b.isDirectory())
         return -1;
       if(!a.isDirectory() && b.isDirectory())
         return 1;
-      return a.name - b.name;
+      return a.getName() - b.getName();
     });
   }
 

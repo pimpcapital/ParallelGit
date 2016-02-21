@@ -1,4 +1,4 @@
-app.controller('StatusController', function($rootScope, $scope, $q, $cookies, ConnectionService) {
+app.controller('StatusController', function($rootScope, $scope, $q, $cookies, FileSystem, ConnectionService) {
 
   $scope.branches = null;
   $scope.status = null;
@@ -48,7 +48,7 @@ app.controller('StatusController', function($rootScope, $scope, $q, $cookies, Co
   $scope.$on('ready', function() {
     fetchBranches();
     fetchStatus();
-    $rootScope.$broadcast('reload-filesystem');
+    FileSystem.reload();
   });
   $scope.$on('lockdown', function() {
     $scope.branches = null;

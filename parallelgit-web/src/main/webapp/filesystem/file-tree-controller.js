@@ -1,24 +1,13 @@
-app.controller('FileTreeController', function($rootScope, $scope, $q, File, ClipboardService, ConnectionService, DialogService) {
+app.controller('FileTreeController', function($rootScope, $scope, $q, File, FileSystem, ClipboardService, ConnectionService, DialogService) {
 
-  $scope.root = null;
-  $scope.tree = null;
-  $scope.expanded = null;
+  $scope.fs = FileSystem;
+  $scope.tree = [FileSystem.getRoot()];
+  $scope.expanded = [];
 
   function broadcast(message, data) {
     return function() {
       $rootScope.$broadcast(message, data);
     }
-  }
-
-  function reset() {
-    var deferred = $q.defer();
-    getFileAttributes('/').then(function(attributes) {
-      $scope.root = new File(null, attributes);
-      $scope.tree = [$scope.root];
-      $scope.expanded = [$scope.root];
-      deferred.resolve($scope.root);
-    });
-    return deferred.promise;
   }
 
   function sortFiles(dir) {
@@ -58,17 +47,6 @@ app.controller('FileTreeController', function($rootScope, $scope, $q, File, Clip
       updateFileAttributes(file);
       file = file.getParent();
     }
-  }
-
-  function findFile(path) {
-    var dirs = path.split('/');
-    var current = $scope.root;
-    while(dirs.length > 0) {
-      var next = dirs.shift();
-      if(next.length > 0)
-        current = current.children[next];
-    }
-    return current;
   }
 
   function newFile(file) {
@@ -149,10 +127,8 @@ app.controller('FileTreeController', function($rootScope, $scope, $q, File, Clip
     }
   };
 
-  $scope.$on('reload-filesystem', function() {
-    reset().then(function(root) {
-      listFiles(root);
-    });
+  $scope.$on('filesystem-reloaded', function() {
+    $scope.expanded = $scope.tree.slice();
   });
 
   $scope.$on('file-deleted', function(event, file) {

@@ -17,7 +17,7 @@ app.service('ClipboardService', function($rootScope) {
 
   };
 
-  $rootScope.$on('reload-filesystem', function() {
+  $rootScope.$on('reloaded-filesystem', function() {
     buffer = null;
     deleteOnPaste = null
   });
