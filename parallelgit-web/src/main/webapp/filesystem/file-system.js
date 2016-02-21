@@ -14,6 +14,16 @@ app.service('FileSystem', function($rootScope, File, ConnectionService) {
     });
   };
 
+  this.createFile = function(dir, name) {
+    if(!dir.isDirectory())
+      dir = dir.getParent();
+    ConnectionService.send('create-file', {directory: dir.getPath(), name: name}).then(function(attributes) {
+      var file = dir.addChild(attributes);
+      propagateChanges(dir);
+      $rootScope.$broadcast('file-created', file);
+    });
+  };
+
   this.deleteFile = function(file) {
     ConnectionService.send('delete-file', {path: file.path}).then(function() {
       var parent = file.getParent();

@@ -61,8 +61,17 @@ app.factory('File', function($q, ConnectionService) {
     return deferred.promise;
   };
 
+  File.prototype.addChild = function(attributes) {
+    var dir = this;
+    var file = new File(dir, attributes);
+    dir.children.push(file);
+    sortFiles(dir.children);
+    return file;
+  };
+
   File.prototype.removeChild = function(file) {
-    this.children.splice(this.children.indexOf(file), 1);
+    var dir = this;
+    dir.children.splice(dir.children.indexOf(file), 1);
   };
 
   function resolvePath(parent, name) {

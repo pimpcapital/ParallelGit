@@ -50,14 +50,7 @@ app.controller('FileTreeController', function($rootScope, $scope, $q, File, File
   }
 
   function newFile(file) {
-    return function() {
-      DialogService.prompt('New file', {
-        name: {
-          label: 'Enter a new file name',
-          value: ''
-        }
-      });
-    }
+    return
   }
 
   function newDirectory(file) {
@@ -96,23 +89,23 @@ app.controller('FileTreeController', function($rootScope, $scope, $q, File, File
     }
   }
 
-  function deleteFile(file) {
-    return function() {
-      DialogService.confirm('Delete file', 'Are you sure you want to delete ' + file.getName()).then(function() {
-        FileSystem.deleteFile(file);
-      });
-    }
-  }
-
   $scope.contextMenu = function(file) {
     return [
-      ['New File', newFile(file)],
+      ['New File', function() {
+        DialogService.prompt('New file', {name: {label: 'Enter a new file name', value: ''}}).then(function(fields) {
+          FileSystem.createFile(file, fields.name.value);
+        });
+      }],
       ['New Directory', newDirectory(file)],
       ['Cut', cutFile(file)],
       ['Copy', copyFile(file)],
       ['Paste', pasteFile(file)],
       ['Rename', renameFile(file)],
-      ['Delete', deleteFile(file)]
+      ['Delete', function() {
+        DialogService.confirm('Delete file', 'Are you sure you want to delete ' + file.getName()).then(function() {
+          FileSystem.deleteFile(file);
+        });
+      }]
     ]
   };
 

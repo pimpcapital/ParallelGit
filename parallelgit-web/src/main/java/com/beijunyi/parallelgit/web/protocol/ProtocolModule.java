@@ -11,7 +11,7 @@ public class ProtocolModule extends AbstractModule {
   private static final Collection<Class<? extends RequestHandler>> HANDLERS = Arrays.asList(
     CheckoutRequestHandler.class,
     CopyFileHandler.class,
-    CreateNewFileHandler.class,
+    CreateFileHandler.class,
     DeleteFileHandler.class,
     GetFileAttributesHandler.class,
     GetStatusHandler.class,
