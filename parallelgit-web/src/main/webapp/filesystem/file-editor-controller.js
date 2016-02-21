@@ -27,17 +27,15 @@ app.controller('FileEditorController', function($scope, $q, $timeout, FileTab) {
     }
     if(ret == null) {
       ret = new FileTab(file);
-      $scope.tabs.splice(activeTabIndex, 0, ret);
+      $scope.tabs.splice(activeTabIndex + 1, 0, ret);
     }
     return ret;
   }
 
   function focusTab(tab) {
-    return function() {
-      blurAll();
-      tab.active = true;
-      scrollToActiveTab();
-    }
+    blurAll();
+    tab.active = true;
+    scrollToActiveTab();
   }
 
   function openFile(file) {
