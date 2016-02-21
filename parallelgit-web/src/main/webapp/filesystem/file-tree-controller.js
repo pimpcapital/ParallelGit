@@ -99,8 +99,7 @@ app.controller('FileTreeController', function($rootScope, $scope, $q, File, File
   function deleteFile(file) {
     return function() {
       DialogService.confirm('Delete file', 'Are you sure you want to delete ' + file.getName()).then(function() {
-        ConnectionService.send('delete-file', {path: file.path})
-          .then(broadcast('file-deleted', file));
+        FileSystem.deleteFile(file);
       });
     }
   }
@@ -129,12 +128,6 @@ app.controller('FileTreeController', function($rootScope, $scope, $q, File, File
 
   $scope.$on('filesystem-reloaded', function() {
     $scope.expanded = $scope.tree.slice();
-  });
-
-  $scope.$on('file-deleted', function(event, file) {
-    var parent = file.getParent();
-    propagateChanges(parent);
-    parent.removeChild(file);
   });
 
   $scope.treeOptions = {

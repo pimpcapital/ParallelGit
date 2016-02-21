@@ -66,7 +66,7 @@ app.controller('FileEditorController', function($scope, $q, $timeout, FileTab) {
 
   $scope._fileClass = function(tab) {
     var classes = [];
-    if(tab.file.getHash() != null)
+    if(tab.file.getHash() == null)
       classes.push('file-dirty');
     return classes.join(' ');
   };
