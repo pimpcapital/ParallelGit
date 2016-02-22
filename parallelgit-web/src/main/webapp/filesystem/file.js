@@ -1,4 +1,4 @@
-app.factory('File', function($q, ConnectionService) {
+app.factory('File', function($q, Connection) {
 
   function File(parent, attributes) {
     this.name = attributes.name;
@@ -36,7 +36,7 @@ app.factory('File', function($q, ConnectionService) {
   File.prototype.loadAttributes = function() {
     var deferred = $q.defer();
     var file = this;
-    ConnectionService.send('get-file-attributes', {path: file.getPath()}).then(function(attributes) {
+    Connection.send('get-file-attributes', {path: file.getPath()}).then(function(attributes) {
       file.hash = attributes.hash;
       file.type = attributes.type;
       file.state = attributes.state;
@@ -45,25 +45,29 @@ app.factory('File', function($q, ConnectionService) {
     return deferred.promise;
   };
 
-  File.prototype.loadChildren = function() {
+  File.prototype.loadChildren = function(refresh) {
     var deferred = $q.defer();
     var dir = this;
-    ConnectionService.send('list-files', {path: this.path}).then(function(files) {
-      var children = [];
-      angular.forEach(files, function(attributes) {
-        var node = new File(dir, attributes);
-        children.push(node);
+    var children = dir.children;
+    if(children == null || refresh) {
+      Connection.send('list-files', {path: this.path}).then(function(files) {
+        children = dir.children = [];
+        angular.forEach(files, function(attributes) {
+          var node = new File(dir, attributes);
+          children.push(node);
+        });
+        sortFiles(children);
+        deferred.resolve(children);
       });
-      sortFiles(children);
-      dir.children = children;
+    } else{
       deferred.resolve(children);
-    });
+    }
     return deferred.promise;
   };
 
   File.prototype.addChild = function(attributes) {
     var dir = this;
-    var children = dir.children || (dir.children = []);
+    var children = dir.children;
     var file = new File(dir, attributes);
     children.push(file);
     sortFiles(children);

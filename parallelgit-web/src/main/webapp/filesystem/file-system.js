@@ -1,4 +1,4 @@
-app.service('FileSystem', function($rootScope, File, ConnectionService) {
+app.service('FileSystem', function($rootScope, File, Connection) {
 
   var root = new File(null, {name: ''});
 
@@ -17,40 +17,48 @@ app.service('FileSystem', function($rootScope, File, ConnectionService) {
   this.createFile = function(dir, name) {
     if(!dir.isDirectory())
       dir = dir.getParent();
-    ConnectionService.send('create-file', {directory: dir.getPath(), name: name}).then(function(attributes) {
-      var file = addChild(dir, attributes);
-      $rootScope.$broadcast('directory-created', file);
+    dir.loadChildren().then(function() {
+      Connection.send('create-file', {directory: dir.getPath(), name: name}).then(function(attributes) {
+        var file = addChild(dir, attributes);
+        $rootScope.$broadcast('directory-created', file);
+      });
     });
   };
 
   this.createDirectory = function(dir, name) {
     if(!dir.isDirectory())
       dir = dir.getParent();
-    ConnectionService.send('create-directory', {directory: dir.getPath(), name: name}).then(function(attributes) {
-      var file = addChild(dir, attributes);
-      $rootScope.$broadcast('directory-created', file);
+    dir.loadChildren().then(function() {
+      Connection.send('create-directory', {directory: dir.getPath(), name: name}).then(function(attributes) {
+        var file = addChild(dir, attributes);
+        $rootScope.$broadcast('directory-created', file);
+      });
     });
   };
 
   this.deleteFile = function(file) {
-    ConnectionService.send('delete-file', {path: file.path}).then(function() {
+    Connection.send('delete-file', {path: file.path}).then(function() {
       removeChild(file);
       $rootScope.$broadcast('file-deleted', file)
     });
   };
 
   this.copyFile = function(source, dir, name) {
-    ConnectionService.send('copy-file', {source: dir.getPath(), directory: dir.getPath(), name: name}).then(function(attributes) {
-      var file = addChild(dir, attributes);
-      $rootScope.$broadcast('file-copied', [source, file])
+    dir.loadChildren().then(function() {
+      Connection.send('copy-file', {source: source.getPath(), directory: dir.getPath(), name: name}).then(function(attributes) {
+        var file = addChild(dir, attributes);
+        $rootScope.$broadcast('file-copied', [source, file])
+      });
     });
   };
 
   this.moveFile = function(source, dir, name) {
-    ConnectionService.send('move-file', {source: dir.getPath(), directory: dir.getPath(), name: name}).then(function(attributes) {
-      removeChild(source);
-      var file = addChild(dir, attributes);
-      $rootScope.$broadcast('file-moved', [source, file])
+    dir.loadChildren().then(function() {
+      Connection.send('move-file', {source: source.getPath(), directory: dir.getPath(), name: name}).then(function(attributes) {
+        removeChild(source);
+        var file = addChild(dir, attributes);
+        $rootScope.$broadcast('file-moved', [source, file])
+      });
     });
   };
 

@@ -1,11 +1,11 @@
-app.controller('StatusController', function($rootScope, $scope, $q, $cookies, FileSystem, ConnectionService) {
+app.controller('StatusController', function($rootScope, $scope, $q, $cookies, FileSystem, Connection) {
 
   $scope.branches = null;
   $scope.status = null;
 
   function fetchBranches() {
     var deferred = $q.defer();
-    ConnectionService.send('list-branches').then(function(branches) {
+    Connection.send('list-branches').then(function(branches) {
       $scope.branches = branches;
       deferred.resolve(branches);
     });
@@ -14,7 +14,7 @@ app.controller('StatusController', function($rootScope, $scope, $q, $cookies, Fi
 
   function fetchStatus() {
     var deferred = $q.defer();
-    ConnectionService.send('get-status').then(function(status) {
+    Connection.send('get-status').then(function(status) {
       $scope.status = status;
       deferred.resolve(status);
     });
@@ -23,7 +23,7 @@ app.controller('StatusController', function($rootScope, $scope, $q, $cookies, Fi
 
   function checkout(branch) {
     var deferred = $q.defer();
-    ConnectionService.send('checkout', {branch: branch}).then(function(status) {
+    Connection.send('checkout', {branch: branch}).then(function(status) {
       $scope.status = status;
       deferred.resolve(status);
     });

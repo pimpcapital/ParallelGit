@@ -1,4 +1,4 @@
-app.controller('MainController', function($scope, $rootScope, ConnectionService, NotificationService, SecurityService) {
+app.controller('MainController', function($scope, $rootScope, Connection, NotificationService, SecurityService) {
 
   $scope.ready = false;
   $scope.$on('ready', function() {
@@ -18,7 +18,7 @@ app.controller('MainController', function($scope, $rootScope, ConnectionService,
     $rootScope.$broadcast('ready');
   }
 
-  ConnectionService.connect()
+  Connection.connect()
     .then(login)
     .then(broadcastReady);
 

@@ -1,4 +1,4 @@
-app.service('ConnectionService', function($rootScope, $q, $timeout, NotificationService, EncodeService, DecodeService) {
+app.service('Connection', function($rootScope, $q, $timeout, NotificationService, EncodeService, DecodeService) {
 
   var connection = null;
   var requests = null;

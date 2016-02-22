@@ -1,4 +1,4 @@
-app.controller('FileTreeController', function($rootScope, $scope, $q, File, FileSystem, Clipboard, ConnectionService, DialogService) {
+app.controller('FileTreeController', function($rootScope, $scope, $q, File, FileSystem, Clipboard, Connection, DialogService) {
 
   $scope.fs = FileSystem;
   $scope.tree = [FileSystem.getRoot()];
@@ -21,7 +21,7 @@ app.controller('FileTreeController', function($rootScope, $scope, $q, File, File
   }
 
   function listFiles(dir) {
-    ConnectionService.send('list-files', {path: dir.path}).then(function(files) {
+    Connection.send('list-files', {path: dir.path}).then(function(files) {
       dir.children = [];
       angular.forEach(files, function(file) {
         var node = new File(dir, file);

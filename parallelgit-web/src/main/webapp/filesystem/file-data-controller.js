@@ -1,18 +1,18 @@
-app.controller('FileDataController', function($rootScope, $scope, $timeout, ConnectionService) {
+app.controller('FileDataController', function($rootScope, $scope, $timeout, Connection) {
 
   $scope.file = null;
   $scope.data = null;
   $scope.nextSave = null;
 
   function load() {
-    ConnectionService.send('read-file', {path: $scope.file.getPath()}).then(function(data) {
+    Connection.send('read-file', {path: $scope.file.getPath()}).then(function(data) {
       $scope.data = data;
     });
   }
 
   function save() {
     cancelScheduledSave();
-    ConnectionService.send('write-file', {path: $scope.file.getPath(), data: $scope.data}).then(function() {
+    Connection.send('write-file', {path: $scope.file.getPath(), data: $scope.data}).then(function() {
       $rootScope.$broadcast('file-modified', $scope.file);
     });
   }
