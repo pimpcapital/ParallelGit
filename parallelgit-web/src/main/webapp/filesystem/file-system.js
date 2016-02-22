@@ -18,18 +18,39 @@ app.service('FileSystem', function($rootScope, File, ConnectionService) {
     if(!dir.isDirectory())
       dir = dir.getParent();
     ConnectionService.send('create-file', {directory: dir.getPath(), name: name}).then(function(attributes) {
-      var file = dir.addChild(attributes);
-      propagateChanges(dir);
-      $rootScope.$broadcast('file-created', file);
+      var file = addChild(dir, attributes);
+      $rootScope.$broadcast('directory-created', file);
+    });
+  };
+
+  this.createDirectory = function(dir, name) {
+    if(!dir.isDirectory())
+      dir = dir.getParent();
+    ConnectionService.send('create-directory', {directory: dir.getPath(), name: name}).then(function(attributes) {
+      var file = addChild(dir, attributes);
+      $rootScope.$broadcast('directory-created', file);
     });
   };
 
   this.deleteFile = function(file) {
     ConnectionService.send('delete-file', {path: file.path}).then(function() {
-      var parent = file.getParent();
-      parent.removeChild(file);
-      propagateChanges(parent);
+      removeChild(file);
       $rootScope.$broadcast('file-deleted', file)
+    });
+  };
+
+  this.copyFile = function(source, dir, name) {
+    ConnectionService.send('copy-file', {source: dir.getPath(), directory: dir.getPath(), name: name}).then(function(attributes) {
+      var file = addChild(dir, attributes);
+      $rootScope.$broadcast('file-copied', [source, file])
+    });
+  };
+
+  this.moveFile = function(source, dir, name) {
+    ConnectionService.send('move-file', {source: dir.getPath(), directory: dir.getPath(), name: name}).then(function(attributes) {
+      removeChild(source);
+      var file = addChild(dir, attributes);
+      $rootScope.$broadcast('file-moved', [source, file])
     });
   };
 
@@ -45,6 +66,18 @@ app.service('FileSystem', function($rootScope, File, ConnectionService) {
       current.loadAttributes();
       current = current.getParent();
     }
+  }
+
+  function removeChild(file) {
+    var parent = file.getParent();
+    parent.removeChild(file);
+    propagateChanges(parent);
+  }
+
+  function addChild(dir, attributes) {
+    var file = dir.addChild(attributes);
+    propagateChanges(dir);
+    return file;
   }
 
 });

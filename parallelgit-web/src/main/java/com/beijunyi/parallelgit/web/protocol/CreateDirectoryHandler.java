@@ -7,22 +7,20 @@ import javax.annotation.Nonnull;
 
 import com.beijunyi.parallelgit.filesystem.GitFileSystem;
 import com.beijunyi.parallelgit.web.protocol.model.FileAttributes;
-import com.beijunyi.parallelgit.web.workspace.Workspace;
 
-public class CopyFileHandler extends AbstractGfsRequestHandler {
+public class CreateDirectoryHandler extends AbstractGfsRequestHandler {
 
   @Override
   public String getType() {
-    return "copy-file";
+    return "create-directory";
   }
 
   @Nonnull
   @Override
   public ServerResponse handle(@Nonnull ClientRequest request, @Nonnull GitFileSystem gfs) throws IOException {
-    Path source = gfs.getPath(request.getString("source"));
-    Path destination = gfs.getPath(request.getString("directory")).resolve(request.getString("name"));
-    Files.copy(source, destination);
-    FileAttributes attributes = FileAttributes.read(destination);
+    Path path = gfs.getPath(request.getString("directory")).resolve(request.getString("name"));
+    Files.createDirectory(path);
+    FileAttributes attributes = FileAttributes.read(path);
     return request.respond().ok(attributes);
   }
 }

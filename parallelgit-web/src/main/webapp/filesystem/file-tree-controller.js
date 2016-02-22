@@ -1,4 +1,4 @@
-app.controller('FileTreeController', function($rootScope, $scope, $q, File, FileSystem, ClipboardService, ConnectionService, DialogService) {
+app.controller('FileTreeController', function($rootScope, $scope, $q, File, FileSystem, Clipboard, ConnectionService, DialogService) {
 
   $scope.fs = FileSystem;
   $scope.tree = [FileSystem.getRoot()];
@@ -20,10 +20,6 @@ app.controller('FileTreeController', function($rootScope, $scope, $q, File, File
     });
   }
 
-  function getFileAttributes(path) {
-    return ConnectionService.send('get-file-attributes', {path: path});
-  }
-
   function listFiles(dir) {
     ConnectionService.send('list-files', {path: dir.path}).then(function(files) {
       dir.children = [];
@@ -36,50 +32,10 @@ app.controller('FileTreeController', function($rootScope, $scope, $q, File, File
     })
   }
 
-  function updateFileAttributes(file) {
-    getFileAttributes(file.path).then(function(attributes) {
-      file.updateAttributes(attributes);
-    })
-  }
-
-  function propagateChanges(file) {
-    while(file != null) {
-      updateFileAttributes(file);
-      file = file.getParent();
-    }
-  }
-
-  function newFile(file) {
-    return
-  }
-
-  function newDirectory(file) {
-    return function() {
-      DialogService.prompt('New directory', {
-        name: {
-          label: 'Enter a new directory name',
-          value: ''
-        }
-      });
-    }
-  }
-
-  function cutFile(file) {
-    return function() {
-      ClipboardService.cut(file);
-    }
-  }
-
-  function copyFile(file) {
-    return function() {
-      ClipboardService.copy(file);
-    }
-  }
-
   function pasteFile(file) {
     return function() {
       var dir = file.isDirectory() ? file : file.getParent();
-      ClipboardService.paste(dir);
+      Clipboard.paste(dir);
     }
   }
 
@@ -96,10 +52,20 @@ app.controller('FileTreeController', function($rootScope, $scope, $q, File, File
           FileSystem.createFile(file, fields.name.value);
         });
       }],
-      ['New Directory', newDirectory(file)],
-      ['Cut', cutFile(file)],
-      ['Copy', copyFile(file)],
-      ['Paste', pasteFile(file)],
+      ['New Directory', function() {
+        DialogService.prompt('New directory', {name: {label: 'Enter a new directory name', value: ''}}).then(function(fields) {
+          FileSystem.createDirectory(file, fields.name.value);
+        });
+      }],
+      ['Cut', function() {
+        Clipboard.cut(file);
+      }],
+      ['Copy', function() {
+        Clipboard.copy(file);
+      }],
+      ['Paste', function() {
+        Clipboard.paste(file);
+      }],
       ['Rename', renameFile(file)],
       ['Delete', function() {
         DialogService.confirm('Delete file', 'Are you sure you want to delete ' + file.getName()).then(function() {

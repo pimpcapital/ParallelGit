@@ -63,9 +63,10 @@ app.factory('File', function($q, ConnectionService) {
 
   File.prototype.addChild = function(attributes) {
     var dir = this;
+    var children = dir.children || (dir.children = []);
     var file = new File(dir, attributes);
-    dir.children.push(file);
-    sortFiles(dir.children);
+    children.push(file);
+    sortFiles(children);
     return file;
   };
 
