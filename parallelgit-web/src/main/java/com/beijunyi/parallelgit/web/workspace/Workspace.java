@@ -10,7 +10,6 @@ import javax.annotation.Nullable;
 import com.beijunyi.parallelgit.filesystem.Gfs;
 import com.beijunyi.parallelgit.filesystem.GitFileSystem;
 import com.beijunyi.parallelgit.utils.BranchUtils;
-import com.beijunyi.parallelgit.web.workspace.status.Head;
 import org.eclipse.jgit.lib.Constants;
 import org.eclipse.jgit.lib.Repository;
 
@@ -32,11 +31,6 @@ public class Workspace {
     this.user = user;
     this.repo = repo;
     gfs = Gfs.newFileSystem(getDefaultBranch(repo), repo);
-  }
-
-  @Nonnull
-  public WorkspaceStatus getStatus() {
-    return new WorkspaceStatus(Head.of(gfs));
   }
 
   @Nonnull

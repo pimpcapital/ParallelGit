@@ -128,6 +128,10 @@ public final class GfsCheckoutCommand extends GfsCommand<GfsCheckoutCommand.Resu
       return successful;
     }
 
+    public boolean hasConflicts() {
+      return conflicts != null;
+    }
+
     @Nonnull
     public Map<String, GfsCheckoutConflict> getConflicts() {
       if(conflicts == null)

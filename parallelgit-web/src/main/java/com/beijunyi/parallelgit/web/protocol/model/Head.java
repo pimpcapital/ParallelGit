@@ -1,4 +1,4 @@
-package com.beijunyi.parallelgit.web.workspace.status;
+package com.beijunyi.parallelgit.web.protocol.model;
 
 import javax.annotation.Nonnull;
 
@@ -16,12 +16,13 @@ public class Head {
   }
 
   @Nonnull
-  public static Head of(@Nonnull GitFileSystem gfs) {
-    GfsStatusProvider status = gfs.getStatusProvider();
-    if(status.isAttached())
-      return new Head(status.branch(), HeadType.BRANCH);
-    else
-      return new Head(status.commit().getName(), HeadType.COMMIT);
+  public static Head commit(@Nonnull String id) {
+    return new Head(id, HeadType.COMMIT);
+  }
+
+  @Nonnull
+  public static Head branch(@Nonnull String name) {
+    return new Head(name, HeadType.BRANCH);
   }
 
   @Nonnull

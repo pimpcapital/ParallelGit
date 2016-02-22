@@ -8,7 +8,7 @@ app.service('FileSystem', function($rootScope, File, Connection) {
 
   this.reload = function() {
     root.loadAttributes().then(function() {
-      root.loadChildren().then(function() {
+      root.loadChildren(true).then(function() {
         $rootScope.$broadcast('filesystem-reloaded');
       })
     });
@@ -62,10 +62,15 @@ app.service('FileSystem', function($rootScope, File, Connection) {
     });
   };
 
+  var me = this;
   $rootScope.$on('file-modified', function(event, file) {
     file.loadAttributes();
     var parent = file.getParent();
     propagateChanges(parent);
+  });
+
+  $rootScope.$on('branch-checked-out', function() {
+    me.reload();
   });
 
   function propagateChanges(file) {

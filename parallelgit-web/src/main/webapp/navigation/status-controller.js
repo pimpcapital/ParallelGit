@@ -26,19 +26,9 @@ app.controller('StatusController', function($rootScope, $scope, $q, $cookies, Fi
     Connection.send('checkout', {branch: branch}).then(function(status) {
       $scope.status = status;
       deferred.resolve(status);
+      $rootScope.$broadcast('branch-checked-out', status);
     });
     return deferred.promise;
-  }
-
-  function checkoutDefaultBranch(branches) {
-    var head = $cookies.get('head');
-    if(branches.indexOf(head) < 0) {
-      if(branches.indexOf('master') < 0 && branches.length > 0) {
-        head = branches[0];
-      } else
-      head = 'master';
-    }
-    return checkout(head);
   }
 
   $scope.checkout = function(branch) {
