@@ -1,8 +1,10 @@
 app.factory('File', function($q, Connection) {
 
   function File(parent, attributes) {
+    this.getParent = function() {
+      return parent;
+    };
     this.name = attributes.name;
-    this.parent = parent;
     this.path = resolvePath(parent, attributes.name);
     this.hash = attributes.hash;
     this.type = attributes.type;
@@ -15,10 +17,6 @@ app.factory('File', function($q, Connection) {
 
   File.prototype.getPath = function() {
     return this.path;
-  };
-
-  File.prototype.getParent = function() {
-    return this.parent;
   };
 
   File.prototype.getHash = function() {
@@ -80,10 +78,7 @@ app.factory('File', function($q, Connection) {
           break;
         }
       }
-      if(ret != null)
-        deferred.resolve(ret);
-      else
-        deferred.reject();
+      deferred.resolve(ret);
     });
     return deferred.promise;
   };

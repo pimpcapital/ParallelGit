@@ -4,12 +4,6 @@ app.controller('FileTreeController', function($rootScope, $scope, $q, File, File
   $scope.tree = [FileSystem.getRoot()];
   $scope.expanded = [];
 
-  function broadcast(message, data) {
-    return function() {
-      $rootScope.$broadcast(message, data);
-    }
-  }
-
   function sortFiles(dir) {
     dir.children.sort(function(a, b) {
       if(a.isDirectory() && !b.isDirectory())
@@ -30,13 +24,6 @@ app.controller('FileTreeController', function($rootScope, $scope, $q, File, File
       });
       sortFiles(dir);
     })
-  }
-
-  function pasteFile(file) {
-    return function() {
-      var dir = file.isDirectory() ? file : file.getParent();
-      Clipboard.paste(dir);
-    }
   }
 
   function renameFile(file) {
@@ -71,6 +58,10 @@ app.controller('FileTreeController', function($rootScope, $scope, $q, File, File
         DialogService.confirm('Delete file', 'Are you sure you want to delete ' + file.getName()).then(function() {
           FileSystem.deleteFile(file);
         });
+      }],
+      null,
+      ['Compare with...', function() {
+
       }]
     ]
   };
@@ -86,15 +77,69 @@ app.controller('FileTreeController', function($rootScope, $scope, $q, File, File
   };
 
   $scope.$on('filesystem-reloaded', function() {
-    $scope.expanded = $scope.tree.slice();
+    var paths = $scope._getAllPaths($scope.expanded);
+    if(paths.length == 0)
+      paths.push('/');
+    $scope.expanded = [];
+    $scope._reloadDirectories(paths).then(function(files) {
+      $scope.expanded = files;
+    });
   });
 
-  $scope.treeOptions = {
+   $scope.treeOptions = {
     nodeChildren: 'children',
     dirSelectable: false,
     isLeaf: function(node) {
       return node.type != 'DIRECTORY'
     }
   };
+
+   $scope._getAllPaths = function(files) {
+    var ret = [];
+    for(var i = 0; i < files.length; i++)
+      ret.push(files[i].getPath());
+    return ret;
+  };
+
+   $scope._reloadDirectories = function(paths, results) {
+    var deferred = $q.defer();
+    if(results == null)
+      results = [];
+    if(paths.length == 0)
+      deferred.resolve(results);
+    else {
+      FileSystem.findFile(paths.shift()).then(function(file) {
+        if(file != null) {
+          file.loadChildren().then(function() {
+            results.push(file);
+            $scope._reloadDirectories(paths, results).then(function(results) {
+              deferred.resolve(results);
+            });
+          });
+        } else {
+          $scope._reloadDirectories(paths, results).then(function(results) {
+            deferred.resolve(results);
+          });
+        }
+      });
+    }
+    return deferred.promise;
+  };
+
+  $scope._loadDirectories = function(dirs, completed) {
+    if(completed == null)
+      completed = [];
+    var deferred = $q.defer();
+    if(dirs.length == 0)
+      deferred.resolve(completed);
+    else {
+      var dir = dirs.shift();
+      dir.loadChildren().then(function() {
+        completed.push(dir);
+        $scope._loadDirectories(dirs, completed).then
+      });
+    }
+    return deferred.promise;
+  }
 
 });

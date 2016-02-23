@@ -1,20 +1,43 @@
-app.service('FileSystem', function($rootScope, File, Connection) {
+app.service('FileSystem', function($q, $rootScope, File, Connection) {
 
-  var root = new File(null, {name: ''});
+  this._root = new File(null, {name: ''});
+  var me = this;
 
-  this.getRoot = function() {
-    return root;
+  me.getRoot = function() {
+    return me._root;
   };
 
-  this.reload = function() {
-    root.loadAttributes().then(function() {
-      root.loadChildren(true).then(function() {
+  me.reload = function() {
+    me._root.loadAttributes().then(function() {
+      me._root.loadChildren(true).then(function() {
         $rootScope.$broadcast('filesystem-reloaded');
       })
     });
   };
 
-  this.createFile = function(parent, name) {
+  me.findFile = function(path, current) {
+    var deferred = $q.defer();
+    if(!angular.isArray(path))
+      path = me._splitPath(path);
+    if(current == null)
+      current = me._root;
+    if(path.length == 0)
+      deferred.resolve(current);
+    else {
+      current.getChild(path.shift()).then(function(child) {
+        if(child != null) {
+          me.findFile(path, child).then(function(file) {
+            deferred.resolve(file);
+          });
+        } else {
+          deferred.resolve(null);
+        }
+      });
+    }
+    return deferred.promise;
+  };
+
+  me.createFile = function(parent, name) {
     if(!parent.isDirectory())
       parent = parent.getParent();
     Connection.send('create-file', {directory: parent.getPath(), name: name}).then(function(attributes) {
@@ -24,7 +47,7 @@ app.service('FileSystem', function($rootScope, File, Connection) {
     });
   };
 
-  this.createDirectory = function(parent, name) {
+  me.createDirectory = function(parent, name) {
     if(!parent.isDirectory())
       parent = parent.getParent();
     Connection.send('create-directory', {directory: parent.getPath(), name: name}).then(function(attributes) {
@@ -34,7 +57,7 @@ app.service('FileSystem', function($rootScope, File, Connection) {
     });
   };
 
-  this.deleteFile = function(file) {
+  me.deleteFile = function(file) {
     var parent = file.getParent();
     Connection.send('delete-file', {path: file.path}).then(function() {
       parent.removeChild(file).then(function() {
@@ -43,7 +66,7 @@ app.service('FileSystem', function($rootScope, File, Connection) {
     });
   };
 
-  this.copyFile = function(source, dir, name) {
+  me.copyFile = function(source, dir, name) {
     Connection.send('copy-file', {source: source.getPath(), directory: dir.getPath(), name: name}).then(function(attributes) {
       dir.addChild(attributes).then(function(file) {
         $rootScope.$broadcast('file-copied', [source, file])
@@ -51,7 +74,7 @@ app.service('FileSystem', function($rootScope, File, Connection) {
     });
   };
 
-  this.moveFile = function(source, dir, name) {
+  me.moveFile = function(source, dir, name) {
     var parent = source.getParent();
     Connection.send('move-file', {source: source.getPath(), directory: dir.getPath(), name: name}).then(function(attributes) {
       parent.removeChild(source).then(function() {
@@ -62,7 +85,17 @@ app.service('FileSystem', function($rootScope, File, Connection) {
     });
   };
 
-  var me = this;
+  me._splitPath = function(path) {
+    var ret = [];
+    var raw = path.split('/');
+    for(var i = 0; i < raw.length; i++) {
+      var name = raw[i];
+      if(name.length > 0)
+        ret.push(name);
+    }
+    return ret;
+  };
+
 
   $rootScope.$on('branch-checked-out', function() {
     me.reload();
