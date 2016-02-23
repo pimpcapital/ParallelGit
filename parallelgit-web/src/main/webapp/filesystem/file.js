@@ -68,6 +68,26 @@ app.factory('File', function($q, Connection) {
     return deferred.promise;
   };
 
+  File.prototype.getChild = function(name) {
+    var deferred = $q.defer();
+    var dir = this;
+    dir.loadChildren(false).then(function(children) {
+      var ret = null;
+      for(var i = 0; i < children.length; i++) {
+        var child = children[i];
+        if(child.getName() == name) {
+          ret = child;
+          break;
+        }
+      }
+      if(ret != null)
+        deferred.resolve(ret);
+      else
+        deferred.reject();
+    });
+    return deferred.promise;
+  };
+
   File.prototype.addChild = function(attributes) {
     var deferred = $q.defer();
     var dir = this;
