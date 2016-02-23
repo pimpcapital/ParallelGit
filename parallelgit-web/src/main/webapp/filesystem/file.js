@@ -40,6 +40,9 @@ app.factory('File', function($q, Connection) {
       file.hash = attributes.hash;
       file.type = attributes.type;
       file.state = attributes.state;
+      var parent = file.getParent();
+      if(parent != null)
+        parent.loadAttributes();
       deferred.resolve(attributes);
     });
     return deferred.promise;
@@ -66,17 +69,27 @@ app.factory('File', function($q, Connection) {
   };
 
   File.prototype.addChild = function(attributes) {
+    var deferred = $q.defer();
     var dir = this;
-    var children = dir.children;
-    var file = new File(dir, attributes);
-    children.push(file);
-    sortFiles(children);
-    return file;
+    dir.loadChildren(false).then(function(children) {
+      var file = new File(dir, attributes);
+      children.push(file);
+      sortFiles(children);
+      dir.loadAttributes();
+      deferred.resolve(file);
+    });
+    return deferred.promise;
   };
 
   File.prototype.removeChild = function(file) {
+    var deferred = $q.defer();
     var dir = this;
-    dir.children.splice(dir.children.indexOf(file), 1);
+    dir.loadChildren(false).then(function(children) {
+      children.splice(children.indexOf(file), 1);
+      dir.loadAttributes();
+      deferred.resolve(file);
+    });
+    return deferred.promise;
   };
 
   function resolvePath(parent, name) {

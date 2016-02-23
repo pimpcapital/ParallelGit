@@ -13,6 +13,7 @@ app.controller('FileDataController', function($rootScope, $scope, $timeout, Conn
   function save() {
     cancelScheduledSave();
     Connection.send('write-file', {path: $scope.file.getPath(), data: $scope.data}).then(function() {
+      $scope.file.loadAttributes();
       $rootScope.$broadcast('file-modified', $scope.file);
     });
   }
