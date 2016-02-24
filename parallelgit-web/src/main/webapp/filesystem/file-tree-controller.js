@@ -1,36 +1,17 @@
-app.controller('FileTreeController', function($rootScope, $scope, $q, File, FileSystem, Clipboard, Connection, DialogService) {
+app.controller('FileTreeController', function($rootScope, $scope, $q, $templateRequest, File, FileSystem, Clipboard, Connection, DialogService) {
 
-  $scope.fs = FileSystem;
-  $scope.tree = [FileSystem.getRoot()];
-  $scope.expanded = [];
-
-  function sortFiles(dir) {
-    dir.children.sort(function(a, b) {
-      if(a.isDirectory() && !b.isDirectory())
-        return -1;
-      if(!a.isDirectory() && b.isDirectory())
-        return 1;
-      return a.name - b.name;
-    });
-  }
-
-  function listFiles(dir) {
-    Connection.send('list-files', {path: dir.path}).then(function(files) {
-      dir.children = [];
-      angular.forEach(files, function(file) {
-        var node = new File(dir, file);
-        dir.children.push(node);
-        dir.children[node.name] = node;
-      });
-      sortFiles(dir);
-    })
-  }
-
-  function renameFile(file) {
-    return function() {
-
-    }
-  }
+  $templateRequest('filesystem/file-tree-template.html').then(function() {
+    $scope.tree = [FileSystem.getRoot()];
+    $scope.expanded = [];
+    $scope.treeOptions = {
+      nodeChildren: 'children',
+      dirSelectable: false,
+      templateUrl: 'filesystem/file-tree-template.html',
+      isLeaf: function(node) {
+        return node.type != 'DIRECTORY'
+      }
+    };
+  });
 
   $scope.contextMenu = function(file) {
     return [
@@ -75,10 +56,8 @@ app.controller('FileTreeController', function($rootScope, $scope, $q, File, File
     $rootScope.$broadcast('open-file', file);
   };
 
-  $scope.toggleNode = function(node, expanded) {
-    if(expanded && node.children == null) {
-      listFiles(node);
-    }
+  $scope.toggleNode = function(node) {
+    node.loadChildren();
   };
 
   $scope.$on('filesystem-reloaded', function() {
@@ -90,14 +69,6 @@ app.controller('FileTreeController', function($rootScope, $scope, $q, File, File
       $scope.expanded = files;
     });
   });
-
-   $scope.treeOptions = {
-    nodeChildren: 'children',
-    dirSelectable: false,
-    isLeaf: function(node) {
-      return node.type != 'DIRECTORY'
-    }
-  };
 
    $scope._getAllPaths = function(files) {
     var ret = [];
