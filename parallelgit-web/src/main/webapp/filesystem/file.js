@@ -57,7 +57,6 @@ app.factory('File', function($q, Connection) {
           var node = new File(dir, attributes);
           children.push(node);
         });
-        sortFiles(children);
         deferred.resolve(children);
       });
     } else{
@@ -89,7 +88,6 @@ app.factory('File', function($q, Connection) {
     dir.loadChildren(false).then(function(children) {
       var file = new File(dir, attributes);
       children.push(file);
-      sortFiles(children);
       dir.loadAttributes();
       deferred.resolve(file);
     });
@@ -116,16 +114,6 @@ app.factory('File', function($q, Connection) {
     }
     else
       return '/';
-  }
-
-  function sortFiles(files) {
-    files.sort(function(a, b) {
-      if(a.isDirectory() && !b.isDirectory())
-        return -1;
-      if(!a.isDirectory() && b.isDirectory())
-        return 1;
-      return a.getName() - b.getName();
-    });
   }
 
   return File;

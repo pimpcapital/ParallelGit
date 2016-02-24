@@ -4,11 +4,10 @@ app.controller('FileTreeController', function($rootScope, $scope, $q, $templateR
     $scope.tree = [FileSystem.getRoot()];
     $scope.expanded = [];
     $scope.treeOptions = {
-      nodeChildren: 'children',
       dirSelectable: false,
       templateUrl: 'filesystem/file-tree-template.html',
-      isLeaf: function(node) {
-        return node.type != 'DIRECTORY'
+      isLeaf: function(file) {
+        return !file.isDirectory()
       }
     };
   });
