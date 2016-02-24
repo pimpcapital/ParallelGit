@@ -1,5 +1,6 @@
 <ul>
   <li ng-repeat="node in node.children | orderBy: ['type','name']" ng-class="headClass(node)" set-node-to-data>
+    <i style="display: inline-block" ng-style="{'width': (node.depth * 20) + 'px'}"></i>
     <i class="tree-branch-head" ng-class="iBranchClass()" ng-click="selectNodeHead(node)"></i>
     <i class="tree-leaf-head"></i>
     <div class="tree-label" ng-class="[selectedClass(), unselectableClass()]" ng-click="selectNodeLabel(node)" tree-transclude></div>

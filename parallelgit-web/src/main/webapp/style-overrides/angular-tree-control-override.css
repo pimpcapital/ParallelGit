@@ -13,6 +13,7 @@ treecontrol li>.tree-selected>span {
 
 treecontrol li {
   white-space: nowrap;
+  padding: 0;
 }
 
 treecontrol li.tree-collapsed:before,
@@ -41,6 +42,5 @@ treecontrol li>i {
 treecontrol li>.tree-label {
   white-space: nowrap;
   width: 100%;
-  display: inline-block;
   z-index: 100;
 }

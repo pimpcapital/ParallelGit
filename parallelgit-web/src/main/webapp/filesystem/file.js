@@ -4,19 +4,24 @@ app.factory('File', function($q, Connection) {
     this.getParent = function() {
       return parent;
     };
-    this.name = attributes.name;
     this.path = resolvePath(parent, attributes.name);
+    this.depth = parent != null ? parent.depth + 1 : 0
+    this.name = attributes.name;
     this.hash = attributes.hash;
     this.type = attributes.type;
     this.state = attributes.state;
   }
 
-  File.prototype.getName = function() {
-    return this.name;
-  };
-
   File.prototype.getPath = function() {
     return this.path;
+  };
+
+  File.prototype.getDepth = function() {
+    return this.depth;
+  };
+
+  File.prototype.getName = function() {
+    return this.name;
   };
 
   File.prototype.getHash = function() {
