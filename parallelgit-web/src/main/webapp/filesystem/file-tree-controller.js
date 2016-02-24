@@ -53,13 +53,18 @@ app.controller('FileTreeController', function($rootScope, $scope, $q, File, File
       ['Paste', function() {
         Clipboard.paste(file);
       }],
-      ['Rename', renameFile(file)],
+      ['Rename', function() {
+
+      }],
       ['Delete', function() {
         DialogService.confirm('Delete file', 'Are you sure you want to delete ' + file.getName()).then(function() {
           FileSystem.deleteFile(file);
         });
       }],
       null,
+      ['Show Changes', function() {
+
+      }],
       ['Compare with...', function() {
 
       }]
