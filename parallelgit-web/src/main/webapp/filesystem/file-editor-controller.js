@@ -62,6 +62,14 @@ app.controller('FileEditorController', function($scope, $q, $timeout, FileTab) {
     scrollToActiveTab();
   };
 
+  $scope.openContextMenu = function(tab) {
+    return [
+      ['Close', function() {}],
+      ['Close Others', function() {}],
+      ['Close All', function() {}]
+    ];
+  };
+
   $scope._fileClass = function(tab) {
     var classes = [];
     if(tab.file.getHash() == null)

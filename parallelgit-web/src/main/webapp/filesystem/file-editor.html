@@ -3,7 +3,7 @@
     <scrollable-tabset api="tabsScroll">
       <uib-tabset>
         <uib-tab ng-repeat="tab in tabs" class="{{_fileClass(tab)}}" active="tab.active" select="">
-          <uib-tab-heading>{{tab.file.getName()}} <a ng-click="closeTab(tab)"><i class="glyphicon glyphicon-remove"></i></a></uib-tab-heading>
+          <uib-tab-heading context-menu="openContextMenu(tab)">{{tab.file.getName()}} <a ng-click="closeTab(tab)"><i class="glyphicon glyphicon-remove"></i></a></uib-tab-heading>
           <div class="fill-height" ng-controller="FileDataController" ng-init="inject(tab.file)">
             <div class="fill-height" ui-ace="tab.aceOptions" ng-model="data"></div>
           </div>

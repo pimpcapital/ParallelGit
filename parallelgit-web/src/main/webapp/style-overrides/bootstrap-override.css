@@ -115,7 +115,8 @@ ul.nav-tabs {
 
 ul.nav-tabs>li>a {
   border: 1px solid transparent;
-  padding: 3px 12px;
+  padding: 0;
+  margin: 0;
 }
 
 ul.nav-tabs>li>a,
@@ -131,6 +132,11 @@ ul.nav-tabs>li.active>a:focus {
   background: #515658;
   border: 1px solid #282828;
   color: #ADADAD;
+}
+
+ul.nav-tabs>li>a>uib-tab-heading {
+  padding: 3px 12px;
+  display: block;
 }
 
 .tab-pane {
