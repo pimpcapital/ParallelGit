@@ -1,5 +1,5 @@
 <ul>
-  <li ng-repeat="node in node.children | orderBy: ['type','name']" ng-class="headClass(node)" set-node-to-data>
+  <li ng-repeat="node in node.children | orderBy: ['type','name']" ng-class="headClass(node)" context-menu="options.contextMenu(node)" set-node-to-data>
     <i style="display: inline-block" ng-style="{'width': (node.depth * 20) + 'px'}"></i>
     <i class="tree-branch-head" ng-class="iBranchClass()" ng-click="selectNodeHead(node)"></i>
     <i class="tree-leaf-head"></i>

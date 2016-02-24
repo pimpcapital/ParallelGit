@@ -1,7 +1,7 @@
 <div id="file-tree" class="fill-height" ng-controller="FileTreeController">
   <div ng-if="tree != null">
     <treecontrol class="tree-classic" tree-model="tree" expanded-nodes="expanded" options="treeOptions" on-selection="select(node)" on-node-toggle="toggleNode(node, expanded)">
-      <span ng-class="{'tree-node-modified': node.state == 'MODIFIED', 'tree-node-new': node.state == 'NEW'}" context-menu="contextMenu(node)">{{node.name}}</span>
+      <span ng-class="{'tree-node-modified': node.state == 'MODIFIED', 'tree-node-new': node.state == 'NEW'}">{{node.name}}</span>
     </treecontrol>
   </div>
 

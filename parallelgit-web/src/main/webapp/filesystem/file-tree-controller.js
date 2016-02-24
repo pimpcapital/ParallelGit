@@ -8,48 +8,47 @@ app.controller('FileTreeController', function($rootScope, $scope, $q, $templateR
       templateUrl: 'filesystem/file-tree-template.html',
       isLeaf: function(file) {
         return !file.isDirectory()
+      },
+      contextMenu: function(file) {
+        return [
+          ['New File', function() {
+            DialogService.prompt('New file', {name: {label: 'Enter a new file name', value: ''}}).then(function(fields) {
+              FileSystem.createFile(file, fields.name.value);
+            });
+          }],
+          ['New Directory', function() {
+            DialogService.prompt('New directory', {name: {label: 'Enter a new directory name', value: ''}}).then(function(fields) {
+              FileSystem.createDirectory(file, fields.name.value);
+            });
+          }],
+          ['Cut', function() {
+            Clipboard.cut(file);
+          }],
+          ['Copy', function() {
+            Clipboard.copy(file);
+          }],
+          ['Paste', function() {
+            Clipboard.paste(file);
+          }],
+          ['Rename', function() {
+
+          }],
+          ['Delete', function() {
+            DialogService.confirm('Delete file', 'Are you sure you want to delete ' + file.getName()).then(function() {
+              FileSystem.deleteFile(file);
+            });
+          }],
+          null,
+          ['Show Changes', function() {
+
+          }],
+          ['Compare with...', function() {
+
+          }]
+        ]
       }
     };
   });
-
-  $scope.contextMenu = function(file) {
-    return [
-      ['New File', function() {
-        DialogService.prompt('New file', {name: {label: 'Enter a new file name', value: ''}}).then(function(fields) {
-          FileSystem.createFile(file, fields.name.value);
-        });
-      }],
-      ['New Directory', function() {
-        DialogService.prompt('New directory', {name: {label: 'Enter a new directory name', value: ''}}).then(function(fields) {
-          FileSystem.createDirectory(file, fields.name.value);
-        });
-      }],
-      ['Cut', function() {
-        Clipboard.cut(file);
-      }],
-      ['Copy', function() {
-        Clipboard.copy(file);
-      }],
-      ['Paste', function() {
-        Clipboard.paste(file);
-      }],
-      ['Rename', function() {
-
-      }],
-      ['Delete', function() {
-        DialogService.confirm('Delete file', 'Are you sure you want to delete ' + file.getName()).then(function() {
-          FileSystem.deleteFile(file);
-        });
-      }],
-      null,
-      ['Show Changes', function() {
-
-      }],
-      ['Compare with...', function() {
-
-      }]
-    ]
-  };
 
   $scope.select = function(file) {
     $rootScope.$broadcast('open-file', file);
@@ -111,7 +110,7 @@ app.controller('FileTreeController', function($rootScope, $scope, $q, $templateR
       var dir = dirs.shift();
       dir.loadChildren().then(function() {
         completed.push(dir);
-        $scope._loadDirectories(dirs, completed).then
+        $scope._loadDirectories(dirs, completed);
       });
     }
     return deferred.promise;
