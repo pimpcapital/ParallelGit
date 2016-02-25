@@ -1,8 +1,15 @@
 <div id="file-tree" class="fill-height" ng-controller="FileTreeController">
   <div ng-if="tree != null">
-    <treecontrol class="tree-classic" tree-model="tree" expanded-nodes="expanded" options="treeOptions" on-selection="select(node)" on-node-toggle="toggleNode(node, expanded)">
+    <treecontrol
+      class="tree-classic"
+      tree-model="tree"
+      selected-node="$parent.selected"
+      expanded-nodes="$parent.expanded"
+      options="$parent.treeOptions"
+      on-node-toggle="$parent.toggleNode(node, expanded)">
       <span ng-class="{'tree-node-modified': node.state == 'MODIFIED', 'tree-node-new': node.state == 'NEW'}">{{node.name}}</span>
     </treecontrol>
   </div>
+
 
 </div>

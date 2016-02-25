@@ -1,9 +1,10 @@
 <ul>
-  <li ng-repeat="node in node.children | orderBy: ['type','name']" ng-class="headClass(node)" context-menu="options.contextMenu(node)" set-node-to-data>
-    <i style="display: inline-block" ng-style="{'width': (node.depth * 20) + 'px'}"></i>
-    <i class="tree-branch-head" ng-class="iBranchClass()" ng-click="selectNodeHead(node)"></i>
-    <i class="tree-leaf-head"></i>
-    <div class="tree-label" ng-class="[selectedClass(), unselectableClass()]" ng-click="selectNodeLabel(node)" tree-transclude></div>
+  <li ng-repeat="node in node.children | orderBy: ['type','name']"  ng-class="[headClass(node)]" context-menu="options.contextMenu(node)" set-node-to-data>
+    <div ng-click="selectNodeLabel(node)" ng-dblclick="selectNodeHead(node)" ng-style="{'padding-left': (node.depth * 20) + 'px'}" ng-class="[selectedClass(), unselectableClass()]">
+      <i class="tree-branch-head" ng-class="iBranchClass()"></i>
+      <i class="tree-leaf-head"></i>
+      <div class="tree-label" tree-transclude></div>
+    </div>
     <treeitem ng-if="nodeExpanded()"></treeitem>
   </li>
 </ul>

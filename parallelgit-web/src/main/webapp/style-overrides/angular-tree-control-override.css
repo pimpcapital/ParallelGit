@@ -2,11 +2,8 @@ treecontrol {
   color: #ADADAD;
 }
 
-treecontrol li>.tree-selected {
+treecontrol li .tree-selected {
   background-color: #0D293E !important;
-}
-
-treecontrol li>.tree-selected>span {
   font-weight: normal !important;
   color: #ADADAD !important;
 }
@@ -26,13 +23,13 @@ treecontrol li.tree-expanded:before {
   margin-right: 5px;
 }
 
-treecontrol li.tree-collapsed:before {
-  content: "\e250";
-}
+/*treecontrol li.tree-collapsed:before {*/
+  /*content: "\e250";*/
+/*}*/
 
-treecontrol li.tree-expanded:before {
-  content: "\e252";
-}
+/*treecontrol li.tree-expanded:before {*/
+  /*content: "\e252";*/
+/*}*/
 
 treecontrol li>i {
   z-index: 200;
