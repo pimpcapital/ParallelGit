@@ -1,4 +1,4 @@
-app.service('DialogService', function($uibModal) {
+app.service('Dialog', function($uibModal) {
 
   this.confirm = function(title, message) {
     return $uibModal.open({

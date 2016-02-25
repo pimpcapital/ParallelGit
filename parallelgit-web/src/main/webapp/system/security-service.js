@@ -1,4 +1,4 @@
-app.service('SecurityService', function($rootScope, $q, $cookies, $uibModal, Connection, NotificationService) {
+app.service('SecurityService', function($rootScope, $q, $cookies, $uibModal, Connection, Notification) {
 
   var credential = null;
 
@@ -31,7 +31,7 @@ app.service('SecurityService', function($rootScope, $q, $cookies, $uibModal, Con
     var deferred = $q.defer();
     getCredential().then(function(credential) {
       Connection.send('login', credential).then(function (response) {
-        NotificationService.info('Signed in successfully');
+        Notification.info('Signed in successfully');
         deferred.resolve(response);
       });
     });
@@ -43,7 +43,7 @@ app.service('SecurityService', function($rootScope, $q, $cookies, $uibModal, Con
     $cookies.remove('username');
     $cookies.remove('email');
     Connection.send('logout').then(function (response) {
-      NotificationService.info('Signed out successfully');
+      Notification.info('Signed out successfully');
       deferred.resolve(response);
     });
     return deferred.promise;

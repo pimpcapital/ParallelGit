@@ -1,4 +1,4 @@
-app.service('Connection', function($rootScope, $q, $timeout, NotificationService, EncodeService, DecodeService) {
+app.service('Connection', function($rootScope, $q, $timeout, Notification, Encoder) {
 
   var connection = null;
   var requests = null;
@@ -24,18 +24,18 @@ app.service('Connection', function($rootScope, $q, $timeout, NotificationService
   }
 
   function encodeRequest(request) {
-    return EncodeService.encode(request);
+    return Encoder.encode(request);
   }
 
   function handleResponse(response) {
     $timeout(function() {
-      var message = DecodeService.decode(response.data);
+      var message = Encoder.decode(response.data);
       var deferred = requests[message.rid];
       delete requests[message.rid];
       if(message.successful)
         deferred.resolve(message.data);
       else {
-        NotificationService.error(message.data);
+        Notification.error(message.data);
         deferred.reject(message.data);
       }
     });
@@ -60,11 +60,11 @@ app.service('Connection', function($rootScope, $q, $timeout, NotificationService
     requests = {};
     handshake(connection).then(function(state) {
       if(state == 1) {
-        NotificationService.info('Connected to server');
+        Notification.info('Connected to server');
         deferred.resolve(connection);
       } else {
         deferred.reject();
-        NotificationService.error("Could not connect to server");
+        Notification.error("Could not connect to server");
       }
     });
     return deferred.promise;

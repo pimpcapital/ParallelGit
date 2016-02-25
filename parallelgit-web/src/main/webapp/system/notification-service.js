@@ -1,4 +1,4 @@
-app.service('NotificationService', function(notify) {
+app.service('Notification', function(notify) {
 
   notify.config({
     position: 'right',

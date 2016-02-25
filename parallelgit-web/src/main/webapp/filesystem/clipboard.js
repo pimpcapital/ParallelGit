@@ -1,4 +1,4 @@
-app.service('Clipboard', function($rootScope, FileSystem, DialogService) {
+app.service('Clipboard', function($rootScope, FileSystem, Dialog) {
 
   this._source = null;
   this._deleteOnPaste = null;
@@ -20,11 +20,11 @@ app.service('Clipboard', function($rootScope, FileSystem, DialogService) {
       var dir = dest.isDirectory() ? dest : dest.getParent();
       if(isMove) {
         clear();
-        DialogService.prompt('Move file', {name: {label: 'Enter a new name', value: source.getName()}}).then(function(fields) {
+        Dialog.prompt('Move file', {name: {label: 'Enter a new name', value: source.getName()}}).then(function(fields) {
           FileSystem.moveFile(source, dir, fields.name.value);
         });
       } else {
-        DialogService.prompt('Copy file', {name: {label: 'Enter a new name', value: source.getName()}}).then(function(fields) {
+        Dialog.prompt('Copy file', {name: {label: 'Enter a new name', value: source.getName()}}).then(function(fields) {
           FileSystem.copyFile(source, dir, fields.name.value);
         });
       }

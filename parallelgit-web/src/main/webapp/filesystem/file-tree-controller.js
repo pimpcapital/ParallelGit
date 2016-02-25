@@ -1,4 +1,4 @@
-app.controller('FileTreeController', function($rootScope, $scope, $q, $timeout, $templateRequest, File, FileSystem, Clipboard, Connection, DialogService) {
+app.controller('FileTreeController', function($rootScope, $scope, $q, $timeout, $templateRequest, File, FileSystem, Clipboard, Connection, Dialog) {
 
   $templateRequest('filesystem/file-tree-template.html').then(function() {
     $scope.tree = [FileSystem.getRoot()];
@@ -14,12 +14,12 @@ app.controller('FileTreeController', function($rootScope, $scope, $q, $timeout, 
         $scope.selected = file;
         return [
           ['New File', function() {
-            DialogService.prompt('New file', {name: {label: 'Enter a new file name', value: ''}}).then(function(fields) {
+            Dialog.prompt('New file', {name: {label: 'Enter a new file name', value: ''}}).then(function(fields) {
               FileSystem.createFile(file, fields.name.value);
             });
           }],
           ['New Directory', function() {
-            DialogService.prompt('New directory', {name: {label: 'Enter a new directory name', value: ''}}).then(function(fields) {
+            Dialog.prompt('New directory', {name: {label: 'Enter a new directory name', value: ''}}).then(function(fields) {
               FileSystem.createDirectory(file, fields.name.value);
             });
           }],
@@ -36,7 +36,7 @@ app.controller('FileTreeController', function($rootScope, $scope, $q, $timeout, 
 
           }],
           ['Delete', function() {
-            DialogService.confirm('Delete file', 'Are you sure you want to delete ' + file.getName()).then(function() {
+            Dialog.confirm('Delete file', 'Are you sure you want to delete ' + file.getName()).then(function() {
               FileSystem.deleteFile(file);
             });
           }],
