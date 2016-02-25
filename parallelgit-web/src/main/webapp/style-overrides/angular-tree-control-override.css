@@ -1,5 +1,10 @@
 treecontrol {
   color: #ADADAD;
+  display: table-cell;
+}
+
+treecontrol li {
+  padding: 0;
 }
 
 treecontrol li .tree-selected {
@@ -8,36 +13,20 @@ treecontrol li .tree-selected {
   color: #ADADAD !important;
 }
 
-treecontrol li {
-  white-space: nowrap;
-  padding: 0;
-}
-
-treecontrol li.tree-collapsed:before,
-treecontrol li.tree-expanded:before {
+treecontrol li.tree-collapsed>div:before,
+treecontrol li.tree-expanded>div:before {
   position: relative;
-  top: 1px;
+  top: 3px;
+  float: left;
   font-family: 'Glyphicons Halflings', serif;
   line-height: 1;
   margin-left: -18px;
-  margin-right: 5px;
 }
 
-/*treecontrol li.tree-collapsed:before {*/
-  /*content: "\e250";*/
-/*}*/
-
-/*treecontrol li.tree-expanded:before {*/
-  /*content: "\e252";*/
-/*}*/
-
-treecontrol li>i {
-  z-index: 200;
-  position: relative;
+treecontrol li.tree-collapsed>div:before {
+  content: "\e250";
 }
 
-treecontrol li>.tree-label {
-  white-space: nowrap;
-  width: 100%;
-  z-index: 100;
+treecontrol li.tree-expanded>div:before {
+  content: "\e252";
 }
