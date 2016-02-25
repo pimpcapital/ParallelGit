@@ -1,6 +1,7 @@
 treecontrol {
   color: #ADADAD;
-  display: table-cell;
+  display: table;
+  width: 100%;
 }
 
 treecontrol li {
