@@ -22,6 +22,10 @@ body {
   outline: 1px solid #708090;
 }
 
+*::-webkit-scrollbar-corner {
+  background: transparent;
+}
+
 .glyphicon {
   top: 2px;
 }
