@@ -5,6 +5,7 @@ app.controller('FileDiffController', function($scope, $timeout) {
     $scope.options = {
       lineWrapping : true,
       lineNumbers: true,
+      theme: 'merbivore-soft',
       mode: 'xml'
     };
 
