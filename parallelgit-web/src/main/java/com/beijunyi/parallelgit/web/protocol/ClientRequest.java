@@ -3,6 +3,8 @@ package com.beijunyi.parallelgit.web.protocol;
 import java.util.Map;
 import javax.annotation.Nonnull;
 
+import com.google.common.base.Optional;
+
 public class ClientRequest {
 
   private final String type;
@@ -34,11 +36,10 @@ public class ClientRequest {
   }
 
   @Nonnull
-  public Boolean getBoolean(@Nonnull String key) {
-    Object value = data.get(key);
-    if(value == null)
-      throw new IllegalStateException();
-    return Boolean.class.cast(value);
+  public Optional<String> getOptionalString(@Nonnull String key) {
+    if(data.containsKey(key))
+      return Optional.of((String) data.get(key));
+    return Optional.absent();
   }
 
   @Nonnull

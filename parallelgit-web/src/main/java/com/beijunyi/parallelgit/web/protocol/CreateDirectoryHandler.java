@@ -10,6 +10,7 @@ import com.beijunyi.parallelgit.web.protocol.model.FileAttributes;
 
 public class CreateDirectoryHandler extends AbstractGfsRequestHandler {
 
+  @Nonnull
   @Override
   public String getType() {
     return "create-directory";

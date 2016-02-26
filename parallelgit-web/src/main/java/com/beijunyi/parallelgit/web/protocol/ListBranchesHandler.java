@@ -14,6 +14,7 @@ public class ListBranchesHandler implements RequestHandler {
 
   private static final BranchSorter BRANCH_SORTER = new BranchSorter();
 
+  @Nonnull
   @Override
   public String getType() {
     return "list-branches";

@@ -8,10 +8,10 @@ import com.beijunyi.parallelgit.filesystem.GitFileSystem;
 import com.beijunyi.parallelgit.filesystem.commands.GfsCheckoutCommand;
 import com.beijunyi.parallelgit.filesystem.exceptions.UnsuccessfulOperationException;
 import com.beijunyi.parallelgit.web.protocol.model.Status;
-import com.beijunyi.parallelgit.web.workspace.Workspace;
 
 public class CheckoutRequestHandler extends AbstractGfsRequestHandler {
 
+  @Nonnull
   @Override
   public String getType() {
     return "checkout";

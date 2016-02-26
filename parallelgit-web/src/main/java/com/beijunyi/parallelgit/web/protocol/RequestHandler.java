@@ -7,6 +7,7 @@ import com.beijunyi.parallelgit.web.workspace.Workspace;
 
 public interface RequestHandler {
 
+  @Nonnull
   String getType();
 
   @Nonnull

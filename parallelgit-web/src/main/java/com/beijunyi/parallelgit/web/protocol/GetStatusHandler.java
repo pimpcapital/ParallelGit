@@ -9,6 +9,7 @@ import com.beijunyi.parallelgit.web.protocol.model.Status;
 
 public class GetStatusHandler extends AbstractGfsRequestHandler {
 
+  @Nonnull
   @Override
   public String getType() {
     return "get-status";

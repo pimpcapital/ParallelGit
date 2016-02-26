@@ -5,10 +5,10 @@ import java.nio.file.Files;
 import javax.annotation.Nonnull;
 
 import com.beijunyi.parallelgit.filesystem.GitFileSystem;
-import com.beijunyi.parallelgit.web.workspace.Workspace;
 
 public class DeleteFileHandler extends AbstractGfsRequestHandler {
 
+  @Nonnull
   @Override
   public String getType() {
     return "delete-file";

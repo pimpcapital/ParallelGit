@@ -1,3 +1,0 @@
-app.service('FileComparator', function() {
-
-});

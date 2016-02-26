@@ -6,10 +6,10 @@ import java.nio.file.Path;
 import javax.annotation.Nonnull;
 
 import com.beijunyi.parallelgit.filesystem.GitFileSystem;
-import com.beijunyi.parallelgit.web.workspace.Workspace;
 
 public class WriteFileHandler extends AbstractGfsRequestHandler {
 
+  @Nonnull
   @Override
   public String getType() {
     return "write-file";

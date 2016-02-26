@@ -23,6 +23,7 @@ public class PreviewCommitRequestHandler extends AbstractGfsRequestHandler {
   private static final int CURRENT = 0;
   private static final int PREVIOUS = 1;
 
+  @Nonnull
   @Override
   public String getType() {
     return "preview-commit";

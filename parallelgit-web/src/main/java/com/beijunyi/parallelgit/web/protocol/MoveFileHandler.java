@@ -7,10 +7,10 @@ import javax.annotation.Nonnull;
 
 import com.beijunyi.parallelgit.filesystem.GitFileSystem;
 import com.beijunyi.parallelgit.web.protocol.model.FileAttributes;
-import com.beijunyi.parallelgit.web.workspace.Workspace;
 
 public class MoveFileHandler extends AbstractGfsRequestHandler {
 
+  @Nonnull
   @Override
   public String getType() {
     return "move-file";

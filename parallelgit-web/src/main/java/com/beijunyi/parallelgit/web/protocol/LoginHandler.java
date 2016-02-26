@@ -17,6 +17,7 @@ public class LoginHandler implements RequestHandler {
     this.repoManager = repoManager;
   }
 
+  @Nonnull
   @Override
   public String getType() {
     return "login";

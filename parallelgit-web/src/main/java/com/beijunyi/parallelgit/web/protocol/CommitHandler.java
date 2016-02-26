@@ -8,6 +8,7 @@ import com.beijunyi.parallelgit.web.workspace.Workspace;
 
 public class CommitHandler extends AbstractGfsRequestHandler {
 
+  @Nonnull
   @Override
   public String getType() {
     return "commit";

@@ -1,15 +1,14 @@
 package com.beijunyi.parallelgit.web.protocol;
 
 import java.io.IOException;
-import java.nio.file.Files;
 import javax.annotation.Nonnull;
 
 import com.beijunyi.parallelgit.filesystem.GitFileSystem;
 import com.beijunyi.parallelgit.web.protocol.model.FileAttributes;
-import com.beijunyi.parallelgit.web.workspace.Workspace;
 
 public class GetFileAttributesHandler extends AbstractGfsRequestHandler {
 
+  @Nonnull
   @Override
   public String getType() {
     return "get-file-attributes";
