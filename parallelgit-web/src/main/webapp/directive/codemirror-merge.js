@@ -28,22 +28,11 @@ app.directive('codemirrorMerge', function($timeout) {
     }
   };
 
-
-
   function newCodemirrorEditor(iElement, codemirrorOptions) {
-    var codemirrot;
-
-    if(iElement[0].tagName === 'TEXTAREA') {
-      // Might bug but still ...
-      codemirrot = window.CodeMirror.fromTextArea(iElement[0], codemirrorOptions);
-    } else {
-      iElement.html('');
-      codemirrot = new window.CodeMirror(function (cm_el) {
-        iElement.append(cm_el);
-      }, codemirrorOptions);
-    }
-
-    return codemirrot;
+    var codemirror;
+    iElement.html('');
+    codemirror = new window.CodeMirror.MergeView(iElement[0], codemirrorOptions);
+    return codemirror;
   }
 
   function configOptionsWatcher(codemirrot, uiCodemirrorAttr, scope) {
@@ -91,11 +80,11 @@ app.directive('codemirrorMerge', function($timeout) {
       //Code mirror expects a string so make sure it gets one
       //Although the formatter have already done this, it can be possible that another formatter returns undefined (for example the required directive)
       var safeViewValue = ngModel.$viewValue || '';
-      codemirror.setValue(safeViewValue);
+      codemirror.edit.setValue(safeViewValue);
     };
 
     // Keep the ngModel in sync with changes from CodeMirror
-    codemirror.on('change', function (instance) {
+    codemirror.edit.on('change', function(instance) {
       var newValue = instance.getValue();
       if(newValue !== ngModel.$viewValue) {
         scope.$evalAsync(function () {

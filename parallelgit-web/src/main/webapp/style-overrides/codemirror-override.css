@@ -1,6 +1,8 @@
-.CodeMirror {
-  height: calc(100% - 20px);
-  margin: 10px;
+.CodeMirror-merge,
+.CodeMirror-merge>.CodeMirror-merge-pane,
+.CodeMirror-merge>.CodeMirror-merge-pane>.CodeMirror {
+  height: 100%;
+  border: none;
 }
 
 .cm-s-merbivore-soft {

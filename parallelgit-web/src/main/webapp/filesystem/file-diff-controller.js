@@ -6,6 +6,9 @@ app.controller('FileDiffController', function($scope, $timeout) {
       lineWrapping : true,
       lineNumbers: true,
       theme: 'merbivore-soft',
+      orig: 'orig',
+      origLeft: 'origLeft',
+      origRight: 'origRight',
       mode: 'xml'
     };
 
