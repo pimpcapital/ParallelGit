@@ -5,14 +5,13 @@ app.controller('FileDiffController', function($scope, $timeout) {
     $scope.options = {
       lineWrapping : true,
       lineNumbers: true,
-      theme: 'merbivore-soft',
       orig: 'orig',
-      origLeft: 'origLeft',
-      origRight: 'origRight',
+      origLeft: 'A\nA\nA\n\nb\nB\nb\n',
+      origRight: 'B\nb\nB\n\nC\nC\nC\n',
       mode: 'xml'
     };
 
-    $scope.data = 'test test';
+    $scope.data = 'b\nb\nb\n';
   });
 
 
