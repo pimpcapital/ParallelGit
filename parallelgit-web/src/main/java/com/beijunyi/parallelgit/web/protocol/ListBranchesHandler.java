@@ -23,7 +23,7 @@ public class ListBranchesHandler implements RequestHandler {
   @Nonnull
   @Override
   public ServerResponse handle(@Nonnull ClientRequest request, @Nonnull Workspace workspace) throws IOException {
-    Repository repo = workspace.getRepo();
+    Repository repo = workspace.getRepository();
     return request.respond().ok(getSortedBranches(repo));
   }
 

@@ -33,19 +33,10 @@ public class Workspace {
     gfs = Gfs.newFileSystem(getDefaultBranch(repo), repo);
   }
 
-  @Nonnull
-  public Repository getRepo() {
-    if(repo == null)
-      throw new IllegalStateException();
+  @Nullable
+  public Repository getRepository() {
     return repo;
   }
-
-  public void setRepo(@Nonnull Repository repo) {
-    if(this.repo != null)
-      throw new IllegalStateException();
-    this.repo = repo;
-  }
-
   public void setUser(@Nonnull User user) {
     this.user = user;
   }

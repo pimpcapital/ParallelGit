@@ -1,6 +1,8 @@
 app.service('Dialog', function($uibModal) {
 
-  this.confirm = function(title, message) {
+  var me = this;
+
+  me.confirm = function(title, message) {
     return $uibModal.open({
       templateUrl: 'system/confirm-dialog-modal.html',
       size: 'sm',
@@ -16,7 +18,7 @@ app.service('Dialog', function($uibModal) {
     }).result;
   };
 
-  this.prompt = function(title, fields) {
+  me.prompt = function(title, fields) {
     return $uibModal.open({
       templateUrl: 'system/prompt-dialog-modal.html',
       size: 'sm',

@@ -1,4 +1,4 @@
-app.controller('FileTreeController', function($rootScope, $scope, $q, $timeout, $templateRequest, File, FileSystem, Clipboard, Connection, Dialog) {
+app.controller('FileTreeController', function($rootScope, $scope, $q, $timeout, $templateRequest, File, FileSystem, Clipboard, FileDiff, Connection, Dialog) {
 
   $templateRequest('filesystem/file-tree-template.html').then(function() {
     $scope.tree = [FileSystem.getRoot()];
@@ -42,7 +42,7 @@ app.controller('FileTreeController', function($rootScope, $scope, $q, $timeout, 
           }],
           null,
           ['Show Changes', function() {
-
+            FileDiff.diff();
           }],
           ['Compare with...', function() {
 
