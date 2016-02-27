@@ -9,19 +9,19 @@ import com.google.inject.multibindings.Multibinder;
 public class ProtocolModule extends AbstractModule {
 
   private static final Collection<Class<? extends RequestHandler>> HANDLERS = Arrays.asList(
-    CheckoutRequestHandler.class,
+    CheckoutHandler.class,
     CopyFileHandler.class,
     CreateFileHandler.class,
     CreateDirectoryHandler.class,
     DeleteFileHandler.class,
-    ReadBlobRequestHandler.class,
+    ReadBlobHandler.class,
     GetFileAttributesHandler.class,
     GetStatusHandler.class,
     ListBranchesHandler.class,
     ListFilesHandler.class,
     LoginHandler.class,
     MoveFileHandler.class,
-    PreviewCommitRequestHandler.class,
+    PreviewCommitHandler.class,
     ReadFileHandler.class,
     RenameFileHandler.class,
     WriteFileHandler.class

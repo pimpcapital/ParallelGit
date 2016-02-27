@@ -18,7 +18,7 @@ import org.eclipse.jgit.treewalk.filter.TreeFilter;
 
 import static com.beijunyi.parallelgit.web.data.FileType.MISSING;
 
-public class PreviewCommitRequestHandler extends AbstractGfsRequestHandler {
+public class PreviewCommitHandler extends AbstractGfsRequestHandler {
 
   private static final int CURRENT = 0;
   private static final int PREVIOUS = 1;

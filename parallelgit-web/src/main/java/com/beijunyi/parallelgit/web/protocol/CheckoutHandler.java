@@ -9,7 +9,7 @@ import com.beijunyi.parallelgit.filesystem.commands.GfsCheckoutCommand;
 import com.beijunyi.parallelgit.filesystem.exceptions.UnsuccessfulOperationException;
 import com.beijunyi.parallelgit.web.protocol.model.Status;
 
-public class CheckoutRequestHandler extends AbstractGfsRequestHandler {
+public class CheckoutHandler extends AbstractGfsRequestHandler {
 
   @Nonnull
   @Override
