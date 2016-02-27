@@ -2,16 +2,18 @@ app.controller('FileTreeController', function($rootScope, $scope, $q, $timeout, 
 
   $templateRequest('filesystem/file-tree-template.html').then(function() {
     $scope.tree = [FileSystem.getRoot()];
-    $scope.selected = undefined;
-    $scope.expanded = [];
-    $scope.treeOptions = {
+    $scope.state = {
+      selected: undefined,
+      expanded: []
+    };
+    $scope.options = {
       allowDeselect: false,
       templateUrl: 'filesystem/file-tree-template.html',
       isLeaf: function(file) {
         return !file.isDirectory()
       },
       contextMenu: function(file) {
-        $scope.selected = file;
+        $scope.state.selected = file;
         return [
           ['New File', function() {
             Dialog.prompt('New file', {name: {label: 'Enter a new file name', value: ''}}).then(function(fields) {
@@ -60,12 +62,12 @@ app.controller('FileTreeController', function($rootScope, $scope, $q, $timeout, 
   };
 
   $scope.$on('filesystem-reloaded', function() {
-    var paths = $scope._getAllPaths($scope.expanded);
+    var paths = $scope._getAllPaths($scope.state.expanded);
     if(paths.length == 0)
       paths.push('/');
-    $scope.expanded = [];
+    $scope.state.expanded = [];
     $scope._reloadDirectories(paths).then(function(files) {
-      $scope.expanded = files;
+      $scope.state.expanded = files;
     });
   });
 

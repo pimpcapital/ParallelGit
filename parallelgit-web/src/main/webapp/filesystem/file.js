@@ -1,11 +1,11 @@
-app.factory('File', function($q, Connection) {
+app.factory('File', function($rootScope, $q, $timeout, Connection) {
 
   function File(parent, attributes) {
     this.getParent = function() {
       return parent;
     };
     this.path = resolvePath(parent, attributes.name);
-    this.depth = parent != null ? parent.depth + 1 : 0
+    this.depth = parent != null ? parent.depth + 1 : 0;
     this.name = attributes.name;
     this.hash = attributes.hash;
     this.type = attributes.type;
@@ -51,13 +51,73 @@ app.factory('File', function($q, Connection) {
     return deferred.promise;
   };
 
+  File.prototype.loadData = function() {
+    var deferred = $q.defer();
+    var file = this;
+    Connection.send('read-file', {path: file.getPath()}).then(function(data) {
+      file.data = data;
+      deferred.resolve(data);
+    });
+    return deferred.promise;
+  };
+
+  File.prototype.saveData = function() {
+    var file = this;
+    file.cancelScheduledSave();
+    Connection.send('write-file', {path: file.getPath(), data: file.data}).then(function() {
+      file.loadAttributes();
+      $rootScope.$broadcast('file-modified', file);
+    });
+  };
+
+  File.prototype.cancelScheduledSave = function() {
+    var file = this;
+    $timeout.cancel(file.nextSave);
+    file.nextSave = null;
+  };
+
+  File.prototype.scheduleSave = function() {
+    var file = this;
+    file.cancelScheduledSave();
+    file.unsetHash();
+    file.nextSave = $timeout(function() {
+      file.saveData();
+    }, 1000);
+  };
+
+  File.prototype.unloadData = function() {
+    var file = this;
+    if(file.nextSave != null)
+      file.saveData();
+    delete file.data;
+  };
+
+  File.prototype.acquireData = function() {
+    var file = this;
+    if(!file.access) {
+      file.access = 1;
+      file.loadData();
+    } else
+      file.access++;
+  };
+
+  File.prototype.releaseData = function() {
+    var file = this;
+    file.access--;
+    if(file.access == 0) {
+      file.unloadData();
+      delete file.access;
+    }
+  };
+
+
   File.prototype.loadChildren = function(refresh) {
     var deferred = $q.defer();
     var dir = this;
     var children = dir.children;
     if(children == null || refresh) {
+      children = dir.children = [];
       Connection.send('list-files', {path: this.path}).then(function(files) {
-        children = dir.children = [];
         angular.forEach(files, function(attributes) {
           var node = new File(dir, attributes);
           children.push(node);

@@ -1,8 +1,9 @@
-app.service('FileDiff', function($uibModal, Connection) {
+app.service('FileDiff', function($uibModal, Connection, DiffView) {
 
   var me = this;
 
-  me.diff = function(title, message) {
+  me.diff = function(srcRev, srcFile, destRev, destFile) {
+
     return $uibModal.open({
       templateUrl: 'filesystem/file-diff-modal.html',
       size: 'xlg',
