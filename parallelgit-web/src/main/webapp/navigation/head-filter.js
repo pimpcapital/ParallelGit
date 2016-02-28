@@ -1,9 +1,9 @@
 app.filter('head', function() {
-  return function(status) {
-    if(status == null)
+  return function(head) {
+    if(head == null)
       return '';
-    if(status.head.type == 'BRANCH')
-      return 'Branch: ' + status.head.name;
-    return status.head.name;
+    if(head.branch != null)
+      return 'Branch: ' + head.branch;
+    return head.commit;
   }
 });

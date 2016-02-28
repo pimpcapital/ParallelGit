@@ -97,7 +97,7 @@ app.service('FileSystem', function($q, $rootScope, File, Connection) {
   };
 
 
-  $rootScope.$on('branch-checked-out', function() {
+  $rootScope.$on('head-refreshed', function() {
     me.reload();
   });
 

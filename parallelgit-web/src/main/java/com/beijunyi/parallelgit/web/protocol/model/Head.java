@@ -1,38 +1,37 @@
 package com.beijunyi.parallelgit.web.protocol.model;
 
 import javax.annotation.Nonnull;
+import javax.annotation.Nullable;
 
 import com.beijunyi.parallelgit.filesystem.GfsStatusProvider;
 import com.beijunyi.parallelgit.filesystem.GitFileSystem;
 
 public class Head {
 
-  private final String name;
-  private final HeadType type;
+  private final String branch;
+  private final String commit;
 
-  private Head(@Nonnull String name, @Nonnull HeadType type) {
-    this.name = name;
-    this.type = type;
+  private Head(@Nullable String branch, @Nullable String commit) {
+    this.branch = branch;
+    this.commit = commit;
   }
 
   @Nonnull
-  public static Head commit(@Nonnull String id) {
-    return new Head(id, HeadType.COMMIT);
+  public static Head of(@Nonnull GitFileSystem gfs) {
+    GfsStatusProvider status = gfs.getStatusProvider();
+    String branch = status.isAttached() ? status.branch() : null;
+    String commit = status.isInitialized() ? status.commit().getName() : null;
+    return new Head(branch, commit);
   }
 
-  @Nonnull
-  public static Head branch(@Nonnull String name) {
-    return new Head(name, HeadType.BRANCH);
+  @Nullable
+  public String getBranch() {
+    return branch;
   }
 
-  @Nonnull
-  public String getName() {
-    return name;
-  }
-
-  @Nonnull
-  public HeadType getType() {
-    return type;
+  @Nullable
+  public String getCommit() {
+    return commit;
   }
 
 }
