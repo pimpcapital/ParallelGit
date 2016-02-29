@@ -16,7 +16,7 @@ app.service('Diff', function($q, FileSystem, Connection, MergeView) {
         deferred.resolve(file);
       });
     } else {
-      Connection.send('read-blob', function(data) {
+      Connection.send('read-blob', {revision: rev, path: path}).then(function(data) {
         deferred.resolve(data);
       });
     }

@@ -33,6 +33,10 @@ app.service('Status', function($rootScope, $q, Connection) {
     return deferred.promise;
   };
 
+  me.getHead = function() {
+    return me.head;
+  };
+
   $rootScope.$on('branch-checked-out', function() {
     me.fetchHead();
   });

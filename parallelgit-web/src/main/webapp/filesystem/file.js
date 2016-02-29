@@ -93,12 +93,18 @@ app.factory('File', function($rootScope, $q, $timeout, Connection) {
   };
 
   File.prototype.acquireData = function() {
+    var deferred = $q.defer();
     var file = this;
     if(!file.access) {
       file.access = 1;
-      file.loadData();
-    } else
+      file.loadData().then(function(data) {
+        deferred.resolve(data);
+      });
+    } else {
       file.access++;
+      deferred.resolve(file.data);
+    }
+    return deferred.promise;
   };
 
   File.prototype.releaseData = function() {

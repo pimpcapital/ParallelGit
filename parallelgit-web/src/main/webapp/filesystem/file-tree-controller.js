@@ -1,4 +1,4 @@
-app.controller('FileTreeController', function($rootScope, $scope, $q, $timeout, $templateRequest, File, FileSystem, Clipboard, Diff, Connection, Dialog) {
+app.controller('FileTreeController', function($rootScope, $scope, $q, $timeout, $templateRequest, File, FileSystem, Clipboard, Diff, Status, Connection, Dialog) {
 
   $templateRequest('filesystem/file-tree-template.html').then(function() {
     $scope.tree = [FileSystem.getRoot()];
@@ -44,7 +44,8 @@ app.controller('FileTreeController', function($rootScope, $scope, $q, $timeout, 
           }],
           null,
           ['Show Changes', function() {
-            Diff.diff();
+            var path = file.getPath();
+            Diff.diff(Status.getHead().commit, path, null, path);
           }],
           ['Compare with...', function() {
 

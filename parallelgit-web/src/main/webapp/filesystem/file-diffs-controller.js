@@ -1,14 +1,44 @@
-app.controller('FileDiffsController', function($scope, $timeout, src, dest) {
+app.controller('FileDiffsController', function($scope, $timeout, $uibModalInstance, src, dest) {
 
   $timeout(function() {
     $scope.options = {
       lineWrapping : true,
-      lineNumbers: true,
-      origLeft: 'left',
-      origRight: 'right'
+      lineNumbers: true
     };
+    $scope.data = 'aa';
 
+    if(angular.isObject(src)) {
+      $scope.file = src;
+      $scope.file.acquireData();
+    } else {
+      $scope.options.origLeft = src;
+    }
+    //
+    //if(angular.isObject(dest)) {
+    //  dest.acquireData().then(function() {
+    //    $scope.file = dest;
+    //  });
+    //} else if($scope.file == null) {
+    //  $scope.options.readOnly = true;
+    //  $scope.file = {data: dest}
+    //} else {
+    //  $scope.options.origRight = dest;
+    //}
   });
+
+  $scope.$watch('data', function(newValue, oldValue) {
+    if(oldValue != null && newValue != oldValue) console.log(newValue);
+      //$scope.file.scheduleSave();
+  });
+
+  $scope.ok = function () {
+    $uibModalInstance.close();
+  };
+
+  $scope.cancel = function() {
+    $uibModalInstance.dismiss('cancel');
+  };
+
 
 
 
