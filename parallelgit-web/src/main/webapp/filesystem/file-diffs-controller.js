@@ -5,7 +5,7 @@ app.controller('FileDiffsController', function($scope, $timeout, $uibModalInstan
       lineWrapping : true,
       lineNumbers: true
     };
-    $scope.data = 'aa';
+    $scope.file = {data: 'aaa'};
 
     if(angular.isObject(src)) {
       $scope.file = src;
@@ -26,7 +26,7 @@ app.controller('FileDiffsController', function($scope, $timeout, $uibModalInstan
     //}
   });
 
-  $scope.$watch('data', function(newValue, oldValue) {
+  $scope.$watch('file.data', function(newValue, oldValue) {
     if(oldValue != null && newValue != oldValue) console.log(newValue);
       //$scope.file.scheduleSave();
   });
