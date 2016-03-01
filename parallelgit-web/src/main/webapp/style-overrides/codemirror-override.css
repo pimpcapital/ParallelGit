@@ -32,7 +32,11 @@
 .CodeMirror-merge-r-chunk,
 .CodeMirror-merge-l-chunk.CodeMirror-merge-r-chunk {
   border: none;
-  background: rgb(56, 85, 112);
+  background: rgba(56, 85, 112, 0.6);
+}
+
+.CodeMirror-merge-r-inserted, .CodeMirror-merge-l-inserted {
+  background: #437C9D none;
 }
 
 .CodeMirror-cursor {
