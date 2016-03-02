@@ -64,44 +64,49 @@ public final class CommitUtils {
   }
 
   @Nonnull
-  public static List<RevCommit> getCommitHistory(@Nonnull RevCommit start, int skip, int limit, @Nonnull ObjectReader reader) throws IOException {
+  public static List<RevCommit> getCommitHistory(@Nullable RevCommit start, int skip, int limit, @Nonnull ObjectReader reader) throws IOException {
     return getCommitHistory(start, skip, limit, null, reader);
   }
 
   @Nonnull
-  public static List<RevCommit> getCommitHistory(@Nonnull RevCommit start, @Nonnull ObjectReader reader) throws IOException {
+  public static List<RevCommit> getCommitHistory(@Nullable RevCommit start, @Nonnull ObjectReader reader) throws IOException {
     return getCommitHistory(start, 0, Integer.MAX_VALUE, reader);
   }
 
   @Nonnull
-  public static List<RevCommit> getCommitHistory(@Nonnull RevCommit start, @Nonnull Repository repo) throws IOException {
+  public static List<RevCommit> getCommitHistory(@Nullable RevCommit start, @Nonnull Repository repo) throws IOException {
     try(ObjectReader reader = repo.newObjectReader()) {
       return getCommitHistory(start, reader);
     }
   }
 
   @Nonnull
-  public static List<RevCommit> getFileChangeCommits(@Nonnull String file, @Nonnull RevCommit start, int skip, int limit, @Nonnull ObjectReader reader) throws IOException {
+  public static List<RevCommit> getFileRevisions(@Nonnull String file, @Nullable RevCommit start, int skip, int limit, @Nonnull ObjectReader reader) throws IOException {
     file = TreeUtils.normalizeTreePath(file);
     TreeFilter filter = AndTreeFilter.create(PathFilterGroup.createFromStrings(file), TreeFilter.ANY_DIFF);
     return getCommitHistory(start, skip, limit, filter, reader);
   }
 
   @Nonnull
-  public static List<RevCommit> getFileChangeCommits(@Nonnull String file, @Nonnull RevCommit start, @Nonnull ObjectReader reader) throws IOException {
-    return getFileChangeCommits(file, start, 0, Integer.MAX_VALUE, reader);
+  public static List<RevCommit> getFileRevisions(@Nonnull String file, @Nullable RevCommit start, @Nonnull ObjectReader reader) throws IOException {
+    return getFileRevisions(file, start, 0, Integer.MAX_VALUE, reader);
   }
 
   @Nonnull
-  public static List<RevCommit> getFileChangeCommits(@Nonnull String file, @Nonnull RevCommit start, @Nonnull Repository repo) throws IOException {
+  public static List<RevCommit> getFileRevisions(@Nonnull String file, @Nullable RevCommit start, @Nonnull Repository repo) throws IOException {
     try(ObjectReader reader = repo.newObjectReader()) {
-      return getFileChangeCommits(file, start, reader);
+      return getFileRevisions(file, start, reader);
     }
   }
 
   @Nonnull
+  public static List<RevCommit> getFileRevisions(@Nonnull String file, @Nonnull Repository repo) throws IOException {
+    return getFileRevisions(file, null, repo);
+  }
+
+  @Nonnull
   public static RevCommit getFileLastChangeCommit(@Nonnull String file, @Nonnull RevCommit start, @Nonnull ObjectReader reader) throws IOException {
-    List<RevCommit> commits = getFileChangeCommits(file, start, 0, 1, reader);
+    List<RevCommit> commits = getFileRevisions(file, start, 0, 1, reader);
     if(commits.isEmpty())
       throw new NoSuchFileException(file);
     return commits.get(0);
@@ -195,10 +200,11 @@ public final class CommitUtils {
   }
 
   @Nonnull
-  private static List<RevCommit> getCommitHistory(@Nonnull RevCommit start, int skip, int limit, @Nullable TreeFilter filter, @Nonnull ObjectReader reader) throws IOException {
+  private static List<RevCommit> getCommitHistory(@Nullable RevCommit start, int skip, int limit, @Nullable TreeFilter filter, @Nonnull ObjectReader reader) throws IOException {
     List<RevCommit> commits;
     try(RevWalk rw = new RevWalk(reader)) {
-      rw.markStart(start);
+      if(start != null)
+        rw.markStart(start);
       if(filter != null)
         rw.setTreeFilter(filter);
       commits = toCommitList(rw, skip, limit);

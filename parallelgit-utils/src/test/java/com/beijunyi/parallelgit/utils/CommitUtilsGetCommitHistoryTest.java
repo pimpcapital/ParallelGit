@@ -79,7 +79,7 @@ public class CommitUtilsGetCommitHistoryTest extends AbstractParallelGitTest {
     RevCommit commit4 = commitToBranch(branch);
 
     List<RevCommit> expected = Arrays.asList(commit3, commit2);
-    List<RevCommit> actual = CommitUtils.getFileChangeCommits("/test_file.txt", commit4, repo);
+    List<RevCommit> actual = CommitUtils.getFileRevisions("/test_file.txt", commit4, repo);
     Assert.assertEquals(expected, actual);
   }
 
