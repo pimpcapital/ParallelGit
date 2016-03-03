@@ -153,7 +153,7 @@ public final class GfsCommitCommand extends GfsCommand<GfsCommitCommand.Result> 
     update.clearMergeNote();
   }
 
-  public enum CommitStatus {
+  public enum Status {
     COMMITTED,
     NO_CHANGE,
     OUT_OF_SYNC
@@ -161,27 +161,27 @@ public final class GfsCommitCommand extends GfsCommand<GfsCommitCommand.Result> 
 
   public static class Result implements GfsCommandResult {
 
+    private final Status status;
     private final RevCommit commit;
-    private final CommitStatus status;
 
-    private Result(@Nullable RevCommit commit, @Nonnull CommitStatus status) {
-      this.commit = commit;
+    private Result(@Nonnull Status status, @Nullable RevCommit commit) {
       this.status = status;
+      this.commit = commit;
     }
 
     @Nonnull
     public static Result success(@Nonnull RevCommit commit) {
-      return new Result(commit, CommitStatus.COMMITTED);
+      return new Result(Status.COMMITTED, commit);
     }
 
     @Nonnull
     public static Result noChange() {
-      return new Result(null, CommitStatus.NO_CHANGE);
+      return new Result(Status.NO_CHANGE, null);
     }
 
     @Nonnull
     public static Result outOfSync() {
-      return new Result(null, CommitStatus.OUT_OF_SYNC);
+      return new Result(Status.OUT_OF_SYNC, null);
     }
 
     @Override
@@ -197,7 +197,7 @@ public final class GfsCommitCommand extends GfsCommand<GfsCommitCommand.Result> 
     }
 
     @Nonnull
-    public CommitStatus getStatus() {
+    public Status getStatus() {
       return status;
     }
   }
