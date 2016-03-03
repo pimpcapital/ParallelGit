@@ -32,5 +32,25 @@ app.service('Dialog', function($uibModal) {
       },
       controller : 'PromptDialogController'
     }).result;
+  };
+
+  me.select = function(title, model, data) {
+    return $uibModal.open({
+      templateUrl: 'system/select-dialog-modal.html',
+      size: 'lg',
+      resolve: {
+        title: function() {
+          return title;
+        },
+        model: function() {
+          return model;
+        },
+        data: function() {
+          return data;
+        }
+      },
+      controller : 'SelectDialogController'
+    }).result;
   }
+
 });

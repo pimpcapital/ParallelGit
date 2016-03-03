@@ -42,12 +42,8 @@ app.controller('FileDiffsController', function($scope, $q, $timeout, $uibModalIn
     }
   });
 
-  $scope.ok = function () {
+  $scope.exit = function () {
     $uibModalInstance.close();
-  };
-
-  $scope.cancel = function() {
-    $uibModalInstance.dismiss('cancel');
   };
 
   $scope.$on('$destroy', function() {

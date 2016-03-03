@@ -1,0 +1,16 @@
+<form ng-submit="ok()">
+  <div class="modal-header">
+    <h3 class="modal-title">{{title}}</h3>
+  </div>
+  <div class="modal-body">
+    <table ng-table-dynamic="tableParams with model" class="table">
+      <tr ng-repeat="row in $data">
+        <td ng-repeat="col in $columns">{{row[col.field] | filterBy: col.f}}</td>
+      </tr>
+    </table>
+  </div>
+  <div class="modal-footer">
+    <button class="btn btn-primary" type="submit">OK</button>
+    <button class="btn btn-primary" ng-click="cancel()">Cancel</button>
+  </div>
+</form>
