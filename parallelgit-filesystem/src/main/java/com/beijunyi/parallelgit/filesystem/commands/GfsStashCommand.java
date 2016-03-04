@@ -15,8 +15,8 @@ import org.eclipse.jgit.revwalk.RevCommit;
 
 public class GfsStashCommand extends GfsCommand<GfsStashCommand.Result> {
 
+  private String message = "index on {0}: {1} {2}";
   private PersonIdent committer;
-  private String message;
   private AnyObjectId parent;
 
   public GfsStashCommand(@Nonnull GitFileSystem gfs) {
@@ -30,14 +30,14 @@ public class GfsStashCommand extends GfsCommand<GfsStashCommand.Result> {
   }
 
   @Nonnull
-  public GfsStashCommand setCommitter(@Nonnull PersonIdent committer) {
-    this.committer = committer;
+  public GfsStashCommand setMessage(@Nonnull String message) {
+    this.message = message;
     return this;
   }
 
   @Nonnull
-  public GfsStashCommand setMessage(@Nonnull String message) {
-    this.message = message;
+  public GfsStashCommand setCommitter(@Nonnull PersonIdent committer) {
+    this.committer = committer;
     return this;
   }
 
