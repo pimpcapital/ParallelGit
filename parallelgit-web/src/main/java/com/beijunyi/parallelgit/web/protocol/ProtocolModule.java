@@ -6,13 +6,14 @@ import java.util.Collection;
 import com.google.inject.AbstractModule;
 import com.google.inject.multibindings.Multibinder;
 
-public class ProtocolModule extends AbstractModule {
+public final class ProtocolModule extends AbstractModule {
 
   private static final Collection<Class<? extends RequestHandler>> HANDLERS = Arrays.asList(
     CheckoutHandler.class,
+    CreateBranchHandler.class,
+    CreateDirectoryHandler.class,
     CopyFileHandler.class,
     CreateFileHandler.class,
-    CreateDirectoryHandler.class,
     DeleteFileHandler.class,
     ReadBlobHandler.class,
     GetFileAttributesHandler.class,

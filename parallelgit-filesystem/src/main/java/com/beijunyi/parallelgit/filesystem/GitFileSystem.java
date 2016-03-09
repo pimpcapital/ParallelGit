@@ -214,6 +214,11 @@ public class GitFileSystem extends FileSystem {
     root.updateOrigin(rootTree);
   }
 
+  public void reset() throws IOException {
+    RootNode root = fileStore.getRoot();
+    root.reset();
+  }
+
   @Override
   public boolean equals(@Nullable Object that) {
     return this == that
