@@ -124,6 +124,20 @@ body {
   color: #ADADAD;
 }
 
+.dropdown-menu-check>li>a {
+  padding-left: 25px;
+}
+
+.dropdown-menu-check>li.menu-item-checked>a:before {
+  content: "\e013";
+  position: relative;
+  top: 10px;
+  float: left;
+  font-family: 'Glyphicons Halflings', serif;
+  line-height: 0;
+  margin-left: -20px;
+}
+
 [ng-click],
 .dropdown-toggle {
   cursor: pointer;
