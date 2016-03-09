@@ -1,9 +1,9 @@
-app.filter('head', function() {
+app.filter('head', function($filter) {
   return function(head) {
     if(head == null)
       return '';
     if(head.branch != null)
       return 'Branch: ' + head.branch;
-    return head.commit.hash.substring(0, 7);
+    return $filter('hashAbbreviation')(head.commit.hash);
   }
 });
