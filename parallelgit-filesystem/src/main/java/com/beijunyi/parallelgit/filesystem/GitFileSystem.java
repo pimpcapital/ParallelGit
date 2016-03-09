@@ -11,10 +11,7 @@ import javax.annotation.Nullable;
 import com.beijunyi.parallelgit.filesystem.io.RootNode;
 import com.beijunyi.parallelgit.filesystem.utils.GfsConfiguration;
 import com.beijunyi.parallelgit.filesystem.utils.GitGlobs;
-import com.beijunyi.parallelgit.utils.CacheUtils;
 import com.beijunyi.parallelgit.utils.RefUtils;
-import com.beijunyi.parallelgit.utils.io.TreeSnapshot;
-import org.eclipse.jgit.dircache.DirCache;
 import org.eclipse.jgit.lib.AnyObjectId;
 import org.eclipse.jgit.lib.Repository;
 import org.eclipse.jgit.revwalk.RevCommit;
@@ -209,8 +206,12 @@ public class GitFileSystem extends FileSystem {
     RootNode root = fileStore.getRoot();
     AnyObjectId ret = root.getObjectId(true);
     objService.flush();
-    root.updateOrigin(ret);
     return ret;
+  }
+
+  public void updateOrigin(@Nonnull AnyObjectId rootTree) throws IOException {
+    RootNode root = fileStore.getRoot();
+    root.updateOrigin(rootTree);
   }
 
   @Override

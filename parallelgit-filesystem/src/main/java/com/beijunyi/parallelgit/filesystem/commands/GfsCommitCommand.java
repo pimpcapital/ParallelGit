@@ -44,6 +44,7 @@ public final class GfsCommitCommand extends GfsCommand<GfsCommitCommand.Result> 
     prepareAuthor();
     prepareParents();
     AnyObjectId resultTree = gfs.flush();
+    gfs.updateOrigin(resultTree);
     if(!allowEmpty && !amend && isSameAsParent(resultTree))
       return Result.noChange();
     RevCommit resultCommit = CommitUtils.createCommit(message, resultTree, author, committer, parents, repo);

@@ -58,13 +58,14 @@ public class DirectoryNode extends Node<TreeSnapshot, Map<String, Node>> {
   @Override
   public void updateOrigin(@Nonnull GitFileEntry entry) throws IOException {
     super.updateOrigin(entry);
-    if(isInitialized() && origin.isDirectory()) {
-      snapshot = objService.readTree(entry.getId());
-      for(Map.Entry<String, GitFileEntry> child : snapshot.getData().entrySet()) {
-        String name = child.getKey();
-        Node node = data.get(name);
-        if(node != null)
-          node.updateOrigin(child.getValue());
+    if(isInitialized()) {
+      if(origin.isDirectory()) {
+        snapshot = objService.readTree(entry.getId());
+        Set<String> updatedChildren = updateChildrenOrigins();
+        Collection<Node> notUpdatedNodes = findNotUpdatedChildren(updatedChildren);
+        updateOriginsToTrivial(notUpdatedNodes);
+      } else {
+        updateOriginsToTrivial(data.values());
       }
     }
   }
@@ -181,6 +182,36 @@ public class DirectoryNode extends Node<TreeSnapshot, Map<String, Node>> {
   @Override
   protected Map<String, Node> getDefaultData() {
     return new ConcurrentHashMap<>();
+  }
+
+  @Nonnull
+  private Set<String> updateChildrenOrigins() throws IOException {
+    Set<String> ret = new HashSet<>();
+    for(Map.Entry<String, GitFileEntry> child : snapshot.getData().entrySet()) {
+      String name = child.getKey();
+      Node node = data.get(name);
+      if(node != null && !node.getOrigin().equals(child.getValue()))
+        node.updateOrigin(child.getValue());
+      ret.add(name);
+    }
+    return ret;
+  }
+
+  @Nonnull
+  private Collection<Node> findNotUpdatedChildren(@Nonnull Set<String> updatedChildren) throws IOException{
+    List<Node> ret = new ArrayList<>();
+    for(Map.Entry<String, Node> child : data.entrySet()) {
+      String name = child.getKey();
+      if(!updatedChildren.contains(name))
+        ret.add(child.getValue());
+    }
+    return ret;
+  }
+
+  private void updateOriginsToTrivial(@Nonnull Collection<Node> nodes) throws IOException {
+    for(Node node : nodes) {
+      node.updateOrigin(GitFileEntry.TRIVIAL);
+    }
   }
 
   @Override

@@ -1,6 +1,7 @@
 package com.beijunyi.parallelgit.filesystem.commands;
 
 import java.io.IOException;
+import java.text.MessageFormat;
 import java.util.Collections;
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
@@ -8,14 +9,22 @@ import javax.annotation.Nullable;
 import com.beijunyi.parallelgit.filesystem.GfsState;
 import com.beijunyi.parallelgit.filesystem.GfsStatusProvider;
 import com.beijunyi.parallelgit.filesystem.GitFileSystem;
+import com.beijunyi.parallelgit.filesystem.exceptions.NoBranchException;
+import com.beijunyi.parallelgit.filesystem.exceptions.NoHeadCommitException;
 import com.beijunyi.parallelgit.utils.CommitUtils;
 import org.eclipse.jgit.lib.AnyObjectId;
 import org.eclipse.jgit.lib.PersonIdent;
+import org.eclipse.jgit.lib.Repository;
 import org.eclipse.jgit.revwalk.RevCommit;
+
+import static com.beijunyi.parallelgit.utils.CommitUtils.getCommit;
 
 public class GfsStashCommand extends GfsCommand<GfsStashCommand.Result> {
 
-  private String message = "index on {0}: {1} {2}";
+  private static final String DEFAULT_MESSAGE_FORMAT = "index on {0}: {1} {2}";
+
+  private String branch;
+  private String message;
   private PersonIdent committer;
   private AnyObjectId parent;
 
@@ -50,9 +59,10 @@ public class GfsStashCommand extends GfsCommand<GfsStashCommand.Result> {
   @Nonnull
   @Override
   protected GfsStashCommand.Result doExecute(@Nonnull GfsStatusProvider.Update update) throws IOException {
-    prepareMessage();
+    prepareBranch();
     prepareCommitter();
     prepareParent();
+    prepareMessage();
     AnyObjectId resultTree = gfs.flush();
     if(parent != null && parent.equals(resultTree))
       return Result.noChange();
@@ -61,16 +71,27 @@ public class GfsStashCommand extends GfsCommand<GfsStashCommand.Result> {
     return Result.success(resultCommit);
   }
 
-  private void prepareMessage() {
+  private void prepareMessage() throws IOException {
+    if(message == null) {
+      message = MessageFormat.format(DEFAULT_MESSAGE_FORMAT, branch, parent.abbreviate(7).name(), getCommit(parent, repo).getShortMessage());
+    }
+  }
 
+  private void prepareBranch() {
+    if(!status.isAttached())
+      throw new NoBranchException();
+    branch = Repository.shortenRefName(status.branch());
   }
 
   private void prepareCommitter() {
-
+    if(committer == null)
+      committer = new PersonIdent(repo);
   }
 
   private void prepareParent() {
-
+    if(!status.isInitialized())
+      throw new NoHeadCommitException();
+    parent = status.commit();
   }
 
   private void resetHead() {

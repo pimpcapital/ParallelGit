@@ -89,6 +89,11 @@ public abstract class Node<Snapshot extends ObjectSnapshot, Data> {
     return id;
   }
 
+  @Nonnull
+  public GitFileEntry getOrigin() {
+    return origin;
+  }
+
   public void updateOrigin(@Nonnull GitFileEntry entry) throws IOException {
     origin = entry;
   }
