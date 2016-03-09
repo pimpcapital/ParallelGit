@@ -45,7 +45,7 @@ app.controller('FileTreeController', function($rootScope, $scope, $q, $timeout, 
           null,
           ['Show Changes', function() {
             var path = file.getPath();
-            Diff.diff(Status.getHead().commit, path, null, path);
+            Diff.diff(Status.getHead().commit.hash, path, null, path);
           }],
           ['Compare with...', function() {
             var path = file.getPath();

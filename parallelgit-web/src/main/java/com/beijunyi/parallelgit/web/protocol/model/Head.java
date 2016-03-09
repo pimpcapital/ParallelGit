@@ -9,9 +9,9 @@ import com.beijunyi.parallelgit.filesystem.GitFileSystem;
 public class Head {
 
   private final String branch;
-  private final String commit;
+  private final CommitView commit;
 
-  private Head(@Nullable String branch, @Nullable String commit) {
+  private Head(@Nullable String branch, @Nullable CommitView commit) {
     this.branch = branch;
     this.commit = commit;
   }
@@ -20,7 +20,7 @@ public class Head {
   public static Head of(@Nonnull GitFileSystem gfs) {
     GfsStatusProvider status = gfs.getStatusProvider();
     String branch = status.isAttached() ? status.branch() : null;
-    String commit = status.isInitialized() ? status.commit().getName() : null;
+    CommitView commit = status.isInitialized() ? CommitView.of(status.commit()) : null;
     return new Head(branch, commit);
   }
 
@@ -30,7 +30,7 @@ public class Head {
   }
 
   @Nullable
-  public String getCommit() {
+  public CommitView getCommit() {
     return commit;
   }
 

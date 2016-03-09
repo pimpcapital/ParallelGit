@@ -12,12 +12,17 @@
             <li ng-repeat="branch in branches" ng-class="{'menu-item-checked': branch == head.branch}"><a ng-click="checkout(branch)">{{branch}}</a></li>
             <li role="separator" class="divider" ng-show="branches.length > 0"></li>
             <li><a ng-click="createBranch()">Create new branch</a></li>
+            <li><a ng-click="deleteBranch()">Delete branch</a></li>
           </ul>
         </li>
         <li class="dropdown" uib-dropdown keyboard-nav ng-controller="VersionControlController">
           <a class="dropdown-toggle" uib-dropdown-toggle>Version Control<span class="caret"></span></a>
           <ul class="dropdown-menu" uib-dropdown-menu>
             <li><a ng-click="commit()">Commit</a></li>
+            <li><a ng-click="reset()">Reset</a></li>
+            <li role="separator" class="divider"></li>
+            <li><a ng-click="stashChanges()">Stash changes</a></li>
+            <li><a ng-click="unstashChanges()">Unstash changes</a></li>
           </ul>
         </li>
       </ul>

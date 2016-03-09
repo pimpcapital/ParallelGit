@@ -4,6 +4,6 @@ app.filter('head', function() {
       return '';
     if(head.branch != null)
       return 'Branch: ' + head.branch;
-    return head.commit;
+    return head.commit.hash.substring(0, 7);
   }
 });
