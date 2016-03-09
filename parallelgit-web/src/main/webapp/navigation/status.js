@@ -40,6 +40,10 @@ app.service('Status', function($rootScope, $q, Connection) {
   $rootScope.$on('branch-checked-out', function() {
     me.fetchHead();
   });
+  $rootScope.$on('branch-created', function(event, branch) {
+    me.fetchBranches();
+    me.checkout(branch);
+  });
   $rootScope.$on('ready', function() {
     me.fetchBranches();
     me.fetchHead();

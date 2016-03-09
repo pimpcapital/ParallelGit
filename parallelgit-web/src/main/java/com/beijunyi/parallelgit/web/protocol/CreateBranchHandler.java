@@ -20,6 +20,6 @@ public class CreateBranchHandler extends AbstractRepositoryRequestHandler {
     String name = request.getString("name");
     String start = request.getString("start");
     BranchUtils.createBranch(name, start, repo);
-    return request.respond().ok();
+    return request.respond().ok(name);
   }
 }
