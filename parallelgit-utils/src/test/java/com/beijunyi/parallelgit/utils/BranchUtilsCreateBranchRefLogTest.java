@@ -22,7 +22,7 @@ public class BranchUtilsCreateBranchRefLogTest extends AbstractParallelGitTest {
     writeSomethingToCache();
     AnyObjectId commit = commitToMaster();
     BranchUtils.createBranch("test_branch", commit.getName(), repo);
-    ReflogEntry lastRefLog = RefUtils.getLastRefLog("test_branch", repo);
+    ReflogEntry lastRefLog = BranchUtils.getLastLog("test_branch", repo);
     assert lastRefLog != null;
     Assert.assertTrue(lastRefLog.getComment().startsWith("branch: Created from commit"));
   }
@@ -32,7 +32,7 @@ public class BranchUtilsCreateBranchRefLogTest extends AbstractParallelGitTest {
     writeSomethingToCache();
     AnyObjectId commit = commitToMaster();
     BranchUtils.createBranch("test_branch", commit, repo);
-    ReflogEntry lastRefLog = RefUtils.getLastRefLog("test_branch", repo);
+    ReflogEntry lastRefLog = BranchUtils.getLastLog("test_branch", repo);
     assert lastRefLog != null;
     Assert.assertTrue(lastRefLog.getComment().startsWith("branch: Created from commit"));
   }
@@ -42,7 +42,7 @@ public class BranchUtilsCreateBranchRefLogTest extends AbstractParallelGitTest {
     writeSomethingToCache();
     RevCommit commit = commitToMaster();
     BranchUtils.createBranch("test_branch", commit, repo);
-    ReflogEntry lastRefLog = RefUtils.getLastRefLog("test_branch", repo);
+    ReflogEntry lastRefLog = BranchUtils.getLastLog("test_branch", repo);
     assert lastRefLog != null;
     Assert.assertTrue(lastRefLog.getComment().startsWith("branch: Created from commit"));
   }
@@ -52,7 +52,7 @@ public class BranchUtilsCreateBranchRefLogTest extends AbstractParallelGitTest {
     writeSomethingToCache();
     commitToBranch("source_branch");
     BranchUtils.createBranch("test_branch", repo.getRef("source_branch"), repo);
-    ReflogEntry lastRefLog = RefUtils.getLastRefLog("test_branch", repo);
+    ReflogEntry lastRefLog = BranchUtils.getLastLog("test_branch", repo);
     assert lastRefLog != null;
     Assert.assertTrue(lastRefLog.getComment().startsWith("branch: Created from branch"));
   }
@@ -62,7 +62,7 @@ public class BranchUtilsCreateBranchRefLogTest extends AbstractParallelGitTest {
     writeSomethingToCache();
     commitToBranch("source_branch");
     BranchUtils.createBranch("test_branch", "source_branch", repo);
-    ReflogEntry lastRefLog = RefUtils.getLastRefLog("test_branch", repo);
+    ReflogEntry lastRefLog = BranchUtils.getLastLog("test_branch", repo);
     assert lastRefLog != null;
     Assert.assertTrue(lastRefLog.getComment().startsWith("branch: Created from branch"));
   }
@@ -72,7 +72,7 @@ public class BranchUtilsCreateBranchRefLogTest extends AbstractParallelGitTest {
     writeSomethingToCache();
     TagUtils.tagCommit("source_tag", commitToMaster(), repo);
     BranchUtils.createBranch("test_branch", repo.getRef("source_tag"), repo);
-    ReflogEntry lastRefLog = RefUtils.getLastRefLog("test_branch", repo);
+    ReflogEntry lastRefLog = BranchUtils.getLastLog("test_branch", repo);
     assert lastRefLog != null;
     Assert.assertTrue(lastRefLog.getComment().startsWith("branch: Created from tag"));
   }
@@ -82,7 +82,7 @@ public class BranchUtilsCreateBranchRefLogTest extends AbstractParallelGitTest {
     writeSomethingToCache();
     TagUtils.tagCommit("source_tag", commitToMaster(), repo);
     BranchUtils.createBranch("test_branch", "source_tag", repo);
-    ReflogEntry lastRefLog = RefUtils.getLastRefLog("test_branch", repo);
+    ReflogEntry lastRefLog = BranchUtils.getLastLog("test_branch", repo);
     assert lastRefLog != null;
     Assert.assertTrue(lastRefLog.getComment().startsWith("branch: Created from tag"));
   }
@@ -92,7 +92,7 @@ public class BranchUtilsCreateBranchRefLogTest extends AbstractParallelGitTest {
     writeSomethingToCache();
     TagUtils.tagCommit("source_tag", commitToMaster(), repo);
     BranchUtils.createBranch("test_branch", repo.resolve("source_tag"), repo);
-    ReflogEntry lastRefLog = RefUtils.getLastRefLog("test_branch", repo);
+    ReflogEntry lastRefLog = BranchUtils.getLastLog("test_branch", repo);
     assert lastRefLog != null;
     Assert.assertTrue(lastRefLog.getComment().startsWith("branch: Created from tag"));
   }

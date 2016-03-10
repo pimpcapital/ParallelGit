@@ -120,6 +120,24 @@ public final class BranchUtils {
     }
   }
 
+  @Nonnull
+  public static List<ReflogEntry> getLogs(@Nonnull String name, int max, @Nonnull Repository repository) throws IOException{
+    return RefUtils.getRefLogs(ensureBranchRefName(name), max, repository);
+  }
+
+  @Nonnull
+  public static List<ReflogEntry> getLogs(@Nonnull String name, @Nonnull Repository repository) throws IOException{
+    return RefUtils.getRefLogs(ensureBranchRefName(name), Integer.MAX_VALUE, repository);
+  }
+
+  @Nullable
+  public static ReflogEntry getLastLog(@Nonnull String name, @Nonnull Repository repository) throws IOException {
+    List<ReflogEntry> entries = getLogs(name, 1, repository);
+    if(entries.isEmpty())
+      return null;
+    return entries.get(0);
+  }
+
   private static void setBranchHead(@Nonnull String name, @Nonnull AnyObjectId commitId, @Nonnull Repository repo, @Nullable String refLogMessage, boolean forceUpdate) throws IOException {
     String refName = ensureBranchRefName(name);
     AnyObjectId currentHead = repo.resolve(refName);

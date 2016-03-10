@@ -19,7 +19,7 @@ import org.eclipse.jgit.revwalk.RevCommit;
 
 import static com.beijunyi.parallelgit.utils.CommitUtils.getCommit;
 
-public class GfsStashCommand extends GfsCommand<GfsStashCommand.Result> {
+public class GfsCreateStashCommand extends GfsCommand<GfsCreateStashCommand.Result> {
 
   private static final String DEFAULT_MESSAGE_FORMAT = "index on {0}: {1} {2}";
 
@@ -28,37 +28,37 @@ public class GfsStashCommand extends GfsCommand<GfsStashCommand.Result> {
   private PersonIdent committer;
   private AnyObjectId parent;
 
-  public GfsStashCommand(@Nonnull GitFileSystem gfs) {
+  public GfsCreateStashCommand(@Nonnull GitFileSystem gfs) {
     super(gfs);
   }
 
   @Nonnull
   @Override
   protected GfsState getCommandState() {
-    return GfsState.STASHING;
+    return GfsState.CREATING_STASH;
   }
 
   @Nonnull
-  public GfsStashCommand setMessage(@Nonnull String message) {
+  public GfsCreateStashCommand setMessage(@Nonnull String message) {
     this.message = message;
     return this;
   }
 
   @Nonnull
-  public GfsStashCommand setCommitter(@Nonnull PersonIdent committer) {
+  public GfsCreateStashCommand setCommitter(@Nonnull PersonIdent committer) {
     this.committer = committer;
     return this;
   }
 
   @Nonnull
-  public GfsStashCommand setParent(@Nonnull AnyObjectId parent) {
+  public GfsCreateStashCommand setParent(@Nonnull AnyObjectId parent) {
     this.parent = parent;
     return this;
   }
 
   @Nonnull
   @Override
-  protected GfsStashCommand.Result doExecute(@Nonnull GfsStatusProvider.Update update) throws IOException {
+  protected GfsCreateStashCommand.Result doExecute(@Nonnull GfsStatusProvider.Update update) throws IOException {
     prepareBranch();
     prepareCommitter();
     prepareParent();

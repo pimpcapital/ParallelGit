@@ -67,22 +67,10 @@ public final class RefUtils {
   }
 
   @Nonnull
-  public static List<ReflogEntry> getRefLogs(@Nonnull String branch, int max, @Nonnull Repository repository) throws IOException {
-    ReflogReader reader = repository.getReflogReader(ensureBranchRefName(branch));
+  public static List<ReflogEntry> getRefLogs(@Nonnull String ref, int max, @Nonnull Repository repository) throws IOException {
+    ReflogReader reader = repository.getReflogReader(ref);
     return reader != null ? reader.getReverseEntries(max) : Collections.<ReflogEntry>emptyList();
   }
 
-  @Nonnull
-  public static List<ReflogEntry> getRefLogs(@Nonnull String branch, @Nonnull Repository repository) throws IOException {
-    return getRefLogs(branch, Integer.MAX_VALUE, repository);
-  }
-
-  @Nullable
-  public static ReflogEntry getLastRefLog(@Nonnull String branch, @Nonnull Repository repository) throws IOException {
-    List<ReflogEntry> entries = getRefLogs(branch, 1, repository);
-    if(entries.isEmpty())
-      return null;
-    return entries.get(0);
-  }
 
 }
