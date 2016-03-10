@@ -20,7 +20,10 @@ app.controller('StatusController', function($rootScope, $scope, Status, Dialog, 
 
   $scope.deleteBranch = function() {
     Dialog.select('Delete branch', [
-
+      {title: 'Name', field: 'name', f: 'hashAbbreviation'},
+      {title: 'Message', field: 'message'},
+      {title: 'Time', field: 'committer', f: 'personDate'},
+      {title: 'Committer', field: 'committer', f: 'personName'}
     ])
   };
 
