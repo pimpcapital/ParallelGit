@@ -14,6 +14,7 @@ public final class ProtocolModule extends AbstractModule {
     CreateDirectoryHandler.class,
     CopyFileHandler.class,
     CreateFileHandler.class,
+    DeleteBranchHandler.class,
     DeleteFileHandler.class,
     ReadBlobHandler.class,
     GetFileAttributesHandler.class,

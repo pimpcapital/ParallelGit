@@ -71,4 +71,11 @@ public final class Gfs {
     return new GfsMergeCommand(gfs);
   }
 
+  public static void detach(@Nonnull GitFileSystem gfs) throws IOException {
+    GfsStatusProvider status = gfs.getStatusProvider();
+    if(status.isAttached()) {
+      checkout(gfs).setTarget(status.commit().getName()).execute();
+    }
+  }
+
 }

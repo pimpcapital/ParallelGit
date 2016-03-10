@@ -18,6 +18,12 @@ app.controller('StatusController', function($rootScope, $scope, Status, Dialog, 
     });
   };
 
+  $scope.deleteBranch = function() {
+    Dialog.select('Delete branch', [
+
+    ])
+  };
+
   $scope.$on('branches-refreshed', function(event, branches) {
     $scope.branches = branches;
   });
