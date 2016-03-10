@@ -21,10 +21,12 @@ import static com.beijunyi.parallelgit.utils.CommitUtils.getCommit;
 
 public class GfsCreateStashCommand extends GfsCommand<GfsCreateStashCommand.Result> {
 
-  private static final String DEFAULT_MESSAGE_FORMAT = "index on {0}: {1} {2}";
+  private static final String DEFAULT_INDEX_MESSAGE_FORMAT = "index on {0}: {1} {2}";
+  private static final String DEFAULT_WORKING_DIR_MESSAGE_FORMAT = "WIP on {0}: {1} {2}";
 
   private String branch;
-  private String message;
+  private String indexMessage;
+  private String workingDirectoryMessage;
   private PersonIdent committer;
   private AnyObjectId parent;
 
@@ -39,19 +41,19 @@ public class GfsCreateStashCommand extends GfsCommand<GfsCreateStashCommand.Resu
   }
 
   @Nonnull
-  public GfsCreateStashCommand setMessage(@Nonnull String message) {
-    this.message = message;
+  public GfsCreateStashCommand indexMessage(@Nonnull String indexMessage) {
+    this.indexMessage = indexMessage;
     return this;
   }
 
   @Nonnull
-  public GfsCreateStashCommand setCommitter(@Nonnull PersonIdent committer) {
+  public GfsCreateStashCommand committer(@Nonnull PersonIdent committer) {
     this.committer = committer;
     return this;
   }
 
   @Nonnull
-  public GfsCreateStashCommand setParent(@Nonnull AnyObjectId parent) {
+  public GfsCreateStashCommand parent(@Nonnull AnyObjectId parent) {
     this.parent = parent;
     return this;
   }
@@ -62,19 +64,24 @@ public class GfsCreateStashCommand extends GfsCommand<GfsCreateStashCommand.Resu
     prepareBranch();
     prepareCommitter();
     prepareParent();
-    prepareMessage();
+    prepareIndexMessage();
+    prepareDirectoryMessage();
     AnyObjectId resultTree = gfs.flush();
     if(parent != null && parent.equals(resultTree))
       return Result.noChange();
-    RevCommit resultCommit = CommitUtils.createCommit(message, resultTree, committer, committer, Collections.singletonList(parent), repo);
+    RevCommit resultCommit = CommitUtils.createCommit(indexMessage, resultTree, committer, committer, Collections.singletonList(parent), repo);
     resetHead();
     return Result.success(resultCommit);
   }
 
-  private void prepareMessage() throws IOException {
-    if(message == null) {
-      message = MessageFormat.format(DEFAULT_MESSAGE_FORMAT, branch, parent.abbreviate(7).name(), getCommit(parent, repo).getShortMessage());
-    }
+  private void prepareIndexMessage() throws IOException {
+    if(indexMessage == null)
+      indexMessage = MessageFormat.format(DEFAULT_INDEX_MESSAGE_FORMAT, branch, parent.abbreviate(7).name(), getCommit(parent, repo).getShortMessage());
+  }
+
+  private void prepareDirectoryMessage() throws IOException {
+    if(workingDirectoryMessage == null)
+      workingDirectoryMessage = MessageFormat.format(DEFAULT_WORKING_DIR_MESSAGE_FORMAT, branch, parent.abbreviate(7).name(), getCommit(parent, repo).getShortMessage());
   }
 
   private void prepareBranch() {
