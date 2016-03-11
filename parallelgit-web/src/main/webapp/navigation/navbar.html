@@ -9,7 +9,7 @@
         <li class="dropdown" uib-dropdown keyboard-nav ng-controller="StatusController">
           <a class="dropdown-toggle" uib-dropdown-toggle ng-show="head != null">{{head | head}}<span class="caret"></span></a>
           <ul class="dropdown-menu dropdown-menu-check" uib-dropdown-menu ng-show="branches != null">
-            <li ng-repeat="branch in branches" ng-class="{'menu-item-checked': branch == head.branch}"><a ng-click="checkout(branch)">{{branch}}</a></li>
+            <li ng-repeat="branch in branches" ng-class="{'menu-item-checked': branch.ref == head.ref}"><a ng-click="checkout(branch.getRef())">{{branch.getRef() | ref: 'short'}}</a></li>
             <li role="separator" class="divider" ng-show="branches.length > 0"></li>
             <li><a ng-click="createBranch()">Create new branch</a></li>
             <li><a ng-click="deleteBranch()">Delete branch</a></li>
