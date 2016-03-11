@@ -1,4 +1,4 @@
-app.service('Status', function($rootScope, $q, Connection) {
+app.service('Status', function($rootScope, $q, Connection, Head) {
 
   this.branches = null;
   this.head = null;
@@ -6,20 +6,22 @@ app.service('Status', function($rootScope, $q, Connection) {
 
   me.fetchBranches = function() {
     var deferred = $q.defer();
-    Connection.send('list-branches').then(function(branches) {
-      me.branches = branches;
-      deferred.resolve(branches);
-      $rootScope.$broadcast('branches-refreshed', branches);
+    Connection.send('list-branches').then(function(heads) {
+      me.branches = [];
+      for(var i = 0; i < heads.length; i++)
+        me.branches.push(new Head(heads[i]));
+      deferred.resolve(me.branches);
+      $rootScope.$broadcast('branches-refreshed', me.branches);
     });
     return deferred.promise;
   };
 
   me.fetchHead = function() {
     var deferred = $q.defer();
-    Connection.send('get-head').then(function(head) {
-      me.head = head;
-      deferred.resolve(head);
-      $rootScope.$broadcast('head-refreshed', head);
+    Connection.send('get-head').then(function(attributes) {
+      me.head = new Head(attributes);
+      deferred.resolve(me.head);
+      $rootScope.$broadcast('head-refreshed', me.head);
     });
     return deferred.promise;
   };
