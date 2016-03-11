@@ -6,10 +6,10 @@ app.service('RevisionSelect', function($q, Connection, Dialog) {
     var deferred = $q.defer();
     Connection.send('get-file-revisions', {path: path}).then(function(revisions) {
       Dialog.select('File Revisions', [
-        {title: 'Hash', field: 'hash', f: 'hashAbbreviation'},
-        {title: 'Message', field: 'message'},
-        {title: 'Time', field: 'committer', f: 'personDate'},
-        {title: 'Committer', field: 'committer', f: 'personName'}
+        {displayName: 'Hash', name: 'hash', cellFilter: 'abbreviation'},
+        {displayName: 'Message', name: 'message'},
+        {displayName: 'Time', name: 'committer.timestamp', cellFilter: 'date'},
+        {displayName: 'Committer', name: 'committer.name'}
       ], revisions)
         .then(function(revision) {
           deferred.resolve(revision);

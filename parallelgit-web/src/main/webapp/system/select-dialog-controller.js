@@ -1,5 +1,10 @@
-app.controller('SelectDialogController', function($scope, NgTableParams, title, model, data) {
+app.controller('SelectDialogController', function($scope, title, model, data) {
 
-  $scope.model = model;
-  $scope.tableParams = new NgTableParams({}, { dataset: data});
+  $scope.grid = {
+    enableRowHeaderSelection: false,
+    multiSelect: false,
+    columnDefs: model,
+    data: data
+  };
+
 });
