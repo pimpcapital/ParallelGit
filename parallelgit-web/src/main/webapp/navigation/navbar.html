@@ -6,7 +6,7 @@
 
     <div>
       <ul class="nav navbar-nav">
-        <li class="dropdown" uib-dropdown keyboard-nav ng-controller="StatusController">
+        <li class="dropdown" uib-dropdown keyboard-nav on-toggle="refreshBranches(open)"  ng-controller="StatusController">
           <a class="dropdown-toggle" uib-dropdown-toggle ng-show="head != null">{{head | head}}<span class="caret"></span></a>
           <ul class="dropdown-menu dropdown-menu-check" uib-dropdown-menu ng-show="branches != null">
             <li ng-repeat="branch in branches" ng-class="{'menu-item-checked': branch.ref == head.ref}"><a ng-click="checkout(branch.getRef())">{{branch.getRef() | ref: 'short'}}</a></li>

@@ -1,10 +1,15 @@
-app.controller('StatusController', function($rootScope, $scope, Status, Dialog, Notification, Connection) {
+app.controller('StatusController', function($rootScope, $scope, $filter, Status, Dialog, Notification, Connection) {
 
   $scope.branches = null;
   $scope.head = null;
 
   $scope.checkout = function(branch) {
     Status.checkout(branch);
+  };
+
+  $scope.refreshBranches = function(open) {
+    if(open)
+      Status.fetchBranches();
   };
 
   $scope.createBranch = function() {
@@ -20,11 +25,17 @@ app.controller('StatusController', function($rootScope, $scope, Status, Dialog, 
 
   $scope.deleteBranch = function() {
     Dialog.select('Delete branch', [
-      {title: 'Name', field: 'name', f: 'hashAbbreviation'},
-      {title: 'Message', field: 'message'},
-      {title: 'Time', field: 'committer', f: 'personDate'},
-      {title: 'Committer', field: 'committer', f: 'personName'}
-    ])
+      {displayName: 'Name', name: 'ref', cellFilter: 'ref:true'},
+      {displayName: 'Head Commit', name: 'commit.message'},
+      {displayName: 'Last Update', field: 'commit.committer.timestamp', cellFilter: 'date'},
+      {displayName: 'Committer', field: 'commit.committer.name'}
+    ], $scope.branches).then(function(branch) {
+      var name = $filter('ref')(branch.getRef(), true);
+      Connection.send('delete-branch', {name: name}).then(function() {
+        Notification.info('Branch "' + name + '" deleted');
+        $rootScope.$broadcast('branch-created', branch);
+      });
+    });
   };
 
   $scope.$on('branches-refreshed', function(event, branches) {

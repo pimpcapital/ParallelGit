@@ -46,6 +46,11 @@ app.service('Status', function($rootScope, $q, Connection, Head) {
     me.fetchBranches();
     me.checkout(branch);
   });
+  $rootScope.$on('branch-deleted', function(event, branch) {
+    me.fetchBranches();
+    if(me.head.getRef() == branch.getRef())
+      me.fetchHead();
+  });
   $rootScope.$on('ready', function() {
     me.fetchBranches();
     me.fetchHead();
