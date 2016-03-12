@@ -35,6 +35,18 @@
   background: rgba(56, 85, 112, 0.6);
 }
 
+.CodeMirror-merge-l-chunk-start,
+.CodeMirror-merge-r-chunk-start,
+.CodeMirror-merge-l-chunk-start.CodeMirror-merge-r-chunk-start {
+  border-top: 1px solid #437C9D;
+}
+
+.CodeMirror-merge-l-chunk-end,
+.CodeMirror-merge-r-chunk-end,
+.CodeMirror-merge-l-chunk-end.CodeMirror-merge-r-chunk-end {
+  border-bottom: 1px solid #437C9D;
+}
+
 .CodeMirror-merge-r-deleted,
 .CodeMirror-merge-l-deleted {
   background: #437C9D none;
@@ -56,32 +68,6 @@
   font-size: 12px;
   height: 14px;
   line-height: 14px;
-}
-
-.cm-comment {
-  font-style: italic;
-  color: #AC4BB8;
-}
-.cm-number {
-  color: null;
-}
-.cm-atom {
-  color: null;
-}
-.cm-string {
-  color: #8EC65F;
-}
-.cm-property {
-  color: null;
-}
-.cm-keyword {
-  color: null;
-}
-.cm-operator {
-  color: null;
-}
-.CodeMirror-linenumber {
-  color: italic;
 }
 
 .CodeMirror-merge-l-connect,

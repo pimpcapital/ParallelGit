@@ -4,7 +4,7 @@ app.controller('FileDiffsController', function($scope, $q, $timeout, $uibModalIn
   $q.all(promises).then(function(files) {
     $timeout(function() {
       $scope.options = {
-        lineWrapping : true,
+        lineWrapping : false,
         lineNumbers: true
       };
       if(angular.isObject(files[0])) {
