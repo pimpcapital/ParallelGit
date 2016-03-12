@@ -67,6 +67,14 @@ body {
   border-bottom: 1px solid #1C1C1C;
 }
 
+.modal-body {
+  padding: 0;
+}
+
+.modal-body > .form-group {
+  padding: 15px;
+}
+
 .modal-footer {
   border-top: 1px solid #1C1C1C;
 }
