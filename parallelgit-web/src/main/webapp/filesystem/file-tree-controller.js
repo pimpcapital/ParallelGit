@@ -49,8 +49,8 @@ app.controller('FileTreeController', function($rootScope, $scope, $q, $timeout, 
           }],
           ['Compare with...', function() {
             var path = file.getPath();
-            RevisionSelect.selectFileRevision(path).then(function(revision) {
-
+            RevisionSelect.selectFileRevision(path).then(function(commit) {
+              Diff.diff(commit.hash, path, null, path);
             });
           }]
         ]

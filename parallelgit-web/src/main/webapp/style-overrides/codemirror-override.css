@@ -35,7 +35,13 @@
   background: rgba(56, 85, 112, 0.6);
 }
 
-.CodeMirror-merge-r-inserted, .CodeMirror-merge-l-inserted {
+.CodeMirror-merge-r-deleted,
+.CodeMirror-merge-l-deleted {
+  background: #437C9D none;
+}
+
+.CodeMirror-merge-r-inserted,
+.CodeMirror-merge-l-inserted {
   background: #437C9D none;
 }
 

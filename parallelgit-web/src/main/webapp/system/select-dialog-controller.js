@@ -16,7 +16,7 @@ app.controller('SelectDialogController', function($scope, $uibModalInstance, tit
   };
 
   $scope.ok = function () {
-    $uibModalInstance.close($scope.fields);
+    $uibModalInstance.close($scope.selected);
   };
 
   $scope.cancel = function() {
