@@ -37,6 +37,7 @@ body {
 }
 
 .btn {
+  min-width: 80px;
   box-shadow: inset 0 20px 20px #282828 !important;
   border: 1px solid #282828 !important;
 }
@@ -52,6 +53,23 @@ body {
 .btn-primary:active.focus,
 .btn-primary:active:focus {
   background: #337ab7;
+}
+
+.btn.disabled, .btn[disabled], fieldset[disabled] .btn {
+  filter: alpha(opacity=25);
+  opacity: .25;
+}
+
+.btn-primary.disabled.focus,
+.btn-primary.disabled:focus,
+.btn-primary.disabled:hover,
+.btn-primary[disabled].focus,
+.btn-primary[disabled]:focus,
+.btn-primary[disabled]:hover,
+fieldset[disabled] .btn-primary.focus,
+fieldset[disabled] .btn-primary:focus,
+fieldset[disabled] .btn-primary:hover {
+  background-color: #286090;
 }
 
 .modal-sm {
@@ -72,7 +90,7 @@ body {
 }
 
 .modal-body > .form-group {
-  padding: 15px;
+  margin: 15px;
 }
 
 .modal-footer {
