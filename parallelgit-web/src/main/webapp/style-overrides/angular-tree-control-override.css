@@ -9,9 +9,9 @@ treecontrol li {
 }
 
 treecontrol li .tree-selected {
-  background-color: #0D293E !important;
+  background-color: #286090 !important;
   font-weight: normal !important;
-  color: #ADADAD !important;
+  color: #ffffff !important;
 }
 
 treecontrol li.tree-collapsed>div:before,
