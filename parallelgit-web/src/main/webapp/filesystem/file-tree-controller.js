@@ -1,6 +1,20 @@
 app.controller('FileTreeController', function($rootScope, $scope, $q, $timeout, $templateRequest, File, FileSystem, Clipboard, Diff, Status, Connection, Dialog, RevisionSelect) {
 
   $templateRequest('filesystem/file-tree-template.html').then(function() {
+    $scope._setupTree();
+  });
+
+  $scope.$on('filesystem-reloaded', function() {
+    var paths = $scope._getAllPaths($scope.state.expanded);
+    if(paths.length == 0)
+      paths.push('/');
+    $scope.state.expanded = [];
+    $scope._reloadDirectories(paths).then(function(files) {
+      $scope.state.expanded = files;
+    });
+  });
+
+  $scope._setupTree = function() {
     $scope.tree = [FileSystem.getRoot()];
     $scope.state = {
       selected: undefined,
@@ -11,6 +25,20 @@ app.controller('FileTreeController', function($rootScope, $scope, $q, $timeout, 
       templateUrl: 'filesystem/file-tree-template.html',
       isLeaf: function(file) {
         return !file.isDirectory()
+      },
+      activate: function(file) {
+        if(file.isDirectory()) {
+          var index = $scope.state.expanded.indexOf(file);
+          if(index >= 0) {
+            $scope.state.expanded.splice(index, 1);
+          } else {
+            file.loadChildren().then(function() {
+              $scope.state.expanded.push(file);
+            });
+          }
+        } else {
+          $rootScope.$broadcast('open-file', file);
+        }
       },
       contextMenu: function(file) {
         $scope.state.selected = file;
@@ -56,24 +84,7 @@ app.controller('FileTreeController', function($rootScope, $scope, $q, $timeout, 
         ]
       }
     };
-  });
-
-  $scope.toggleNode = function(file) {
-    if(file.isDirectory())
-      file.loadChildren();
-    else
-      $rootScope.$broadcast('open-file', file);
   };
-
-  $scope.$on('filesystem-reloaded', function() {
-    var paths = $scope._getAllPaths($scope.state.expanded);
-    if(paths.length == 0)
-      paths.push('/');
-    $scope.state.expanded = [];
-    $scope._reloadDirectories(paths).then(function(files) {
-      $scope.state.expanded = files;
-    });
-  });
 
    $scope._getAllPaths = function(files) {
     var ret = [];
