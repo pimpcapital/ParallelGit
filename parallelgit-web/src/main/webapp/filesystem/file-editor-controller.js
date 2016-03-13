@@ -1,4 +1,4 @@
-app.controller('FileEditorController', function($scope, $q, $timeout, FileTab) {
+app.controller('FileEditorController', function($scope, $q, $timeout, FileSystem, FileTab) {
 
   $scope.tabs = null;
   $scope.tabsScroll = {};
@@ -83,6 +83,26 @@ app.controller('FileEditorController', function($scope, $q, $timeout, FileTab) {
   $scope.$on('lockdown', function() {
     $scope.tabs = null;
   });
+  $scope.$on('filesystem-reloaded', function() {
+    $scope._reloadFiles();
+  });
+
+  $scope._reloadFiles = function() {
+    var promises = [];
+    var oldTabs = $scope.tabs;
+    $scope.tabs = [];
+    angular.forEach(oldTabs, function(tab) {
+      var path = tab.getFile().getPath();
+      promises.push(FileSystem.findFile(path));
+    });
+    $q.all(promises).then(function(files) {
+      angular.forEach(files, function(file) {
+        if(file != null) setupTab(file);
+      });
+    });
+  };
+
+
 
   $scope.$on('ui.layout.resize', function() {
     scrollToActiveTab();

@@ -13,6 +13,10 @@ app.factory('FileTab', function() {
     };
   }
 
+  FileTab.prototype.getFile = function() {
+    return this.file;
+  };
+
   return FileTab;
 
 });
