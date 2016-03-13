@@ -13,7 +13,7 @@ app.controller('FileEditorController', function($scope, $q, $timeout, FileSystem
     }
   }
 
-  function setupTab(file) {
+  function setupTab(file, addToEnd) {
     var activeTabIndex = -1;
     var ret = null;
     for(var i = 0; i < $scope.tabs.length; i++) {
@@ -27,14 +27,17 @@ app.controller('FileEditorController', function($scope, $q, $timeout, FileSystem
     }
     if(ret == null) {
       ret = new FileTab(file);
-      $scope.tabs.splice(activeTabIndex + 1, 0, ret);
+      if(addToEnd)
+        $scope.tabs.push(ret);
+      else
+        $scope.tabs.splice(activeTabIndex + 1, 0, ret);
     }
     return ret;
   }
 
   function focusTab(tab) {
     blurAll();
-    tab.active = true;
+    tab.setActive(true);
     scrollToActiveTab();
   }
 
@@ -84,24 +87,51 @@ app.controller('FileEditorController', function($scope, $q, $timeout, FileSystem
     $scope.tabs = null;
   });
   $scope.$on('filesystem-reloaded', function() {
-    $scope._reloadFiles();
+    var previousActiveTab = findActiveTab($scope.tabs);
+    var activePath = previousActiveTab != null ? previousActiveTab.getPath() : null;
+    reloadFiles().then(function(tabs) {
+      if(activePath != null) {
+        var activeTab = findTabByPath(activePath, tabs);
+        if(activeTab != null) focusTab(activeTab);
+      }
+    });
   });
 
-  $scope._reloadFiles = function() {
+  function findActiveTab(tabs) {
+    for(var i = 0; i < tabs.length; i++) {
+      var tab = tabs[i];
+      if(tab.active)
+        return tab;
+    }
+    return null;
+  }
+
+  function findTabByPath(path, tabs) {
+    for(var i = 0; i < tabs.length; i++) {
+      var tab = tabs[i];
+      if(path == tab.getPath())
+        return tab;
+    }
+    return null;
+  }
+
+  function reloadFiles() {
+    var deferred = $q.defer();
     var promises = [];
-    var oldTabs = $scope.tabs;
-    $scope.tabs = [];
-    angular.forEach(oldTabs, function(tab) {
-      var path = tab.getFile().getPath();
+    var tabs = $scope.tabs;
+    angular.forEach(tabs, function(tab) {
+      var path = tab.getPath();
       promises.push(FileSystem.findFile(path));
     });
+    tabs.splice(0, tabs.length);
     $q.all(promises).then(function(files) {
       angular.forEach(files, function(file) {
-        if(file != null) setupTab(file);
+        if(file != null) setupTab(file, true);
       });
+      deferred.resolve(tabs)
     });
-  };
-
+    return deferred.promise;
+  }
 
 
   $scope.$on('ui.layout.resize', function() {
