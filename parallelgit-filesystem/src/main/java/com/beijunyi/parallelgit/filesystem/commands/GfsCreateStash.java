@@ -2,7 +2,8 @@ package com.beijunyi.parallelgit.filesystem.commands;
 
 import java.io.IOException;
 import java.text.MessageFormat;
-import java.util.Collections;
+import java.util.Arrays;
+import java.util.List;
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 
@@ -11,13 +12,14 @@ import com.beijunyi.parallelgit.filesystem.GfsStatusProvider;
 import com.beijunyi.parallelgit.filesystem.GitFileSystem;
 import com.beijunyi.parallelgit.filesystem.exceptions.NoBranchException;
 import com.beijunyi.parallelgit.filesystem.exceptions.NoHeadCommitException;
-import com.beijunyi.parallelgit.utils.CommitUtils;
 import org.eclipse.jgit.lib.AnyObjectId;
 import org.eclipse.jgit.lib.PersonIdent;
 import org.eclipse.jgit.lib.Repository;
 import org.eclipse.jgit.revwalk.RevCommit;
 
-import static com.beijunyi.parallelgit.utils.CommitUtils.getCommit;
+import static com.beijunyi.parallelgit.filesystem.commands.GfsCreateStash.Result.noChange;
+import static com.beijunyi.parallelgit.utils.CommitUtils.*;
+import static java.util.Collections.singletonList;
 
 public class GfsCreateStash extends GfsCommand<GfsCreateStash.Result> {
 
@@ -68,20 +70,11 @@ public class GfsCreateStash extends GfsCommand<GfsCreateStash.Result> {
     prepareDirectoryMessage();
     AnyObjectId resultTree = gfs.flush();
     if(parent != null && parent.equals(resultTree))
-      return Result.noChange();
-    RevCommit resultCommit = CommitUtils.createCommit(indexMessage, resultTree, committer, committer, Collections.singletonList(parent), repo);
+      return noChange();
+    RevCommit indexCommit = makeIndexCommit(resultTree);
+    RevCommit workingDirectoryCommit = makeWorkingDirectoryCommit(indexCommit);
     resetHead();
-    return Result.success(resultCommit);
-  }
-
-  private void prepareIndexMessage() throws IOException {
-    if(indexMessage == null)
-      indexMessage = MessageFormat.format(DEFAULT_INDEX_MESSAGE_FORMAT, branch, parent.abbreviate(7).name(), getCommit(parent, repo).getShortMessage());
-  }
-
-  private void prepareDirectoryMessage() throws IOException {
-    if(workingDirectoryMessage == null)
-      workingDirectoryMessage = MessageFormat.format(DEFAULT_WORKING_DIR_MESSAGE_FORMAT, branch, parent.abbreviate(7).name(), getCommit(parent, repo).getShortMessage());
+    return Result.success(workingDirectoryCommit);
   }
 
   private void prepareBranch() {
@@ -101,8 +94,31 @@ public class GfsCreateStash extends GfsCommand<GfsCreateStash.Result> {
     parent = status.commit();
   }
 
-  private void resetHead() {
+  private void prepareIndexMessage() throws IOException {
+    if(indexMessage == null)
+      indexMessage = MessageFormat.format(DEFAULT_INDEX_MESSAGE_FORMAT, branch, parent.abbreviate(7).name(), getCommit(parent, repo).getShortMessage());
+  }
 
+  private void prepareDirectoryMessage() throws IOException {
+    if(workingDirectoryMessage == null)
+      workingDirectoryMessage = MessageFormat.format(DEFAULT_WORKING_DIR_MESSAGE_FORMAT, branch, parent.abbreviate(7).name(), getCommit(parent, repo).getShortMessage());
+  }
+
+  @Nonnull
+  private RevCommit makeIndexCommit(@Nonnull AnyObjectId tree) throws IOException {
+    List<AnyObjectId> parents = singletonList(parent);
+    return createCommit(indexMessage, tree, committer, committer, parents, repo);
+  }
+
+  @Nonnull
+  private RevCommit makeWorkingDirectoryCommit(@Nonnull RevCommit indexCommit) throws IOException {
+    AnyObjectId tree = indexCommit.getTree();
+    List<AnyObjectId> parents = Arrays.asList(parent, indexCommit);
+    return createCommit(workingDirectoryMessage, tree, committer, committer, parents, repo);
+  }
+
+  private void resetHead() throws IOException {
+    gfs.reset();
   }
 
   public enum Status {
