@@ -7,14 +7,16 @@ import javax.annotation.Nonnull;
 import com.beijunyi.parallelgit.AbstractParallelGitTest;
 import com.beijunyi.parallelgit.filesystem.GitFileSystem;
 import org.eclipse.jgit.lib.AnyObjectId;
-import org.junit.*;
+import org.junit.Assert;
+import org.junit.Before;
+import org.junit.Test;
 
 import static com.beijunyi.parallelgit.filesystem.Gfs.*;
-import static com.beijunyi.parallelgit.filesystem.commands.GfsMergeCommand.Result;
+import static com.beijunyi.parallelgit.filesystem.commands.GfsMerge.Result;
 import static com.beijunyi.parallelgit.utils.BranchUtils.createBranch;
 import static org.eclipse.jgit.api.MergeResult.MergeStatus.*;
 
-public class GfsMergeCommandTest extends AbstractParallelGitTest {
+public class GfsMergeTest extends AbstractParallelGitTest {
 
   @Before
   public void setUp() throws Exception {

@@ -33,7 +33,7 @@ import static com.beijunyi.parallelgit.utils.RefUtils.ensureBranchRefName;
 import static java.util.Collections.singletonList;
 import static org.eclipse.jgit.api.MergeResult.MergeStatus.*;
 
-public final class GfsMergeCommand extends GfsCommand<GfsMergeCommand.Result> {
+public final class GfsMerge extends GfsCommand<GfsMerge.Result> {
 
   private String branch;
   private Ref branchRef;
@@ -52,7 +52,7 @@ public final class GfsMergeCommand extends GfsCommand<GfsMergeCommand.Result> {
 
   private DirCache cache;
 
-  public GfsMergeCommand(@Nonnull GitFileSystem gfs) {
+  public GfsMerge(@Nonnull GitFileSystem gfs) {
     super(gfs);
   }
 
@@ -81,49 +81,49 @@ public final class GfsMergeCommand extends GfsCommand<GfsMergeCommand.Result> {
   }
 
   @Nonnull
-  public GfsMergeCommand source(@Nullable String branch) {
+  public GfsMerge source(@Nullable String branch) {
     this.source = branch;
     return this;
   }
 
   @Nonnull
-  public GfsMergeCommand source(@Nullable Ref branchRef) {
+  public GfsMerge source(@Nullable Ref branchRef) {
     this.sourceRef = branchRef;
     return this;
   }
 
   @Nonnull
-  public GfsMergeCommand fastForwardOnly(boolean fastForwardOnly) {
+  public GfsMerge fastForwardOnly(boolean fastForwardOnly) {
     this.fastForwardOnly = fastForwardOnly;
     return this;
   }
 
   @Nonnull
-  public GfsMergeCommand squash(boolean squash) {
+  public GfsMerge squash(boolean squash) {
     this.squash = squash;
     return this;
   }
 
   @Nonnull
-  public GfsMergeCommand commit(boolean commit) {
+  public GfsMerge commit(boolean commit) {
     this.commit = commit;
     return this;
   }
 
   @Nonnull
-  public GfsMergeCommand committer(@Nullable PersonIdent committer) {
+  public GfsMerge committer(@Nullable PersonIdent committer) {
     this.committer = committer;
     return this;
   }
 
   @Nonnull
-  public GfsMergeCommand message(@Nullable String message) {
+  public GfsMerge message(@Nullable String message) {
     this.message = message;
     return this;
   }
 
   @Nonnull
-  public GfsMergeCommand strategy(@Nullable MergeStrategy strategy) {
+  public GfsMerge strategy(@Nullable MergeStrategy strategy) {
     this.strategy = strategy;
     return this;
   }

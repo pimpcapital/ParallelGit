@@ -4,14 +4,14 @@ import java.io.IOException;
 
 import com.beijunyi.parallelgit.filesystem.Gfs;
 import com.beijunyi.parallelgit.filesystem.PreSetupGitFileSystemTest;
-import com.beijunyi.parallelgit.filesystem.commands.GfsCommitCommand.Result;
+import com.beijunyi.parallelgit.filesystem.commands.GfsCommit.Result;
 import org.eclipse.jgit.lib.PersonIdent;
 import org.eclipse.jgit.revwalk.RevCommit;
 import org.junit.Test;
 
 import static org.junit.Assert.*;
 
-public class GfsCommitCommandTest extends PreSetupGitFileSystemTest {
+public class GfsCommitTest extends PreSetupGitFileSystemTest {
 
   @Test
   public void commitInBranch_theResultCommitShouldEqualTheHeadOfTheAttachedBranch() throws IOException {

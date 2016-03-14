@@ -1,14 +1,18 @@
 package com.beijunyi.parallelgit.web.protocol;
 
-import java.util.*;
+import java.util.Map;
+import java.util.Set;
 import javax.annotation.Nonnull;
+import javax.annotation.Nullable;
 
 import com.beijunyi.parallelgit.web.workspace.Workspace;
+import com.google.common.base.Function;
+import com.google.common.collect.Maps;
 import com.google.inject.Inject;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-public class RequestDelegate {
+public final class RequestDelegate {
 
   private static final Logger LOG = LoggerFactory.getLogger(RequestDelegate.class);
 
@@ -34,10 +38,15 @@ public class RequestDelegate {
 
   @Nonnull
   private static Map<String, RequestHandler> indexHandlers(@Nonnull Set<RequestHandler> handlers) {
-    Map<String, RequestHandler> ret = new HashMap<>();
-    for(RequestHandler handler : handlers)
-      ret.put(handler.getType(), handler);
-    return Collections.unmodifiableMap(ret);
+    return Maps.uniqueIndex(handlers, new Function<RequestHandler, String>() {
+      @Nonnull
+      @Override
+      public String apply(@Nullable RequestHandler handler) {
+        if(handler == null)
+          throw new IllegalStateException();
+        return handler.getType();
+      }
+    });
   }
 
 }

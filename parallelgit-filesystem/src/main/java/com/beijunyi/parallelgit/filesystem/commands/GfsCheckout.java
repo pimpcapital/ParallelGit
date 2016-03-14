@@ -9,7 +9,6 @@ import com.beijunyi.parallelgit.filesystem.GfsState;
 import com.beijunyi.parallelgit.filesystem.GfsStatusProvider;
 import com.beijunyi.parallelgit.filesystem.GitFileSystem;
 import com.beijunyi.parallelgit.filesystem.exceptions.NoBranchException;
-import com.beijunyi.parallelgit.filesystem.io.GfsCheckout;
 import com.beijunyi.parallelgit.filesystem.io.GfsCheckoutConflict;
 import com.beijunyi.parallelgit.utils.CommitUtils;
 import com.beijunyi.parallelgit.utils.RefUtils;
@@ -19,7 +18,7 @@ import org.eclipse.jgit.revwalk.RevCommit;
 
 import static com.beijunyi.parallelgit.filesystem.GfsState.NORMAL;
 
-public final class GfsCheckoutCommand extends GfsCommand<GfsCheckoutCommand.Result> {
+public final class GfsCheckout extends GfsCommand<GfsCheckout.Result> {
 
   private String target;
   private boolean force = false;
@@ -29,7 +28,7 @@ public final class GfsCheckoutCommand extends GfsCommand<GfsCheckoutCommand.Resu
   private RevCommit targetCommit;
 
 
-  public GfsCheckoutCommand(@Nonnull GitFileSystem gfs) {
+  public GfsCheckout(@Nonnull GitFileSystem gfs) {
     super(gfs);
   }
 
@@ -38,7 +37,7 @@ public final class GfsCheckoutCommand extends GfsCommand<GfsCheckoutCommand.Resu
   protected Result doExecute(@Nonnull GfsStatusProvider.Update update) throws IOException {
     prepareFileSystem();
     prepareTarget();
-    GfsCheckout checkout = new GfsCheckout(gfs, false);
+    com.beijunyi.parallelgit.filesystem.io.GfsCheckout checkout = new com.beijunyi.parallelgit.filesystem.io.GfsCheckout(gfs, false);
     checkout.checkout(targetCommit.getTree());
     update.state(NORMAL);
     if(checkout.hasConflicts())
@@ -55,19 +54,19 @@ public final class GfsCheckoutCommand extends GfsCommand<GfsCheckoutCommand.Resu
   }
 
   @Nonnull
-  public GfsCheckoutCommand setTarget(@Nonnull String target) {
+  public GfsCheckout setTarget(@Nonnull String target) {
     this.target = target;
     return this;
   }
 
   @Nonnull
-  public GfsCheckoutCommand force(boolean force) {
+  public GfsCheckout force(boolean force) {
     this.force = force;
     return this;
   }
 
   @Nonnull
-  public GfsCheckoutCommand detach(boolean force) {
+  public GfsCheckout detach(boolean force) {
     this.force = force;
     return this;
   }

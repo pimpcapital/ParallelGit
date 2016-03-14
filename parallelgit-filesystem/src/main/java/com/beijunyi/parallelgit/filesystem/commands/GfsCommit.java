@@ -17,7 +17,7 @@ import org.eclipse.jgit.revwalk.RevCommit;
 
 import static com.beijunyi.parallelgit.filesystem.GfsState.*;
 
-public final class GfsCommitCommand extends GfsCommand<GfsCommitCommand.Result> {
+public final class GfsCommit extends GfsCommand<GfsCommit.Result> {
 
   private PersonIdent author;
   private PersonIdent committer;
@@ -26,7 +26,7 @@ public final class GfsCommitCommand extends GfsCommand<GfsCommitCommand.Result> 
   private boolean amend = false;
   private boolean allowEmpty = false;
 
-  public GfsCommitCommand(@Nonnull GitFileSystem gfs) {
+  public GfsCommit(@Nonnull GitFileSystem gfs) {
     super(gfs);
   }
 
@@ -53,31 +53,31 @@ public final class GfsCommitCommand extends GfsCommand<GfsCommitCommand.Result> 
   }
 
   @Nonnull
-  public GfsCommitCommand author(@Nullable PersonIdent author) {
+  public GfsCommit author(@Nullable PersonIdent author) {
     this.author = author;
     return this;
   }
 
   @Nonnull
-  public GfsCommitCommand committer(@Nullable PersonIdent committer) {
+  public GfsCommit committer(@Nullable PersonIdent committer) {
     this.committer = committer;
     return this;
   }
 
   @Nonnull
-  public GfsCommitCommand message(@Nullable String message) {
+  public GfsCommit message(@Nullable String message) {
     this.message = message;
     return this;
   }
 
   @Nonnull
-  public GfsCommitCommand amend(boolean amend) {
+  public GfsCommit amend(boolean amend) {
     this.amend = amend;
     return this;
   }
 
   @Nonnull
-  public GfsCommitCommand allowEmpty(boolean allowEmpty) {
+  public GfsCommit allowEmpty(boolean allowEmpty) {
     this.allowEmpty = allowEmpty;
     return this;
   }

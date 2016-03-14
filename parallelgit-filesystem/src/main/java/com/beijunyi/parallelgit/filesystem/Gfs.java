@@ -4,9 +4,9 @@ import java.io.File;
 import java.io.IOException;
 import javax.annotation.Nonnull;
 
-import com.beijunyi.parallelgit.filesystem.commands.GfsCheckoutCommand;
-import com.beijunyi.parallelgit.filesystem.commands.GfsCommitCommand;
-import com.beijunyi.parallelgit.filesystem.commands.GfsMergeCommand;
+import com.beijunyi.parallelgit.filesystem.commands.GfsCheckout;
+import com.beijunyi.parallelgit.filesystem.commands.GfsCommit;
+import com.beijunyi.parallelgit.filesystem.commands.GfsMerge;
 import com.beijunyi.parallelgit.filesystem.utils.GfsConfiguration;
 import org.eclipse.jgit.lib.AnyObjectId;
 import org.eclipse.jgit.lib.Repository;
@@ -57,18 +57,18 @@ public final class Gfs {
   }
 
   @Nonnull
-  public static GfsCheckoutCommand checkout(@Nonnull GitFileSystem gfs) {
-    return new GfsCheckoutCommand(gfs);
+  public static GfsCheckout checkout(@Nonnull GitFileSystem gfs) {
+    return new GfsCheckout(gfs);
   }
 
   @Nonnull
-  public static GfsCommitCommand commit(@Nonnull GitFileSystem gfs) {
-    return new GfsCommitCommand(gfs);
+  public static GfsCommit commit(@Nonnull GitFileSystem gfs) {
+    return new GfsCommit(gfs);
   }
 
   @Nonnull
-  public static GfsMergeCommand merge(@Nonnull GitFileSystem gfs) {
-    return new GfsMergeCommand(gfs);
+  public static GfsMerge merge(@Nonnull GitFileSystem gfs) {
+    return new GfsMerge(gfs);
   }
 
   public static void detach(@Nonnull GitFileSystem gfs) throws IOException {

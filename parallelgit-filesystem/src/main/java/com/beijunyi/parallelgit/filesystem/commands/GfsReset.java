@@ -12,27 +12,27 @@ import com.beijunyi.parallelgit.utils.BranchUtils;
 import org.eclipse.jgit.revwalk.RevCommit;
 
 import static com.beijunyi.parallelgit.filesystem.GfsState.RESETTING;
-import static com.beijunyi.parallelgit.filesystem.commands.GfsResetCommand.Status.SUCCESS;
+import static com.beijunyi.parallelgit.filesystem.commands.GfsReset.Status.SUCCESS;
 import static com.beijunyi.parallelgit.utils.CommitUtils.getCommit;
 
-public class GfsResetCommand extends GfsCommand<GfsResetCommand.Result> {
+public class GfsReset extends GfsCommand<GfsReset.Result> {
 
   private boolean soft = false;
   private String branch;
   private String revision;
 
-  public GfsResetCommand(@Nonnull GitFileSystem gfs) {
+  public GfsReset(@Nonnull GitFileSystem gfs) {
     super(gfs);
   }
 
   @Nonnull
-  public GfsResetCommand soft(boolean soft) {
+  public GfsReset soft(boolean soft) {
     this.soft = soft;
     return this;
   }
 
   @Nonnull
-  public GfsResetCommand revision(@Nonnull String revision) {
+  public GfsReset revision(@Nonnull String revision) {
     this.revision = revision;
     return this;
   }

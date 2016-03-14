@@ -12,17 +12,17 @@ import org.eclipse.jgit.revwalk.RevCommit;
 import static com.beijunyi.parallelgit.filesystem.GfsState.APPLYING_STASH;
 import static com.beijunyi.parallelgit.utils.CommitUtils.getCommit;
 
-public class GfsApplyStashCommand extends GfsCommand<GfsCreateStashCommand.Result> {
+public class GfsApplyStash extends GfsCommand<GfsCreateStash.Result> {
 
   private String stashId;
   private RevCommit stash;
 
-  public GfsApplyStashCommand(@Nonnull GitFileSystem gfs) {
+  public GfsApplyStash(@Nonnull GitFileSystem gfs) {
     super(gfs);
   }
 
   @Nonnull
-  public GfsApplyStashCommand stash(@Nonnull String stashId) throws IOException {
+  public GfsApplyStash stash(@Nonnull String stashId) throws IOException {
     this.stashId = stashId;
     return this;
   }
@@ -34,7 +34,7 @@ public class GfsApplyStashCommand extends GfsCommand<GfsCreateStashCommand.Resul
 
   @Nonnull
   @Override
-  protected GfsCreateStashCommand.Result doExecute(@Nonnull GfsStatusProvider.Update update) throws IOException {
+  protected GfsCreateStash.Result doExecute(@Nonnull GfsStatusProvider.Update update) throws IOException {
     prepareStash();
     return null;
   }
