@@ -17,9 +17,10 @@ import org.eclipse.jgit.lib.PersonIdent;
 import org.eclipse.jgit.lib.Repository;
 import org.eclipse.jgit.revwalk.RevCommit;
 
-import static com.beijunyi.parallelgit.filesystem.commands.GfsCreateStash.Result.noChange;
+import static com.beijunyi.parallelgit.filesystem.commands.GfsCreateStash.Result.*;
 import static com.beijunyi.parallelgit.filesystem.commands.GfsCreateStash.Status.*;
 import static com.beijunyi.parallelgit.utils.CommitUtils.*;
+import static com.beijunyi.parallelgit.utils.StashUtils.createStash;
 import static java.util.Arrays.asList;
 import static java.util.Collections.singletonList;
 
@@ -68,9 +69,10 @@ public class GfsCreateStash extends GfsCommand<GfsCreateStash.Result> {
     if(parent != null && parent.getTree().equals(resultTree))
       return noChange();
     RevCommit indexCommit = makeIndexCommit(resultTree);
-    RevCommit workingDirectoryCommit = makeWorkingDirectoryCommit(indexCommit);
+    RevCommit stashCommit = makeWorkingDirectoryCommit(indexCommit);
+    createStash(stashCommit, repo);
     resetHead();
-    return Result.success(workingDirectoryCommit);
+    return success(stashCommit);
   }
 
   private void prepareBranch() {

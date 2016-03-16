@@ -19,7 +19,8 @@ public final class StashUtils {
     RefUpdate update = repo.updateRef(R_STASH);
     update.setNewObjectId(commit);
     update.setRefLogIdent(commit.getCommitterIdent());
-    update.setExpectedOldObjectId(commit.getParent(0) != null ? commit.getParent(0) : zeroId());
+    AnyObjectId prevStash = repo.resolve(R_STASH);
+    update.setExpectedOldObjectId(prevStash != null ? prevStash : zeroId());
     update.forceUpdate();
   }
 

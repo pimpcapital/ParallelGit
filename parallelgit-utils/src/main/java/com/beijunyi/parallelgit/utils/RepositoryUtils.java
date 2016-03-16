@@ -13,6 +13,7 @@ import org.eclipse.jgit.internal.storage.file.GC;
 import org.eclipse.jgit.lib.*;
 
 import static com.beijunyi.parallelgit.utils.RefUtils.ensureBranchRefName;
+import static org.eclipse.jgit.lib.ConfigConstants.*;
 
 public final class RepositoryUtils {
 
@@ -45,9 +46,19 @@ public final class RepositoryUtils {
 
   public static void setDefaultCommitter(@Nonnull String name, @Nonnull String email, @Nonnull Repository repo) throws IOException {
     StoredConfig config = repo.getConfig();
-    config.setString("user", null, "name", name);
-    config.setString("user", null, "email", email);
+    config.setString(CONFIG_USER_SECTION, null, CONFIG_KEY_NAME, name);
+    config.setString(CONFIG_USER_SECTION, null, CONFIG_KEY_EMAIL, email);
     config.save();
+  }
+
+  public static boolean isRefLogEnabled(@Nonnull Repository repo) {
+    StoredConfig config = repo.getConfig();
+    return config.getBoolean(CONFIG_CORE_SECTION, null, CONFIG_KEY_LOGALLREFUPDATES, false);
+  }
+
+  public static void setRefLogEnabled(boolean enabled, @Nonnull Repository repo) {
+    StoredConfig config = repo.getConfig();
+    config.setBoolean(CONFIG_CORE_SECTION, null, CONFIG_KEY_LOGALLREFUPDATES, enabled);
   }
 
   @Nonnull
