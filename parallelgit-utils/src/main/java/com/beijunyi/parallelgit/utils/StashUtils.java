@@ -32,12 +32,6 @@ public final class StashUtils {
   }
 
   @Nonnull
-  public static RevCommit createStash(@Nonnull String revision, @Nonnull Repository repo) throws IOException {
-    AnyObjectId commitId = repo.resolve(revision);
-    return createStash(commitId, repo);
-  }
-
-  @Nonnull
   public static List<RevCommit> listStashes(@Nonnull Repository repo) throws IOException {
     List<RevCommit> ret = new ArrayList<>();
     List<ReflogEntry> logs = RefUtils.getRefLogs(R_STASH, Integer.MAX_VALUE, repo);

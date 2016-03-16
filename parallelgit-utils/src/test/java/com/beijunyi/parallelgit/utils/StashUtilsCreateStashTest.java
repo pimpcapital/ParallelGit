@@ -5,12 +5,12 @@ import java.util.List;
 
 import com.beijunyi.parallelgit.AbstractParallelGitTest;
 import org.eclipse.jgit.revwalk.RevCommit;
-import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
 
 import static com.beijunyi.parallelgit.utils.RepositoryUtils.setRefLogEnabled;
 import static com.beijunyi.parallelgit.utils.StashUtils.*;
+import static org.junit.Assert.assertEquals;
 
 public class StashUtilsCreateStashTest extends AbstractParallelGitTest {
 
@@ -26,7 +26,22 @@ public class StashUtilsCreateStashTest extends AbstractParallelGitTest {
     RevCommit expected = commit();
     createStash(expected, repo);
     List<RevCommit> stashes = listStashes(repo);
-    Assert.assertEquals(expected, stashes.get(0));
+    assertEquals(expected, stashes.get(0));
+  }
+
+  @Test
+  public void createTwoStashes_listStashesShouldReturnTheStashesInReversedOrder() throws IOException {
+    writeSomethingToCache();
+    RevCommit first = commit();
+    createStash(first, repo);
+
+    writeSomethingToCache();
+    RevCommit second = commit();
+    createStash(second, repo);
+
+    List<RevCommit> stashes = listStashes(repo);
+    assertEquals(second, stashes.get(0));
+    assertEquals(first, stashes.get(1));
   }
 
 
