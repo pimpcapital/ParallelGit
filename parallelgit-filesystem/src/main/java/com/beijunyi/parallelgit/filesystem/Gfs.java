@@ -4,9 +4,7 @@ import java.io.File;
 import java.io.IOException;
 import javax.annotation.Nonnull;
 
-import com.beijunyi.parallelgit.filesystem.commands.GfsCheckout;
-import com.beijunyi.parallelgit.filesystem.commands.GfsCommit;
-import com.beijunyi.parallelgit.filesystem.commands.GfsMerge;
+import com.beijunyi.parallelgit.filesystem.commands.*;
 import com.beijunyi.parallelgit.filesystem.utils.GfsConfiguration;
 import org.eclipse.jgit.lib.AnyObjectId;
 import org.eclipse.jgit.lib.Repository;
@@ -69,6 +67,15 @@ public final class Gfs {
   @Nonnull
   public static GfsMerge merge(@Nonnull GitFileSystem gfs) {
     return new GfsMerge(gfs);
+  }
+
+  @Nonnull
+  public static GfsCreateStash stash(@Nonnull GitFileSystem gfs) {
+    return new GfsCreateStash(gfs);
+  }
+
+  public static boolean isDirty(@Nonnull GitFileSystem gfs) throws IOException {
+    return gfs.getFileStore().getRoot().isModified();
   }
 
   public static void detach(@Nonnull GitFileSystem gfs) throws IOException {
