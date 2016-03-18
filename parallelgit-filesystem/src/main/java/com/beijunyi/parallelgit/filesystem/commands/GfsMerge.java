@@ -32,6 +32,7 @@ import static com.beijunyi.parallelgit.filesystem.utils.GfsPathUtils.toAbsoluteP
 import static com.beijunyi.parallelgit.utils.RefUtils.ensureBranchRefName;
 import static java.util.Collections.singletonList;
 import static org.eclipse.jgit.api.MergeResult.MergeStatus.*;
+import static org.eclipse.jgit.merge.MergeStrategy.RECURSIVE;
 
 public final class GfsMerge extends GfsCommand<GfsMerge.Result> {
 
@@ -47,7 +48,7 @@ public final class GfsMerge extends GfsCommand<GfsMerge.Result> {
 
   private PersonIdent committer;
   private String message;
-  private MergeStrategy strategy = new StrategyRecursive();
+  private MergeStrategy strategy = RECURSIVE;
   private MergeFormatter formatter = new MergeFormatter();
 
   private DirCache cache;

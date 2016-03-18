@@ -9,26 +9,18 @@ import org.eclipse.jgit.lib.*;
 import org.eclipse.jgit.revwalk.RevCommit;
 import org.eclipse.jgit.revwalk.RevWalk;
 
-import static com.beijunyi.parallelgit.utils.CommitUtils.getCommit;
 import static org.eclipse.jgit.lib.Constants.R_STASH;
 import static org.eclipse.jgit.lib.ObjectId.zeroId;
 
 public final class StashUtils {
 
-  public static void createStash(@Nonnull RevCommit commit, @Nonnull Repository repo) throws IOException {
+  public static void addToStash(@Nonnull RevCommit commit, @Nonnull Repository repo) throws IOException {
     RefUpdate update = repo.updateRef(R_STASH);
     update.setNewObjectId(commit);
     update.setRefLogIdent(commit.getCommitterIdent());
     AnyObjectId prevStash = repo.resolve(R_STASH);
     update.setExpectedOldObjectId(prevStash != null ? prevStash : zeroId());
     update.forceUpdate();
-  }
-
-  @Nonnull
-  public static RevCommit createStash(@Nonnull AnyObjectId commitId, @Nonnull Repository repo) throws IOException {
-    RevCommit commit = getCommit(commitId, repo);
-    createStash(commit, repo);
-    return commit;
   }
 
   @Nonnull

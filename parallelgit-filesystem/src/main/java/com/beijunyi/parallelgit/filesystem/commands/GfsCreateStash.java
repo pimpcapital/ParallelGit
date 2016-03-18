@@ -12,6 +12,7 @@ import com.beijunyi.parallelgit.filesystem.GitFileSystem;
 import com.beijunyi.parallelgit.filesystem.exceptions.NoBranchException;
 import com.beijunyi.parallelgit.filesystem.exceptions.NoHeadCommitException;
 import com.beijunyi.parallelgit.filesystem.exceptions.UnsuccessfulOperationException;
+import com.beijunyi.parallelgit.utils.StashUtils;
 import org.eclipse.jgit.lib.AnyObjectId;
 import org.eclipse.jgit.lib.PersonIdent;
 import org.eclipse.jgit.lib.Repository;
@@ -20,7 +21,6 @@ import org.eclipse.jgit.revwalk.RevCommit;
 import static com.beijunyi.parallelgit.filesystem.commands.GfsCreateStash.Result.*;
 import static com.beijunyi.parallelgit.filesystem.commands.GfsCreateStash.Status.*;
 import static com.beijunyi.parallelgit.utils.CommitUtils.*;
-import static com.beijunyi.parallelgit.utils.StashUtils.createStash;
 import static java.util.Arrays.asList;
 import static java.util.Collections.singletonList;
 
@@ -70,7 +70,7 @@ public class GfsCreateStash extends GfsCommand<GfsCreateStash.Result> {
       return noChange();
     RevCommit indexCommit = makeIndexCommit(resultTree);
     RevCommit stashCommit = makeWorkingDirectoryCommit(indexCommit);
-    createStash(stashCommit, repo);
+    StashUtils.addToStash(stashCommit, repo);
     resetHead();
     return success(stashCommit);
   }

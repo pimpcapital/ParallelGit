@@ -21,23 +21,23 @@ public class StashUtilsCreateStashTest extends AbstractParallelGitTest {
   }
 
   @Test
-  public void createStashAndListStashes_theFirstOneShouldBeTheNewStash() throws IOException {
+  public void addStashAndListStashes_theFirstOneShouldBeTheNewStash() throws IOException {
     writeSomethingToCache();
     RevCommit expected = commit();
-    createStash(expected, repo);
+    addToStash(expected, repo);
     List<RevCommit> stashes = listStashes(repo);
     assertEquals(expected, stashes.get(0));
   }
 
   @Test
-  public void createTwoStashes_listStashesShouldReturnTheStashesInReversedOrder() throws IOException {
+  public void addTwoStashes_listStashesShouldReturnTheStashesInReverseOrder() throws IOException {
     writeSomethingToCache();
     RevCommit first = commit();
-    createStash(first, repo);
+    addToStash(first, repo);
 
     writeSomethingToCache();
     RevCommit second = commit();
-    createStash(second, repo);
+    addToStash(second, repo);
 
     List<RevCommit> stashes = listStashes(repo);
     assertEquals(second, stashes.get(0));
