@@ -1,4 +1,4 @@
-app.controller('FileTreeController', function($rootScope, $scope, $q, $timeout, $templateRequest, File, FileSystem, Clipboard, Diff, Status, Connection, Dialog, RevisionSelect) {
+app.controller('FileTreeController', function($rootScope, $scope, $q, $timeout, $templateRequest, File, FileSystem, Clipboard, Comparator, Status, Connection, Dialog, RevisionSelect) {
 
   $templateRequest('filesystem/file-tree-template.html').then(function() {
     $scope._setupTree();
@@ -73,12 +73,13 @@ app.controller('FileTreeController', function($rootScope, $scope, $q, $timeout, 
           null,
           ['Show Changes', function() {
             var path = file.getPath();
-            Diff.diff(Status.getHead().commit.hash, path, null, path);
+            if(file.isDirectory())
+            Diff.diffFile(Status.getHead().commit.hash, path, null, path);
           }],
           ['Compare with...', function() {
             var path = file.getPath();
             RevisionSelect.selectFileRevision(path).then(function(commit) {
-              Diff.diff(commit.hash, path, null, path);
+              Diff.diffFile(commit.hash, path, null, path);
             });
           }]
         ]

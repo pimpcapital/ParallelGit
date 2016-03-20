@@ -21,23 +21,23 @@ public class GfsTreeIterator extends WorkingTreeIterator {
   private int index = -1;
   private AnyObjectId id;
 
-  public GfsTreeIterator(@Nonnull List<GfsTreeEntry> files, @Nonnull GfsTreeIterator parent) {
+  private GfsTreeIterator(@Nonnull List<GfsTreeEntry> files, @Nonnull GfsTreeIterator parent) {
     super(parent);
     this.files = files;
     next(1);
   }
 
-  public GfsTreeIterator(@Nonnull List<GfsTreeEntry> files) {
+  private GfsTreeIterator(@Nonnull List<GfsTreeEntry> files) {
     super((WorkingTreeOptions) null);
     this.files = files;
     next(1);
   }
 
-  public GfsTreeIterator(@Nonnull RootNode node) throws IOException {
+  private GfsTreeIterator(@Nonnull DirectoryNode node) throws IOException {
     this(GfsTreeEntry.listChildren(node));
   }
 
-  public GfsTreeIterator(@Nonnull GfsFileStore store) throws IOException {
+  private GfsTreeIterator(@Nonnull GfsFileStore store) throws IOException {
     this(store.getRoot());
   }
 

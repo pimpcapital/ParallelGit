@@ -25,7 +25,7 @@ public final class ProtocolModule extends AbstractModule {
     ListFilesHandler.class,
     LoginHandler.class,
     MoveFileHandler.class,
-    PreviewCommitHandler.class,
+    DiffDirectoryHandler.class,
     ReadFileHandler.class,
     RenameFileHandler.class,
     WriteFileHandler.class

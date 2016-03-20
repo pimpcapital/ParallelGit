@@ -1,12 +1,16 @@
-app.service('Diff', function($q, FileSystem, Connection, MergeView) {
+app.service('Comparator', function($q, FileSystem, Connection, MergeView) {
 
   var me = this;
 
-  me.diff = function(srcRev, srcFile, destRev, destFile) {
+  me.diffFile = function(srcRev, srcFile, destRev, destFile) {
     var promises = [me._loadFile(srcRev, srcFile), me._loadFile(destRev, destFile)];
     $q.all(promises).then(function(files) {
       MergeView.showDiffs(files[0], files[1]);
     });
+  };
+
+  me.diffDirectory = function(srcRev, srcFile, destRev, destFile) {
+
   };
 
   me._loadFile = function(rev, path) {
@@ -21,6 +25,6 @@ app.service('Diff', function($q, FileSystem, Connection, MergeView) {
       });
     }
     return deferred.promise;
-  }
+  };
 
 });
