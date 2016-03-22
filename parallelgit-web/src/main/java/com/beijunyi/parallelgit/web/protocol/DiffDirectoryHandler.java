@@ -7,21 +7,19 @@ import javax.annotation.Nonnull;
 
 import com.beijunyi.parallelgit.filesystem.GitFileSystem;
 import com.beijunyi.parallelgit.filesystem.exceptions.UnsuccessfulOperationException;
-import com.beijunyi.parallelgit.filesystem.io.GfsTreeIterator;
 import com.beijunyi.parallelgit.web.data.FileType;
 import com.beijunyi.parallelgit.web.protocol.model.DeltaType;
 import com.beijunyi.parallelgit.web.protocol.model.FileDelta;
 import com.beijunyi.parallelgit.web.protocol.model.FileState;
-import com.google.common.base.Optional;
 import org.eclipse.jgit.lib.AnyObjectId;
 import org.eclipse.jgit.lib.Repository;
 import org.eclipse.jgit.treewalk.*;
 
 import static com.beijunyi.parallelgit.utils.CommitUtils.getCommit;
 import static com.beijunyi.parallelgit.utils.TreeUtils.getObjectId;
-import static com.beijunyi.parallelgit.utils.TreeUtils.isDirectory;
 import static com.beijunyi.parallelgit.web.data.FileType.MISSING;
 import static com.beijunyi.parallelgit.web.protocol.model.DeltaType.*;
+import static org.eclipse.jgit.lib.Constants.HEAD;
 import static org.eclipse.jgit.treewalk.filter.TreeFilter.ANY_DIFF;
 
 public class DiffDirectoryHandler extends AbstractGfsRequestHandler {
@@ -47,23 +45,24 @@ public class DiffDirectoryHandler extends AbstractGfsRequestHandler {
 
   @Nonnull
   private static AbstractTreeIterator getSourceTree(@Nonnull ClientRequest request, @Nonnull GitFileSystem gfs) throws IOException {
-    Optional<String> revision = request.getOptionalString("source-revision");
+    String revision = request.getString("source-revision");
     String path = request.getString("source-path");
     return getTree(revision, path, gfs);
   }
 
   @Nonnull
   private static AbstractTreeIterator getTargetTree(@Nonnull ClientRequest request, @Nonnull GitFileSystem gfs) throws IOException {
-    Optional<String> revision = request.getOptionalString("target-revision");
+    String revision = request.getString("target-revision");
     String path = request.getString("target-path");
     return getTree(revision, path, gfs);
   }
 
   @Nonnull
-  private static AbstractTreeIterator getTree(@Nonnull Optional<String> revision, @Nonnull String path, @Nonnull GitFileSystem gfs) throws IOException {
+  private static AbstractTreeIterator getTree(@Nonnull String revision, @Nonnull String path, @Nonnull GitFileSystem gfs) throws IOException {
     AbstractTreeIterator ret;
-    if(revision.isPresent()) {
-      ret = getTreeFromRevision(revision.get(), path, gfs.getRepository());
+    if(HEAD.equals(revision)) {
+      Repository repo = gfs.getRepository();
+      ret = getTreeFromRevision(revision, path, repo);
     } else {
       ret = getTreeFromGfs(path, gfs);
     }
