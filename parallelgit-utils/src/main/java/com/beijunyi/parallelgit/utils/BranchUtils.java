@@ -13,6 +13,7 @@ import org.eclipse.jgit.lib.*;
 import org.eclipse.jgit.revwalk.*;
 
 import static com.beijunyi.parallelgit.utils.RefUtils.ensureBranchRefName;
+import static org.eclipse.jgit.lib.Constants.*;
 
 public final class BranchUtils {
 
@@ -27,7 +28,7 @@ public final class BranchUtils {
 
   @Nonnull
   public static Map<String, Ref> getBranches(Repository repo) throws IOException {
-    return repo.getRefDatabase().getRefs(Constants.R_HEADS);
+    return repo.getRefDatabase().getRefs(R_HEADS);
   }
 
   public static boolean branchExists(String name, Repository repo) throws IOException {
@@ -55,10 +56,10 @@ public final class BranchUtils {
     try(RevWalk rw = new RevWalk(repo)) {
       RevObject revObj = rw.parseAny(startPoint);
       switch(revObj.getType()) {
-        case Constants.OBJ_TAG:
+        case OBJ_TAG:
           createBranch(name, (RevTag) revObj, repo);
           break;
-        case Constants.OBJ_COMMIT:
+        case OBJ_COMMIT:
           createBranch(name, (RevCommit) revObj, repo);
           break;
         default:

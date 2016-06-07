@@ -9,7 +9,7 @@ import com.beijunyi.parallelgit.filesystem.GfsState;
 import com.beijunyi.parallelgit.filesystem.GfsStatusProvider;
 import com.beijunyi.parallelgit.filesystem.GitFileSystem;
 import com.beijunyi.parallelgit.filesystem.exceptions.*;
-import com.beijunyi.parallelgit.filesystem.io.GfsCheckout;
+import com.beijunyi.parallelgit.filesystem.io.GfsDefaultCheckout;
 import com.beijunyi.parallelgit.filesystem.io.GfsTreeIterator;
 import com.beijunyi.parallelgit.filesystem.merge.GfsMergeCheckout;
 import com.beijunyi.parallelgit.filesystem.merge.GfsMergeNote;
@@ -215,7 +215,7 @@ public final class GfsMerge extends GfsCommand<GfsMerge.Result> {
   @Nonnull
   private Result updateFileSystemStatus(GfsStatusProvider.Update update, Merger merger) throws IOException {
     AnyObjectId treeId = merger.getResultTreeId();
-    new GfsCheckout(gfs).checkout(treeId);
+    new GfsDefaultCheckout(gfs).checkout(treeId);
     RevCommit newCommit = null;
     if(commit && !squash) {
       prepareCommitter();
@@ -255,7 +255,7 @@ public final class GfsMerge extends GfsCommand<GfsMerge.Result> {
   }
 
   private boolean tryCheckout(AnyObjectId tree) throws IOException {
-    GfsCheckout checkout = new GfsCheckout(gfs);
+    GfsDefaultCheckout checkout = new GfsDefaultCheckout(gfs);
     try {
       checkout.checkout(tree);
     } catch(GfsCheckoutConflictException e) {

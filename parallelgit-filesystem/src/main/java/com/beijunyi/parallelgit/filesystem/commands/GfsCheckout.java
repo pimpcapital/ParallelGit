@@ -10,6 +10,7 @@ import com.beijunyi.parallelgit.filesystem.GfsStatusProvider;
 import com.beijunyi.parallelgit.filesystem.GitFileSystem;
 import com.beijunyi.parallelgit.filesystem.exceptions.NoBranchException;
 import com.beijunyi.parallelgit.filesystem.io.GfsCheckoutConflict;
+import com.beijunyi.parallelgit.filesystem.io.GfsDefaultCheckout;
 import com.beijunyi.parallelgit.utils.CommitUtils;
 import com.beijunyi.parallelgit.utils.RefUtils;
 import com.beijunyi.parallelgit.utils.exceptions.NoSuchBranchException;
@@ -37,7 +38,7 @@ public final class GfsCheckout extends GfsCommand<GfsCheckout.Result> {
   protected Result doExecute(GfsStatusProvider.Update update) throws IOException {
     prepareFileSystem();
     prepareTarget();
-    com.beijunyi.parallelgit.filesystem.io.GfsCheckout checkout = new com.beijunyi.parallelgit.filesystem.io.GfsCheckout(gfs, false);
+    GfsDefaultCheckout checkout = new GfsDefaultCheckout(gfs, false);
     checkout.checkout(targetCommit.getTree());
     update.state(NORMAL);
     if(checkout.hasConflicts())

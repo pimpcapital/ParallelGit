@@ -6,7 +6,7 @@ import java.util.Map;
 import javax.annotation.Nonnull;
 
 import com.beijunyi.parallelgit.filesystem.GitFileSystem;
-import com.beijunyi.parallelgit.filesystem.io.GfsCheckout;
+import com.beijunyi.parallelgit.filesystem.io.GfsDefaultCheckout;
 import org.eclipse.jgit.diff.Sequence;
 import org.eclipse.jgit.merge.MergeFormatter;
 import org.eclipse.jgit.merge.MergeResult;
@@ -14,7 +14,7 @@ import org.eclipse.jgit.merge.MergeResult;
 import static org.eclipse.jgit.lib.Constants.CHARACTER_ENCODING;
 import static org.eclipse.jgit.lib.FileMode.REGULAR_FILE;
 
-public class GfsMergeCheckout extends GfsCheckout {
+public class GfsMergeCheckout extends GfsDefaultCheckout {
 
   private String base = "BASE";
   private String ours = "OURS";

@@ -17,13 +17,13 @@ import static java.util.Collections.singleton;
 import static org.eclipse.jgit.dircache.DirCacheEntry.*;
 import static org.junit.Assert.*;
 
-public class GfsCheckoutCacheTest extends AbstractGitFileSystemTest {
+public class GfsDefaultCheckoutCacheTest extends AbstractGitFileSystemTest {
 
   @Test
   public void checkoutCacheWithNonConflictingFileAtRootLevel_theFileShouldExistAfterTheOperation() throws IOException {
     initGitFileSystem("/some_existing_file.txt");
     DirCache cache = createCacheWithFile("/test_file.txt");
-    new GfsCheckout(gfs).checkout(cache);
+    new GfsDefaultCheckout(gfs).checkout(cache);
     assertTrue(Files.exists(gfs.getPath("/test_file.txt")));
   }
 
@@ -31,7 +31,7 @@ public class GfsCheckoutCacheTest extends AbstractGitFileSystemTest {
   public void checkoutCacheWithNonConflictingFileInDirectory_theFileShouldExistAfterTheOperation() throws IOException {
     initGitFileSystem("/some_existing_file.txt");
     DirCache cache = createCacheWithFile("/dir/test_file.txt");
-    new GfsCheckout(gfs).checkout(cache);
+    new GfsDefaultCheckout(gfs).checkout(cache);
     assertTrue(Files.exists(gfs.getPath("/dir/test_file.txt")));
   }
 
@@ -46,7 +46,7 @@ public class GfsCheckoutCacheTest extends AbstractGitFileSystemTest {
     builder.add(someEntry("/test_file.txt", STAGE_3));
     builder.finish();
 
-    new GfsCheckout(gfs).checkout(cache);
+    new GfsDefaultCheckout(gfs).checkout(cache);
   }
 
   @Test
@@ -59,7 +59,7 @@ public class GfsCheckoutCacheTest extends AbstractGitFileSystemTest {
     builder.add(someEntry("/test_file2.txt"));
     builder.add(someEntry("/test_file3.txt"));
     builder.finish();
-    new GfsCheckout(gfs).ignoredFiles(singleton("/test_file2.txt")).checkout(cache);
+    new GfsDefaultCheckout(gfs).ignoredFiles(singleton("/test_file2.txt")).checkout(cache);
 
     assertTrue(Files.exists(gfs.getPath("/test_file1.txt")));
     assertFalse(Files.exists(gfs.getPath("/test_file2.txt")));
@@ -76,7 +76,7 @@ public class GfsCheckoutCacheTest extends AbstractGitFileSystemTest {
     builder.add(someEntry("/test_file.txt", STAGE_2));
     builder.add(someEntry("/test_file.txt", STAGE_3));
     builder.finish();
-    new GfsCheckout(gfs).ignoredFiles(singleton("/test_file.txt")).checkout(cache);
+    new GfsDefaultCheckout(gfs).ignoredFiles(singleton("/test_file.txt")).checkout(cache);
 
     assertFalse(Files.exists(gfs.getPath("/test_file.txt")));
   }

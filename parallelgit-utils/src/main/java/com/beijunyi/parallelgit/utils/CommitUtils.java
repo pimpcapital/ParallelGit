@@ -18,6 +18,8 @@ import org.eclipse.jgit.treewalk.filter.AndTreeFilter;
 import org.eclipse.jgit.treewalk.filter.PathFilterGroup;
 import org.eclipse.jgit.treewalk.filter.TreeFilter;
 
+import static org.eclipse.jgit.lib.Constants.OBJ_COMMIT;
+
 public final class CommitUtils {
 
   @Nonnull
@@ -59,7 +61,7 @@ public final class CommitUtils {
     if(obj == null)
       return false;
     try(RevWalk rw = new RevWalk(repo)) {
-      return rw.parseAny(obj).getType() == Constants.OBJ_COMMIT;
+      return rw.parseAny(obj).getType() == OBJ_COMMIT;
     }
   }
 

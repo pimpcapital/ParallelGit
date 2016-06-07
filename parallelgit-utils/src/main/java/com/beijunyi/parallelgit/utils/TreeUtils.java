@@ -12,6 +12,8 @@ import com.beijunyi.parallelgit.utils.io.TreeSnapshot;
 import org.eclipse.jgit.lib.*;
 import org.eclipse.jgit.treewalk.TreeWalk;
 
+import static org.eclipse.jgit.lib.Constants.*;
+
 public final class TreeUtils {
 
   @Nonnull
@@ -122,7 +124,7 @@ public final class TreeUtils {
   }
 
   public static boolean isBlob(TreeWalk treeWalk) {
-    return treeWalk.getFileMode(0).getObjectType() == Constants.OBJ_BLOB;
+    return treeWalk.getFileMode(0).getObjectType() == OBJ_BLOB;
   }
 
   public static boolean isFileOrSymbolicLink(String path, AnyObjectId tree, ObjectReader reader) throws IOException {
@@ -138,7 +140,7 @@ public final class TreeUtils {
   }
 
   public static boolean isTree(TreeWalk treeWalk) {
-    return treeWalk.getFileMode(0).getObjectType() == Constants.OBJ_TREE;
+    return treeWalk.getFileMode(0).getObjectType() == OBJ_TREE;
   }
 
   public static boolean isDirectory(String path, AnyObjectId tree, ObjectReader reader) throws IOException {

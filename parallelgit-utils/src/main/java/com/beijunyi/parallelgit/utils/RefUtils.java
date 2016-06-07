@@ -8,6 +8,8 @@ import javax.annotation.Nullable;
 
 import org.eclipse.jgit.lib.*;
 
+import static org.eclipse.jgit.lib.Constants.*;
+
 public final class RefUtils {
 
   private static boolean matchesPrefix(String name, String prefix) {
@@ -15,15 +17,15 @@ public final class RefUtils {
   }
 
   public static boolean matchesRefPrefix(String name) {
-    return matchesPrefix(name, Constants.R_REFS);
+    return matchesPrefix(name, R_REFS);
   }
 
   public static boolean matchesBranchRefPrefix(String name) {
-    return matchesPrefix(name, Constants.R_HEADS);
+    return matchesPrefix(name, R_HEADS);
   }
 
   public static boolean matchesTagRefPrefix(String name) {
-    return matchesPrefix(name, Constants.R_TAGS);
+    return matchesPrefix(name, R_TAGS);
   }
 
   public static boolean isBranchRef(Ref name) {
@@ -48,12 +50,12 @@ public final class RefUtils {
 
   @Nonnull
   public static String ensureBranchRefName(String name) {
-    return ensureRefPrefix(name, Constants.R_HEADS);
+    return ensureRefPrefix(name, R_HEADS);
   }
 
   @Nonnull
   public static String ensureTagRefName(String name) {
-    return ensureRefPrefix(name, Constants.R_TAGS);
+    return ensureRefPrefix(name, R_TAGS);
   }
 
   @Nullable

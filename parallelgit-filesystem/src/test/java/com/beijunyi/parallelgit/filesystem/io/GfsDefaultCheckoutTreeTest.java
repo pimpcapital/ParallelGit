@@ -46,14 +46,14 @@ import static org.junit.Assert.*;
  *    1-7       D        D        F        CONFLICT
  *    1-8       D        D        D      ENTER SUBTREE (GO TO TABLE 1)
  */
-public class GfsCheckoutTreeTest extends AbstractGitFileSystemTest {
+public class GfsDefaultCheckoutTreeTest extends AbstractGitFileSystemTest {
 
   @Test(expected = GfsCheckoutConflictException.class)
   public void case11_allTreesHaveDifferentFiles_shouldThrowGfsCheckoutConflictException() throws IOException {
     initGitFileSystem("/test_file.txt");
     clearWorktreeAndWrite("/test_file.txt", someBytes());
     AnyObjectId target = createTreeWithFile("/test_file.txt", someBytes());
-    new GfsCheckout(gfs).checkout(target);
+    new GfsDefaultCheckout(gfs).checkout(target);
   }
 
   @Test(expected = GfsCheckoutConflictException.class)
@@ -61,7 +61,7 @@ public class GfsCheckoutTreeTest extends AbstractGitFileSystemTest {
     initGitFileSystem("/test_target");
     clearWorktreeAndWrite("/test_target/some_file.txt", someBytes());
     AnyObjectId target = createTreeWithFile("/test_target", someBytes());
-    new GfsCheckout(gfs).checkout(target);
+    new GfsDefaultCheckout(gfs).checkout(target);
   }
 
   @Test(expected = GfsCheckoutConflictException.class)
@@ -69,7 +69,7 @@ public class GfsCheckoutTreeTest extends AbstractGitFileSystemTest {
     initGitFileSystem("/test_target");
     clearWorktreeAndWrite("/test_target", someBytes());
     AnyObjectId target = createTreeWithFile("/test_target/some_file.txt", someBytes());
-    new GfsCheckout(gfs).checkout(target);
+    new GfsDefaultCheckout(gfs).checkout(target);
   }
 
   @Test
@@ -77,7 +77,7 @@ public class GfsCheckoutTreeTest extends AbstractGitFileSystemTest {
     initGitFileSystem("/test_target");
     clearWorktreeAndWrite("/test_target/some_file1.txt", someBytes());
     AnyObjectId target = createTreeWithFile("/test_target/some_file2.txt", someBytes());
-    new GfsCheckout(gfs).checkout(target);
+    new GfsDefaultCheckout(gfs).checkout(target);
     assertTrue(Files.exists(gfs.getPath("/test_target/some_file1.txt")));
     assertTrue(Files.exists(gfs.getPath("/test_target/some_file2.txt")));
   }
@@ -87,7 +87,7 @@ public class GfsCheckoutTreeTest extends AbstractGitFileSystemTest {
     initGitFileSystem("/test_target/some_file.txt");
     clearWorktreeAndWrite("/test_target", someBytes());
     AnyObjectId target = createTreeWithFile("/test_target", someBytes());
-    new GfsCheckout(gfs).checkout(target);
+    new GfsDefaultCheckout(gfs).checkout(target);
   }
 
   @Test(expected = GfsCheckoutConflictException.class)
@@ -95,7 +95,7 @@ public class GfsCheckoutTreeTest extends AbstractGitFileSystemTest {
     initGitFileSystem("/test_target/some_file.txt");
     clearWorktreeAndWrite("/test_target", someBytes());
     AnyObjectId target = createTreeWithFile("/test_target/some_file.txt", someBytes());
-    new GfsCheckout(gfs).checkout(target);
+    new GfsDefaultCheckout(gfs).checkout(target);
   }
 
   @Test(expected = GfsCheckoutConflictException.class)
@@ -103,7 +103,7 @@ public class GfsCheckoutTreeTest extends AbstractGitFileSystemTest {
     initGitFileSystem("/test_target/some_file.txt");
     clearWorktreeAndWrite("/test_target/some_file.txt", someBytes());
     AnyObjectId target = createTreeWithFile("/test_target", someBytes());
-    new GfsCheckout(gfs).checkout(target);
+    new GfsDefaultCheckout(gfs).checkout(target);
   }
 
   @Test
@@ -111,7 +111,7 @@ public class GfsCheckoutTreeTest extends AbstractGitFileSystemTest {
     initGitFileSystem("/test_target/some_file1.txt");
     clearWorktreeAndWrite("/test_target/some_file2.txt", someBytes());
     AnyObjectId target = createTreeWithFile("/test_target/some_file3.txt", someBytes());
-    new GfsCheckout(gfs).checkout(target);
+    new GfsDefaultCheckout(gfs).checkout(target);
     assertFalse(Files.exists(gfs.getPath("/test_target/some_file1.txt")));
     assertTrue(Files.exists(gfs.getPath("/test_target/some_file2.txt")));
     assertTrue(Files.exists(gfs.getPath("/test_target/some_file3.txt")));
@@ -122,7 +122,7 @@ public class GfsCheckoutTreeTest extends AbstractGitFileSystemTest {
     initGitFileSystem("/test_file.txt");
     byte[] expected = someBytes();
     AnyObjectId target = createTreeWithFile("/test_file.txt", expected);
-    new GfsCheckout(gfs).checkout(target);
+    new GfsDefaultCheckout(gfs).checkout(target);
     assertArrayEquals(expected, Files.readAllBytes(gfs.getPath("/test_file.txt")));
   }
 
@@ -132,7 +132,7 @@ public class GfsCheckoutTreeTest extends AbstractGitFileSystemTest {
     byte[] expected = someBytes();
     clearWorktreeAndWrite("/test_file.txt", expected);
     AnyObjectId target = createTreeWithFile("/test_file.txt", expected);
-    new GfsCheckout(gfs).checkout(target);
+    new GfsDefaultCheckout(gfs).checkout(target);
     assertArrayEquals(expected, Files.readAllBytes(gfs.getPath("/test_file.txt")));
   }
 
@@ -148,7 +148,7 @@ public class GfsCheckoutTreeTest extends AbstractGitFileSystemTest {
     clearWorktreeAndWrite("/test_file.txt", expected);
     AnyObjectId target = createTreeWithFile("/test_file.txt", someBytes);
 
-    new GfsCheckout(gfs).checkout(target);
+    new GfsDefaultCheckout(gfs).checkout(target);
     assertArrayEquals(expected, Files.readAllBytes(gfs.getPath("/test_file.txt")));
   }
 
@@ -160,7 +160,7 @@ public class GfsCheckoutTreeTest extends AbstractGitFileSystemTest {
     commitToMaster();
     initGitFileSystem();
     AnyObjectId target = createTreeWithFile("/test_file.txt", expected);
-    new GfsCheckout(gfs).checkout(target);
+    new GfsDefaultCheckout(gfs).checkout(target);
     assertArrayEquals(expected, Files.readAllBytes(gfs.getPath("/test_file.txt")));
   }
 

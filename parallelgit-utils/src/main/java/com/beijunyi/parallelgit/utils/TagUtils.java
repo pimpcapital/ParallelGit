@@ -11,6 +11,8 @@ import org.eclipse.jgit.lib.*;
 import org.eclipse.jgit.revwalk.RevTag;
 import org.eclipse.jgit.revwalk.RevWalk;
 
+import static org.eclipse.jgit.lib.Constants.OBJ_COMMIT;
+
 public final class TagUtils {
 
   public static boolean tagExists(String name, Repository repo) throws IOException {
@@ -33,7 +35,7 @@ public final class TagUtils {
     builder.setTag(name);
     builder.setMessage(message);
     builder.setTagger(tagger);
-    builder.setObjectId(commit, Constants.OBJ_COMMIT);
+    builder.setObjectId(commit, OBJ_COMMIT);
     AnyObjectId tag;
     try(ObjectInserter inserter = repo.newObjectInserter()) {
       tag = inserter.insert(builder);

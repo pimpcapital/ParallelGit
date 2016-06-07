@@ -14,6 +14,7 @@ import org.eclipse.jgit.lib.*;
 
 import static com.beijunyi.parallelgit.utils.RefUtils.ensureBranchRefName;
 import static org.eclipse.jgit.lib.ConfigConstants.*;
+import static org.eclipse.jgit.lib.Constants.*;
 
 public final class RepositoryUtils {
 
@@ -21,7 +22,7 @@ public final class RepositoryUtils {
   public static Repository createRepository(File dir, boolean bare) throws IOException {
     Repository repo = new RepositoryBuilder()
                         .readEnvironment()
-                        .setGitDir(bare ? dir : new File(dir, Constants.DOT_GIT))
+                        .setGitDir(bare ? dir : new File(dir, DOT_GIT))
                         .build();
     repo.create(bare);
     return repo;
@@ -35,13 +36,13 @@ public final class RepositoryUtils {
   @Nonnull
   public static Repository openRepository(File dir, boolean bare) throws IOException {
     if(!bare)
-      return openRepository(new File(dir, Constants.DOT_GIT), true);
+      return openRepository(new File(dir, DOT_GIT), true);
     return new FileRepository(dir);
   }
 
   @Nonnull
   public static Repository openRepository(File dir) throws IOException {
-    return openRepository(dir, !new File(dir, Constants.DOT_GIT).exists());
+    return openRepository(dir, !new File(dir, DOT_GIT).exists());
   }
 
   public static void setDefaultCommitter(String name, String email, Repository repo) throws IOException {
@@ -88,7 +89,7 @@ public final class RepositoryUtils {
   public static void setRepositoryHead(Repository repo, String name) throws IOException {
     Ref ref = repo.getRef(name);
     if(ref != null) {
-      if(!ref.getName().startsWith(Constants.R_HEADS))
+      if(!ref.getName().startsWith(R_HEADS))
         detachRepositoryHead(repo, repo.resolve(name));
       else
         attachRepositoryHead(repo, ref);

@@ -15,7 +15,7 @@ import org.eclipse.jgit.treewalk.*;
 
 import static com.beijunyi.parallelgit.filesystem.utils.GfsPathUtils.toAbsolutePath;
 
-public class GfsCheckout {
+public class GfsDefaultCheckout {
 
   private static final int HEAD = 0;
   private static final int TARGET = 1;
@@ -28,19 +28,19 @@ public class GfsCheckout {
 
   private Set<String> ignoredFiles;
 
-  public GfsCheckout(GitFileSystem gfs, boolean failOnConflict) {
+  public GfsDefaultCheckout(GitFileSystem gfs, boolean failOnConflict) {
     this.gfs = gfs;
     this.status = gfs.getStatusProvider();
     this.reader = gfs.getRepository().newObjectReader();
     changes = new GfsCheckoutChangesCollector(failOnConflict);
   }
 
-  public GfsCheckout(GitFileSystem gfs) {
+  public GfsDefaultCheckout(GitFileSystem gfs) {
     this(gfs, true);
   }
 
   @Nonnull
-  public GfsCheckout ignoredFiles(Collection<String> ignoredFiles) {
+  public GfsDefaultCheckout ignoredFiles(Collection<String> ignoredFiles) {
     this.ignoredFiles = new HashSet<>(ignoredFiles);
     return this;
   }
