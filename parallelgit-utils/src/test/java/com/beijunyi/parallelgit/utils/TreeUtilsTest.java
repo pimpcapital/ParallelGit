@@ -19,20 +19,6 @@ public class TreeUtilsTest extends AbstractParallelGitTest {
   }
 
   @Test
-  public void newTreeWalkTest() throws IOException {
-    clearCache();
-    writeMultipleToCache("/a.txt", "/b.txt", "/c/d.txt", "/c/e.txt", "/f/g.txt");
-    RevTree tree = commitToMaster().getTree();
-    TreeWalk treeWalk = TreeUtils.newTreeWalk(tree, repo);
-
-    assertNextEntry(treeWalk, "a.txt");
-    assertNextEntry(treeWalk, "b.txt");
-    assertNextEntry(treeWalk, "c");
-    assertNextEntry(treeWalk, "f");
-    assertFalse(treeWalk.next());
-  }
-
-  @Test
   public void existsTest() throws IOException {
     writeToCache("a/b.txt");
     RevTree tree = commitToMaster().getTree();
