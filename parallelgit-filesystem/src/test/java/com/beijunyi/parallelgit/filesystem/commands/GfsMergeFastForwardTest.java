@@ -7,12 +7,12 @@ import com.beijunyi.parallelgit.filesystem.Gfs;
 import com.beijunyi.parallelgit.filesystem.GitFileSystem;
 import com.beijunyi.parallelgit.utils.BranchUtils;
 import org.eclipse.jgit.lib.AnyObjectId;
-import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
 
 import static com.beijunyi.parallelgit.filesystem.Gfs.merge;
 import static org.eclipse.jgit.api.MergeResult.MergeStatus.*;
+import static org.junit.Assert.*;
 
 public class GfsMergeFastForwardTest extends AbstractParallelGitTest {
 
@@ -34,7 +34,7 @@ public class GfsMergeFastForwardTest extends AbstractParallelGitTest {
   public void whenHeadIsBehindSourceBranch_theResultShouldBeFastForward() throws Exception {
     try(GitFileSystem gfs = Gfs.newFileSystem(OURS, repo)) {
       GfsMerge.Result result = merge(gfs).source(THEIRS).execute();
-      Assert.assertEquals(FAST_FORWARD, result.getStatus());
+      assertEquals(FAST_FORWARD, result.getStatus());
     }
   }
 
@@ -43,7 +43,7 @@ public class GfsMergeFastForwardTest extends AbstractParallelGitTest {
     try(GitFileSystem gfs = Gfs.newFileSystem(OURS, repo)) {
       Files.write(gfs.getPath("/some_file.txt"), someBytes());
       GfsMerge.Result result = merge(gfs).source(THEIRS).execute();
-      Assert.assertEquals(FAST_FORWARD, result.getStatus());
+      assertEquals(FAST_FORWARD, result.getStatus());
     }
   }
 
@@ -52,7 +52,7 @@ public class GfsMergeFastForwardTest extends AbstractParallelGitTest {
     try(GitFileSystem gfs = Gfs.newFileSystem(OURS, repo)) {
       Files.write(gfs.getPath("/test_file.txt"), someBytes());
       merge(gfs).source(THEIRS).execute();
-      Assert.assertTrue(Files.exists(gfs.getPath("/test_file.txt")));
+      assertTrue(Files.exists(gfs.getPath("/test_file.txt")));
     }
   }
 
@@ -61,7 +61,7 @@ public class GfsMergeFastForwardTest extends AbstractParallelGitTest {
     try(GitFileSystem gfs = Gfs.newFileSystem(OURS, repo)) {
       Files.write(gfs.getPath("/their_file.txt"), someBytes());
       GfsMerge.Result result = merge(gfs).source(THEIRS).execute();
-      Assert.assertEquals(CHECKOUT_CONFLICT, result.getStatus());
+      assertEquals(CHECKOUT_CONFLICT, result.getStatus());
 
     }
   }

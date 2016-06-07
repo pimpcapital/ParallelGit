@@ -11,7 +11,6 @@ import com.beijunyi.parallelgit.utils.TreeUtils;
 import org.eclipse.jgit.lib.FileMode;
 import org.eclipse.jgit.treewalk.TreeWalk;
 import org.eclipse.jgit.treewalk.filter.PathFilter;
-import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
 
@@ -100,7 +99,7 @@ public class GfsTreeWalkTest extends AbstractGitFileSystemTest {
   }
 
   private void assertWalk(TreeWalk tw, String... expected) throws IOException {
-    Assert.assertArrayEquals(expected, toArrayWithLeadingSlash(tw));
+    assertArrayEquals(expected, toArrayWithLeadingSlash(tw));
   }
 
   @Nonnull

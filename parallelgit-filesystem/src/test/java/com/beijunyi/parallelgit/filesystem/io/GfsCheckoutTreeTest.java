@@ -14,10 +14,9 @@ import org.eclipse.jgit.dircache.DirCache;
 import org.eclipse.jgit.lib.AnyObjectId;
 import org.eclipse.jgit.lib.FileMode;
 import org.eclipse.jgit.lib.ObjectId;
-import org.junit.Assert;
 import org.junit.Test;
 
-import static org.junit.Assert.assertArrayEquals;
+import static org.junit.Assert.*;
 
 /**
  * Scenarios:
@@ -79,8 +78,8 @@ public class GfsCheckoutTreeTest extends AbstractGitFileSystemTest {
     clearWorktreeAndWrite("/test_target/some_file1.txt", someBytes());
     AnyObjectId target = createTreeWithFile("/test_target/some_file2.txt", someBytes());
     new GfsCheckout(gfs).checkout(target);
-    Assert.assertTrue(Files.exists(gfs.getPath("/test_target/some_file1.txt")));
-    Assert.assertTrue(Files.exists(gfs.getPath("/test_target/some_file2.txt")));
+    assertTrue(Files.exists(gfs.getPath("/test_target/some_file1.txt")));
+    assertTrue(Files.exists(gfs.getPath("/test_target/some_file2.txt")));
   }
 
   @Test(expected = GfsCheckoutConflictException.class)
@@ -113,9 +112,9 @@ public class GfsCheckoutTreeTest extends AbstractGitFileSystemTest {
     clearWorktreeAndWrite("/test_target/some_file2.txt", someBytes());
     AnyObjectId target = createTreeWithFile("/test_target/some_file3.txt", someBytes());
     new GfsCheckout(gfs).checkout(target);
-    Assert.assertFalse(Files.exists(gfs.getPath("/test_target/some_file1.txt")));
-    Assert.assertTrue(Files.exists(gfs.getPath("/test_target/some_file2.txt")));
-    Assert.assertTrue(Files.exists(gfs.getPath("/test_target/some_file3.txt")));
+    assertFalse(Files.exists(gfs.getPath("/test_target/some_file1.txt")));
+    assertTrue(Files.exists(gfs.getPath("/test_target/some_file2.txt")));
+    assertTrue(Files.exists(gfs.getPath("/test_target/some_file3.txt")));
   }
 
   @Test

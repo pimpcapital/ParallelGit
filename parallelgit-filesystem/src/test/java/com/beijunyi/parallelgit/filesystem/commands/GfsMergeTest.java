@@ -7,7 +7,6 @@ import javax.annotation.Nonnull;
 import com.beijunyi.parallelgit.AbstractParallelGitTest;
 import com.beijunyi.parallelgit.filesystem.GitFileSystem;
 import org.eclipse.jgit.lib.AnyObjectId;
-import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
 
@@ -15,6 +14,7 @@ import static com.beijunyi.parallelgit.filesystem.Gfs.*;
 import static com.beijunyi.parallelgit.filesystem.commands.GfsMerge.Result;
 import static com.beijunyi.parallelgit.utils.BranchUtils.createBranch;
 import static org.eclipse.jgit.api.MergeResult.MergeStatus.*;
+import static org.junit.Assert.*;
 
 public class GfsMergeTest extends AbstractParallelGitTest {
 
@@ -28,7 +28,7 @@ public class GfsMergeTest extends AbstractParallelGitTest {
     AnyObjectId parentCommit = commit();
     prepareBranches(parentCommit, commit(parentCommit));
     Result result = mergeBranches();
-    Assert.assertEquals(FAST_FORWARD, result.getStatus());
+    assertEquals(FAST_FORWARD, result.getStatus());
   }
 
   @Test
@@ -40,7 +40,7 @@ public class GfsMergeTest extends AbstractParallelGitTest {
       Files.write(gfs.getPath("/some_file.txt"), someBytes());
       result = merge(gfs).source("theirs").execute();
     }
-    Assert.assertEquals(FAST_FORWARD, result.getStatus());
+    assertEquals(FAST_FORWARD, result.getStatus());
   }
 
   @Test
@@ -50,7 +50,7 @@ public class GfsMergeTest extends AbstractParallelGitTest {
     try(GitFileSystem gfs = prepareFileSystem()) {
       Files.write(gfs.getPath("/test_file.txt"), someBytes());
       merge(gfs).source("theirs").execute();
-      Assert.assertTrue(Files.exists(gfs.getPath("/test_file.txt")));
+      assertTrue(Files.exists(gfs.getPath("/test_file.txt")));
     }
   }
 
@@ -62,7 +62,7 @@ public class GfsMergeTest extends AbstractParallelGitTest {
     AnyObjectId theirs = commit(base);
     prepareBranches(ours, theirs);
     Result result = mergeBranches();
-    Assert.assertEquals(MERGED, result.getStatus());
+    assertEquals(MERGED, result.getStatus());
   }
 
   @Test
@@ -74,7 +74,7 @@ public class GfsMergeTest extends AbstractParallelGitTest {
     prepareBranches(ours, theirs);
     try(GitFileSystem gfs = prepareFileSystem()) {
       merge(gfs).source("theirs").execute();
-      Assert.assertTrue(Files.exists(gfs.getPath("/test_file.txt")));
+      assertTrue(Files.exists(gfs.getPath("/test_file.txt")));
     }
   }
 
@@ -90,7 +90,7 @@ public class GfsMergeTest extends AbstractParallelGitTest {
     AnyObjectId theirs = commit(base);
     prepareBranches(ours, theirs);
     Result result = mergeBranches();
-    Assert.assertEquals(MERGED, result.getStatus());
+    assertEquals(MERGED, result.getStatus());
   }
 
   @Test
@@ -106,7 +106,7 @@ public class GfsMergeTest extends AbstractParallelGitTest {
     prepareBranches(ours, theirs);
     try(GitFileSystem gfs = prepareFileSystem()) {
       merge(gfs).source("theirs").execute();
-      Assert.assertArrayEquals("a\nB\nc\nD\nd\ne".getBytes(), Files.readAllBytes(gfs.getPath("/test_file.txt")));
+      assertArrayEquals("a\nB\nc\nD\nd\ne".getBytes(), Files.readAllBytes(gfs.getPath("/test_file.txt")));
     }
   }
 
@@ -122,7 +122,7 @@ public class GfsMergeTest extends AbstractParallelGitTest {
     AnyObjectId theirs = commit(base);
     prepareBranches(ours, theirs);
     Result result = mergeBranches();
-    Assert.assertEquals(CONFLICTING, result.getStatus());
+    assertEquals(CONFLICTING, result.getStatus());
   }
 
   @Test
@@ -138,7 +138,7 @@ public class GfsMergeTest extends AbstractParallelGitTest {
     prepareBranches(ours, theirs);
     try(GitFileSystem gfs = prepareFileSystem()) {
       merge(gfs).source("theirs").execute();
-      Assert.assertArrayEquals(("<<<<<<< refs/heads/theirs\n" +
+      assertArrayEquals(("<<<<<<< refs/heads/theirs\n" +
                                  "other stuff\n" +
                                  "=======\n" +
                                  "completely different stuff\n" +

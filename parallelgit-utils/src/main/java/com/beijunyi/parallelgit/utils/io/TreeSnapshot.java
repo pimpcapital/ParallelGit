@@ -11,6 +11,8 @@ import com.beijunyi.parallelgit.utils.TreeUtils;
 import org.eclipse.jgit.lib.*;
 import org.eclipse.jgit.treewalk.TreeWalk;
 
+import static org.eclipse.jgit.lib.Constants.OBJ_TREE;
+
 public class TreeSnapshot extends ObjectSnapshot<SortedMap<String, GitFileEntry>> {
 
   private TreeSnapshot(ObjectId id, SortedMap<String, GitFileEntry> data) {
@@ -55,7 +57,7 @@ public class TreeSnapshot extends ObjectSnapshot<SortedMap<String, GitFileEntry>
 
   @Nonnull
   private static ObjectId computeTreeId(SortedMap<String, GitFileEntry> data) {
-    return new ObjectInserter.Formatter().idFor(Constants.OBJ_TREE, format(data).toByteArray());
+    return new ObjectInserter.Formatter().idFor(OBJ_TREE, format(data).toByteArray());
   }
 
 }

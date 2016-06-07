@@ -7,12 +7,12 @@ import com.beijunyi.parallelgit.filesystem.Gfs;
 import com.beijunyi.parallelgit.filesystem.GitFileSystem;
 import com.beijunyi.parallelgit.utils.BranchUtils;
 import org.eclipse.jgit.lib.AnyObjectId;
-import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
 
 import static com.beijunyi.parallelgit.filesystem.Gfs.merge;
 import static org.eclipse.jgit.api.MergeResult.MergeStatus.ALREADY_UP_TO_DATE;
+import static org.junit.Assert.*;
 
 public class GfsMergeUpToDateTest extends AbstractParallelGitTest {
 
@@ -33,7 +33,7 @@ public class GfsMergeUpToDateTest extends AbstractParallelGitTest {
   public void whenHeadIsAheadOfSourceBranch_theResultShouldBeAlreadyUpToDate() throws Exception {
     try(GitFileSystem gfs = Gfs.newFileSystem(OURS, repo)) {
       GfsMerge.Result result = merge(gfs).source(THEIRS).execute();
-      Assert.assertEquals(ALREADY_UP_TO_DATE, result.getStatus());
+      assertEquals(ALREADY_UP_TO_DATE, result.getStatus());
     }
   }
 
@@ -42,7 +42,7 @@ public class GfsMergeUpToDateTest extends AbstractParallelGitTest {
     try(GitFileSystem gfs = Gfs.newFileSystem(OURS, repo)) {
       Files.write(gfs.getPath("/some_file.txt"), someBytes());
       GfsMerge.Result result = merge(gfs).source(THEIRS).execute();
-      Assert.assertEquals(ALREADY_UP_TO_DATE, result.getStatus());
+      assertEquals(ALREADY_UP_TO_DATE, result.getStatus());
     }
   }
 
@@ -51,7 +51,7 @@ public class GfsMergeUpToDateTest extends AbstractParallelGitTest {
     try(GitFileSystem gfs = Gfs.newFileSystem(OURS, repo)) {
       Files.write(gfs.getPath("/test_file.txt"), someBytes());
       merge(gfs).source(THEIRS).execute();
-      Assert.assertTrue(Files.exists(gfs.getPath("/test_file.txt")));
+      assertTrue(Files.exists(gfs.getPath("/test_file.txt")));
     }
   }
 

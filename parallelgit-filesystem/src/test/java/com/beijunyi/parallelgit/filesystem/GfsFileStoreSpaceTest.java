@@ -4,7 +4,7 @@ import java.io.IOException;
 
 import org.junit.Test;
 
-import static org.junit.Assert.assertEquals;
+import static junit.framework.TestCase.assertEquals;
 
 public class GfsFileStoreSpaceTest extends PreSetupGitFileSystemTest {
 

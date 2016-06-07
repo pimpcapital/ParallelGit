@@ -17,8 +17,9 @@ import org.eclipse.jgit.lib.*;
 import org.eclipse.jgit.revwalk.RevCommit;
 import org.eclipse.jgit.util.FileUtils;
 import org.junit.After;
-import org.junit.Assert;
 import org.junit.Before;
+
+import static org.junit.Assert.*;
 
 public abstract class AbstractParallelGitTest {
 
@@ -243,19 +244,19 @@ public abstract class AbstractParallelGitTest {
     int actualSize = actual.getEntryCount();
     int expectedSize = expected.getEntryCount();
     if(actualSize != expectedSize)
-      Assert.fail(header + "cache sizes differed, expected.size=" + expectedSize + " actual.size=" + actualSize);
+      fail(header + "cache sizes differed, expected.size=" + expectedSize + " actual.size=" + actualSize);
     return expectedSize;
   }
 
   private static void assertCacheEntryEquals(DirCacheEntry expected, DirCacheEntry actual, String header, int index) {
     try {
-      Assert.assertEquals("fileMode", expected.getFileMode(), actual.getFileMode());
-      Assert.assertEquals("length", expected.getLength(), actual.getLength());
-      Assert.assertEquals("objectId", expected.getObjectId(), actual.getObjectId());
-      Assert.assertEquals("stage", expected.getStage(), actual.getStage());
-      Assert.assertEquals("path", expected.getPathString(), actual.getPathString());
+      assertEquals("fileMode", expected.getFileMode(), actual.getFileMode());
+      assertEquals("length", expected.getLength(), actual.getLength());
+      assertEquals("objectId", expected.getObjectId(), actual.getObjectId());
+      assertEquals("stage", expected.getStage(), actual.getStage());
+      assertEquals("path", expected.getPathString(), actual.getPathString());
     } catch(AssertionError e) {
-      Assert.fail(header + "caches first differed at entry [" + index + "]; " + e.getMessage());
+      fail(header + "caches first differed at entry [" + index + "]; " + e.getMessage());
     }
   }
 

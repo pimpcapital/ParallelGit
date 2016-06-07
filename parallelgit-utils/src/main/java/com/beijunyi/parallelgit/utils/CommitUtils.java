@@ -100,7 +100,7 @@ public final class CommitUtils {
   }
 
   @Nonnull
-  public static RevCommit getFileLastChangeCommit(String file, AnyObjectId start, ObjectReader reader) throws IOException {
+  public static RevCommit getLatestFileRevision(String file, AnyObjectId start, ObjectReader reader) throws IOException {
     List<RevCommit> commits = getFileRevisions(file, start, 0, 1, reader);
     if(commits.isEmpty())
       throw new NoSuchFileException(file);
@@ -108,9 +108,9 @@ public final class CommitUtils {
   }
 
   @Nonnull
-  public static RevCommit getFileLastChangeCommit(String file, AnyObjectId start, Repository repo) throws IOException {
+  public static RevCommit getLatestFileRevision(String file, AnyObjectId start, Repository repo) throws IOException {
     try(ObjectReader reader = repo.newObjectReader()) {
-      return getFileLastChangeCommit(file, start, reader);
+      return getLatestFileRevision(file, start, reader);
     }
   }
 

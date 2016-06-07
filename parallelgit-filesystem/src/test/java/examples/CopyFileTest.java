@@ -31,7 +31,7 @@ public class CopyFileTest extends AbstractParallelGitTest {
 
   @Test
   public void copyFileWithinSameFileSystem() throws IOException {
-    try(GitFileSystem gfs = Gfs.newFileSystem("my_branch", repo)) {             // open git file system
+    try(GitFileSystem gfs = Gfs.newFileSystem("my_branch", repo)) {                      // open git file system
       Path exampleFile = gfs.getPath("/example.txt");                                    // convert string to nio path
       Path dest = gfs.getPath("/dest_file.txt");                                         // get the path of the dest file
       Files.copy(exampleFile, dest);                                                     // copy file

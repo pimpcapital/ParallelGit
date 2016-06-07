@@ -5,9 +5,10 @@ import java.io.IOException;
 import com.beijunyi.parallelgit.AbstractParallelGitTest;
 import com.beijunyi.parallelgit.utils.exceptions.NoSuchBranchException;
 import org.eclipse.jgit.lib.AnyObjectId;
-import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
+
+import static org.junit.Assert.*;
 
 public class BranchUtilsDeleteBranchTest extends AbstractParallelGitTest {
 
@@ -21,7 +22,7 @@ public class BranchUtilsDeleteBranchTest extends AbstractParallelGitTest {
     writeSomethingToCache();
     commitToBranch("test_branch");
     BranchUtils.deleteBranch("test_branch", repo);
-    Assert.assertNull(repo.getRef("test_branch"));
+    assertNull(repo.getRef("test_branch"));
   }
 
   @Test
@@ -29,7 +30,7 @@ public class BranchUtilsDeleteBranchTest extends AbstractParallelGitTest {
     writeSomethingToCache();
     commitToBranch("test_branch");
     BranchUtils.deleteBranch("refs/heads/test_branch", repo);
-    Assert.assertNull(repo.getRef("test_branch"));
+    assertNull(repo.getRef("test_branch"));
   }
 
   @Test
@@ -38,7 +39,7 @@ public class BranchUtilsDeleteBranchTest extends AbstractParallelGitTest {
     commitToBranch("test_branch");
     RepositoryUtils.setRepositoryHead(repo, "test_branch");
     BranchUtils.deleteBranch("refs/heads/test_branch", repo);
-    Assert.assertNull(repo.getRef("test_branch"));
+    assertNull(repo.getRef("test_branch"));
   }
 
   @Test
@@ -47,7 +48,7 @@ public class BranchUtilsDeleteBranchTest extends AbstractParallelGitTest {
     AnyObjectId headCommit = commitToBranch("test_branch");
     RepositoryUtils.setRepositoryHead(repo, "test_branch");
     BranchUtils.deleteBranch("refs/heads/test_branch", repo);
-    Assert.assertEquals(headCommit.name(), repo.getBranch());
+    assertEquals(headCommit.name(), repo.getBranch());
   }
 
   @Test(expected = NoSuchBranchException.class)
@@ -59,7 +60,7 @@ public class BranchUtilsDeleteBranchTest extends AbstractParallelGitTest {
   public void deleteOrphanBranch_orphanBranchShouldNotBeAffected() throws IOException {
     RepositoryUtils.setRepositoryHead(repo, "orphan_branch");
     BranchUtils.deleteBranch("orphan_branch", repo);
-    Assert.assertEquals("orphan_branch", repo.getBranch());
+    assertEquals("orphan_branch", repo.getBranch());
   }
 
 

@@ -5,9 +5,10 @@ import java.io.IOException;
 import com.beijunyi.parallelgit.AbstractParallelGitTest;
 import org.eclipse.jgit.lib.PersonIdent;
 import org.eclipse.jgit.revwalk.RevTag;
-import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
+
+import static org.junit.Assert.*;
 
 public class TagUtilsGetTagTest extends AbstractParallelGitTest {
 
@@ -20,7 +21,7 @@ public class TagUtilsGetTagTest extends AbstractParallelGitTest {
   public void getTagWhenTagExists_theResultShouldBeNotNull() throws IOException {
     writeSomethingToCache();
     TagUtils.tagCommit("test_tag", commitToMaster(), repo);
-    Assert.assertNotNull(TagUtils.getTag("test_tag", repo));
+    assertNotNull(TagUtils.getTag("test_tag", repo));
   }
 
   @Test
@@ -29,7 +30,7 @@ public class TagUtilsGetTagTest extends AbstractParallelGitTest {
     TagUtils.tagCommit("test_tag", commitToMaster(), repo);
     RevTag tag = TagUtils.getTag("test_tag", repo);
     assert tag != null;
-    Assert.assertEquals("test_tag",tag.getTagName());
+    assertEquals("test_tag",tag.getTagName());
   }
 
   @Test
@@ -38,7 +39,7 @@ public class TagUtilsGetTagTest extends AbstractParallelGitTest {
     TagUtils.tagCommit("test_tag", commitToMaster(), "test message", repo);
     RevTag tag = TagUtils.getTag("test_tag", repo);
     assert tag != null;
-    Assert.assertEquals("test message", tag.getFullMessage());
+    assertEquals("test message", tag.getFullMessage());
   }
 
   @Test
@@ -48,12 +49,12 @@ public class TagUtilsGetTagTest extends AbstractParallelGitTest {
     TagUtils.tagCommit("test_tag", commitToMaster(), "test message", tagger, repo);
     RevTag tag = TagUtils.getTag("test_tag", repo);
     assert tag != null;
-    Assert.assertEquals(tagger, tag.getTaggerIdent());
+    assertEquals(tagger, tag.getTaggerIdent());
   }
 
   @Test
   public void getTagWhenTagDoesNotExist_theResultShouldBeNull() throws IOException {
-    Assert.assertNull(TagUtils.getTag("non_existent_tag", repo));
+    assertNull(TagUtils.getTag("non_existent_tag", repo));
   }
 
 }

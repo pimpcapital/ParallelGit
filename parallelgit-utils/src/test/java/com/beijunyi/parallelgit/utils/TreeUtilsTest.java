@@ -6,15 +6,16 @@ import com.beijunyi.parallelgit.AbstractParallelGitTest;
 import org.eclipse.jgit.lib.AnyObjectId;
 import org.eclipse.jgit.revwalk.RevTree;
 import org.eclipse.jgit.treewalk.TreeWalk;
-import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
+
+import static org.junit.Assert.*;
 
 public class TreeUtilsTest extends AbstractParallelGitTest {
 
   private static void assertNextEntry(TreeWalk treeWalk, String path) throws IOException {
-    Assert.assertTrue(treeWalk.next());
-    Assert.assertEquals(path, treeWalk.getPathString());
+    assertTrue(treeWalk.next());
+    assertEquals(path, treeWalk.getPathString());
   }
 
   @Before
@@ -33,40 +34,40 @@ public class TreeUtilsTest extends AbstractParallelGitTest {
     assertNextEntry(treeWalk, "b.txt");
     assertNextEntry(treeWalk, "c");
     assertNextEntry(treeWalk, "f");
-    Assert.assertFalse(treeWalk.next());
+    assertFalse(treeWalk.next());
   }
 
   @Test
   public void existsTest() throws IOException {
     writeToCache("a/b.txt");
     RevTree tree = commitToMaster().getTree();
-    Assert.assertTrue(TreeUtils.exists("a", tree, repo));
-    Assert.assertTrue(TreeUtils.exists("a/b.txt", tree, repo));
-    Assert.assertFalse(TreeUtils.exists("a/b", tree, repo));
+    assertTrue(TreeUtils.exists("a", tree, repo));
+    assertTrue(TreeUtils.exists("a/b.txt", tree, repo));
+    assertFalse(TreeUtils.exists("a/b", tree, repo));
   }
 
   @Test
   public void getObjectTest() throws IOException {
     AnyObjectId objectId = writeToCache("a/b.txt");
     RevTree tree = commitToMaster().getTree();
-    Assert.assertEquals(objectId, TreeUtils.getObjectId("a/b.txt", tree, repo));
+    assertEquals(objectId, TreeUtils.getObjectId("a/b.txt", tree, repo));
   }
 
   @Test
   public void isBlobTest() throws IOException {
     writeToCache("a/b.txt");
     RevTree tree = commitToMaster().getTree();
-    Assert.assertFalse(TreeUtils.isFileOrSymbolicLink("a", tree, repo));
-    Assert.assertTrue(TreeUtils.isFileOrSymbolicLink("a/b.txt", tree, repo));
-    Assert.assertFalse(TreeUtils.isFileOrSymbolicLink("a/b", tree, repo));
+    assertFalse(TreeUtils.isFileOrSymbolicLink("a", tree, repo));
+    assertTrue(TreeUtils.isFileOrSymbolicLink("a/b.txt", tree, repo));
+    assertFalse(TreeUtils.isFileOrSymbolicLink("a/b", tree, repo));
   }
 
   @Test
   public void isTreeTest() throws IOException {
     writeToCache("a/b.txt");
     RevTree tree = commitToMaster().getTree();
-    Assert.assertTrue(TreeUtils.isDirectory("a", tree, repo));
-    Assert.assertFalse(TreeUtils.isDirectory("a/b.txt", tree, repo));
-    Assert.assertFalse(TreeUtils.isDirectory("a/b", tree, repo));
+    assertTrue(TreeUtils.isDirectory("a", tree, repo));
+    assertFalse(TreeUtils.isDirectory("a/b.txt", tree, repo));
+    assertFalse(TreeUtils.isDirectory("a/b", tree, repo));
   }
 }

@@ -106,7 +106,7 @@ public class DirectoryNode extends Node<TreeSnapshot, Map<String, Node>> {
     for(Map.Entry<String, Node> child : data.entrySet()) {
       Node node = child.getValue();
       ObjectId id = node.getObjectId(persist);
-      if(!ObjectUtils.isZeroId(id))
+      if(!ObjectUtils.isTrivial(id))
         entries.put(child.getKey(), new GitFileEntry(id, node.getMode()));
     }
     return TreeSnapshot.capture(entries);

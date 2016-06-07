@@ -6,9 +6,10 @@ import com.beijunyi.parallelgit.AbstractParallelGitTest;
 import org.eclipse.jgit.lib.AnyObjectId;
 import org.eclipse.jgit.lib.ReflogEntry;
 import org.eclipse.jgit.revwalk.RevCommit;
-import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
+
+import static org.junit.Assert.assertTrue;
 
 public class BranchUtilsCreateBranchRefLogTest extends AbstractParallelGitTest {
 
@@ -24,7 +25,7 @@ public class BranchUtilsCreateBranchRefLogTest extends AbstractParallelGitTest {
     BranchUtils.createBranch("test_branch", commit.getName(), repo);
     ReflogEntry lastRefLog = BranchUtils.getLastLog("test_branch", repo);
     assert lastRefLog != null;
-    Assert.assertTrue(lastRefLog.getComment().startsWith("branch: Created from commit"));
+    assertTrue(lastRefLog.getComment().startsWith("branch: Created from commit"));
   }
 
   @Test
@@ -34,7 +35,7 @@ public class BranchUtilsCreateBranchRefLogTest extends AbstractParallelGitTest {
     BranchUtils.createBranch("test_branch", commit, repo);
     ReflogEntry lastRefLog = BranchUtils.getLastLog("test_branch", repo);
     assert lastRefLog != null;
-    Assert.assertTrue(lastRefLog.getComment().startsWith("branch: Created from commit"));
+    assertTrue(lastRefLog.getComment().startsWith("branch: Created from commit"));
   }
 
   @Test
@@ -44,7 +45,7 @@ public class BranchUtilsCreateBranchRefLogTest extends AbstractParallelGitTest {
     BranchUtils.createBranch("test_branch", commit, repo);
     ReflogEntry lastRefLog = BranchUtils.getLastLog("test_branch", repo);
     assert lastRefLog != null;
-    Assert.assertTrue(lastRefLog.getComment().startsWith("branch: Created from commit"));
+    assertTrue(lastRefLog.getComment().startsWith("branch: Created from commit"));
   }
 
   @Test
@@ -54,7 +55,7 @@ public class BranchUtilsCreateBranchRefLogTest extends AbstractParallelGitTest {
     BranchUtils.createBranch("test_branch", repo.getRef("source_branch"), repo);
     ReflogEntry lastRefLog = BranchUtils.getLastLog("test_branch", repo);
     assert lastRefLog != null;
-    Assert.assertTrue(lastRefLog.getComment().startsWith("branch: Created from branch"));
+    assertTrue(lastRefLog.getComment().startsWith("branch: Created from branch"));
   }
 
   @Test
@@ -64,7 +65,7 @@ public class BranchUtilsCreateBranchRefLogTest extends AbstractParallelGitTest {
     BranchUtils.createBranch("test_branch", "source_branch", repo);
     ReflogEntry lastRefLog = BranchUtils.getLastLog("test_branch", repo);
     assert lastRefLog != null;
-    Assert.assertTrue(lastRefLog.getComment().startsWith("branch: Created from branch"));
+    assertTrue(lastRefLog.getComment().startsWith("branch: Created from branch"));
   }
 
   @Test
@@ -74,7 +75,7 @@ public class BranchUtilsCreateBranchRefLogTest extends AbstractParallelGitTest {
     BranchUtils.createBranch("test_branch", repo.getRef("source_tag"), repo);
     ReflogEntry lastRefLog = BranchUtils.getLastLog("test_branch", repo);
     assert lastRefLog != null;
-    Assert.assertTrue(lastRefLog.getComment().startsWith("branch: Created from tag"));
+    assertTrue(lastRefLog.getComment().startsWith("branch: Created from tag"));
   }
 
   @Test
@@ -84,7 +85,7 @@ public class BranchUtilsCreateBranchRefLogTest extends AbstractParallelGitTest {
     BranchUtils.createBranch("test_branch", "source_tag", repo);
     ReflogEntry lastRefLog = BranchUtils.getLastLog("test_branch", repo);
     assert lastRefLog != null;
-    Assert.assertTrue(lastRefLog.getComment().startsWith("branch: Created from tag"));
+    assertTrue(lastRefLog.getComment().startsWith("branch: Created from tag"));
   }
 
   @Test
@@ -94,7 +95,7 @@ public class BranchUtilsCreateBranchRefLogTest extends AbstractParallelGitTest {
     BranchUtils.createBranch("test_branch", repo.resolve("source_tag"), repo);
     ReflogEntry lastRefLog = BranchUtils.getLastLog("test_branch", repo);
     assert lastRefLog != null;
-    Assert.assertTrue(lastRefLog.getComment().startsWith("branch: Created from tag"));
+    assertTrue(lastRefLog.getComment().startsWith("branch: Created from tag"));
   }
 
 }

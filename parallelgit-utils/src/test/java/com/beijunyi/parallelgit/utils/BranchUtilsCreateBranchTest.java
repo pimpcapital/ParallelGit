@@ -7,9 +7,10 @@ import com.beijunyi.parallelgit.utils.exceptions.BranchAlreadyExistsException;
 import com.beijunyi.parallelgit.utils.exceptions.NoSuchCommitException;
 import org.eclipse.jgit.lib.AnyObjectId;
 import org.eclipse.jgit.revwalk.RevCommit;
-import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
+
+import static org.junit.Assert.*;
 
 public class BranchUtilsCreateBranchTest extends AbstractParallelGitTest {
 
@@ -23,7 +24,7 @@ public class BranchUtilsCreateBranchTest extends AbstractParallelGitTest {
     writeSomethingToCache();
     AnyObjectId commit = commitToMaster();
     BranchUtils.createBranch("test_branch", commit.getName(), repo);
-    Assert.assertTrue(BranchUtils.branchExists("test_branch", repo));
+    assertTrue(BranchUtils.branchExists("test_branch", repo));
   }
 
   @Test
@@ -31,7 +32,7 @@ public class BranchUtilsCreateBranchTest extends AbstractParallelGitTest {
     writeSomethingToCache();
     AnyObjectId commit = commitToMaster();
     BranchUtils.createBranch("test_branch", commit, repo);
-    Assert.assertEquals(commit, BranchUtils.getHeadCommit("test_branch", repo));
+    assertEquals(commit, BranchUtils.getHeadCommit("test_branch", repo));
   }
 
   @Test
@@ -39,7 +40,7 @@ public class BranchUtilsCreateBranchTest extends AbstractParallelGitTest {
     writeSomethingToCache();
     AnyObjectId commit = commitToMaster();
     BranchUtils.createBranch("test_branch", commit.getName(), repo);
-    Assert.assertEquals(commit, BranchUtils.getHeadCommit("test_branch", repo));
+    assertEquals(commit, BranchUtils.getHeadCommit("test_branch", repo));
   }
 
   @Test
@@ -47,7 +48,7 @@ public class BranchUtilsCreateBranchTest extends AbstractParallelGitTest {
     writeSomethingToCache();
     RevCommit commit = commitToMaster();
     BranchUtils.createBranch("test_branch", commit, repo);
-    Assert.assertEquals(commit, BranchUtils.getHeadCommit("test_branch", repo));
+    assertEquals(commit, BranchUtils.getHeadCommit("test_branch", repo));
   }
 
   @Test
@@ -55,7 +56,7 @@ public class BranchUtilsCreateBranchTest extends AbstractParallelGitTest {
     writeSomethingToCache();
     commitToBranch("source_branch");
     BranchUtils.createBranch("test_branch", repo.getRef("source_branch"), repo);
-    Assert.assertEquals(BranchUtils.getHeadCommit("source_branch", repo), BranchUtils.getHeadCommit("test_branch", repo));
+    assertEquals(BranchUtils.getHeadCommit("source_branch", repo), BranchUtils.getHeadCommit("test_branch", repo));
   }
 
   @Test
@@ -63,7 +64,7 @@ public class BranchUtilsCreateBranchTest extends AbstractParallelGitTest {
     writeSomethingToCache();
     commitToBranch("source_branch");
     BranchUtils.createBranch("test_branch", "source_branch", repo);
-    Assert.assertEquals(BranchUtils.getHeadCommit("source_branch", repo), BranchUtils.getHeadCommit("test_branch", repo));
+    assertEquals(BranchUtils.getHeadCommit("source_branch", repo), BranchUtils.getHeadCommit("test_branch", repo));
   }
 
   @Test
@@ -71,7 +72,7 @@ public class BranchUtilsCreateBranchTest extends AbstractParallelGitTest {
     writeSomethingToCache();
     TagUtils.tagCommit("source_tag", commitToMaster(), repo);
     BranchUtils.createBranch("test_branch", repo.getRef("source_tag"), repo);
-    Assert.assertEquals(TagUtils.getTaggedCommit("source_tag", repo), BranchUtils.getHeadCommit("test_branch", repo));
+    assertEquals(TagUtils.getTaggedCommit("source_tag", repo), BranchUtils.getHeadCommit("test_branch", repo));
   }
 
   @Test
@@ -79,7 +80,7 @@ public class BranchUtilsCreateBranchTest extends AbstractParallelGitTest {
     writeSomethingToCache();
     TagUtils.tagCommit("source_tag", commitToMaster(), repo);
     BranchUtils.createBranch("test_branch", "source_tag", repo);
-    Assert.assertEquals(TagUtils.getTaggedCommit("source_tag", repo), BranchUtils.getHeadCommit("test_branch", repo));
+    assertEquals(TagUtils.getTaggedCommit("source_tag", repo), BranchUtils.getHeadCommit("test_branch", repo));
   }
 
   @Test
@@ -87,7 +88,7 @@ public class BranchUtilsCreateBranchTest extends AbstractParallelGitTest {
     writeSomethingToCache();
     TagUtils.tagCommit("source_tag", commitToMaster(), repo);
     BranchUtils.createBranch("test_branch", repo.resolve("source_tag"), repo);
-    Assert.assertEquals(TagUtils.getTaggedCommit("source_tag", repo), BranchUtils.getHeadCommit("test_branch", repo));
+    assertEquals(TagUtils.getTaggedCommit("source_tag", repo), BranchUtils.getHeadCommit("test_branch", repo));
   }
 
   @Test(expected = BranchAlreadyExistsException.class)

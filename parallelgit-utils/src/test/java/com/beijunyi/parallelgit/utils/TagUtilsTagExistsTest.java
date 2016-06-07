@@ -3,9 +3,10 @@ package com.beijunyi.parallelgit.utils;
 import java.io.IOException;
 
 import com.beijunyi.parallelgit.AbstractParallelGitTest;
-import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
+
+import static org.junit.Assert.*;
 
 public class TagUtilsTagExistsTest extends AbstractParallelGitTest {
 
@@ -18,19 +19,19 @@ public class TagUtilsTagExistsTest extends AbstractParallelGitTest {
   public void testTagExistsWhenTagExists_shouldReturnTrue() throws IOException {
     writeSomethingToCache();
     TagUtils.tagCommit("test_tag", commitToMaster(), repo);
-    Assert.assertTrue(TagUtils.tagExists("test_tag", repo));
+    assertTrue(TagUtils.tagExists("test_tag", repo));
   }
 
   @Test
   public void testTagExistsWhenTagDoesNotExist_shouldReturnFalse() throws IOException {
-    Assert.assertFalse(TagUtils.tagExists("non_existent_tag", repo));
+    assertFalse(TagUtils.tagExists("non_existent_tag", repo));
   }
 
   @Test
   public void testTagExistsWhenBranchWithSameNameExists_shouldReturnFalse() throws IOException {
     writeSomethingToCache();
     commitToBranch("test");
-    Assert.assertFalse(TagUtils.tagExists("test", repo));
+    assertFalse(TagUtils.tagExists("test", repo));
   }
 
 

@@ -6,9 +6,10 @@ import com.beijunyi.parallelgit.AbstractParallelGitTest;
 import com.beijunyi.parallelgit.utils.exceptions.RefUpdateRejectedException;
 import org.eclipse.jgit.lib.AnyObjectId;
 import org.eclipse.jgit.revwalk.RevCommit;
-import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
+
+import static org.junit.Assert.assertEquals;
 
 public class BranchUtilsSetBranchHeadTest extends AbstractParallelGitTest {
 
@@ -27,7 +28,7 @@ public class BranchUtilsSetBranchHeadTest extends AbstractParallelGitTest {
     writeSomethingToCache();
     AnyObjectId childCommit = commit(branchHead);
     BranchUtils.newCommit(branch, childCommit, repo);
-    Assert.assertEquals(childCommit, BranchUtils.getHeadCommit(branch, repo));
+    assertEquals(childCommit, BranchUtils.getHeadCommit(branch, repo));
   }
 
   @Test(expected = RefUpdateRejectedException.class)
@@ -42,7 +43,7 @@ public class BranchUtilsSetBranchHeadTest extends AbstractParallelGitTest {
     writeSomethingToCache();
     AnyObjectId amendedCommit = commit(branchHead.getParent(0));
     BranchUtils.amendCommit(branch, amendedCommit, repo);
-    Assert.assertEquals(amendedCommit, BranchUtils.getHeadCommit(branch, repo));
+    assertEquals(amendedCommit, BranchUtils.getHeadCommit(branch, repo));
   }
 
   @Test
@@ -50,7 +51,7 @@ public class BranchUtilsSetBranchHeadTest extends AbstractParallelGitTest {
     writeSomethingToCache();
     AnyObjectId cherryPickedCommit = commit(branchHead);
     BranchUtils.cherryPickCommit(branch, cherryPickedCommit, repo);
-    Assert.assertEquals(cherryPickedCommit, BranchUtils.getHeadCommit(branch, repo));
+    assertEquals(cherryPickedCommit, BranchUtils.getHeadCommit(branch, repo));
   }
 
   @Test(expected = RefUpdateRejectedException.class)

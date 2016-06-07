@@ -5,9 +5,10 @@ import java.io.IOException;
 import com.beijunyi.parallelgit.AbstractParallelGitTest;
 import com.beijunyi.parallelgit.utils.exceptions.NoSuchTagException;
 import org.eclipse.jgit.lib.AnyObjectId;
-import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
+
+import static org.junit.Assert.assertEquals;
 
 public class TagUtilsGetTaggedCommitTest extends AbstractParallelGitTest {
 
@@ -21,7 +22,7 @@ public class TagUtilsGetTaggedCommitTest extends AbstractParallelGitTest {
     writeSomethingToCache();
     AnyObjectId commitId = commitToMaster();
     TagUtils.tagCommit("test_tag", commitId, repo);
-    Assert.assertEquals(commitId, TagUtils.getTaggedCommit("test_tag", repo));
+    assertEquals(commitId, TagUtils.getTaggedCommit("test_tag", repo));
   }
 
   @Test(expected = NoSuchTagException.class)

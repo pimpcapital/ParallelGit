@@ -15,7 +15,7 @@ public final class ObjectUtils {
 
   public static final ObjectId TRIVIAL_OBJECT = ObjectId.zeroId();
 
-  public static boolean isZeroId(AnyObjectId id) {
+  public static boolean isTrivial(ObjectId id) {
     return TRIVIAL_OBJECT.equals(id);
   }
 

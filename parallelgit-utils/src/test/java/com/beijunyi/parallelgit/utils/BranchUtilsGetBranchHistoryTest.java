@@ -7,9 +7,10 @@ import com.beijunyi.parallelgit.AbstractParallelGitTest;
 import com.beijunyi.parallelgit.utils.exceptions.NoSuchBranchException;
 import org.eclipse.jgit.lib.AnyObjectId;
 import org.eclipse.jgit.revwalk.RevCommit;
-import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
+
+import static org.junit.Assert.assertArrayEquals;
 
 public class BranchUtilsGetBranchHistoryTest extends AbstractParallelGitTest {
 
@@ -31,7 +32,7 @@ public class BranchUtilsGetBranchHistoryTest extends AbstractParallelGitTest {
     List<RevCommit> history = BranchUtils.getHistory(branch, repo);
     AnyObjectId[] actual = new AnyObjectId[3];
     history.toArray(actual);
-    Assert.assertArrayEquals(expected, actual);
+    assertArrayEquals(expected, actual);
   }
 
   @Test(expected = NoSuchBranchException.class)

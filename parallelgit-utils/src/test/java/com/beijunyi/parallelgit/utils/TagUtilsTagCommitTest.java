@@ -6,9 +6,10 @@ import com.beijunyi.parallelgit.AbstractParallelGitTest;
 import com.beijunyi.parallelgit.utils.exceptions.TagAlreadyExistsException;
 import org.eclipse.jgit.lib.AnyObjectId;
 import org.eclipse.jgit.lib.Ref;
-import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
+
+import static org.junit.Assert.assertEquals;
 
 public class TagUtilsTagCommitTest extends AbstractParallelGitTest {
 
@@ -23,7 +24,7 @@ public class TagUtilsTagCommitTest extends AbstractParallelGitTest {
     AnyObjectId expected = commit();
     RepositoryUtils.detachRepositoryHead(repo, expected);
     Ref tag = TagUtils.tagHeadCommit("test_tag", repo);
-    Assert.assertEquals(expected, tag.getPeeledObjectId());
+    assertEquals(expected, tag.getPeeledObjectId());
   }
 
   @Test(expected = TagAlreadyExistsException.class)

@@ -4,8 +4,9 @@ import java.io.IOException;
 
 import com.beijunyi.parallelgit.AbstractParallelGitTest;
 import org.eclipse.jgit.lib.AnyObjectId;
-import org.junit.Assert;
 import org.junit.Test;
+
+import static org.junit.Assert.*;
 
 public class ObjectUtilsTest extends AbstractParallelGitTest {
 
@@ -15,13 +16,13 @@ public class ObjectUtilsTest extends AbstractParallelGitTest {
     String file = "a.txt";
     AnyObjectId fileBlobId = writeToCache(file);
     AnyObjectId commit = commitToMaster();
-    Assert.assertEquals(fileBlobId, ObjectUtils.findObject(file, commit, repo));
+    assertEquals(fileBlobId, ObjectUtils.findObject(file, commit, repo));
   }
 
   @Test
   public void findNonExistentFileBlobIdTest() throws IOException {
     AnyObjectId commit = initRepository();
-    Assert.assertNull(ObjectUtils.findObject("non-existent.txt", commit, repo));
+    assertNull(ObjectUtils.findObject("non-existent.txt", commit, repo));
   }
 
 }

@@ -5,9 +5,10 @@ import java.nio.file.NoSuchFileException;
 
 import com.beijunyi.parallelgit.AbstractParallelGitTest;
 import org.eclipse.jgit.lib.AnyObjectId;
-import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
+
+import static org.junit.Assert.assertArrayEquals;
 
 public class GitFileUtilsReadFileTest extends AbstractParallelGitTest {
 
@@ -22,7 +23,7 @@ public class GitFileUtilsReadFileTest extends AbstractParallelGitTest {
     writeToCache("/test_file.txt", expected);
     AnyObjectId commit = commitToMaster();
     byte[] actual = GitFileUtils.readFile("/test_file.txt", commit.getName(), repo).getData();
-    Assert.assertArrayEquals(expected, actual);
+    assertArrayEquals(expected, actual);
   }
 
   @Test(expected = NoSuchFileException.class)

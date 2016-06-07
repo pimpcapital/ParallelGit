@@ -4,9 +4,10 @@ import java.io.IOException;
 
 import com.beijunyi.parallelgit.AbstractParallelGitTest;
 import org.eclipse.jgit.lib.FileMode;
-import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
+
+import static org.junit.Assert.*;
 
 public class CacheUtilsReadTest extends AbstractParallelGitTest {
 
@@ -18,134 +19,134 @@ public class CacheUtilsReadTest extends AbstractParallelGitTest {
   @Test
   public void findEntryWhenEntryExists_shouldReturnTheIndexOfTheEntry() throws IOException {
     writeToCache("/test_file.txt");
-    Assert.assertTrue(CacheUtils.findEntry("test_file.txt", cache) >= 0);
+    assertTrue(CacheUtils.findEntry("test_file.txt", cache) >= 0);
   }
 
   @Test
   public void findEntryWhenEntryExistsUsingAbsolutePath_shouldReturnTheIndexOfTheEntry() throws IOException {
     writeToCache("/test_file.txt");
-    Assert.assertTrue(CacheUtils.findEntry("test_file.txt", cache) >= 0);
+    assertTrue(CacheUtils.findEntry("test_file.txt", cache) >= 0);
   }
 
   @Test
   public void findEntryWhenEntryDoesNotExist_shouldReturnNegativeValue() throws IOException {
-    Assert.assertTrue(CacheUtils.findEntry("test_file.txt", cache) < 0);
+    assertTrue(CacheUtils.findEntry("test_file.txt", cache) < 0);
   }
 
   @Test
   public void getEntryWhenEntryExists_shouldReturnTheEntry() throws IOException {
     writeToCache("/test_file.txt");
-    Assert.assertNotNull(CacheUtils.getEntry("test_file.txt", cache));
+    assertNotNull(CacheUtils.getEntry("test_file.txt", cache));
   }
 
   @Test
   public void getEntryWhenEntryExistsUsingAbsolutePath_shouldReturnTheEntry() throws IOException {
     writeToCache("/test_file.txt");
-    Assert.assertNotNull(CacheUtils.getEntry("test_file.txt", cache));
+    assertNotNull(CacheUtils.getEntry("test_file.txt", cache));
   }
 
   @Test
   public void getEntryWhenEntryDoesNotExist_shouldReturnNull() throws IOException {
-    Assert.assertNull(CacheUtils.getEntry("test_file.txt", cache));
+    assertNull(CacheUtils.getEntry("test_file.txt", cache));
   }
 
   @Test
   public void testEntryExistWhenEntryExists_shouldReturnTrue() throws IOException {
     writeToCache("/test_file.txt");
-    Assert.assertTrue(CacheUtils.entryExists("/test_file.txt", cache));
+    assertTrue(CacheUtils.entryExists("/test_file.txt", cache));
   }
 
   @Test
   public void testEntryExistWhenEntryDoesNotExist_shouldReturnFalse() throws IOException {
-    Assert.assertFalse(CacheUtils.entryExists("/test_file.txt", cache));
+    assertFalse(CacheUtils.entryExists("/test_file.txt", cache));
   }
 
   @Test
   public void testIsFileWhenFileExists_shouldReturnTrue() throws IOException {
     writeToCache("/test_file.txt");
-    Assert.assertTrue(CacheUtils.isFile("/test_file.txt", cache));
+    assertTrue(CacheUtils.isFile("/test_file.txt", cache));
   }
 
   @Test
   public void testIsFileWhenFileDoesNotExist_shouldReturnFalse() throws IOException {
-    Assert.assertFalse(CacheUtils.isFile("/test_file.txt", cache));
+    assertFalse(CacheUtils.isFile("/test_file.txt", cache));
   }
 
   @Test
   public void testIsFileWhenDirectoryExists_shouldReturnFalse() throws IOException {
     writeToCache("/test/file.txt");
-    Assert.assertFalse(CacheUtils.isFile("/test", cache));
+    assertFalse(CacheUtils.isFile("/test", cache));
   }
 
   @Test
   public void testIsSymbolicLinkWhenRegularFileExists_shouldReturnFalse() throws IOException {
     writeToCache("/test_file.txt");
-    Assert.assertFalse(CacheUtils.isSymbolicLink("/test_file.txt", cache));
+    assertFalse(CacheUtils.isSymbolicLink("/test_file.txt", cache));
   }
 
   @Test
   public void testIsSymbolicLinkWhenSymbolicLinkExists_shouldReturnTrue() throws IOException {
     writeToCache("/test_file.txt", "some link data".getBytes(), FileMode.SYMLINK);
-    Assert.assertTrue(CacheUtils.isSymbolicLink("/test_file.txt", cache));
+    assertTrue(CacheUtils.isSymbolicLink("/test_file.txt", cache));
   }
 
   @Test
   public void testIsRegularFileWhenRegularFileExists_shouldReturnTrue() throws IOException {
     writeToCache("/test_file.txt");
-    Assert.assertTrue(CacheUtils.isRegularFile("/test_file.txt", cache));
+    assertTrue(CacheUtils.isRegularFile("/test_file.txt", cache));
   }
 
   @Test
   public void testIsRegularFileWhenSymbolicLinkExists_shouldReturnFalse() throws IOException {
     writeToCache("/test_file.txt", "some link data".getBytes(), FileMode.SYMLINK);
-    Assert.assertFalse(CacheUtils.isRegularFile("/test_file.txt", cache));
+    assertFalse(CacheUtils.isRegularFile("/test_file.txt", cache));
   }
 
   @Test
   public void testIsExecutableFileWhenRegularFileExists_shouldReturnFalse() throws IOException {
     writeToCache("/test_file.txt");
-    Assert.assertFalse(CacheUtils.isExecutableFile("/test_file.txt", cache));
+    assertFalse(CacheUtils.isExecutableFile("/test_file.txt", cache));
   }
 
   @Test
   public void testIsExecutableFileWhenExecutableFileExists_shouldReturnTrue() throws IOException {
     writeToCache("/test_file.sh", "some executable data".getBytes(), FileMode.EXECUTABLE_FILE);
-    Assert.assertTrue(CacheUtils.isExecutableFile("/test_file.sh", cache));
+    assertTrue(CacheUtils.isExecutableFile("/test_file.sh", cache));
   }
 
   @Test
   public void testIsRegularOrExecutableFileWhenRegularFileExists_shouldReturnTrue() throws IOException {
     writeToCache("/test_file.txt");
-    Assert.assertTrue(CacheUtils.isRegularOrExecutableFile("/test_file.txt", cache));
+    assertTrue(CacheUtils.isRegularOrExecutableFile("/test_file.txt", cache));
   }
 
   @Test
   public void testIsRegularOrExecutableFileWhenExecutableFileExists_shouldReturnTrue() throws IOException {
     writeToCache("/test_file.sh", "some executable data".getBytes(), FileMode.EXECUTABLE_FILE);
-    Assert.assertTrue(CacheUtils.isRegularOrExecutableFile("/test_file.sh", cache));
+    assertTrue(CacheUtils.isRegularOrExecutableFile("/test_file.sh", cache));
   }
 
   @Test
   public void testIsRegularOrExecutableFileWhenSymbolicLinkExists_shouldReturnTrue() throws IOException {
     writeToCache("/test_file.txt", "some link data".getBytes(), FileMode.SYMLINK);
-    Assert.assertFalse(CacheUtils.isRegularOrExecutableFile("/test_file.txt", cache));
+    assertFalse(CacheUtils.isRegularOrExecutableFile("/test_file.txt", cache));
   }
 
   @Test
   public void testIsNonEmptyDirectoryWhenDirectoryDoesNotExist_shouldReturnFalse() throws IOException {
-    Assert.assertFalse(CacheUtils.isNonEmptyDirectory("/test_dir", cache));
+    assertFalse(CacheUtils.isNonEmptyDirectory("/test_dir", cache));
   }
 
   @Test
   public void testIsNonEmptyDirectoryWhenFileExists_shouldReturnFalse() throws IOException {
     writeToCache("/test");
-    Assert.assertFalse(CacheUtils.isNonEmptyDirectory("/test", cache));
+    assertFalse(CacheUtils.isNonEmptyDirectory("/test", cache));
   }
 
   @Test
   public void testIsNonEmptyDirectoryWhenDirectoryExists_shouldReturnTrue() throws IOException {
     writeToCache("/test_dir/file.txt");
-    Assert.assertTrue(CacheUtils.isNonEmptyDirectory("/test_dir", cache));
+    assertTrue(CacheUtils.isNonEmptyDirectory("/test_dir", cache));
   }
 
 

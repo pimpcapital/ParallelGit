@@ -8,9 +8,10 @@ import com.beijunyi.parallelgit.AbstractParallelGitTest;
 import org.eclipse.jgit.lib.AnyObjectId;
 import org.eclipse.jgit.lib.PersonIdent;
 import org.eclipse.jgit.revwalk.RevCommit;
-import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
+
+import static org.junit.Assert.*;
 
 public class CommitUtilsCreateCommitTest extends AbstractParallelGitTest {
 
@@ -24,7 +25,7 @@ public class CommitUtilsCreateCommitTest extends AbstractParallelGitTest {
     writeSomethingToCache();
     AnyObjectId treeId = CacheUtils.writeTree(cache, repo);
     RevCommit commit = CommitUtils.createCommit(someCommitMessage(), treeId, null, repo);
-    Assert.assertEquals(treeId, commit.getTree());
+    assertEquals(treeId, commit.getTree());
   }
 
   @Test
@@ -39,7 +40,7 @@ public class CommitUtilsCreateCommitTest extends AbstractParallelGitTest {
     writeSomethingToCache();
     String expectedMessage = "test message";
     RevCommit commit = CommitUtils.createCommit(expectedMessage, cache, null, repo);
-    Assert.assertEquals(expectedMessage, commit.getFullMessage());
+    assertEquals(expectedMessage, commit.getFullMessage());
   }
 
   @Test
@@ -47,7 +48,7 @@ public class CommitUtilsCreateCommitTest extends AbstractParallelGitTest {
     writeSomethingToCache();
     PersonIdent expectedCommitter = new PersonIdent("test_user", "tester@email.com");
     RevCommit commit = CommitUtils.createCommit(someCommitMessage(), cache, expectedCommitter, null, repo);
-    Assert.assertEquals(expectedCommitter, commit.getCommitterIdent());
+    assertEquals(expectedCommitter, commit.getCommitterIdent());
   }
 
   @Test
@@ -55,7 +56,7 @@ public class CommitUtilsCreateCommitTest extends AbstractParallelGitTest {
     writeSomethingToCache();
     PersonIdent expectedAuthor = new PersonIdent("test_user", "tester@email.com");
     RevCommit commit = CommitUtils.createCommit(someCommitMessage(), cache, expectedAuthor, somePersonIdent(), Collections.<AnyObjectId>emptyList(), repo);
-    Assert.assertEquals(expectedAuthor, commit.getAuthorIdent());
+    assertEquals(expectedAuthor, commit.getAuthorIdent());
   }
 
   @Test
@@ -63,7 +64,7 @@ public class CommitUtilsCreateCommitTest extends AbstractParallelGitTest {
     AnyObjectId[] expectedParents = new AnyObjectId[] {commitToMaster(), commitToMaster()};
     writeSomethingToCache();
     RevCommit commit = CommitUtils.createCommit(someCommitMessage(), cache, somePersonIdent(), somePersonIdent(), Arrays.asList(expectedParents), repo);
-    Assert.assertArrayEquals(expectedParents, commit.getParents());
+    assertArrayEquals(expectedParents, commit.getParents());
   }
 
 

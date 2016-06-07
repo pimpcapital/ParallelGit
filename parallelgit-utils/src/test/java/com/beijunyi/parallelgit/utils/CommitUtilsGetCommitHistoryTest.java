@@ -6,9 +6,10 @@ import java.util.List;
 
 import com.beijunyi.parallelgit.AbstractParallelGitTest;
 import org.eclipse.jgit.revwalk.RevCommit;
-import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
+
+import static org.junit.Assert.assertEquals;
 
 public class CommitUtilsGetCommitHistoryTest extends AbstractParallelGitTest {
 
@@ -29,7 +30,7 @@ public class CommitUtilsGetCommitHistoryTest extends AbstractParallelGitTest {
 
     List<RevCommit> expected = Arrays.asList(commit3, commit2, commit1);
     List<RevCommit> actual = CommitUtils.getCommitHistory(commit3, repo);
-    Assert.assertEquals(expected, actual);
+    assertEquals(expected, actual);
   }
 
   @Test
@@ -46,7 +47,7 @@ public class CommitUtilsGetCommitHistoryTest extends AbstractParallelGitTest {
 
     List<RevCommit> expected = Arrays.asList(commit3, commit2);
     List<RevCommit> actual = CommitUtils.getCommitHistory(commit4, 1, 2, repo.newObjectReader());
-    Assert.assertEquals(expected, actual);
+    assertEquals(expected, actual);
   }
 
   @Test
@@ -63,7 +64,7 @@ public class CommitUtilsGetCommitHistoryTest extends AbstractParallelGitTest {
 
     List<RevCommit> expected = Arrays.asList(commit3, commit2, commit1);
     List<RevCommit> actual = CommitUtils.getCommitHistory(commit4, 1, Integer.MAX_VALUE, repo.newObjectReader());
-    Assert.assertEquals(expected, actual);
+    assertEquals(expected, actual);
   }
 
   @Test
@@ -80,7 +81,7 @@ public class CommitUtilsGetCommitHistoryTest extends AbstractParallelGitTest {
 
     List<RevCommit> expected = Arrays.asList(commit3, commit2);
     List<RevCommit> actual = CommitUtils.getFileRevisions("/test_file.txt", commit4, repo);
-    Assert.assertEquals(expected, actual);
+    assertEquals(expected, actual);
   }
 
 

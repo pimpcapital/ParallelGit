@@ -8,7 +8,6 @@ import com.beijunyi.parallelgit.filesystem.GfsObjectService;
 import com.beijunyi.parallelgit.utils.ObjectUtils;
 import com.beijunyi.parallelgit.utils.io.GitFileEntry;
 import com.beijunyi.parallelgit.utils.io.ObjectSnapshot;
-import org.eclipse.jgit.lib.AnyObjectId;
 import org.eclipse.jgit.lib.FileMode;
 import org.eclipse.jgit.lib.ObjectId;
 
@@ -114,7 +113,7 @@ public abstract class Node<Snapshot extends ObjectSnapshot, Data> {
   }
 
   public boolean isModified() throws IOException {
-    AnyObjectId id = getObjectId(false);
+    ObjectId id = getObjectId(false);
     return !origin.getId().equals(id) || !origin.getMode().equals(mode);
   }
 
@@ -129,7 +128,7 @@ public abstract class Node<Snapshot extends ObjectSnapshot, Data> {
   }
 
   protected boolean isTrivial() throws IOException {
-    return ObjectUtils.isZeroId(getObjectId(false));
+    return ObjectUtils.isTrivial(getObjectId(false));
   }
 
   @Nonnull

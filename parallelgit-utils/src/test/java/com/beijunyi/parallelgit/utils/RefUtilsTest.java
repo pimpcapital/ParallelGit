@@ -1,17 +1,18 @@
 package com.beijunyi.parallelgit.utils;
 
-import org.junit.Assert;
 import org.junit.Test;
+
+import static org.junit.Assert.assertEquals;
 
 public class RefUtilsTest {
 
   @Test
   public void ensureBranchRefNameWhenInputIsShortName_shouldReturnTheFullRefName() {
-    Assert.assertEquals("refs/heads/test", RefUtils.ensureBranchRefName("test"));
+    assertEquals("refs/heads/test", RefUtils.ensureBranchRefName("test"));
   }
   @Test
   public void ensureBranchRefNameWhenInputIsFullRefName_shouldReturnTheFullRefName() {
-    Assert.assertEquals("refs/heads/test", RefUtils.ensureBranchRefName("refs/heads/test"));
+    assertEquals("refs/heads/test", RefUtils.ensureBranchRefName("refs/heads/test"));
   }
 
   @Test(expected = IllegalArgumentException.class)
