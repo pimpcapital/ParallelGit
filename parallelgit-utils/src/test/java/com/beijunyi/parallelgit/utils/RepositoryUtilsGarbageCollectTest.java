@@ -1,7 +1,6 @@
 package com.beijunyi.parallelgit.utils;
 
 import java.io.IOException;
-import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 
 import com.beijunyi.parallelgit.AbstractParallelGitTest;
@@ -76,7 +75,7 @@ public class RepositoryUtilsGarbageCollectTest extends AbstractParallelGitTest {
 
       @Nullable
       @Override
-      public ReflogReader getReflogReader(@Nonnull String refName) throws IOException {
+      public ReflogReader getReflogReader(String refName) throws IOException {
         return null;
       }
     });

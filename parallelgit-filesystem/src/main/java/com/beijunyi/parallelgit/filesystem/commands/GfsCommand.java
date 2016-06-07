@@ -17,7 +17,7 @@ public abstract class GfsCommand<Result extends GfsCommandResult> {
 
   protected boolean executed = false;
 
-  protected GfsCommand(@Nonnull GitFileSystem gfs) {
+  protected GfsCommand(GitFileSystem gfs) {
     this.gfs = gfs;
     this.status = gfs.getStatusProvider();
     this.store = gfs.getFileStore();
@@ -34,7 +34,7 @@ public abstract class GfsCommand<Result extends GfsCommandResult> {
     }
   }
 
-  protected void prepareState(@Nonnull GfsStatusProvider.Update update) {
+  protected void prepareState(GfsStatusProvider.Update update) {
     if(!getAcceptableStates().contains(status.state()))
       throw new BadGfsStateException(status.state());
     update.state(getCommandState());
@@ -49,7 +49,7 @@ public abstract class GfsCommand<Result extends GfsCommandResult> {
   protected abstract GfsState getCommandState();
 
   @Nonnull
-  protected abstract Result doExecute(@Nonnull GfsStatusProvider.Update update) throws IOException;
+  protected abstract Result doExecute(GfsStatusProvider.Update update) throws IOException;
 
   private void checkExecuted() {
     if(executed)

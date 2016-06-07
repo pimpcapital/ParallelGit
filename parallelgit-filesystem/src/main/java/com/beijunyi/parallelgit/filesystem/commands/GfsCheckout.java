@@ -28,13 +28,13 @@ public final class GfsCheckout extends GfsCommand<GfsCheckout.Result> {
   private RevCommit targetCommit;
 
 
-  public GfsCheckout(@Nonnull GitFileSystem gfs) {
+  public GfsCheckout(GitFileSystem gfs) {
     super(gfs);
   }
 
   @Nonnull
   @Override
-  protected Result doExecute(@Nonnull GfsStatusProvider.Update update) throws IOException {
+  protected Result doExecute(GfsStatusProvider.Update update) throws IOException {
     prepareFileSystem();
     prepareTarget();
     com.beijunyi.parallelgit.filesystem.io.GfsCheckout checkout = new com.beijunyi.parallelgit.filesystem.io.GfsCheckout(gfs, false);
@@ -54,7 +54,7 @@ public final class GfsCheckout extends GfsCommand<GfsCheckout.Result> {
   }
 
   @Nonnull
-  public GfsCheckout setTarget(@Nonnull String target) {
+  public GfsCheckout setTarget(String target) {
     this.target = target;
     return this;
   }
@@ -94,7 +94,7 @@ public final class GfsCheckout extends GfsCommand<GfsCheckout.Result> {
     }
   }
 
-  private void updateHead(@Nonnull GfsStatusProvider.Update update) {
+  private void updateHead(GfsStatusProvider.Update update) {
     if(targetBranch == null)
       update.detach();
     else
@@ -118,7 +118,7 @@ public final class GfsCheckout extends GfsCommand<GfsCheckout.Result> {
     }
 
     @Nonnull
-    public static Result checkoutConflicts(@Nonnull Map<String, GfsCheckoutConflict> conflicts) {
+    public static Result checkoutConflicts(Map<String, GfsCheckoutConflict> conflicts) {
       return new Result(false, conflicts);
     }
 

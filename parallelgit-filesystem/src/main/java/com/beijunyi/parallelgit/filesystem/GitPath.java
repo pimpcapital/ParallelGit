@@ -25,17 +25,17 @@ public class GitPath implements Path {
   private volatile int[] offsets;
   private volatile String stringValue;
 
-  GitPath(@Nonnull GitFileSystem gfs, byte[] path) {
+  GitPath(GitFileSystem gfs, byte[] path) {
     this.gfs = gfs;
     this.path = path;
   }
 
-  GitPath(@Nonnull GitFileSystem gfs, String input) {
+  GitPath(GitFileSystem gfs, String input) {
     this(gfs, encode(normalizeAndCheck(input)));
   }
 
   @Nonnull
-  private static String normalizeAndCheck(@Nonnull String input) {
+  private static String normalizeAndCheck(String input) {
     int n = input.length();
     char prevChar = 0;
     for(int i = 0; i < n; i++) {
@@ -50,13 +50,13 @@ public class GitPath implements Path {
     return input;
   }
 
-  private static void checkNotNul(@Nonnull String input, char c) {
+  private static void checkNotNul(String input, char c) {
     if(c == '\u0000')
       throw new InvalidPathException(input, "Nul character not allowed");
   }
 
   @Nonnull
-  private static String normalize(@Nonnull String input, int len, int off) {
+  private static String normalize(String input, int len, int off) {
     if(len == 0)
       return input;
     int n = len;
@@ -80,7 +80,7 @@ public class GitPath implements Path {
   }
 
   @Nonnull
-  private static byte[] encode(@Nonnull String input) {
+  private static byte[] encode(String input) {
     SoftReference<CharsetEncoder> ref = encoder.get();
     CharsetEncoder ce = (ref != null) ? ref.get() : null;
     if(ce == null) {
@@ -241,7 +241,7 @@ public class GitPath implements Path {
   }
 
   @Override
-  public boolean startsWith(@Nonnull Path other) {
+  public boolean startsWith(Path other) {
     GitPath that = (GitPath) other;
 
     // other path is longer
@@ -285,12 +285,12 @@ public class GitPath implements Path {
   }
 
   @Override
-  public boolean startsWith(@Nonnull String other) {
+  public boolean startsWith(String other) {
     return startsWith(getFileSystem().getPath(other));
   }
 
   @Override
-  public boolean endsWith(@Nonnull Path other) {
+  public boolean endsWith(Path other) {
     GitPath that = (GitPath) other;
 
     int thisLen = path.length;
@@ -345,7 +345,7 @@ public class GitPath implements Path {
   }
 
   @Override
-  public boolean endsWith(@Nonnull String other) {
+  public boolean endsWith(String other) {
     return endsWith(getFileSystem().getPath(other));
   }
 
@@ -475,7 +475,7 @@ public class GitPath implements Path {
   }
 
   @Nonnull
-  private static byte[] resolve(@Nonnull byte[] base, byte[] child) {
+  private static byte[] resolve(byte[] base, byte[] child) {
     int baseLength = base.length;
     int childLength = child.length;
     if(childLength == 0)
@@ -498,7 +498,7 @@ public class GitPath implements Path {
 
   @Nonnull
   @Override
-  public GitPath resolve(@Nonnull Path path) {
+  public GitPath resolve(Path path) {
     GitPath gitPath = (GitPath) path;
     byte[] other = gitPath.path;
     if(other.length > 0 && other[0] == '/')
@@ -508,25 +508,25 @@ public class GitPath implements Path {
   }
 
   @Override
-  public GitPath resolve(@Nonnull String pathStr) {
+  public GitPath resolve(String pathStr) {
     return resolve(getFileSystem().getPath(pathStr));
   }
 
   @Override
-  public GitPath resolveSibling(@Nonnull Path path) {
+  public GitPath resolveSibling(Path path) {
     GitPath other = (GitPath) path;
     GitPath parent = getParent();
     return (parent == null) ? other : parent.resolve(other);
   }
 
   @Override
-  public GitPath resolveSibling(@Nonnull String path) {
+  public GitPath resolveSibling(String path) {
     return resolveSibling(getFileSystem().getPath(path));
   }
 
   @Nonnull
   @Override
-  public GitPath relativize(@Nonnull Path path) throws IllegalArgumentException {
+  public GitPath relativize(Path path) throws IllegalArgumentException {
     GitPath other = (GitPath) path;
     if(other.equals(this))
       return emptyPath();
@@ -650,7 +650,7 @@ public class GitPath implements Path {
   }
 
   @Override
-  public int compareTo(@Nonnull Path other) {
+  public int compareTo(Path other) {
     GitPath that = (GitPath) other;
 
     int len1 = path.length;

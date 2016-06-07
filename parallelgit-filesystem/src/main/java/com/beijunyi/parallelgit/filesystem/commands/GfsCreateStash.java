@@ -35,7 +35,7 @@ public class GfsCreateStash extends GfsCommand<GfsCreateStash.Result> {
   private PersonIdent committer;
   private RevCommit parent;
 
-  public GfsCreateStash(@Nonnull GitFileSystem gfs) {
+  public GfsCreateStash(GitFileSystem gfs) {
     super(gfs);
   }
 
@@ -46,20 +46,20 @@ public class GfsCreateStash extends GfsCommand<GfsCreateStash.Result> {
   }
 
   @Nonnull
-  public GfsCreateStash indexMessage(@Nonnull String indexMessage) {
+  public GfsCreateStash indexMessage(String indexMessage) {
     this.indexMessage = indexMessage;
     return this;
   }
 
   @Nonnull
-  public GfsCreateStash committer(@Nonnull PersonIdent committer) {
+  public GfsCreateStash committer(PersonIdent committer) {
     this.committer = committer;
     return this;
   }
 
   @Nonnull
   @Override
-  protected GfsCreateStash.Result doExecute(@Nonnull GfsStatusProvider.Update update) throws IOException {
+  protected GfsCreateStash.Result doExecute(GfsStatusProvider.Update update) throws IOException {
     prepareBranch();
     prepareCommitter();
     prepareParent();
@@ -103,13 +103,13 @@ public class GfsCreateStash extends GfsCommand<GfsCreateStash.Result> {
   }
 
   @Nonnull
-  private RevCommit makeIndexCommit(@Nonnull AnyObjectId tree) throws IOException {
+  private RevCommit makeIndexCommit(AnyObjectId tree) throws IOException {
     List<RevCommit> parents = singletonList(parent);
     return createCommit(indexMessage, tree, committer, committer, parents, repo);
   }
 
   @Nonnull
-  private RevCommit makeWorkingDirectoryCommit(@Nonnull RevCommit indexCommit) throws IOException {
+  private RevCommit makeWorkingDirectoryCommit(RevCommit indexCommit) throws IOException {
     AnyObjectId tree = indexCommit.getTree();
     List<RevCommit> parents = asList(parent, indexCommit);
     return createCommit(workingDirectoryMessage, tree, committer, committer, parents, repo);
@@ -129,13 +129,13 @@ public class GfsCreateStash extends GfsCommand<GfsCreateStash.Result> {
     private final Status status;
     private final RevCommit commit;
 
-    public Result(@Nonnull Status status, @Nullable RevCommit commit) {
+    public Result(Status status, @Nullable RevCommit commit) {
       this.status = status;
       this.commit = commit;
     }
 
     @Nonnull
-    public static Result success(@Nonnull RevCommit commit) {
+    public static Result success(RevCommit commit) {
       return new Result(COMMITTED, commit);
     }
 

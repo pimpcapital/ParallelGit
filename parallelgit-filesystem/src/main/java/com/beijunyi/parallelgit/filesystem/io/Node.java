@@ -25,35 +25,35 @@ public abstract class Node<Snapshot extends ObjectSnapshot, Data> {
   protected volatile FileMode mode;
   protected volatile Data data;
 
-  protected Node(@Nonnull FileMode mode, GfsObjectService objService) {
+  protected Node(FileMode mode, GfsObjectService objService) {
     this.objService = objService;
     this.mode = mode;
     initialize();
   }
 
-  protected Node(@Nonnull ObjectId id, FileMode mode, GfsObjectService objService) {
+  protected Node(ObjectId id, FileMode mode, GfsObjectService objService) {
     this.objService = objService;
     this.id = id;
     this.mode = mode;
   }
 
-  protected Node(@Nonnull FileMode mode, DirectoryNode parent) {
+  protected Node(FileMode mode, DirectoryNode parent) {
     this(mode, parent.getObjectService());
     this.parent = parent;
   }
 
-  protected Node(@Nonnull ObjectId id, FileMode mode, DirectoryNode parent) {
+  protected Node(ObjectId id, FileMode mode, DirectoryNode parent) {
     this(id, mode, parent.getObjectService());
     this.parent = parent;
   }
 
-  protected Node(@Nonnull Data data, FileMode mode, DirectoryNode parent) {
+  protected Node(Data data, FileMode mode, DirectoryNode parent) {
     this(mode, parent);
     this.data = data;
   }
 
   @Nonnull
-  public static Node fromEntry(@Nonnull GitFileEntry entry, DirectoryNode parent) {
+  public static Node fromEntry(GitFileEntry entry, DirectoryNode parent) {
     if(entry.getMode().equals(TREE))
       return DirectoryNode.fromObject(entry.getId(), parent);
     return FileNode.fromObject(entry.getId(), entry.getMode(), parent);
@@ -94,7 +94,7 @@ public abstract class Node<Snapshot extends ObjectSnapshot, Data> {
     return origin;
   }
 
-  public void updateOrigin(@Nonnull GitFileEntry entry) throws IOException {
+  public void updateOrigin(GitFileEntry entry) throws IOException {
     origin = entry;
   }
 
@@ -103,7 +103,7 @@ public abstract class Node<Snapshot extends ObjectSnapshot, Data> {
     return mode;
   }
 
-  public void setMode(@Nonnull FileMode mode) {
+  public void setMode(FileMode mode) {
     checkFileMode(mode);
     this.mode = mode;
     invalidateParentCache();
@@ -133,7 +133,7 @@ public abstract class Node<Snapshot extends ObjectSnapshot, Data> {
   }
 
   @Nonnull
-  private Snapshot loadSnapshot(@Nonnull ObjectId id) throws IOException {
+  private Snapshot loadSnapshot(ObjectId id) throws IOException {
     Snapshot ret = objService.read(id, getSnapshotType());
     if(origin.getId().equals(id))
       snapshot = ret;
@@ -175,7 +175,7 @@ public abstract class Node<Snapshot extends ObjectSnapshot, Data> {
     reset(origin);
   }
 
-  protected void reset(@Nonnull GitFileEntry entry) {
+  protected void reset(GitFileEntry entry) {
     checkFileMode(mode);
     this.id = entry.getId();
     this.mode = entry.getMode();
@@ -198,20 +198,20 @@ public abstract class Node<Snapshot extends ObjectSnapshot, Data> {
 
   public abstract long getSize() throws IOException;
 
-  protected abstract void checkFileMode(@Nonnull FileMode proposed);
+  protected abstract void checkFileMode(FileMode proposed);
 
   @Nonnull
   protected abstract Data getDefaultData();
 
   @Nonnull
-  protected abstract Data loadData(@Nonnull Snapshot snapshot) throws IOException;
+  protected abstract Data loadData(Snapshot snapshot) throws IOException;
 
-  protected abstract boolean isTrivial(@Nonnull Data data) throws IOException;
-
-  @Nonnull
-  protected abstract Snapshot captureData(@Nonnull Data data, boolean persist) throws IOException;
+  protected abstract boolean isTrivial(Data data) throws IOException;
 
   @Nonnull
-  protected abstract Node clone(@Nonnull DirectoryNode parent) throws IOException;
+  protected abstract Snapshot captureData(Data data, boolean persist) throws IOException;
+
+  @Nonnull
+  protected abstract Node clone(DirectoryNode parent) throws IOException;
 
 }

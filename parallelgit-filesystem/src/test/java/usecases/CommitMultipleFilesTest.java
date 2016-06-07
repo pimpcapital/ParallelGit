@@ -29,7 +29,8 @@ public class CommitMultipleFilesTest extends PreSetupGitFileSystemTest {
       assertTrue(GitFileUtils.exists(file, commit, repo));
   }
 
-  private RevCommit writeAndCommit(@Nonnull  String[] files) throws IOException {
+  @Nonnull
+  private RevCommit writeAndCommit(String[] files) throws IOException {
     for(String file : files)
       writeToGfs(file);
     return Gfs.commit(gfs).execute().getCommit();

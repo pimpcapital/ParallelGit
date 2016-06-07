@@ -40,24 +40,24 @@ public abstract class AbstractParallelGitTest {
   }
 
   @Nonnull
-  protected ObjectId writeToCache(@Nonnull String path, byte[] content, FileMode mode) throws IOException {
+  protected ObjectId writeToCache(String path, byte[] content, FileMode mode) throws IOException {
     ObjectId blobId = repo != null ? ObjectUtils.insertBlob(content, repo) : calculateBlobId(content);
     CacheUtils.addFile(path, mode, blobId, cache);
     return blobId;
   }
 
   @Nonnull
-  protected ObjectId writeToCache(@Nonnull String path, byte[] content) throws IOException {
+  protected ObjectId writeToCache(String path, byte[] content) throws IOException {
     return writeToCache(path, content, FileMode.REGULAR_FILE);
   }
 
   @Nonnull
-  protected ObjectId writeToCache(@Nonnull String path, String content) throws IOException {
+  protected ObjectId writeToCache(String path, String content) throws IOException {
     return writeToCache(path, Constants.encode(content));
   }
 
   @Nonnull
-  protected ObjectId writeToCache(@Nonnull String path) throws IOException {
+  protected ObjectId writeToCache(String path) throws IOException {
     return writeToCache(path, someBytes());
   }
 
@@ -66,7 +66,7 @@ public abstract class AbstractParallelGitTest {
     return writeToCache(UUID.randomUUID().toString() + ".txt");
   }
 
-  protected void writeMultipleToCache(@Nonnull String... paths) throws IOException {
+  protected void writeMultipleToCache(String... paths) throws IOException {
     DirCacheBuilder builder = CacheUtils.keepEverything(cache);
     for(String path : paths) {
       AnyObjectId blobId = repo != null ? ObjectUtils.insertBlob(someBytes(), repo) : someObjectId();
@@ -76,14 +76,14 @@ public abstract class AbstractParallelGitTest {
   }
 
   @Nonnull
-  protected ObjectId updateFile(@Nonnull String path, byte[] content) throws IOException {
+  protected ObjectId updateFile(String path, byte[] content) throws IOException {
     ObjectId blobId = ObjectUtils.insertBlob(content, repo);
     CacheUtils.updateFileBlob(path, blobId, cache);
     return blobId;
   }
 
   @Nonnull
-  protected ObjectId updateFile(@Nonnull String path, String content) throws IOException {
+  protected ObjectId updateFile(String path, String content) throws IOException {
     return updateFile(path, Constants.encode(content));
   }
 
@@ -119,7 +119,7 @@ public abstract class AbstractParallelGitTest {
   }
 
   @Nonnull
-  protected RevCommit commit(@Nonnull String message, @Nullable AnyObjectId parent) throws IOException {
+  protected RevCommit commit(String message, @Nullable AnyObjectId parent) throws IOException {
     return CommitUtils.createCommit(message, cache, somePersonIdent(), parent, repo);
   }
 
@@ -133,7 +133,7 @@ public abstract class AbstractParallelGitTest {
     return commit(null);
   }
 
-  protected void updateBranchHead(@Nonnull String branch, AnyObjectId commit, boolean init) throws IOException {
+  protected void updateBranchHead(String branch, AnyObjectId commit, boolean init) throws IOException {
     if(init)
       BranchUtils.initBranch(branch, commit, repo);
     else
@@ -141,7 +141,7 @@ public abstract class AbstractParallelGitTest {
   }
 
   @Nonnull
-  protected RevCommit commitToBranch(@Nonnull String branch, String message, @Nullable AnyObjectId parent) throws IOException {
+  protected RevCommit commitToBranch(String branch, String message, @Nullable AnyObjectId parent) throws IOException {
     if(parent == null && BranchUtils.branchExists(branch, repo))
       parent = BranchUtils.getHeadCommit(branch, repo);
     RevCommit commitId = commit(message, parent);
@@ -150,22 +150,22 @@ public abstract class AbstractParallelGitTest {
   }
 
   @Nonnull
-  protected RevCommit commitToBranch(@Nonnull String branch, @Nullable AnyObjectId parent) throws IOException {
+  protected RevCommit commitToBranch(String branch, @Nullable AnyObjectId parent) throws IOException {
     return commitToBranch(branch, someCommitMessage(), parent);
   }
 
   @Nonnull
-  protected RevCommit commitToBranch(@Nonnull String branch) throws IOException {
+  protected RevCommit commitToBranch(String branch) throws IOException {
     return commitToBranch(branch, someCommitMessage(), null);
   }
 
   @Nonnull
-  protected RevCommit commitToMaster(@Nonnull String message, @Nullable AnyObjectId parent) throws IOException {
+  protected RevCommit commitToMaster(String message, @Nullable AnyObjectId parent) throws IOException {
     return commitToBranch(Constants.MASTER, message, parent);
   }
 
   @Nonnull
-  protected RevCommit commitToMaster(@Nonnull String message) throws IOException {
+  protected RevCommit commitToMaster(String message) throws IOException {
     return commitToBranch(Constants.MASTER, message, null);
   }
 
@@ -217,7 +217,7 @@ public abstract class AbstractParallelGitTest {
   }
 
   @Nonnull
-  public static ObjectId calculateBlobId(@Nonnull byte[] data) {
+  public static ObjectId calculateBlobId(byte[] data) {
     return new ObjectInserter.Formatter().idFor(Constants.OBJ_BLOB, data);
   }
 
@@ -235,11 +235,11 @@ public abstract class AbstractParallelGitTest {
     }
   }
 
-  public static void assertCacheEquals(@Nonnull DirCache expected, DirCache actual) {
+  public static void assertCacheEquals(DirCache expected, DirCache actual) {
     assertCacheEquals(null, expected, actual);
   }
 
-  private static int assertCacheSameSize(@Nonnull DirCache expected, DirCache actual, String header) {
+  private static int assertCacheSameSize(DirCache expected, DirCache actual, String header) {
     int actualSize = actual.getEntryCount();
     int expectedSize = expected.getEntryCount();
     if(actualSize != expectedSize)
@@ -247,7 +247,7 @@ public abstract class AbstractParallelGitTest {
     return expectedSize;
   }
 
-  private static void assertCacheEntryEquals(@Nonnull DirCacheEntry expected, DirCacheEntry actual, String header, int index) {
+  private static void assertCacheEntryEquals(DirCacheEntry expected, DirCacheEntry actual, String header, int index) {
     try {
       Assert.assertEquals("fileMode", expected.getFileMode(), actual.getFileMode());
       Assert.assertEquals("length", expected.getLength(), actual.getLength());

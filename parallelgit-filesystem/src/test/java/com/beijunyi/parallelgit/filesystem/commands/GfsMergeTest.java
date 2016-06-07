@@ -147,7 +147,7 @@ public class GfsMergeTest extends AbstractParallelGitTest {
   }
 
 
-  private void prepareBranches(@Nonnull AnyObjectId ours, AnyObjectId theirs) throws IOException {
+  private void prepareBranches(AnyObjectId ours, AnyObjectId theirs) throws IOException {
     createBranch("ours", ours, repo);
     createBranch("theirs", theirs, repo);
   }

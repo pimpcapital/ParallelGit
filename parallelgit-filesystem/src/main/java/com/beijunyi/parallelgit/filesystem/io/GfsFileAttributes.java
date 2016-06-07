@@ -26,7 +26,7 @@ public abstract class GfsFileAttributes {
     private final long size;
     private final Object fileKey;
 
-    private Basic(@Nonnull Map<String, Object> attributes) {
+    private Basic(Map<String, Object> attributes) {
       lastModifiedTime = (FileTime) attributes.get(LAST_MODIFIED_TIME_NAME);
       lastAccessTime = (FileTime) attributes.get(LAST_ACCESS_TIME_NAME);
       creationTime = (FileTime) attributes.get(CREATION_TIME_NAME);
@@ -38,7 +38,7 @@ public abstract class GfsFileAttributes {
       fileKey = attributes.get(FILE_KEY_NAME);
     }
 
-    Basic(@Nonnull GfsFileAttributeView view) throws IOException {
+    Basic(GfsFileAttributeView view) throws IOException {
       this(view.readAttributes(BASIC_KEYS));
     }
 
@@ -99,14 +99,14 @@ public abstract class GfsFileAttributes {
     private final Set<PosixFilePermission> permissions;
 
     @SuppressWarnings("unchecked")
-    private Posix(@Nonnull Map<String, Object> attributes) {
+    private Posix(Map<String, Object> attributes) {
       super(attributes);
       owner = (UserPrincipal) attributes.get(GfsFileAttributeView.Posix.OWNER_NAME);
       group = (GroupPrincipal) attributes.get(GfsFileAttributeView.Posix.GROUP_NAME);
       permissions = (Set<PosixFilePermission>) attributes.get(GfsFileAttributeView.Posix.PERMISSIONS_NAME);
     }
 
-    Posix(@Nonnull GfsFileAttributeView view) throws IOException {
+    Posix(GfsFileAttributeView view) throws IOException {
       this(view.readAttributes(POSIX_KEYS));
     }
 
@@ -134,7 +134,7 @@ public abstract class GfsFileAttributes {
     private final ObjectId objectId;
     private final FileMode fileMode;
 
-    public Git(@Nonnull Map<String, Object> attributes) throws IOException {
+    public Git(Map<String, Object> attributes) throws IOException {
       super(attributes);
       isNew = (boolean) attributes.get(GfsFileAttributeView.IS_NEW);
       isModified = (boolean) attributes.get(GfsFileAttributeView.IS_MODIFIED);
@@ -142,7 +142,7 @@ public abstract class GfsFileAttributes {
       fileMode = (FileMode) attributes.get(GfsFileAttributeView.FILE_MODE);
     }
 
-    public Git(@Nonnull GfsFileAttributeView.Git view) throws IOException {
+    public Git(GfsFileAttributeView.Git view) throws IOException {
       this(view.readAttributes(GIT_KEYS));
     }
 

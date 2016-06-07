@@ -27,12 +27,12 @@ public class GfsApplyStash extends GfsCommand<GfsCreateStash.Result> {
   private MergeStrategy strategy = RECURSIVE;
   private ResolveMerger merger;
 
-  public GfsApplyStash(@Nonnull GitFileSystem gfs) {
+  public GfsApplyStash(GitFileSystem gfs) {
     super(gfs);
   }
 
   @Nonnull
-  public GfsApplyStash stash(@Nonnull String stashId) throws IOException {
+  public GfsApplyStash stash(String stashId) throws IOException {
     this.stashId = stashId;
     return this;
   }
@@ -44,7 +44,7 @@ public class GfsApplyStash extends GfsCommand<GfsCreateStash.Result> {
 
   @Nonnull
   @Override
-  protected GfsCreateStash.Result doExecute(@Nonnull GfsStatusProvider.Update update) throws IOException {
+  protected GfsCreateStash.Result doExecute(GfsStatusProvider.Update update) throws IOException {
     prepareStash();
     prepareMerger();
     return null;

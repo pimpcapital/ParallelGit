@@ -25,14 +25,14 @@ public class GfsChangesCollector {
     return changes.isEmpty();
   }
 
-  public void addChange(@Nonnull String path, GfsChange change) {
+  public void addChange(String path, GfsChange change) {
     if(changes.containsKey(path))
       throw new IllegalStateException();
     changes.put(path, change);
     addChangedDirectory(path);
   }
 
-  public void addChange(@Nonnull String path, GitFileEntry entry) {
+  public void addChange(String path, GitFileEntry entry) {
     GfsChange change;
     if(entry.isMissing())
       change = DELETE_NODE;
@@ -43,11 +43,11 @@ public class GfsChangesCollector {
     addChange(path, change);
   }
 
-  public void addChange(@Nonnull String path, byte[] bytes, FileMode mode) {
+  public void addChange(String path, byte[] bytes, FileMode mode) {
     addChange(path, new UpdateFile(bytes, mode));
   }
 
-  public void applyTo(@Nonnull GitFileSystem gfs) throws IOException {
+  public void applyTo(GitFileSystem gfs) throws IOException {
     dirs.add(gfs.getFileStore().getRoot());
     paths.add("/");
     while(!dirs.isEmpty()) {
@@ -57,7 +57,7 @@ public class GfsChangesCollector {
     }
   }
 
-  private void addChangedDirectory(@Nonnull String path) {
+  private void addChangedDirectory(String path) {
     if(isRoot(path))
       return;
     int parentLength = path.lastIndexOf('/');
@@ -71,7 +71,7 @@ public class GfsChangesCollector {
   }
 
   @Nonnull
-  private Set<String> childrenOf(@Nonnull String parent) {
+  private Set<String> childrenOf(String parent) {
     Set<String> ret = changedDirs.get(parent);
     if(ret == null) {
       ret = new HashSet<>();
@@ -80,7 +80,7 @@ public class GfsChangesCollector {
     return ret;
   }
 
-  private void applyChangesToDir(@Nonnull DirectoryNode dir, String path) throws IOException {
+  private void applyChangesToDir(DirectoryNode dir, String path) throws IOException {
     String prefix = addTrailingSlash(path);
     for(String childName : childrenOf(path)) {
       String childPath = prefix + childName;
@@ -92,7 +92,7 @@ public class GfsChangesCollector {
     }
   }
 
-  private void addSubDirectoryToQueue(@Nonnull String childPath, String childName, DirectoryNode dir) throws IOException {
+  private void addSubDirectoryToQueue(String childPath, String childName, DirectoryNode dir) throws IOException {
     DirectoryNode child = (DirectoryNode) dir.getChild(childName);
     if(child == null) {
       child = DirectoryNode.newDirectory(dir);

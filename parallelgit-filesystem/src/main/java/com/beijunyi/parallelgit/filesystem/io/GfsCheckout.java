@@ -28,35 +28,35 @@ public class GfsCheckout {
 
   private Set<String> ignoredFiles;
 
-  public GfsCheckout(@Nonnull GitFileSystem gfs, boolean failOnConflict) {
+  public GfsCheckout(GitFileSystem gfs, boolean failOnConflict) {
     this.gfs = gfs;
     this.status = gfs.getStatusProvider();
     this.reader = gfs.getRepository().newObjectReader();
     changes = new GfsCheckoutChangesCollector(failOnConflict);
   }
 
-  public GfsCheckout(@Nonnull GitFileSystem gfs) {
+  public GfsCheckout(GitFileSystem gfs) {
     this(gfs, true);
   }
 
   @Nonnull
-  public GfsCheckout ignoredFiles(@Nonnull Collection<String> ignoredFiles) {
+  public GfsCheckout ignoredFiles(Collection<String> ignoredFiles) {
     this.ignoredFiles = new HashSet<>(ignoredFiles);
     return this;
   }
 
-  public void checkout(@Nonnull AbstractTreeIterator iterator) throws IOException {
+  public void checkout(AbstractTreeIterator iterator) throws IOException {
     TreeWalk tw = prepareTreeWalk(iterator);
     collectChanges(tw);
     if(!hasConflicts())
       applyChanges();
   }
 
-  public void checkout(@Nonnull AnyObjectId tree) throws IOException {
+  public void checkout(AnyObjectId tree) throws IOException {
     checkout(new CanonicalTreeParser(null, reader, tree));
   }
 
-  public void checkout(@Nonnull DirCache cache) throws IOException {
+  public void checkout(DirCache cache) throws IOException {
     checkout(new DirCacheIterator(cache));
   }
 
@@ -69,7 +69,7 @@ public class GfsCheckout {
     return changes.getConflicts();
   }
 
-  protected boolean skips(@Nonnull String path) {
+  protected boolean skips(String path) {
     return ignoredFiles != null && ignoredFiles.contains(path);
   }
 
@@ -79,7 +79,7 @@ public class GfsCheckout {
   }
 
   @Nonnull
-  private TreeWalk prepareTreeWalk(@Nonnull AbstractTreeIterator iterator) throws IOException {
+  private TreeWalk prepareTreeWalk(AbstractTreeIterator iterator) throws IOException {
     TreeWalk ret = new NameConflictTreeWalk(gfs.getRepository());
     ret.addTree(new CanonicalTreeParser(null, reader, status.commit().getTree()));
     ret.addTree(iterator);
@@ -87,7 +87,7 @@ public class GfsCheckout {
     return ret;
   }
 
-  private void collectChanges(@Nonnull TreeWalk tw) throws IOException {
+  private void collectChanges(TreeWalk tw) throws IOException {
     while(tw.next()) {
       String path = toAbsolutePath(tw.getPathString());
       if(skips(path))
@@ -100,7 +100,7 @@ public class GfsCheckout {
     }
   }
 
-  private boolean mergeEntries(@Nonnull String path, GitFileEntry head, GitFileEntry target, GitFileEntry worktree) throws IOException {
+  private boolean mergeEntries(String path, GitFileEntry head, GitFileEntry target, GitFileEntry worktree) throws IOException {
     if(target.equals(worktree) || target.equals(head))
       return false;
     if(head.equals(worktree)) {

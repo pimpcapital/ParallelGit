@@ -36,7 +36,7 @@ public class GitFileSystem extends FileSystem {
 
   private volatile boolean closed = false;
 
-  public GitFileSystem(@Nonnull GfsConfiguration cfg, String sid) throws IOException {
+  public GitFileSystem(GfsConfiguration cfg, String sid) throws IOException {
     this.sid = sid;
     objService = new GfsObjectService(cfg.repository());
     RevCommit commit = cfg.commit();
@@ -110,7 +110,7 @@ public class GitFileSystem extends FileSystem {
 
   @Nonnull
   @Override
-  public GitPath getPath(@Nonnull String first, String... more) {
+  public GitPath getPath(String first, String... more) {
     String path;
     if(more.length == 0)
       path = first;
@@ -131,7 +131,7 @@ public class GitFileSystem extends FileSystem {
 
   @Nonnull
   @Override
-  public PathMatcher getPathMatcher(@Nonnull String syntaxAndInput) {
+  public PathMatcher getPathMatcher(String syntaxAndInput) {
     int pos = syntaxAndInput.indexOf(':');
     if(pos <= 0 || pos == syntaxAndInput.length())
       throw new IllegalArgumentException();
@@ -153,7 +153,7 @@ public class GitFileSystem extends FileSystem {
 
     return new PathMatcher() {
       @Override
-      public boolean matches(@Nonnull Path path) {
+      public boolean matches(Path path) {
         return pattern.matcher(path.toString()).matches();
       }
     };
@@ -209,7 +209,7 @@ public class GitFileSystem extends FileSystem {
     return ret;
   }
 
-  public void updateOrigin(@Nonnull ObjectId rootTree) throws IOException {
+  public void updateOrigin(ObjectId rootTree) throws IOException {
     RootNode root = fileStore.getRoot();
     root.updateOrigin(rootTree);
   }

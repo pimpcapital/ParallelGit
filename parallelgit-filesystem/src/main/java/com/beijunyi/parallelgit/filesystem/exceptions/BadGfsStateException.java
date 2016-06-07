@@ -8,7 +8,7 @@ public class BadGfsStateException extends IllegalStateException {
 
   private final GfsState state;
 
-  public BadGfsStateException(@Nonnull GfsState state) {
+  public BadGfsStateException(GfsState state) {
     this.state = state;
   }
 

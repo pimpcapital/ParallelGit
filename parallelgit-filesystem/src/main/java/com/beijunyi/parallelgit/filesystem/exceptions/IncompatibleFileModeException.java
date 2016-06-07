@@ -9,7 +9,7 @@ public class IncompatibleFileModeException extends IllegalArgumentException {
   private final FileMode current;
   private final FileMode proposed;
 
-  public IncompatibleFileModeException(@Nonnull FileMode current, FileMode proposed) {
+  public IncompatibleFileModeException(FileMode current, FileMode proposed) {
     super(current.toString() + " -> " + proposed.toString());
     this.current = current;
     this.proposed = proposed;

@@ -16,30 +16,30 @@ public class FileNode extends Node<BlobSnapshot, byte[]> {
 
   private long size = -1;
 
-  private FileNode(@Nonnull ObjectId id, FileMode mode, DirectoryNode parent) {
+  private FileNode(ObjectId id, FileMode mode, DirectoryNode parent) {
     super(id, mode, parent);
   }
 
-  private FileNode(@Nonnull FileMode mode, DirectoryNode parent) {
+  private FileNode(FileMode mode, DirectoryNode parent) {
     super(mode, parent);
   }
 
-  private FileNode(@Nonnull byte[] bytes, FileMode mode, DirectoryNode parent) {
+  private FileNode(byte[] bytes, FileMode mode, DirectoryNode parent) {
     super(bytes, mode, parent);
   }
 
   @Nonnull
-  protected static FileNode fromObject(@Nonnull ObjectId id, FileMode mode, DirectoryNode parent) {
+  protected static FileNode fromObject(ObjectId id, FileMode mode, DirectoryNode parent) {
     return new FileNode(id, mode, parent);
   }
 
   @Nonnull
-  public static FileNode fromBytes(@Nonnull byte[] bytes, FileMode mode, DirectoryNode parent) {
+  public static FileNode fromBytes(byte[] bytes, FileMode mode, DirectoryNode parent) {
     return new FileNode(bytes, mode, parent);
   }
 
   @Nonnull
-  public static FileNode newFile(@Nonnull FileMode mode, DirectoryNode parent) {
+  public static FileNode newFile(FileMode mode, DirectoryNode parent) {
     return new FileNode(mode, parent);
   }
 
@@ -68,24 +68,24 @@ public class FileNode extends Node<BlobSnapshot, byte[]> {
 
   @Nonnull
   @Override
-  protected byte[] loadData(@Nonnull BlobSnapshot snapshot) {
+  protected byte[] loadData(BlobSnapshot snapshot) {
     return snapshot.getData();
   }
 
   @Override
-  protected boolean isTrivial(@Nonnull byte[] data) {
+  protected boolean isTrivial(byte[] data) {
     return false;
   }
 
   @Nonnull
   @Override
-  protected BlobSnapshot captureData(@Nonnull byte[] data, boolean persist) {
+  protected BlobSnapshot captureData(byte[] data, boolean persist) {
     return BlobSnapshot.capture(data);
   }
 
   @Nonnull
   @Override
-  public Node clone(@Nonnull DirectoryNode parent) throws IOException {
+  public Node clone(DirectoryNode parent) throws IOException {
     FileNode ret;
     if(isInitialized()) {
       ret = newFile(mode, parent);
@@ -99,14 +99,14 @@ public class FileNode extends Node<BlobSnapshot, byte[]> {
     return ret;
   }
 
-  public void setBytes(@Nonnull byte[] bytes) {
+  public void setBytes(byte[] bytes) {
     this.data = bytes;
     this.size = bytes.length;
     id = null;
     invalidateParentCache();
   }
 
-  protected void checkFileMode(@Nonnull FileMode proposed) {
+  protected void checkFileMode(FileMode proposed) {
     if(TREE.equals(proposed) || GITLINK.equals(proposed))
       throw new IncompatibleFileModeException(mode, proposed);
   }

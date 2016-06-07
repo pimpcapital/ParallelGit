@@ -11,27 +11,27 @@ import org.eclipse.jgit.revwalk.RevCommit;
 
 public class RootNode extends DirectoryNode {
 
-  public RootNode(@Nonnull ObjectId id, GfsObjectService objService) throws IOException {
+  public RootNode(ObjectId id, GfsObjectService objService) throws IOException {
     super(id, objService);
     updateOrigin(id);
   }
 
-  public RootNode(@Nonnull GfsObjectService objService) {
+  public RootNode(GfsObjectService objService) {
     super(objService);
   }
 
   @Nonnull
-  public static RootNode fromCommit(@Nonnull RevCommit commit, GfsObjectService objService) throws IOException {
+  public static RootNode fromCommit(RevCommit commit, GfsObjectService objService) throws IOException {
     return new RootNode(commit.getTree(), objService);
   }
 
   @Nonnull
-  public static RootNode newRoot(@Nonnull GfsObjectService objService) {
+  public static RootNode newRoot(GfsObjectService objService) {
     return new RootNode(objService);
   }
 
   @Override
-  protected boolean isTrivial(@Nonnull Map<String, Node> data) {
+  protected boolean isTrivial(Map<String, Node> data) {
     return false;
   }
 }

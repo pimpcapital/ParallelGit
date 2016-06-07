@@ -53,13 +53,13 @@ public final class GfsMerge extends GfsCommand<GfsMerge.Result> {
 
   private DirCache cache;
 
-  public GfsMerge(@Nonnull GitFileSystem gfs) {
+  public GfsMerge(GitFileSystem gfs) {
     super(gfs);
   }
 
   @Nonnull
   @Override
-  protected Result doExecute(@Nonnull GfsStatusProvider.Update update) throws IOException {
+  protected Result doExecute(GfsStatusProvider.Update update) throws IOException {
     prepareBranchHead();
     prepareTarget();
     prepareSourceCommit();
@@ -135,7 +135,7 @@ public final class GfsMerge extends GfsCommand<GfsMerge.Result> {
     return MERGING;
   }
 
-  private void prepareGfsState(@Nonnull GfsStatusProvider.Update update) {
+  private void prepareGfsState(GfsStatusProvider.Update update) {
     GfsState state = status.state();
     if(state != NORMAL)
       throw new BadGfsStateException(state);
@@ -184,7 +184,7 @@ public final class GfsMerge extends GfsCommand<GfsMerge.Result> {
   }
 
   @Nonnull
-  private Result fastForward(@Nonnull GfsStatusProvider.Update update) throws IOException {
+  private Result fastForward(GfsStatusProvider.Update update) throws IOException {
     boolean success = tryCheckout(sourceHeadCommit.getTree());
     Result result;
     if(!success)
@@ -200,7 +200,7 @@ public final class GfsMerge extends GfsCommand<GfsMerge.Result> {
   }
 
   @Nonnull
-  private Result threeWayMerge(@Nonnull GfsStatusProvider.Update update) throws IOException {
+  private Result threeWayMerge(GfsStatusProvider.Update update) throws IOException {
     Merger merger = prepareMerger();
     boolean success = merger.merge(headCommit, sourceHeadCommit);
     if(success)
@@ -213,7 +213,7 @@ public final class GfsMerge extends GfsCommand<GfsMerge.Result> {
   }
 
   @Nonnull
-  private Result updateFileSystemStatus(@Nonnull GfsStatusProvider.Update update, Merger merger) throws IOException {
+  private Result updateFileSystemStatus(GfsStatusProvider.Update update, Merger merger) throws IOException {
     AnyObjectId treeId = merger.getResultTreeId();
     new GfsCheckout(gfs).checkout(treeId);
     RevCommit newCommit = null;
@@ -235,7 +235,7 @@ public final class GfsMerge extends GfsCommand<GfsMerge.Result> {
     return Result.merged(newCommit);
   }
 
-  private void writeConflicts(@Nonnull GfsStatusProvider.Update update, ResolveMerger merger) throws IOException {
+  private void writeConflicts(GfsStatusProvider.Update update, ResolveMerger merger) throws IOException {
     ResolveMerger rm = ResolveMerger.class.cast(merger);
     Map<String, MergeResult<? extends Sequence>> conflicts = getConflicts(rm);
     new GfsMergeCheckout(gfs)
@@ -254,7 +254,7 @@ public final class GfsMerge extends GfsCommand<GfsMerge.Result> {
     }
   }
 
-  private boolean tryCheckout(@Nonnull AnyObjectId tree) throws IOException {
+  private boolean tryCheckout(AnyObjectId tree) throws IOException {
     GfsCheckout checkout = new GfsCheckout(gfs);
     try {
       checkout.checkout(tree);
@@ -282,7 +282,7 @@ public final class GfsMerge extends GfsCommand<GfsMerge.Result> {
   }
 
   @Nonnull
-  private static Map<String, MergeResult<? extends Sequence>> getConflicts(@Nonnull ResolveMerger merger) {
+  private static Map<String, MergeResult<? extends Sequence>> getConflicts(ResolveMerger merger) {
     Map<String, MergeResult<? extends Sequence>> ret = new HashMap<>();
     for(Map.Entry<String, MergeResult<? extends Sequence>> conflict : merger.getMergeResults().entrySet())
       ret.put(toAbsolutePath(conflict.getKey()), conflict.getValue());
@@ -294,7 +294,7 @@ public final class GfsMerge extends GfsCommand<GfsMerge.Result> {
     private final MergeStatus status;
     private final RevCommit commit;
 
-    private Result(@Nonnull MergeStatus status, @Nullable RevCommit commit) {
+    private Result(MergeStatus status, @Nullable RevCommit commit) {
       this.status = status;
       this.commit = commit;
     }
@@ -310,12 +310,12 @@ public final class GfsMerge extends GfsCommand<GfsMerge.Result> {
     }
 
     @Nonnull
-    public static Result upToDate(@Nonnull RevCommit commit) {
+    public static Result upToDate(RevCommit commit) {
       return new Result(ALREADY_UP_TO_DATE, commit);
     }
 
     @Nonnull
-    public static Result fastForward(@Nonnull RevCommit commit) {
+    public static Result fastForward(RevCommit commit) {
       return new Result(FAST_FORWARD, commit);
     }
 
@@ -325,7 +325,7 @@ public final class GfsMerge extends GfsCommand<GfsMerge.Result> {
     }
 
     @Nonnull
-    public static Result merged(@Nonnull RevCommit commit) {
+    public static Result merged(RevCommit commit) {
       return new Result(MERGED, commit);
     }
 

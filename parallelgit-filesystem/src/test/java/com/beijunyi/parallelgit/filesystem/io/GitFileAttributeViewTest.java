@@ -217,32 +217,32 @@ public class GitFileAttributeViewTest extends AbstractGitFileSystemTest {
   }
 
   @Nonnull
-  private GfsFileAttributeView.Git open(@Nonnull String path) {
+  private GfsFileAttributeView.Git open(String path) {
     GfsFileAttributeView.Git view = (GfsFileAttributeView.Git) provider.getFileAttributeView(gfs.getPath(path), GitFileAttributeView.class);
     assert view != null;
     return view;
   }
 
   @Nullable
-  private Object readAttribute(@Nonnull String path, String key) throws IOException {
+  private Object readAttribute(String path, String key) throws IOException {
     return open(path).readAttributes(Collections.singleton(key)).get(key);
   }
 
-  private boolean isNew(@Nonnull String path) throws IOException {
+  private boolean isNew(String path) throws IOException {
     return (boolean) readAttribute(path, IS_NEW);
   }
 
-  private boolean isModified(@Nonnull String path) throws IOException {
+  private boolean isModified(String path) throws IOException {
     return (boolean) readAttribute(path, IS_MODIFIED);
   }
 
   @Nullable
-  private ObjectId objectId(@Nonnull String path) throws IOException {
+  private ObjectId objectId(String path) throws IOException {
     return (ObjectId) readAttribute(path, OBJECT_ID);
   }
 
   @Nullable
-  private FileMode fileMode(@Nonnull String path) throws IOException {
+  private FileMode fileMode(String path) throws IOException {
     return (FileMode) readAttribute(path, FILE_MODE);
   }
 

@@ -2,7 +2,6 @@ package com.beijunyi.parallelgit.filesystem;
 
 import java.io.IOException;
 import java.nio.file.Files;
-import javax.annotation.Nonnull;
 
 import com.beijunyi.parallelgit.AbstractParallelGitTest;
 import org.eclipse.jgit.lib.Constants;
@@ -23,7 +22,7 @@ public abstract class AbstractGitFileSystemTest extends AbstractParallelGitTest 
       gfs.close();
   }
 
-  protected void writeToGfs(@Nonnull String path, byte[] data) throws IOException {
+  protected void writeToGfs(String path, byte[] data) throws IOException {
     GitPath file = gfs.getPath(path);
     GitPath parent = file.getParent();
     if(parent != null)
@@ -31,11 +30,11 @@ public abstract class AbstractGitFileSystemTest extends AbstractParallelGitTest 
     Files.write(file, data);
   }
 
-  protected void writeToGfs(@Nonnull String path, String content) throws IOException {
+  protected void writeToGfs(String path, String content) throws IOException {
     writeToGfs(path, Constants.encode(content));
   }
 
-  protected void writeToGfs(@Nonnull String path) throws IOException {
+  protected void writeToGfs(String path) throws IOException {
     writeToGfs(path, path + "'s unique content");
   }
 
@@ -43,13 +42,13 @@ public abstract class AbstractGitFileSystemTest extends AbstractParallelGitTest 
     writeToGfs("some_file.txt");
   }
 
-  protected void initGitFileSystemForBranch(@Nonnull String branch) throws IOException {
+  protected void initGitFileSystemForBranch(String branch) throws IOException {
     assert repo != null;
     if(gfs == null)
       injectGitFileSystem(Gfs.newFileSystem(branch, repo));
   }
 
-  protected void initGitFileSystem(@Nonnull String... files) throws IOException {
+  protected void initGitFileSystem(String... files) throws IOException {
     if(repo == null)
       initRepository();
     if(files.length != 0) {
@@ -59,7 +58,7 @@ public abstract class AbstractGitFileSystemTest extends AbstractParallelGitTest 
     initGitFileSystemForBranch(Constants.MASTER);
   }
 
-  protected void injectGitFileSystem(@Nonnull GitFileSystem gfs) {
+  protected void injectGitFileSystem(GitFileSystem gfs) {
     this.gfs = gfs;
     root = gfs.getRootPath();
     status = gfs.getStatusProvider();

@@ -17,7 +17,7 @@ import org.junit.Test;
 public class CacheUtilsEditTest extends AbstractParallelGitTest {
 
   @Nonnull
-  private static DirCache setupCache(@Nonnull String... files) {
+  private static DirCache setupCache(String... files) {
     DirCache cache = DirCache.newInCore();
     DirCacheBuilder builder = cache.builder();
     for(String file : files)

@@ -18,30 +18,30 @@ import static org.eclipse.jgit.lib.FileMode.TREE;
 
 public class DirectoryNode extends Node<TreeSnapshot, Map<String, Node>> {
 
-  protected DirectoryNode(@Nonnull ObjectId id, GfsObjectService objService) {
+  protected DirectoryNode(ObjectId id, GfsObjectService objService) {
     super(id, TREE, objService);
   }
 
-  protected DirectoryNode(@Nonnull GfsObjectService objService) {
+  protected DirectoryNode(GfsObjectService objService) {
     super(TREE, objService);
   }
 
-  protected DirectoryNode(@Nonnull ObjectId id, DirectoryNode parent) {
+  protected DirectoryNode(ObjectId id, DirectoryNode parent) {
     super(id, TREE, parent);
   }
 
-  protected DirectoryNode(@Nonnull DirectoryNode parent) {
+  protected DirectoryNode(DirectoryNode parent) {
     super(TREE, parent);
   }
 
   @Nonnull
-  public static DirectoryNode fromObject(@Nonnull ObjectId id, DirectoryNode parent) {
+  public static DirectoryNode fromObject(ObjectId id, DirectoryNode parent) {
     return new DirectoryNode(id, parent);
   }
 
 
   @Nonnull
-  public static DirectoryNode newDirectory(@Nonnull DirectoryNode parent) {
+  public static DirectoryNode newDirectory(DirectoryNode parent) {
     return new DirectoryNode(parent);
   }
 
@@ -56,7 +56,7 @@ public class DirectoryNode extends Node<TreeSnapshot, Map<String, Node>> {
   }
 
   @Override
-  public void updateOrigin(@Nonnull GitFileEntry entry) throws IOException {
+  public void updateOrigin(GitFileEntry entry) throws IOException {
     super.updateOrigin(entry);
     if(isInitialized()) {
       if(origin.isDirectory()) {
@@ -70,13 +70,13 @@ public class DirectoryNode extends Node<TreeSnapshot, Map<String, Node>> {
     }
   }
 
-  public void updateOrigin(@Nonnull ObjectId id) throws IOException {
+  public void updateOrigin(ObjectId id) throws IOException {
     updateOrigin(GitFileEntry.tree(id));
   }
 
   @Nonnull
   @Override
-  protected Map<String, Node> loadData(@Nonnull TreeSnapshot snapshot) throws IOException {
+  protected Map<String, Node> loadData(TreeSnapshot snapshot) throws IOException {
     Map<String, Node> ret = getDefaultData();
     boolean updateOrigin = origin != null && origin.getId().equals(snapshot.getId());
     for(Map.Entry<String, GitFileEntry> child : snapshot.getData().entrySet()) {
@@ -90,7 +90,7 @@ public class DirectoryNode extends Node<TreeSnapshot, Map<String, Node>> {
   }
 
   @Override
-  protected boolean isTrivial(@Nonnull Map<String, Node> data) throws IOException {
+  protected boolean isTrivial(Map<String, Node> data) throws IOException {
     boolean ret = true;
     for(Node child : data.values())
       if(!child.isTrivial()) {
@@ -101,7 +101,7 @@ public class DirectoryNode extends Node<TreeSnapshot, Map<String, Node>> {
   }
 
   @Nonnull
-  protected TreeSnapshot captureData(@Nonnull Map<String, Node> data, boolean persist) throws IOException {
+  protected TreeSnapshot captureData(Map<String, Node> data, boolean persist) throws IOException {
     SortedMap<String, GitFileEntry> entries = new TreeMap<>();
     for(Map.Entry<String, Node> child : data.entrySet()) {
       Node node = child.getValue();
@@ -114,7 +114,7 @@ public class DirectoryNode extends Node<TreeSnapshot, Map<String, Node>> {
 
   @Nonnull
   @Override
-  public Node clone(@Nonnull DirectoryNode parent) throws IOException {
+  public Node clone(DirectoryNode parent) throws IOException {
     DirectoryNode ret;
     if(isInitialized()) {
       ret = DirectoryNode.newDirectory(parent);
@@ -138,16 +138,16 @@ public class DirectoryNode extends Node<TreeSnapshot, Map<String, Node>> {
     return Collections.unmodifiableList(ret);
   }
 
-  public boolean hasChild(@Nonnull String name) throws IOException {
+  public boolean hasChild(String name) throws IOException {
     return getData().containsKey(name);
   }
 
   @Nullable
-  public Node getChild(@Nonnull String name) throws IOException {
+  public Node getChild(String name) throws IOException {
     return getData().get(name);
   }
 
-  public boolean addChild(@Nonnull String name, Node child, boolean replace) throws IOException {
+  public boolean addChild(String name, Node child, boolean replace) throws IOException {
     if(!replace && getData().containsKey(name))
       return false;
     if(snapshot != null) {
@@ -161,7 +161,7 @@ public class DirectoryNode extends Node<TreeSnapshot, Map<String, Node>> {
     return true;
   }
 
-  public boolean removeChild(@Nonnull String name) throws IOException {
+  public boolean removeChild(String name) throws IOException {
     Node removed = getData().remove(name);
     if(removed != null) {
       removed.exile();
@@ -173,7 +173,7 @@ public class DirectoryNode extends Node<TreeSnapshot, Map<String, Node>> {
   }
 
   @Override
-  protected void checkFileMode(@Nonnull FileMode proposed) {
+  protected void checkFileMode(FileMode proposed) {
     if(!TREE.equals(proposed))
       throw new IncompatibleFileModeException(TREE, proposed);
   }
@@ -198,7 +198,7 @@ public class DirectoryNode extends Node<TreeSnapshot, Map<String, Node>> {
   }
 
   @Nonnull
-  private Collection<Node> findNotUpdatedChildren(@Nonnull Set<String> updatedChildren) throws IOException{
+  private Collection<Node> findNotUpdatedChildren(Set<String> updatedChildren) throws IOException{
     List<Node> ret = new ArrayList<>();
     for(Map.Entry<String, Node> child : data.entrySet()) {
       String name = child.getKey();
@@ -208,7 +208,7 @@ public class DirectoryNode extends Node<TreeSnapshot, Map<String, Node>> {
     return ret;
   }
 
-  private void updateOriginsToTrivial(@Nonnull Collection<Node> nodes) throws IOException {
+  private void updateOriginsToTrivial(Collection<Node> nodes) throws IOException {
     for(Node node : nodes) {
       node.updateOrigin(GitFileEntry.TRIVIAL);
     }

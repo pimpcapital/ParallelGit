@@ -8,7 +8,7 @@ public class GfsCheckoutConflictException extends IllegalStateException {
 
   private final GfsCheckoutConflict conflict;
 
-  public GfsCheckoutConflictException(@Nonnull GfsCheckoutConflict conflict) {
+  public GfsCheckoutConflictException(GfsCheckoutConflict conflict) {
     this.conflict = conflict;
   }
 

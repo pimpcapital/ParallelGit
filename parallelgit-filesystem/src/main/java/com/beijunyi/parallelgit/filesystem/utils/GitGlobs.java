@@ -17,14 +17,14 @@ public final class GitGlobs {
   }
   private static char EOL = 0;
 
-  private static char charAt(@Nonnull String glob, int i) {
+  private static char charAt(String glob, int i) {
     if (i < glob.length())
       return glob.charAt(i);
     return EOL;
   }
 
   @Nonnull
-  public static String toRegexPattern(@Nonnull String globPattern) {
+  public static String toRegexPattern(String globPattern) {
     boolean inGroup = false;
     StringBuilder regex = new StringBuilder("^");
 

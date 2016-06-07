@@ -1,7 +1,6 @@
 package com.beijunyi.parallelgit.utils;
 
 import java.io.IOException;
-import javax.annotation.Nonnull;
 
 import com.beijunyi.parallelgit.AbstractParallelGitTest;
 import org.eclipse.jgit.lib.AnyObjectId;
@@ -13,7 +12,7 @@ import org.junit.Test;
 
 public class TreeUtilsTest extends AbstractParallelGitTest {
 
-  private static void assertNextEntry(@Nonnull TreeWalk treeWalk, String path) throws IOException {
+  private static void assertNextEntry(TreeWalk treeWalk, String path) throws IOException {
     Assert.assertTrue(treeWalk.next());
     Assert.assertEquals(path, treeWalk.getPathString());
   }

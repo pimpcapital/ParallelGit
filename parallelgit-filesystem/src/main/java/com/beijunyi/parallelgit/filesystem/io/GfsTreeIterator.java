@@ -21,27 +21,27 @@ public class GfsTreeIterator extends WorkingTreeIterator {
   private int index = -1;
   private ObjectId id;
 
-  private GfsTreeIterator(@Nonnull List<GfsTreeEntry> files, GfsTreeIterator parent) {
+  private GfsTreeIterator(List<GfsTreeEntry> files, GfsTreeIterator parent) {
     super(parent);
     this.files = files;
     next(1);
   }
 
-  private GfsTreeIterator(@Nonnull List<GfsTreeEntry> files) {
+  private GfsTreeIterator(List<GfsTreeEntry> files) {
     super((WorkingTreeOptions) null);
     this.files = files;
     next(1);
   }
 
-  private GfsTreeIterator(@Nonnull DirectoryNode node) throws IOException {
+  private GfsTreeIterator(DirectoryNode node) throws IOException {
     this(GfsTreeEntry.listChildren(node));
   }
 
-  private GfsTreeIterator(@Nonnull GfsFileStore store) throws IOException {
+  private GfsTreeIterator(GfsFileStore store) throws IOException {
     this(store.getRoot());
   }
 
-  public GfsTreeIterator(@Nonnull GitFileSystem gfs) throws IOException {
+  public GfsTreeIterator(GitFileSystem gfs) throws IOException {
     this(gfs.getFileStore());
   }
 
@@ -70,7 +70,7 @@ public class GfsTreeIterator extends WorkingTreeIterator {
 
   @Nonnull
   @Override
-  public AbstractTreeIterator createSubtreeIterator(@Nonnull ObjectReader reader) throws IOException {
+  public AbstractTreeIterator createSubtreeIterator(ObjectReader reader) throws IOException {
     GfsTreeEntry entry = currentEntry();
     return new GfsTreeIterator(entry.listChildren(), this);
   }
@@ -119,13 +119,13 @@ public class GfsTreeIterator extends WorkingTreeIterator {
     private final String name;
     private final Node node;
 
-    public GfsTreeEntry(@Nonnull String name, Node node) {
+    public GfsTreeEntry(String name, Node node) {
       this.name = name;
       this.node = node;
     }
 
     @Override
-    public int compareTo(@Nonnull GfsTreeEntry that) {
+    public int compareTo(GfsTreeEntry that) {
       return getName().compareTo(that.getName());
     }
 
@@ -156,7 +156,7 @@ public class GfsTreeIterator extends WorkingTreeIterator {
     }
 
     @Nonnull
-    public static List<GfsTreeEntry> listChildren(@Nonnull DirectoryNode dir) throws IOException {
+    public static List<GfsTreeEntry> listChildren(DirectoryNode dir) throws IOException {
       List<GfsTreeEntry> ret = new ArrayList<>();
       for(Map.Entry<String, Node> child : dir.getData().entrySet()) {
         Node node = child.getValue();

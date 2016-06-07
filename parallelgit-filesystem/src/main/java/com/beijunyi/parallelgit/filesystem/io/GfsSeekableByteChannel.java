@@ -16,7 +16,7 @@ public class GfsSeekableByteChannel implements SeekableByteChannel {
   private ByteBuffer buffer;
   private volatile boolean closed = false;
 
-  GfsSeekableByteChannel(@Nonnull FileNode file, Set<? extends OpenOption> options) throws IOException {
+  GfsSeekableByteChannel(FileNode file, Set<? extends OpenOption> options) throws IOException {
     this.file = file;
     buffer = ByteBuffer.wrap(options.contains(StandardOpenOption.TRUNCATE_EXISTING) ? new byte[0] : file.getData().clone());
     readable = options.contains(StandardOpenOption.READ);
@@ -26,7 +26,7 @@ public class GfsSeekableByteChannel implements SeekableByteChannel {
   }
 
   @Override
-  public int read(@Nonnull ByteBuffer dst) throws ClosedChannelException {
+  public int read(ByteBuffer dst) throws ClosedChannelException {
     checkClosed();
     checkReadAccess();
     synchronized(this) {
@@ -35,7 +35,7 @@ public class GfsSeekableByteChannel implements SeekableByteChannel {
   }
 
   @Override
-  public int write(@Nonnull ByteBuffer src) throws ClosedChannelException {
+  public int write(ByteBuffer src) throws ClosedChannelException {
     checkClosed();
     checkWriteAccess();
     synchronized(this) {
@@ -137,7 +137,7 @@ public class GfsSeekableByteChannel implements SeekableByteChannel {
       throw new NonWritableChannelException();
   }
 
-  private static int copyBytes(@Nonnull ByteBuffer dst, ByteBuffer src) {
+  private static int copyBytes(ByteBuffer dst, ByteBuffer src) {
     int remaining = Math.min(src.remaining(), dst.remaining());
     for(int i = 0; i < remaining; i++)
       dst.put(src.get());

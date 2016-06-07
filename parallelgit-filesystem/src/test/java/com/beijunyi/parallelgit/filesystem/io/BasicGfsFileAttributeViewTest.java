@@ -3,7 +3,6 @@ package com.beijunyi.parallelgit.filesystem.io;
 import java.io.IOException;
 import java.nio.file.attribute.FileTime;
 import java.util.Collections;
-import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 
 import com.beijunyi.parallelgit.filesystem.AbstractGitFileSystemTest;
@@ -39,7 +38,7 @@ public class BasicGfsFileAttributeViewTest extends AbstractGitFileSystemTest {
   }
 
   @Nullable
-  public static Object readAttribute(@Nonnull GfsFileAttributeView view, String key) throws IOException {
+  public static Object readAttribute(GfsFileAttributeView view, String key) throws IOException {
     return view.readAttributes(Collections.singleton(key)).get(key);
   }
 

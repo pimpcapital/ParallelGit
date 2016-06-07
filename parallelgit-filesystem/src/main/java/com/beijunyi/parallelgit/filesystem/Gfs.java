@@ -14,71 +14,71 @@ import static com.beijunyi.parallelgit.filesystem.utils.GfsConfiguration.*;
 public final class Gfs {
 
   @Nonnull
-  public static GitFileSystem newFileSystem(@Nonnull GfsConfiguration cfg) throws IOException {
+  public static GitFileSystem newFileSystem(GfsConfiguration cfg) throws IOException {
     return GitFileSystemProvider.getInstance().newFileSystem(cfg);
   }
 
   @Nonnull
-  public static GitFileSystem newFileSystem(@Nonnull Repository repo) throws IOException {
+  public static GitFileSystem newFileSystem(Repository repo) throws IOException {
     return newFileSystem(repo(repo));
   }
 
   @Nonnull
-  public static GitFileSystem newFileSystem(@Nonnull File repoDir) throws IOException {
+  public static GitFileSystem newFileSystem(File repoDir) throws IOException {
     return newFileSystem(fileRepo(repoDir));
   }
 
   @Nonnull
-  public static GitFileSystem newFileSystem(@Nonnull String repoDir) throws IOException {
+  public static GitFileSystem newFileSystem(String repoDir) throws IOException {
     return newFileSystem(fileRepo(repoDir));
   }
 
   @Nonnull
-  public static GitFileSystem newFileSystem(@Nonnull String branch, Repository repo) throws IOException {
+  public static GitFileSystem newFileSystem(String branch, Repository repo) throws IOException {
     return newFileSystem(repo(repo).branch(branch));
   }
 
   @Nonnull
-  public static GitFileSystem newFileSystem(@Nonnull String branch, File repoDir) throws IOException {
+  public static GitFileSystem newFileSystem(String branch, File repoDir) throws IOException {
     return newFileSystem(fileRepo(repoDir).branch(branch));
 
   }
 
   @Nonnull
-  public static GitFileSystem newFileSystem(@Nonnull String branch, String repoDir) throws IOException {
+  public static GitFileSystem newFileSystem(String branch, String repoDir) throws IOException {
     return newFileSystem(fileRepo(repoDir).branch(branch));
   }
 
   @Nonnull
-  public static GitFileSystem newFileSystem(@Nonnull AnyObjectId commit, Repository repo) throws IOException {
+  public static GitFileSystem newFileSystem(AnyObjectId commit, Repository repo) throws IOException {
     return newFileSystem(repo(repo).commit(commit));
   }
 
   @Nonnull
-  public static GfsCheckout checkout(@Nonnull GitFileSystem gfs) {
+  public static GfsCheckout checkout(GitFileSystem gfs) {
     return new GfsCheckout(gfs);
   }
 
   @Nonnull
-  public static GfsCommit commit(@Nonnull GitFileSystem gfs) {
+  public static GfsCommit commit(GitFileSystem gfs) {
     return new GfsCommit(gfs);
   }
 
   @Nonnull
-  public static GfsMerge merge(@Nonnull GitFileSystem gfs) {
+  public static GfsMerge merge(GitFileSystem gfs) {
     return new GfsMerge(gfs);
   }
 
   @Nonnull
-  public static GfsCreateStash stash(@Nonnull GitFileSystem gfs) {
+  public static GfsCreateStash stash(GitFileSystem gfs) {
     return new GfsCreateStash(gfs);
   }
 
-  public static boolean isDirty(@Nonnull GitFileSystem gfs) throws IOException {
+  public static boolean isDirty(GitFileSystem gfs) throws IOException {
     return gfs.getFileStore().getRoot().isModified();
   }
 
-  public static void detach(@Nonnull GitFileSystem gfs) throws IOException {
+  public static void detach(GitFileSystem gfs) throws IOException {
     GfsStatusProvider status = gfs.getStatusProvider();
     if(status.isAttached()) {
       checkout(gfs).setTarget(status.commit().getName()).execute();

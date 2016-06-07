@@ -39,12 +39,12 @@ public abstract class GfsFileAttributeView implements FileAttributeView {
 
   protected final Node node;
 
-  protected GfsFileAttributeView(@Nonnull Node node) {
+  protected GfsFileAttributeView(Node node) {
     this.node = node;
   }
 
   @Nonnull
-  static <V extends FileAttributeView> V forNode(@Nonnull Node node, Class<V> type) throws UnsupportedOperationException {
+  static <V extends FileAttributeView> V forNode(Node node, Class<V> type) throws UnsupportedOperationException {
     if(type.isAssignableFrom(GfsFileAttributeView.Basic.class))
       return type.cast(new GfsFileAttributeView.Basic(node));
     if(type.isAssignableFrom(GfsFileAttributeView.Posix.class))
@@ -55,29 +55,29 @@ public abstract class GfsFileAttributeView implements FileAttributeView {
   }
 
   @Nullable
-  public Object readAttribute(@Nonnull String attribute) throws IOException {
+  public Object readAttribute(String attribute) throws IOException {
     return readAttributes(Collections.singleton(attribute)).get(attribute);
   }
 
   @Nullable
-  public <T> T readAttribute(@Nonnull String attribute, Class<T> clazz) throws IOException {
+  public <T> T readAttribute(String attribute, Class<T> clazz) throws IOException {
     return clazz.cast(readAttribute(attribute));
   }
 
   @Nonnull
-  public <T> T getAttribute(@Nonnull String attribute, Class<T> clazz) throws IOException {
+  public <T> T getAttribute(String attribute, Class<T> clazz) throws IOException {
     T ret = readAttribute(attribute, clazz);
     if(ret == null)
       throw new IllegalStateException();
     return ret;
   }
 
-  public boolean getBoolean(@Nonnull String attribute) throws IOException {
+  public boolean getBoolean(String attribute) throws IOException {
     return getAttribute(attribute, Boolean.class);
   }
 
   @Nonnull
-  public abstract Map<String, Object> readAttributes(@Nonnull Collection<String> attributes) throws IOException;
+  public abstract Map<String, Object> readAttributes(Collection<String> attributes) throws IOException;
 
   public static class Basic extends GfsFileAttributeView implements BasicFileAttributeView {
 
@@ -85,7 +85,7 @@ public abstract class GfsFileAttributeView implements FileAttributeView {
 
     public static final String BASIC_VIEW = "basic";
 
-    protected Basic(@Nonnull Node node) {
+    protected Basic(Node node) {
       super(node);
     }
 
@@ -102,13 +102,13 @@ public abstract class GfsFileAttributeView implements FileAttributeView {
     }
 
     @Override
-    public void setTimes(@Nonnull FileTime lastModifiedTime, FileTime lastAccessTime, FileTime createTime) {
+    public void setTimes(FileTime lastModifiedTime, FileTime lastAccessTime, FileTime createTime) {
       throw new UnsupportedOperationException();
     }
 
     @Nonnull
     @Override
-    public Map<String, Object> readAttributes(@Nonnull Collection<String> keys) throws IOException {
+    public Map<String, Object> readAttributes(Collection<String> keys) throws IOException {
       Map<String, Object> result = new HashMap<>();
       for(String key : keys) {
         switch(key) {
@@ -174,7 +174,7 @@ public abstract class GfsFileAttributeView implements FileAttributeView {
 
     public static final String POSIX_VIEW = "posix";
 
-    protected Posix(@Nonnull Node node) {
+    protected Posix(Node node) {
       super(node);
     }
 
@@ -200,13 +200,13 @@ public abstract class GfsFileAttributeView implements FileAttributeView {
 
 
     @Override
-    public void setPermissions(@Nonnull Set<PosixFilePermission> perms) throws IOException {
+    public void setPermissions(Set<PosixFilePermission> perms) throws IOException {
       FileMode mode = perms.contains(OWNER_EXECUTE) ? EXECUTABLE_FILE : REGULAR_FILE;
       node.setMode(mode);
     }
 
     @Override
-    public void setGroup(@Nonnull GroupPrincipal group) throws IOException {
+    public void setGroup(GroupPrincipal group) throws IOException {
       throw new UnsupportedOperationException();
     }
 
@@ -217,13 +217,13 @@ public abstract class GfsFileAttributeView implements FileAttributeView {
     }
 
     @Override
-    public void setOwner(@Nonnull UserPrincipal owner) throws IOException {
+    public void setOwner(UserPrincipal owner) throws IOException {
       throw new UnsupportedOperationException();
     }
 
     @Nonnull
     @Override
-    public Map<String, Object> readAttributes(@Nonnull Collection<String> keys) throws IOException {
+    public Map<String, Object> readAttributes(Collection<String> keys) throws IOException {
       Set<String> basicKeys = new HashSet<>(keys);
       basicKeys.retainAll(BASIC_KEYS);
       Map<String, Object> result = new HashMap<>(super.readAttributes(basicKeys));
@@ -265,7 +265,7 @@ public abstract class GfsFileAttributeView implements FileAttributeView {
 
     public static final String GIT_VIEW = "git";
 
-    protected Git(@Nonnull Node node) {
+    protected Git(Node node) {
       super(node);
     }
 
@@ -276,7 +276,7 @@ public abstract class GfsFileAttributeView implements FileAttributeView {
     }
 
     @Override
-    public void setFileMode(@Nonnull FileMode mode) {
+    public void setFileMode(FileMode mode) {
       node.setMode(mode);
     }
 
@@ -288,7 +288,7 @@ public abstract class GfsFileAttributeView implements FileAttributeView {
 
     @Nonnull
     @Override
-    public Map<String, Object> readAttributes(@Nonnull Collection<String> keys) throws IOException {
+    public Map<String, Object> readAttributes(Collection<String> keys) throws IOException {
       Set<String> posixKeys = new HashSet<>(keys);
       posixKeys.retainAll(POSIX_KEYS);
       Map<String, Object> result = new HashMap<>(super.readAttributes(posixKeys));

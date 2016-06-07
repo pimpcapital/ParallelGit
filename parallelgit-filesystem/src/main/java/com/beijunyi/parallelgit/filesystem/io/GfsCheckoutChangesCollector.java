@@ -17,7 +17,7 @@ public class GfsCheckoutChangesCollector extends GfsChangesCollector {
     this.failsOnConflict = failsOnConflict;
   }
 
-  public void addConflict(@Nonnull GfsCheckoutConflict conflict) {
+  public void addConflict(GfsCheckoutConflict conflict) {
     conflicts.put(conflict.getPath(), conflict);
     if(failsOnConflict)
       throw new GfsCheckoutConflictException(conflict);

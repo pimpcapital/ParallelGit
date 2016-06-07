@@ -14,7 +14,7 @@ public class GfsMergerConflictingMergeTest extends AbstractParallelGitTest {
 //  public void setUp() throws IOException {
 //    initRepository();
 //  }
-//  private void prepareFileWithConflictingModes(@Nonnull String conflictingFile) throws IOException {
+//  private void prepareFileWithConflictingModes(String conflictingFile) throws IOException {
 //    byte[] data = "some text data".getBytes();
 //    writeToCache(conflictingFile, data, FileMode.SYMLINK);
 //    AnyObjectId base = commit();

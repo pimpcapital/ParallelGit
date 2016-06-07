@@ -55,13 +55,13 @@ public class GfsFileStore extends FileStore {
   }
 
   @Override
-  public boolean supportsFileAttributeView(@Nonnull Class<? extends FileAttributeView> type) {
+  public boolean supportsFileAttributeView(Class<? extends FileAttributeView> type) {
     return type.isAssignableFrom(GfsFileAttributeView.Basic.class)
              || type.isAssignableFrom(GfsFileAttributeView.Posix.class) ;
   }
 
   @Override
-  public boolean supportsFileAttributeView(@Nonnull String name) {
+  public boolean supportsFileAttributeView(String name) {
     switch(name) {
       case GfsFileAttributeView.Basic.BASIC_VIEW:
       case GfsFileAttributeView.Posix.POSIX_VIEW:
@@ -73,12 +73,12 @@ public class GfsFileStore extends FileStore {
 
   @Nullable
   @Override
-  public <V extends FileStoreAttributeView> V getFileStoreAttributeView(@Nonnull Class<V> type) {
+  public <V extends FileStoreAttributeView> V getFileStoreAttributeView(Class<V> type) {
     return null;
   }
 
   @Override
-  public Object getAttribute(@Nonnull String attribute) throws IOException {
+  public Object getAttribute(String attribute) throws IOException {
     if(attribute.equals("totalSpace"))
       return getTotalSpace();
     if(attribute.equals("usableSpace"))

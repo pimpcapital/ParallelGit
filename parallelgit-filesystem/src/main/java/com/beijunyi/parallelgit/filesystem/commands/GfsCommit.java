@@ -27,13 +27,13 @@ public final class GfsCommit extends GfsCommand<GfsCommit.Result> {
   private boolean amend = false;
   private boolean allowEmpty = false;
 
-  public GfsCommit(@Nonnull GitFileSystem gfs) {
+  public GfsCommit(GitFileSystem gfs) {
     super(gfs);
   }
 
   @Nonnull
   @Override
-  protected Result doExecute(@Nonnull GfsStatusProvider.Update update) throws IOException {
+  protected Result doExecute(GfsStatusProvider.Update update) throws IOException {
     if(status.isAttached()) {
       if(!isHeadSynchronized()) {
         update.state(NORMAL);
@@ -138,11 +138,11 @@ public final class GfsCommit extends GfsCommand<GfsCommit.Result> {
     }
   }
 
-  private boolean isSameAsParent(@Nonnull AnyObjectId newTree) {
+  private boolean isSameAsParent(AnyObjectId newTree) {
     return status.isInitialized() && status.commit().getTree().equals(newTree);
   }
 
-  private void updateStatus(@Nonnull GfsStatusProvider.Update update, RevCommit newHead) throws IOException {
+  private void updateStatus(GfsStatusProvider.Update update, RevCommit newHead) throws IOException {
     if(status.isAttached()) {
       if(amend)
         BranchUtils.amendCommit(status.branch(), newHead, repo);
@@ -166,13 +166,13 @@ public final class GfsCommit extends GfsCommand<GfsCommit.Result> {
     private final Status status;
     private final RevCommit commit;
 
-    private Result(@Nonnull Status status, @Nullable RevCommit commit) {
+    private Result(Status status, @Nullable RevCommit commit) {
       this.status = status;
       this.commit = commit;
     }
 
     @Nonnull
-    public static Result success(@Nonnull RevCommit commit) {
+    public static Result success(RevCommit commit) {
       return new Result(Status.COMMITTED, commit);
     }
 

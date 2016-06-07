@@ -21,7 +21,7 @@ public class GfsReset extends GfsCommand<GfsReset.Result> {
   private String branch;
   private String revision;
 
-  public GfsReset(@Nonnull GitFileSystem gfs) {
+  public GfsReset(GitFileSystem gfs) {
     super(gfs);
   }
 
@@ -32,7 +32,7 @@ public class GfsReset extends GfsCommand<GfsReset.Result> {
   }
 
   @Nonnull
-  public GfsReset revision(@Nonnull String revision) {
+  public GfsReset revision(String revision) {
     this.revision = revision;
     return this;
   }
@@ -45,7 +45,7 @@ public class GfsReset extends GfsCommand<GfsReset.Result> {
 
   @Nonnull
   @Override
-  protected Result doExecute(@Nonnull GfsStatusProvider.Update update) throws IOException {
+  protected Result doExecute(GfsStatusProvider.Update update) throws IOException {
     prepareBranch();
     prepareCommit();
     RevCommit commit = getCommit(revision, repo);
@@ -78,7 +78,7 @@ public class GfsReset extends GfsCommand<GfsReset.Result> {
 
     private final Status status;
 
-    public Result(@Nonnull Status status) {
+    public Result(Status status) {
       this.status = status;
     }
 

@@ -21,22 +21,22 @@ public class GfsMergeNote {
   }
 
   @Nonnull
-  public static GfsMergeNote mergeSquash(@Nonnull String message) {
+  public static GfsMergeNote mergeSquash(String message) {
     return new GfsMergeNote(null, message, null);
   }
 
   @Nonnull
-  public static GfsMergeNote mergeNoCommit(@Nonnull RevCommit source, String message) {
+  public static GfsMergeNote mergeNoCommit(RevCommit source, String message) {
     return new GfsMergeNote(source, message, null);
   }
 
   @Nonnull
-  public static GfsMergeNote mergeSquashConflicting(@Nonnull String message, @Nullable Map<String, MergeResult<? extends Sequence>> conflicts) {
+  public static GfsMergeNote mergeSquashConflicting(String message, @Nullable Map<String, MergeResult<? extends Sequence>> conflicts) {
     return new GfsMergeNote(null, message, conflicts);
   }
 
   @Nonnull
-  public static GfsMergeNote mergeConflicting(@Nonnull RevCommit source, String message, @Nullable Map<String, MergeResult<? extends Sequence>> conflicts) {
+  public static GfsMergeNote mergeConflicting(RevCommit source, String message, @Nullable Map<String, MergeResult<? extends Sequence>> conflicts) {
     return new GfsMergeNote(source, message, conflicts);
   }
 

@@ -1,12 +1,11 @@
 package com.beijunyi.parallelgit.filesystem.io;
 
 import java.io.IOException;
-import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 
 public abstract class GfsChange {
 
-  public void applyTo(@Nonnull DirectoryNode dir, String name) throws IOException {
+  public void applyTo(DirectoryNode dir, String name) throws IOException {
     Node currentNode = ignoresCurrentNode() ? null : dir.getChild(name);
 
     if(shouldDelete(currentNode)) {

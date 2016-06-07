@@ -156,21 +156,21 @@ public class GfsMergerNoConflictMergeTest extends AbstractParallelGitTest {
 //  }
 //
 //  @Nonnull
-//  private RevCommit clearAndWrite(@Nonnull String file, AnyObjectId base) throws IOException {
+//  private RevCommit clearAndWrite(String file, AnyObjectId base) throws IOException {
 //    clearCache();
 //    writeToCache(file);
 //    return commit(base);
 //  }
 //
 //  @Nonnull
-//  private RevCommit clearAndWrite(@Nonnull String file, byte[] bytes, AnyObjectId base) throws IOException {
+//  private RevCommit clearAndWrite(String file, byte[] bytes, AnyObjectId base) throws IOException {
 //    clearCache();
 //    writeToCache(file, bytes);
 //    return commit(base);
 //  }
 //
 //  @Nonnull
-//  private ObjectId merge(@Nonnull AnyObjectId ours, AnyObjectId theirs) throws IOException {
+//  private ObjectId merge(AnyObjectId ours, AnyObjectId theirs) throws IOException {
 //    try(GitFileSystem gfs = Gfs.newFileSystem(ours, repo)) {
 //      GfsMerger merger = new GfsMerger(gfs);
 //      merger.merge(ours, theirs);

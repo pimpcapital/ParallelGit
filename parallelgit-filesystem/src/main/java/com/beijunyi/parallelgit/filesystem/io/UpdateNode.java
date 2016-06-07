@@ -9,7 +9,7 @@ public class UpdateNode extends GfsChange {
 
   private final GitFileEntry entry;
 
-  public UpdateNode(@Nonnull GitFileEntry entry) {
+  public UpdateNode(GitFileEntry entry) {
     this.entry = entry;
   }
 

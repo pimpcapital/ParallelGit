@@ -10,7 +10,7 @@ public class UpdateFile extends GfsChange {
   private final byte[] bytes;
   private final FileMode mode;
 
-  public UpdateFile(@Nonnull byte[] bytes, FileMode mode) {
+  public UpdateFile(byte[] bytes, FileMode mode) {
     this.bytes = bytes;
     this.mode = mode;
   }

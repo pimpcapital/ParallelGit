@@ -122,7 +122,7 @@ public class GfsChangesCollectorTest extends AbstractGitFileSystemTest {
   }
 
   @Nonnull
-  private GitFileEntry newFileEntry(@Nonnull byte[] bytes) throws IOException {
+  private GitFileEntry newFileEntry(byte[] bytes) throws IOException {
     ObjectId blobId = ObjectUtils.insertBlob(bytes, repo);
     return new GitFileEntry(blobId, REGULAR_FILE);
   }
@@ -138,7 +138,7 @@ public class GfsChangesCollectorTest extends AbstractGitFileSystemTest {
   }
 
   @Nonnull
-  private GitFileEntry newDirectoryEntry(@Nonnull String... children) throws IOException {
+  private GitFileEntry newDirectoryEntry(String... children) throws IOException {
     TreeFormatter tf = new TreeFormatter();
     for(String child : children) {
       GitFileEntry childEntry = someFileEntry();

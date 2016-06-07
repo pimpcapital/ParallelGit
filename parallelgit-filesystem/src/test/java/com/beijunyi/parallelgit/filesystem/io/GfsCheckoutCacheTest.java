@@ -82,14 +82,14 @@ public class GfsCheckoutCacheTest extends AbstractGitFileSystemTest {
   }
 
   @Nonnull
-  private DirCache createCacheWithFile(@Nonnull String path) throws IOException {
+  private DirCache createCacheWithFile(String path) throws IOException {
     DirCache cache = DirCache.newInCore();
     CacheUtils.addFile(path, FileMode.REGULAR_FILE, someObjectId(), cache);
     return cache;
   }
 
   @Nonnull
-  private DirCacheEntry someEntry(@Nonnull String path, int stage) {
+  private DirCacheEntry someEntry(String path, int stage) {
     DirCacheEntry ret = new DirCacheEntry(normalizeTreePath(path), stage);
     ret.setFileMode(FileMode.REGULAR_FILE);
     ret.setObjectId(someObjectId());
@@ -97,7 +97,7 @@ public class GfsCheckoutCacheTest extends AbstractGitFileSystemTest {
   }
 
   @Nonnull
-  private DirCacheEntry someEntry(@Nonnull String path) {
+  private DirCacheEntry someEntry(String path) {
     return someEntry(path, STAGE_0);
   }
 

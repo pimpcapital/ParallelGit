@@ -99,12 +99,12 @@ public class GfsTreeWalkTest extends AbstractGitFileSystemTest {
     }
   }
 
-  private void assertWalk(@Nonnull TreeWalk tw, String... expected) throws IOException {
+  private void assertWalk(TreeWalk tw, String... expected) throws IOException {
     Assert.assertArrayEquals(expected, toArrayWithLeadingSlash(tw));
   }
 
   @Nonnull
-  private String[] toArrayWithLeadingSlash(@Nonnull TreeWalk tw) throws IOException {
+  private String[] toArrayWithLeadingSlash(TreeWalk tw) throws IOException {
     List<String> list = new ArrayList<>();
     while(tw.next())
       list.add("/" + tw.getPathString());
@@ -113,7 +113,7 @@ public class GfsTreeWalkTest extends AbstractGitFileSystemTest {
   }
 
   @Nonnull
-  private TreeWalk forPath(@Nonnull String path) throws IOException {
+  private TreeWalk forPath(String path) throws IOException {
     TreeWalk tw = prepareTreeWalk(false);
     PathFilter filter = PathFilter.create(path.charAt(0) == '/' ? path.substring(1) : path);
     tw.setFilter(filter);

@@ -19,7 +19,7 @@ public class GfsDirectoryStream implements DirectoryStream<Path> {
   private final Filter<? super Path> filter;
   private volatile boolean closed = false;
 
-  public GfsDirectoryStream(@Nonnull DirectoryNode dir, GitPath parent, @Nullable Filter<? super Path> filter) throws IOException {
+  public GfsDirectoryStream(DirectoryNode dir, GitPath parent, @Nullable Filter<? super Path> filter) throws IOException {
     this.parent = parent;
     this.filter = filter;
     children = dir.listChildren();

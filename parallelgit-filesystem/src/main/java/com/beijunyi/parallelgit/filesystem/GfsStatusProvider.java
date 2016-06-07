@@ -28,7 +28,7 @@ public class GfsStatusProvider implements AutoCloseable {
 
   private boolean closed = false;
 
-  public GfsStatusProvider(@Nonnull GfsFileStore fileStore, @Nullable String branch, @Nullable RevCommit commit) {
+  public GfsStatusProvider(GfsFileStore fileStore, @Nullable String branch, @Nullable RevCommit commit) {
     this.fileStore = fileStore;
     this.commit = commit;
     this.branch = branch;
@@ -102,14 +102,14 @@ public class GfsStatusProvider implements AutoCloseable {
     }
 
     @Nonnull
-    public Update state(@Nonnull GfsState newState) {
+    public Update state(GfsState newState) {
       checkClosed();
       state = newState;
       return this;
     }
 
     @Nonnull
-    public Update branch(@Nonnull String newBranch) {
+    public Update branch(String newBranch) {
       checkClosed();
       branch = RefUtils.ensureBranchRefName(newBranch);
       return this;
@@ -123,14 +123,14 @@ public class GfsStatusProvider implements AutoCloseable {
     }
 
     @Nonnull
-    public Update commit(@Nonnull RevCommit newCommit) {
+    public Update commit(RevCommit newCommit) {
       checkClosed();
       commit = newCommit;
       return this;
     }
 
     @Nonnull
-    public Update mergeNote(@Nonnull GfsMergeNote newMergeNote) {
+    public Update mergeNote(GfsMergeNote newMergeNote) {
       checkClosed();
       mergeNote = newMergeNote;
       return this;

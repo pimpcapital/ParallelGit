@@ -25,7 +25,7 @@ public class GfsUriBuilder {
   }
 
   @Nonnull
-  public static GfsUriBuilder fromFileSystem(@Nonnull GitFileSystem gfs) {
+  public static GfsUriBuilder fromFileSystem(GitFileSystem gfs) {
     return prepare()
              .repository(gfs.getRepository())
              .sid(gfs.getSessionId());

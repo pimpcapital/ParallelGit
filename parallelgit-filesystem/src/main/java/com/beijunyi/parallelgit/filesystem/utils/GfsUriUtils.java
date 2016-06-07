@@ -12,13 +12,13 @@ public final class GfsUriUtils {
 
   public final static String SID_KEY = "sid";
 
-  static void checkScheme(@Nonnull URI uri) throws ProviderMismatchException {
+  static void checkScheme(URI uri) throws ProviderMismatchException {
     if(!GitFileSystemProvider.GFS.equalsIgnoreCase(uri.getScheme()))
       throw new ProviderMismatchException(uri.getScheme());
   }
 
   @Nonnull
-  public static String getRepository(@Nonnull URI uri) {
+  public static String getRepository(URI uri) {
     checkScheme(uri);
     String path = uri.getPath();
     if(path.length() > 1 && path.endsWith("/") && !path.endsWith(":/"))
@@ -27,7 +27,7 @@ public final class GfsUriUtils {
   }
 
   @Nonnull
-  public static String getFile(@Nonnull URI uri) throws ProviderMismatchException {
+  public static String getFile(URI uri) throws ProviderMismatchException {
     checkScheme(uri);
     String fragment = uri.getFragment();
     if(fragment == null)
@@ -59,7 +59,7 @@ public final class GfsUriUtils {
   }
 
   @Nullable
-  public static String getSession(@Nonnull URI uri) throws ProviderMismatchException {
+  public static String getSession(URI uri) throws ProviderMismatchException {
     checkScheme(uri);
     return parseQuery(uri.getQuery(), Collections.singleton(SID_KEY)).get(SID_KEY);
   }

@@ -1,7 +1,6 @@
 package com.beijunyi.parallelgit.utils;
 
 import java.io.IOException;
-import javax.annotation.Nonnull;
 
 import com.beijunyi.parallelgit.AbstractParallelGitTest;
 import org.eclipse.jgit.lib.AnyObjectId;
@@ -17,7 +16,7 @@ public class BranchUtilsGetLogTest extends AbstractParallelGitTest {
     initFileRepository(false);
   }
 
-  private void createCommits(@Nonnull String branch, int count) throws IOException {
+  private void createCommits(String branch, int count) throws IOException {
     for(int i = 0; i < count; i++) {
       writeSomethingToCache();
       commitToBranch(branch, null);

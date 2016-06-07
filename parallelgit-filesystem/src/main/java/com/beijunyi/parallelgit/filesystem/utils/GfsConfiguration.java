@@ -28,12 +28,12 @@ public class GfsConfiguration {
   private String branch;
   private RevCommit commit;
 
-  public GfsConfiguration(@Nonnull Repository repo) {
+  public GfsConfiguration(Repository repo) {
     this.repo = repo;
   }
 
   @Nonnull
-  public static GfsConfiguration repo(@Nonnull Repository repo) {
+  public static GfsConfiguration repo(Repository repo) {
     return new GfsConfiguration(repo);
   }
 
@@ -43,28 +43,28 @@ public class GfsConfiguration {
   }
 
   @Nonnull
-  public static GfsConfiguration fileRepo(@Nonnull File repoDir) throws IOException {
+  public static GfsConfiguration fileRepo(File repoDir) throws IOException {
     Repository repo = repoDir.exists() ? openRepository(repoDir) : createRepository(repoDir);
     return repo(repo);
   }
 
   @Nonnull
-  public static GfsConfiguration fileRepo(@Nonnull String repoDir) throws IOException {
+  public static GfsConfiguration fileRepo(String repoDir) throws IOException {
     return fileRepo(new File(repoDir));
   }
 
   @Nonnull
-  public static GfsConfiguration fileRepo(@Nonnull Path repoDir) throws IOException {
+  public static GfsConfiguration fileRepo(Path repoDir) throws IOException {
     return fileRepo(repoDir.toFile());
   }
 
   @Nonnull
-  public static GfsConfiguration fromPath(@Nonnull Path repoDir, Map<String, ?> props) throws IOException {
+  public static GfsConfiguration fromPath(Path repoDir, Map<String, ?> props) throws IOException {
     return fileRepo(repoDir).readProperties(props);
   }
 
   @Nonnull
-  public static GfsConfiguration fromUri(@Nonnull URI uri, Map<String, ?> props) throws IOException {
+  public static GfsConfiguration fromUri(URI uri, Map<String, ?> props) throws IOException {
     String repoDir = GfsUriUtils.getRepository(uri);
     return fileRepo(repoDir).readProperties(props);
   }
@@ -75,7 +75,7 @@ public class GfsConfiguration {
   }
 
   @Nonnull
-  public GfsConfiguration branch(@Nonnull String name) throws IOException {
+  public GfsConfiguration branch(String name) throws IOException {
     if(commit != null)
       throw new HeadAlreadyDefinedException();
     if(!branchExists(name, repo) && commitExists(name, repo))
@@ -90,7 +90,7 @@ public class GfsConfiguration {
   }
 
   @Nonnull
-  public GfsConfiguration branch(@Nonnull Ref ref) throws IOException {
+  public GfsConfiguration branch(Ref ref) throws IOException {
     return branch(ref.getName());
   }
 
@@ -100,7 +100,7 @@ public class GfsConfiguration {
   }
 
   @Nonnull
-  public GfsConfiguration commit(@Nonnull RevCommit commit) {
+  public GfsConfiguration commit(RevCommit commit) {
     if(branch != null || this.commit != null)
       throw new HeadAlreadyDefinedException();
     this.commit = commit;
@@ -108,12 +108,12 @@ public class GfsConfiguration {
   }
 
   @Nonnull
-  public GfsConfiguration commit(@Nonnull AnyObjectId id) throws IOException {
+  public GfsConfiguration commit(AnyObjectId id) throws IOException {
     return commit(getCommit(id, repo));
   }
 
   @Nonnull
-  public GfsConfiguration commit(@Nonnull String id) throws IOException {
+  public GfsConfiguration commit(String id) throws IOException {
     return commit(getCommit(id, repo));
   }
 
@@ -123,7 +123,7 @@ public class GfsConfiguration {
   }
 
   @Nonnull
-  private GfsConfiguration readProperties(@Nonnull Map<String, ?> props) throws IOException {
+  private GfsConfiguration readProperties(Map<String, ?> props) throws IOException {
     String branch = (String) props.get(BRANCH);
     if(branch != null)
       branch(branch);
