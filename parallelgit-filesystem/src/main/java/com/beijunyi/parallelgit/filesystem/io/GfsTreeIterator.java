@@ -21,7 +21,7 @@ public class GfsTreeIterator extends WorkingTreeIterator {
   private int index = -1;
   private ObjectId id;
 
-  private GfsTreeIterator(@Nonnull List<GfsTreeEntry> files, @Nonnull GfsTreeIterator parent) {
+  private GfsTreeIterator(@Nonnull List<GfsTreeEntry> files, GfsTreeIterator parent) {
     super(parent);
     this.files = files;
     next(1);
@@ -46,7 +46,7 @@ public class GfsTreeIterator extends WorkingTreeIterator {
   }
 
   @Override
-  public boolean isModified(@Nullable DirCacheEntry entry, boolean forceContentCheck, @Nonnull ObjectReader reader) throws IOException {
+  public boolean isModified(@Nullable DirCacheEntry entry, boolean forceContentCheck, ObjectReader reader) throws IOException {
     GfsTreeEntry current = currentEntry();
     return entry == null || !current.getId().equals(entry.getObjectId()) || !current.getMode().equals(entry.getFileMode());
   }
@@ -119,7 +119,7 @@ public class GfsTreeIterator extends WorkingTreeIterator {
     private final String name;
     private final Node node;
 
-    public GfsTreeEntry(@Nonnull String name, @Nonnull Node node) {
+    public GfsTreeEntry(@Nonnull String name, Node node) {
       this.name = name;
       this.node = node;
     }

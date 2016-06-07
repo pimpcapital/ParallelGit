@@ -16,35 +16,35 @@ public class FileNode extends Node<BlobSnapshot, byte[]> {
 
   private long size = -1;
 
-  private FileNode(@Nonnull ObjectId id, @Nonnull FileMode mode, @Nonnull DirectoryNode parent) {
+  private FileNode(@Nonnull ObjectId id, FileMode mode, DirectoryNode parent) {
     super(id, mode, parent);
   }
 
-  private FileNode(@Nonnull FileMode mode, @Nonnull DirectoryNode parent) {
+  private FileNode(@Nonnull FileMode mode, DirectoryNode parent) {
     super(mode, parent);
   }
 
-  private FileNode(@Nonnull byte[] bytes, @Nonnull FileMode mode, @Nonnull DirectoryNode parent) {
+  private FileNode(@Nonnull byte[] bytes, FileMode mode, DirectoryNode parent) {
     super(bytes, mode, parent);
   }
 
   @Nonnull
-  protected static FileNode fromObject(@Nonnull ObjectId id, @Nonnull FileMode mode, @Nonnull DirectoryNode parent) {
+  protected static FileNode fromObject(@Nonnull ObjectId id, FileMode mode, DirectoryNode parent) {
     return new FileNode(id, mode, parent);
   }
 
   @Nonnull
-  public static FileNode fromBytes(@Nonnull byte[] bytes, @Nonnull FileMode mode, @Nonnull DirectoryNode parent) {
+  public static FileNode fromBytes(@Nonnull byte[] bytes, FileMode mode, DirectoryNode parent) {
     return new FileNode(bytes, mode, parent);
   }
 
   @Nonnull
-  public static FileNode newFile(@Nonnull FileMode mode, @Nonnull DirectoryNode parent) {
+  public static FileNode newFile(@Nonnull FileMode mode, DirectoryNode parent) {
     return new FileNode(mode, parent);
   }
 
   @Nonnull
-  public static FileNode newFile(boolean executable, @Nonnull DirectoryNode parent) {
+  public static FileNode newFile(boolean executable, DirectoryNode parent) {
     return newFile(executable ? EXECUTABLE_FILE : REGULAR_FILE, parent);
   }
 

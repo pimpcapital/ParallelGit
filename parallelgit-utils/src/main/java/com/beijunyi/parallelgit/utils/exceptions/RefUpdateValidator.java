@@ -1,12 +1,10 @@
 package com.beijunyi.parallelgit.utils.exceptions;
 
-import javax.annotation.Nonnull;
-
 import org.eclipse.jgit.lib.RefUpdate;
 
 public final class RefUpdateValidator {
 
-  public static void validate(@Nonnull RefUpdate.Result result) {
+  public static void validate(RefUpdate.Result result) {
     switch(result) {
       case REJECTED_CURRENT_BRANCH:
         throw new RefUpdateRejectedCurrentBranchException(result.name());

@@ -13,22 +13,22 @@ import org.eclipse.jgit.treewalk.TreeWalk;
 
 public class TreeSnapshot extends ObjectSnapshot<SortedMap<String, GitFileEntry>> {
 
-  private TreeSnapshot(@Nonnull ObjectId id, @Nonnull SortedMap<String, GitFileEntry> data) {
+  private TreeSnapshot(ObjectId id, SortedMap<String, GitFileEntry> data) {
     super(id, data);
   }
 
   @Nullable
-  public GitFileEntry getChild(@Nonnull String name) {
+  public GitFileEntry getChild(String name) {
     return data.get(name);
   }
 
   @Nonnull
-  public ObjectId persist(@Nonnull ObjectInserter inserter) throws IOException {
+  public ObjectId persist(ObjectInserter inserter) throws IOException {
     return inserter.insert(format(data));
   }
 
   @Nonnull
-  public static TreeSnapshot load(@Nonnull ObjectId id, @Nonnull ObjectReader reader) throws IOException {
+  public static TreeSnapshot load(ObjectId id, ObjectReader reader) throws IOException {
     SortedMap<String, GitFileEntry> ret = new TreeMap<>();
     try(TreeWalk tw = TreeUtils.newTreeWalk(id, reader)) {
       while(tw.next())
@@ -38,12 +38,12 @@ public class TreeSnapshot extends ObjectSnapshot<SortedMap<String, GitFileEntry>
   }
 
   @Nonnull
-  public static TreeSnapshot capture(@Nonnull SortedMap<String, GitFileEntry> children) {
+  public static TreeSnapshot capture(SortedMap<String, GitFileEntry> children) {
     return new TreeSnapshot(computeTreeId(children), children);
   }
 
   @Nonnull
-  private static TreeFormatter format(@Nonnull SortedMap<String, GitFileEntry> data) {
+  private static TreeFormatter format(SortedMap<String, GitFileEntry> data) {
     TreeFormatter formatter = new TreeFormatter();
     for(Map.Entry<String, GitFileEntry> child : data.entrySet()) {
       String name = child.getKey();
@@ -54,7 +54,7 @@ public class TreeSnapshot extends ObjectSnapshot<SortedMap<String, GitFileEntry>
   }
 
   @Nonnull
-  private static ObjectId computeTreeId(@Nonnull SortedMap<String, GitFileEntry> data) {
+  private static ObjectId computeTreeId(SortedMap<String, GitFileEntry> data) {
     return new ObjectInserter.Formatter().idFor(Constants.OBJ_TREE, format(data).toByteArray());
   }
 

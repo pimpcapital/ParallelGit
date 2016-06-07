@@ -25,35 +25,35 @@ public abstract class Node<Snapshot extends ObjectSnapshot, Data> {
   protected volatile FileMode mode;
   protected volatile Data data;
 
-  protected Node(@Nonnull FileMode mode, @Nonnull GfsObjectService objService) {
+  protected Node(@Nonnull FileMode mode, GfsObjectService objService) {
     this.objService = objService;
     this.mode = mode;
     initialize();
   }
 
-  protected Node(@Nonnull ObjectId id, @Nonnull FileMode mode, @Nonnull GfsObjectService objService) {
+  protected Node(@Nonnull ObjectId id, FileMode mode, GfsObjectService objService) {
     this.objService = objService;
     this.id = id;
     this.mode = mode;
   }
 
-  protected Node(@Nonnull FileMode mode, @Nonnull DirectoryNode parent) {
+  protected Node(@Nonnull FileMode mode, DirectoryNode parent) {
     this(mode, parent.getObjectService());
     this.parent = parent;
   }
 
-  protected Node(@Nonnull ObjectId id, @Nonnull FileMode mode, @Nonnull DirectoryNode parent) {
+  protected Node(@Nonnull ObjectId id, FileMode mode, DirectoryNode parent) {
     this(id, mode, parent.getObjectService());
     this.parent = parent;
   }
 
-  protected Node(@Nonnull Data data, @Nonnull FileMode mode, @Nonnull DirectoryNode parent) {
+  protected Node(@Nonnull Data data, FileMode mode, DirectoryNode parent) {
     this(mode, parent);
     this.data = data;
   }
 
   @Nonnull
-  public static Node fromEntry(@Nonnull GitFileEntry entry, @Nonnull DirectoryNode parent) {
+  public static Node fromEntry(@Nonnull GitFileEntry entry, DirectoryNode parent) {
     if(entry.getMode().equals(TREE))
       return DirectoryNode.fromObject(entry.getId(), parent);
     return FileNode.fromObject(entry.getId(), entry.getMode(), parent);

@@ -93,13 +93,13 @@ public class GfsTreeWalkTest extends AbstractGitFileSystemTest {
     return ret;
   }
 
-  private void assertWalk(boolean recursive, @Nonnull String... expected) throws IOException {
+  private void assertWalk(boolean recursive, String... expected) throws IOException {
     try(TreeWalk tw = prepareTreeWalk(recursive)) {
       assertWalk(tw, expected);
     }
   }
 
-  private void assertWalk(@Nonnull TreeWalk tw, @Nonnull String... expected) throws IOException {
+  private void assertWalk(@Nonnull TreeWalk tw, String... expected) throws IOException {
     Assert.assertArrayEquals(expected, toArrayWithLeadingSlash(tw));
   }
 

@@ -169,7 +169,7 @@ public class GfsCheckoutTreeTest extends AbstractGitFileSystemTest {
     Files.walkFileTree(gfs.getRootPath(), NioUtils.RECURSIVE_DELETE);
   }
 
-  private void clearWorktreeAndWrite(@Nonnull String path, @Nonnull byte[] bytes) throws IOException {
+  private void clearWorktreeAndWrite(@Nonnull String path, byte[] bytes) throws IOException {
     clearWorktree();
     Path file = gfs.getPath(path);
     Files.createDirectories(file.getParent());
@@ -177,7 +177,7 @@ public class GfsCheckoutTreeTest extends AbstractGitFileSystemTest {
   }
 
   @Nonnull
-  private ObjectId createTreeWithFile(@Nonnull String path, @Nonnull byte[] bytes) throws IOException {
+  private ObjectId createTreeWithFile(@Nonnull String path, byte[] bytes) throws IOException {
     DirCache cache = DirCache.newInCore();
     CacheUtils.addFile(path, FileMode.REGULAR_FILE, ObjectUtils.insertBlob(bytes, repo), cache);
     return CacheUtils.writeTree(cache, repo);

@@ -42,13 +42,13 @@ public class GitFileSystemProvider extends FileSystemProvider {
 
   @Nonnull
   @Override
-  public GitFileSystem newFileSystem(@Nonnull Path path, @Nonnull Map<String, ?> properties) throws IOException {
+  public GitFileSystem newFileSystem(@Nonnull Path path, Map<String, ?> properties) throws IOException {
     return newFileSystem(GfsConfiguration.fromPath(path, properties));
   }
 
   @Nonnull
   @Override
-  public GitFileSystem newFileSystem(@Nonnull URI uri, @Nonnull Map<String, ?> properties) throws IOException {
+  public GitFileSystem newFileSystem(@Nonnull URI uri, Map<String, ?> properties) throws IOException {
     return newFileSystem(GfsConfiguration.fromUri(uri, properties));
   }
 
@@ -91,7 +91,7 @@ public class GitFileSystemProvider extends FileSystemProvider {
 
   @Nonnull
   @Override
-  public SeekableByteChannel newByteChannel(@Nonnull Path path, @Nonnull Set<? extends OpenOption> options, @Nonnull FileAttribute<?>... attrs) throws IOException, UnsupportedOperationException {
+  public SeekableByteChannel newByteChannel(@Nonnull Path path, Set<? extends OpenOption> options, FileAttribute<?>... attrs) throws IOException, UnsupportedOperationException {
     Set<OpenOption> amended = new HashSet<>();
     for(OpenOption option : options) {
       if(!SUPPORTED_OPEN_OPTIONS.contains(option))
@@ -112,7 +112,7 @@ public class GitFileSystemProvider extends FileSystemProvider {
   }
 
   @Override
-  public void createDirectory(@Nonnull Path dir, @Nonnull FileAttribute<?>... attrs) throws IOException {
+  public void createDirectory(@Nonnull Path dir, FileAttribute<?>... attrs) throws IOException {
     GfsIO.createDirectory((GitPath)dir);
   }
 
@@ -122,17 +122,17 @@ public class GitFileSystemProvider extends FileSystemProvider {
   }
 
   @Override
-  public void copy(@Nonnull Path source, @Nonnull Path target, @Nonnull CopyOption... options) throws IOException {
+  public void copy(@Nonnull Path source, Path target, CopyOption... options) throws IOException {
     GfsIO.copy((GitPath)source, (GitPath)target, new HashSet<>(asList(options)));
   }
 
   @Override
-  public void move(@Nonnull Path source, @Nonnull Path target, @Nonnull CopyOption... options) throws IOException {
+  public void move(@Nonnull Path source, Path target, CopyOption... options) throws IOException {
     GfsIO.move((GitPath)source, (GitPath)target, new HashSet<>(asList(options)));
   }
 
   @Override
-  public boolean isSameFile(@Nonnull Path path, @Nonnull Path path2) {
+  public boolean isSameFile(@Nonnull Path path, Path path2) {
     GitPath p1 = ((GitPath) path).toRealPath();
     GitPath p2 = ((GitPath) path).toRealPath();
     return Objects.equals(p1, p2);
@@ -151,13 +151,13 @@ public class GitFileSystemProvider extends FileSystemProvider {
   }
 
   @Override
-  public void checkAccess(@Nonnull Path path, @Nonnull AccessMode... modes) throws IOException {
+  public void checkAccess(@Nonnull Path path, AccessMode... modes) throws IOException {
     GfsIO.checkAccess(((GitPath)path).toRealPath(), new HashSet<>(asList(modes)));
   }
 
   @Nullable
   @Override
-  public <V extends FileAttributeView> V getFileAttributeView(@Nonnull Path path, @Nonnull Class<V> type, @Nonnull LinkOption... options) throws UnsupportedOperationException {
+  public <V extends FileAttributeView> V getFileAttributeView(@Nonnull Path path, Class<V> type, LinkOption... options) throws UnsupportedOperationException {
     try {
       return GfsIO.getFileAttributeView(((GitPath)path).toRealPath(), type);
     } catch(IOException e) {
@@ -167,7 +167,7 @@ public class GitFileSystemProvider extends FileSystemProvider {
 
   @Nonnull
   @Override
-  public <A extends BasicFileAttributes> A readAttributes(@Nonnull Path path, @Nonnull Class<A> type, @Nonnull LinkOption... options) throws IOException {
+  public <A extends BasicFileAttributes> A readAttributes(@Nonnull Path path, Class<A> type, LinkOption... options) throws IOException {
     Class<? extends BasicFileAttributeView> viewType;
     if(type.isAssignableFrom(GfsFileAttributes.Basic.class))
       viewType = GfsFileAttributeView.Basic.class;
@@ -183,7 +183,7 @@ public class GitFileSystemProvider extends FileSystemProvider {
 
   @Nonnull
   @Override
-  public Map<String, Object> readAttributes(@Nonnull Path path, @Nonnull String attributes, @Nonnull LinkOption... options) throws IOException {
+  public Map<String, Object> readAttributes(@Nonnull Path path, String attributes, LinkOption... options) throws IOException {
     int viewNameEnd = attributes.indexOf(':');
     String viewName = viewNameEnd >= 0 ? attributes.substring(0, viewNameEnd) : GfsFileAttributeView.Basic.BASIC_VIEW;
     String keys = viewNameEnd >= 0 ? attributes.substring(viewNameEnd + 1) : attributes;

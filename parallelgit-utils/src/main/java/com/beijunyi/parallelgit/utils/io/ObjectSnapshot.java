@@ -12,7 +12,7 @@ public abstract class ObjectSnapshot<Data> {
   protected final ObjectId id;
   protected final Data data;
 
-  protected ObjectSnapshot(@Nonnull ObjectId id, @Nonnull Data data) {
+  protected ObjectSnapshot(ObjectId id, Data data) {
     this.id = id;
     this.data = data;
   }
@@ -28,12 +28,12 @@ public abstract class ObjectSnapshot<Data> {
   }
 
   @Nonnull
-  public ObjectId insert(@Nonnull ObjectInserter inserter) throws IOException {
+  public ObjectId insert(ObjectInserter inserter) throws IOException {
     return persist(inserter);
   }
 
   @Nonnull
-  protected abstract ObjectId persist(@Nonnull ObjectInserter inserter) throws IOException;
+  protected abstract ObjectId persist(ObjectInserter inserter) throws IOException;
 
   @Override
   public boolean equals(@Nullable Object that) {

@@ -39,7 +39,7 @@ public class BasicGfsFileAttributeViewTest extends AbstractGitFileSystemTest {
   }
 
   @Nullable
-  public static Object readAttribute(@Nonnull GfsFileAttributeView view, @Nonnull String key) throws IOException {
+  public static Object readAttribute(@Nonnull GfsFileAttributeView view, String key) throws IOException {
     return view.readAttributes(Collections.singleton(key)).get(key);
   }
 

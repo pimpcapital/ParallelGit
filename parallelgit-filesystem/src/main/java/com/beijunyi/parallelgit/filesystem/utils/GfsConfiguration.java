@@ -59,12 +59,12 @@ public class GfsConfiguration {
   }
 
   @Nonnull
-  public static GfsConfiguration fromPath(@Nonnull Path repoDir, @Nonnull Map<String, ?> props) throws IOException {
+  public static GfsConfiguration fromPath(@Nonnull Path repoDir, Map<String, ?> props) throws IOException {
     return fileRepo(repoDir).readProperties(props);
   }
 
   @Nonnull
-  public static GfsConfiguration fromUri(@Nonnull URI uri, @Nonnull Map<String, ?> props) throws IOException {
+  public static GfsConfiguration fromUri(@Nonnull URI uri, Map<String, ?> props) throws IOException {
     String repoDir = GfsUriUtils.getRepository(uri);
     return fileRepo(repoDir).readProperties(props);
   }

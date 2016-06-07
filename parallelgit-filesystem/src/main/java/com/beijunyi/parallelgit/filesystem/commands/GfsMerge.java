@@ -213,7 +213,7 @@ public final class GfsMerge extends GfsCommand<GfsMerge.Result> {
   }
 
   @Nonnull
-  private Result updateFileSystemStatus(@Nonnull GfsStatusProvider.Update update, @Nonnull Merger merger) throws IOException {
+  private Result updateFileSystemStatus(@Nonnull GfsStatusProvider.Update update, Merger merger) throws IOException {
     AnyObjectId treeId = merger.getResultTreeId();
     new GfsCheckout(gfs).checkout(treeId);
     RevCommit newCommit = null;
@@ -235,7 +235,7 @@ public final class GfsMerge extends GfsCommand<GfsMerge.Result> {
     return Result.merged(newCommit);
   }
 
-  private void writeConflicts(@Nonnull GfsStatusProvider.Update update, @Nonnull ResolveMerger merger) throws IOException {
+  private void writeConflicts(@Nonnull GfsStatusProvider.Update update, ResolveMerger merger) throws IOException {
     ResolveMerger rm = ResolveMerger.class.cast(merger);
     Map<String, MergeResult<? extends Sequence>> conflicts = getConflicts(rm);
     new GfsMergeCheckout(gfs)

@@ -224,7 +224,7 @@ public class GitFileAttributeViewTest extends AbstractGitFileSystemTest {
   }
 
   @Nullable
-  private Object readAttribute(@Nonnull String path, @Nonnull String key) throws IOException {
+  private Object readAttribute(@Nonnull String path, String key) throws IOException {
     return open(path).readAttributes(Collections.singleton(key)).get(key);
   }
 

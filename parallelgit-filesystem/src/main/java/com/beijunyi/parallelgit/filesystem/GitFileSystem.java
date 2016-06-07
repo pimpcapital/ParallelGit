@@ -36,7 +36,7 @@ public class GitFileSystem extends FileSystem {
 
   private volatile boolean closed = false;
 
-  public GitFileSystem(@Nonnull GfsConfiguration cfg, @Nonnull String sid) throws IOException {
+  public GitFileSystem(@Nonnull GfsConfiguration cfg, String sid) throws IOException {
     this.sid = sid;
     objService = new GfsObjectService(cfg.repository());
     RevCommit commit = cfg.commit();
@@ -110,7 +110,7 @@ public class GitFileSystem extends FileSystem {
 
   @Nonnull
   @Override
-  public GitPath getPath(@Nonnull String first, @Nonnull String... more) {
+  public GitPath getPath(@Nonnull String first, String... more) {
     String path;
     if(more.length == 0)
       path = first;

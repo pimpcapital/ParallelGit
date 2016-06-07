@@ -22,7 +22,7 @@ public class RecursiveDelete<P extends Path> extends SimpleFileVisitor<P> {
 
   @Nonnull
   @Override
-  public FileVisitResult visitFile(@Nonnull P file, @Nonnull BasicFileAttributes attrs) throws IOException {
+  public FileVisitResult visitFile(@Nonnull P file, BasicFileAttributes attrs) throws IOException {
     Files.delete(file);
     return FileVisitResult.CONTINUE;
   }

@@ -25,17 +25,17 @@ public class GitPath implements Path {
   private volatile int[] offsets;
   private volatile String stringValue;
 
-  GitPath(@Nonnull GitFileSystem gfs, @Nonnull byte[] path) {
+  GitPath(@Nonnull GitFileSystem gfs, byte[] path) {
     this.gfs = gfs;
     this.path = path;
   }
 
-  GitPath(@Nonnull GitFileSystem gfs, @Nonnull String input) {
+  GitPath(@Nonnull GitFileSystem gfs, String input) {
     this(gfs, encode(normalizeAndCheck(input)));
   }
 
   @Nonnull
-  static String normalizeAndCheck(@Nonnull String input) {
+  private static String normalizeAndCheck(@Nonnull String input) {
     int n = input.length();
     char prevChar = 0;
     for(int i = 0; i < n; i++) {
@@ -475,7 +475,7 @@ public class GitPath implements Path {
   }
 
   @Nonnull
-  private static byte[] resolve(@Nonnull byte[] base, @Nonnull byte[] child) {
+  private static byte[] resolve(@Nonnull byte[] base, byte[] child) {
     int baseLength = base.length;
     int childLength = child.length;
     if(childLength == 0)
@@ -614,13 +614,13 @@ public class GitPath implements Path {
 
   @Nullable
   @Override
-  public WatchKey register(@Nullable WatchService watcher, @Nullable WatchEvent.Kind<?>[] events, @Nonnull WatchEvent.Modifier... modifiers) throws UnsupportedOperationException {
+  public WatchKey register(@Nullable WatchService watcher, @Nullable WatchEvent.Kind<?>[] events, WatchEvent.Modifier... modifiers) throws UnsupportedOperationException {
     throw new UnsupportedOperationException();
   }
 
   @Nullable
   @Override
-  public WatchKey register(@Nullable WatchService watcher, @Nonnull WatchEvent.Kind<?>... events) throws UnsupportedOperationException {
+  public WatchKey register(@Nullable WatchService watcher, WatchEvent.Kind<?>... events) throws UnsupportedOperationException {
     throw new UnsupportedOperationException();
   }
 

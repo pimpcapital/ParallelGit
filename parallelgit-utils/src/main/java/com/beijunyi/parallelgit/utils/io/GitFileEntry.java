@@ -17,18 +17,18 @@ public class GitFileEntry {
   private final ObjectId id;
   private final FileMode mode;
 
-  public GitFileEntry(@Nonnull ObjectId id, @Nonnull FileMode mode) {
+  public GitFileEntry(ObjectId id, FileMode mode) {
     this.id = id;
     this.mode = mode;
   }
 
   @Nonnull
-  public static GitFileEntry tree(@Nonnull ObjectId id) {
+  public static GitFileEntry tree(ObjectId id) {
     return new GitFileEntry(id, TREE);
   }
 
   @Nonnull
-  public static GitFileEntry forTreeNode(@Nonnull TreeWalk tw, int index) {
+  public static GitFileEntry forTreeNode(TreeWalk tw, int index) {
     return new GitFileEntry(tw.getObjectId(index), tw.getFileMode(index));
   }
 
@@ -70,11 +70,11 @@ public class GitFileEntry {
     return mode.equals(MISSING);
   }
 
-  public boolean hasSameObjectAs(@Nonnull GitFileEntry entry) {
+  public boolean hasSameObjectAs(GitFileEntry entry) {
     return id.equals(entry.getId());
   }
 
-  public boolean hasSameModeAs(@Nonnull GitFileEntry entry) {
+  public boolean hasSameModeAs(GitFileEntry entry) {
     return mode.equals(entry.getMode());
   }
 

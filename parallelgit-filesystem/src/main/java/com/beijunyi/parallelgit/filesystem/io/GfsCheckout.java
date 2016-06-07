@@ -100,7 +100,7 @@ public class GfsCheckout {
     }
   }
 
-  private boolean mergeEntries(@Nonnull String path, @Nonnull GitFileEntry head, @Nonnull GitFileEntry target, @Nonnull GitFileEntry worktree) throws IOException {
+  private boolean mergeEntries(@Nonnull String path, GitFileEntry head, GitFileEntry target, GitFileEntry worktree) throws IOException {
     if(target.equals(worktree) || target.equals(head))
       return false;
     if(head.equals(worktree)) {

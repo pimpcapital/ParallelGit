@@ -34,23 +34,23 @@ public final class Gfs {
   }
 
   @Nonnull
-  public static GitFileSystem newFileSystem(@Nonnull String branch, @Nonnull Repository repo) throws IOException {
+  public static GitFileSystem newFileSystem(@Nonnull String branch, Repository repo) throws IOException {
     return newFileSystem(repo(repo).branch(branch));
   }
 
   @Nonnull
-  public static GitFileSystem newFileSystem(@Nonnull String branch, @Nonnull File repoDir) throws IOException {
+  public static GitFileSystem newFileSystem(@Nonnull String branch, File repoDir) throws IOException {
     return newFileSystem(fileRepo(repoDir).branch(branch));
 
   }
 
   @Nonnull
-  public static GitFileSystem newFileSystem(@Nonnull String branch, @Nonnull String repoDir) throws IOException {
+  public static GitFileSystem newFileSystem(@Nonnull String branch, String repoDir) throws IOException {
     return newFileSystem(fileRepo(repoDir).branch(branch));
   }
 
   @Nonnull
-  public static GitFileSystem newFileSystem(@Nonnull AnyObjectId commit, @Nonnull Repository repo) throws IOException {
+  public static GitFileSystem newFileSystem(@Nonnull AnyObjectId commit, Repository repo) throws IOException {
     return newFileSystem(repo(repo).commit(commit));
   }
 

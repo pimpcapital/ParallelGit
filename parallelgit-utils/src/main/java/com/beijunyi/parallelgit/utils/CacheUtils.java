@@ -17,63 +17,63 @@ import org.eclipse.jgit.lib.*;
 public final class CacheUtils {
 
   @Nonnull
-  public static DirCacheEntry newDirCacheEntry(@Nonnull String path) {
+  public static DirCacheEntry newDirCacheEntry(String path) {
     return new DirCacheEntry(TreeUtils.normalizeTreePath(path));
   }
 
   @Nonnull
-  public static DirCacheEditor.DeletePath deleteEntry(@Nonnull String path) {
+  public static DirCacheEditor.DeletePath deleteEntry(String path) {
     return new DirCacheEditor.DeletePath(TreeUtils.normalizeTreePath(path));
   }
 
   @Nonnull
-  public static DirCacheEditor.DeleteTree deleteChildren(@Nonnull String path) {
+  public static DirCacheEditor.DeleteTree deleteChildren(String path) {
     return new DirCacheEditor.DeleteTree(TreeUtils.normalizeTreePath(path));
   }
 
-  public static void loadTree(@Nonnull AnyObjectId treeId, @Nonnull DirCache cache, @Nonnull ObjectReader reader) throws IOException {
+  public static void loadTree(AnyObjectId treeId, DirCache cache, ObjectReader reader) throws IOException {
     addTree("", treeId, cache, reader);
   }
 
-  public static void loadRevision(@Nonnull AnyObjectId revision, @Nonnull DirCache cache, @Nonnull ObjectReader reader) throws IOException {
+  public static void loadRevision(AnyObjectId revision, DirCache cache, ObjectReader reader) throws IOException {
     loadTree(CommitUtils.getCommit(revision, reader).getTree(), cache, reader);
   }
 
   @Nonnull
-  public static DirCache forTree(@Nonnull AnyObjectId treeId, @Nonnull ObjectReader reader) throws IOException {
+  public static DirCache forTree(AnyObjectId treeId, ObjectReader reader) throws IOException {
     DirCache cache = DirCache.newInCore();
     loadTree(treeId, cache, reader);
     return cache;
   }
 
   @Nonnull
-  public static DirCache forTree(@Nonnull AnyObjectId treeId, @Nonnull Repository repo) throws IOException {
+  public static DirCache forTree(AnyObjectId treeId, Repository repo) throws IOException {
     try(ObjectReader reader = repo.newObjectReader()) {
       return forTree(treeId, reader);
     }
   }
 
   @Nonnull
-  public static DirCache forRevision(@Nonnull AnyObjectId revision, @Nonnull ObjectReader reader) throws IOException {
+  public static DirCache forRevision(AnyObjectId revision, ObjectReader reader) throws IOException {
     DirCache cache = DirCache.newInCore();
     loadRevision(revision, cache, reader);
     return cache;
   }
 
   @Nonnull
-  public static DirCache forRevision(@Nonnull AnyObjectId revision, @Nonnull Repository repo) throws IOException {
+  public static DirCache forRevision(AnyObjectId revision, Repository repo) throws IOException {
     try(ObjectReader reader = repo.newObjectReader()) {
       return forRevision(revision, reader);
     }
   }
 
   @Nonnull
-  public static DirCache forRevision(@Nonnull Ref revision, @Nonnull Repository repo) throws IOException {
+  public static DirCache forRevision(Ref revision, Repository repo) throws IOException {
     return forRevision(revision.getObjectId(), repo);
   }
 
   @Nonnull
-  public static DirCache forRevision(@Nonnull String revision, @Nonnull Repository repo) throws IOException {
+  public static DirCache forRevision(String revision, Repository repo) throws IOException {
     AnyObjectId revisionId = repo.resolve(revision);
     if(revisionId == null)
       throw new NoSuchCommitException(revision);
@@ -81,7 +81,7 @@ public final class CacheUtils {
   }
 
   @Nonnull
-  public static DirCacheBuilder keepEverything(@Nonnull DirCache cache) {
+  public static DirCacheBuilder keepEverything(DirCache cache) {
     DirCacheBuilder builder = cache.builder();
     int count = cache.getEntryCount();
     if(count > 0)
@@ -89,121 +89,121 @@ public final class CacheUtils {
     return builder;
   }
 
-  public static void addTree(@Nonnull String path, @Nonnull AnyObjectId treeId, @Nonnull DirCacheBuilder builder, @Nonnull ObjectReader reader) throws IOException {
+  public static void addTree(String path, AnyObjectId treeId, DirCacheBuilder builder, ObjectReader reader) throws IOException {
     builder.addTree(TreeUtils.normalizeTreePath(path).getBytes(), DirCacheEntry.STAGE_0, reader, treeId);
   }
 
-  public static void addTree(@Nonnull String path, @Nonnull AnyObjectId treeId, @Nonnull DirCache cache, @Nonnull ObjectReader reader) throws IOException {
+  public static void addTree(String path, AnyObjectId treeId, DirCache cache, ObjectReader reader) throws IOException {
     DirCacheBuilder builder = keepEverything(cache);
     addTree(path, treeId, builder, reader);
     builder.finish();
   }
 
-  public static void addFile(@Nonnull String path, @Nonnull FileMode mode, @Nonnull AnyObjectId blobId, @Nonnull DirCacheBuilder builder) {
+  public static void addFile(String path, FileMode mode, AnyObjectId blobId, DirCacheBuilder builder) {
     DirCacheEntry entry = newDirCacheEntry(path);
     entry.setFileMode(mode);
     entry.setObjectId(blobId);
     builder.add(entry);
   }
 
-  public static void addFile(@Nonnull String path, @Nonnull FileMode mode, @Nonnull AnyObjectId blobId, @Nonnull DirCache cache) {
+  public static void addFile(String path, FileMode mode, AnyObjectId blobId, DirCache cache) {
     DirCacheBuilder builder = keepEverything(cache);
     addFile(path, mode, blobId, builder);
     builder.finish();
   }
 
-  public static void addFile(@Nonnull String path, @Nonnull AnyObjectId blobId, @Nonnull DirCache cache) {
+  public static void addFile(String path, AnyObjectId blobId, DirCache cache) {
     addFile(path, FileMode.REGULAR_FILE, blobId, cache);
   }
 
-  public static void deleteFile(@Nonnull String path, @Nonnull DirCacheEditor editor) {
+  public static void deleteFile(String path, DirCacheEditor editor) {
     editor.add(deleteEntry(path));
   }
 
-  public static void deleteFile(@Nonnull String path, @Nonnull DirCache cache) {
+  public static void deleteFile(String path, DirCache cache) {
     DirCacheEditor editor = cache.editor();
     deleteFile(path, editor);
     editor.finish();
   }
 
-  public static void deleteDirectory(@Nonnull String path, @Nonnull DirCacheEditor editor) {
+  public static void deleteDirectory(String path, DirCacheEditor editor) {
     editor.add(deleteChildren(path));
   }
 
-  public static void deleteDirectory(@Nonnull String path, @Nonnull DirCache cache) {
+  public static void deleteDirectory(String path, DirCache cache) {
     DirCacheEditor editor = cache.editor();
     deleteDirectory(path, editor);
     editor.finish();
   }
 
   @Nullable
-  public static DirCacheEntry getEntry(@Nonnull String path, @Nonnull DirCache cache) {
+  public static DirCacheEntry getEntry(String path, DirCache cache) {
     return cache.getEntry(TreeUtils.normalizeTreePath(path));
   }
 
-  public static void updateFile(@Nonnull CacheEntryUpdate update, @Nonnull DirCacheEditor editor) {
+  public static void updateFile(CacheEntryUpdate update, DirCacheEditor editor) {
     editor.add(update);
   }
 
-  public static void updateFile(@Nonnull CacheEntryUpdate update, @Nonnull DirCache cache) {
+  public static void updateFile(CacheEntryUpdate update, DirCache cache) {
     DirCacheEditor editor = cache.editor();
     updateFile(update, editor);
     editor.finish();
   }
 
-  public static void updateFileBlob(@Nonnull String path, @Nonnull ObjectId blob, @Nonnull DirCache cache) {
+  public static void updateFileBlob(String path, ObjectId blob, DirCache cache) {
     updateFile(new CacheEntryUpdate(path).setNewBlob(blob), cache);
   }
 
-  public static void updateFileMode(@Nonnull String path, @Nonnull FileMode mode, @Nonnull DirCache cache) {
+  public static void updateFileMode(String path, FileMode mode, DirCache cache) {
     updateFile(new CacheEntryUpdate(path).setNewFileMode(mode), cache);
   }
 
-  public static int findEntry(@Nonnull String path, @Nonnull DirCache cache) {
+  public static int findEntry(String path, DirCache cache) {
     return cache.findEntry(TreeUtils.normalizeTreePath(path));
   }
 
-  public static boolean entryExists(@Nonnull String path, @Nonnull DirCache cache) {
+  public static boolean entryExists(String path, DirCache cache) {
     return findEntry(path, cache) >= 0;
   }
 
   @Nonnull
-  public static ObjectId getBlob(@Nonnull String path, @Nonnull DirCache cache) throws NoSuchCacheEntryException {
+  public static ObjectId getBlob(String path, DirCache cache) throws NoSuchCacheEntryException {
     return ensureEntry(path, cache).getObjectId();
   }
 
   @Nonnull
-  public static FileMode getFileMode(@Nonnull String path, @Nonnull DirCache cache) throws NoSuchCacheEntryException {
+  public static FileMode getFileMode(String path, DirCache cache) throws NoSuchCacheEntryException {
     return ensureEntry(path, cache).getFileMode();
   }
 
 
-  public static boolean isFile(@Nonnull String path, @Nonnull DirCache cache) {
+  public static boolean isFile(String path, DirCache cache) {
     return entryExists(path, cache);
   }
 
-  public static boolean isSymbolicLink(@Nonnull String path, @Nonnull DirCache cache) {
+  public static boolean isSymbolicLink(String path, DirCache cache) {
     DirCacheEntry entry = getEntry(path, cache);
     return entry != null && entry.getFileMode() == FileMode.SYMLINK;
   }
 
-  public static boolean isRegularFile(@Nonnull String path, @Nonnull DirCache cache) {
+  public static boolean isRegularFile(String path, DirCache cache) {
     DirCacheEntry entry = getEntry(path, cache);
     return entry != null && entry.getFileMode() == FileMode.REGULAR_FILE;
   }
 
-  public static boolean isExecutableFile(@Nonnull String path, @Nonnull DirCache cache) {
+  public static boolean isExecutableFile(String path, DirCache cache) {
     DirCacheEntry entry = getEntry(path, cache);
     return entry != null && entry.getFileMode() == FileMode.EXECUTABLE_FILE;
   }
 
-  public static boolean isRegularOrExecutableFile(@Nonnull String path, @Nonnull DirCache cache) {
+  public static boolean isRegularOrExecutableFile(String path, DirCache cache) {
     DirCacheEntry entry = getEntry(path, cache);
     return entry != null
              && (entry.getFileMode() == FileMode.REGULAR_FILE || entry.getFileMode() == FileMode.EXECUTABLE_FILE);
   }
 
-  public static boolean isNonEmptyDirectory(@Nonnull String path, @Nonnull DirCache cache) {
+  public static boolean isNonEmptyDirectory(String path, DirCache cache) {
     path = TreeUtils.normalizeTreePath(path) + "/";
     if(path.equals("/")) // if it is root
       return true;
@@ -220,7 +220,7 @@ public final class CacheUtils {
   }
 
   @Nonnull
-  public static Iterator<CacheNode> iterateDirectory(@Nonnull String path, boolean recursive, @Nonnull DirCache cache) {
+  public static Iterator<CacheNode> iterateDirectory(String path, boolean recursive, DirCache cache) {
     path = TreeUtils.normalizeTreePath(path);
     DirCacheEntry[] entries = cache.getEntriesWithin(path);
     if(entries.length == 0)
@@ -229,12 +229,12 @@ public final class CacheUtils {
   }
 
   @Nonnull
-  public static Iterator<CacheNode> iterateDirectory(@Nonnull String path, @Nonnull DirCache cache) {
+  public static Iterator<CacheNode> iterateDirectory(String path, DirCache cache) {
     return iterateDirectory(path, false, cache);
   }
 
   @Nonnull
-  public static ObjectId writeTree(@Nonnull DirCache cache, @Nonnull Repository repo) throws IOException {
+  public static ObjectId writeTree(DirCache cache, Repository repo) throws IOException {
     try(ObjectInserter inserter = repo.newObjectInserter()) {
       ObjectId tree = cache.writeTree(inserter);
       inserter.flush();
@@ -243,7 +243,7 @@ public final class CacheUtils {
   }
 
   @Nonnull
-  private static DirCacheEntry ensureEntry(@Nonnull String path, @Nonnull DirCache cache) {
+  private static DirCacheEntry ensureEntry(String path, DirCache cache) {
     DirCacheEntry entry = getEntry(path, cache);
     if(entry == null)
       throw new NoSuchCacheEntryException("/" + TreeUtils.normalizeTreePath(path));

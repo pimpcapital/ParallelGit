@@ -18,7 +18,7 @@ import static org.eclipse.jgit.lib.FileMode.TREE;
 
 public class DirectoryNode extends Node<TreeSnapshot, Map<String, Node>> {
 
-  protected DirectoryNode(@Nonnull ObjectId id, @Nonnull GfsObjectService objService) {
+  protected DirectoryNode(@Nonnull ObjectId id, GfsObjectService objService) {
     super(id, TREE, objService);
   }
 
@@ -26,7 +26,7 @@ public class DirectoryNode extends Node<TreeSnapshot, Map<String, Node>> {
     super(TREE, objService);
   }
 
-  protected DirectoryNode(@Nonnull ObjectId id, @Nonnull DirectoryNode parent) {
+  protected DirectoryNode(@Nonnull ObjectId id, DirectoryNode parent) {
     super(id, TREE, parent);
   }
 
@@ -35,7 +35,7 @@ public class DirectoryNode extends Node<TreeSnapshot, Map<String, Node>> {
   }
 
   @Nonnull
-  public static DirectoryNode fromObject(@Nonnull ObjectId id, @Nonnull DirectoryNode parent) {
+  public static DirectoryNode fromObject(@Nonnull ObjectId id, DirectoryNode parent) {
     return new DirectoryNode(id, parent);
   }
 
@@ -147,7 +147,7 @@ public class DirectoryNode extends Node<TreeSnapshot, Map<String, Node>> {
     return getData().get(name);
   }
 
-  public boolean addChild(@Nonnull String name, @Nonnull Node child, boolean replace) throws IOException {
+  public boolean addChild(@Nonnull String name, Node child, boolean replace) throws IOException {
     if(!replace && getData().containsKey(name))
       return false;
     if(snapshot != null) {

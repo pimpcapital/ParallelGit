@@ -12,28 +12,28 @@ import static org.eclipse.jgit.lib.Constants.OBJ_BLOB;
 
 public class BlobSnapshot extends ObjectSnapshot<byte[]> {
 
-  private BlobSnapshot(@Nonnull ObjectId id, @Nonnull byte[] bytes) {
+  private BlobSnapshot(ObjectId id, byte[] bytes) {
     super(id, bytes);
   }
 
   @Nonnull
-  public static BlobSnapshot load(@Nonnull ObjectId id, @Nonnull ObjectReader reader) throws IOException {
+  public static BlobSnapshot load(ObjectId id, ObjectReader reader) throws IOException {
     return new BlobSnapshot(id, reader.open(id).getBytes());
   }
 
   @Nonnull
-  public static BlobSnapshot capture(@Nonnull byte[] bytes) {
+  public static BlobSnapshot capture(byte[] bytes) {
     return new BlobSnapshot(computeBlobId(bytes), bytes);
   }
 
   @Nonnull
   @Override
-  public ObjectId persist(@Nonnull ObjectInserter inserter) throws IOException {
+  public ObjectId persist(ObjectInserter inserter) throws IOException {
     return inserter.insert(OBJ_BLOB, getData());
   }
 
   @Nonnull
-  private static ObjectId computeBlobId(@Nonnull byte[] data) {
+  private static ObjectId computeBlobId(byte[] data) {
     return new Formatter().idFor(OBJ_BLOB, data);
   }
 

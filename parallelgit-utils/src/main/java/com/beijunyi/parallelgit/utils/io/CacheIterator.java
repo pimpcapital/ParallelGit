@@ -11,16 +11,16 @@ public class CacheIterator implements Iterator<CacheNode> {
   private final DirCacheEntry[] entries;
   private final int directParentLength;
 
-  private CacheIterator(@Nonnull DirCacheEntry[] entries, int directParentLength) {
+  private CacheIterator(DirCacheEntry[] entries, int directParentLength) {
     this.entries = entries;
     this.directParentLength = directParentLength;
   }
 
-  public CacheIterator(@Nonnull DirCacheEntry[] entries, @Nonnull String directory) {
+  public CacheIterator(DirCacheEntry[] entries, String directory) {
     this(entries, directory.length() + 2); // ("/" + path + "/").length()
   }
 
-  public CacheIterator(@Nonnull DirCacheEntry[] entries) {
+  public CacheIterator(DirCacheEntry[] entries) {
     this(entries, -1);
   }
 

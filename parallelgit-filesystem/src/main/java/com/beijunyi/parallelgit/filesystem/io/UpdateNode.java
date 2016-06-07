@@ -25,7 +25,7 @@ public class UpdateNode extends GfsChange {
 
   @Nonnull
   @Override
-  protected Node createNode(@Nullable Node currentNode, @Nonnull DirectoryNode parent) {
+  protected Node createNode(@Nullable Node currentNode, DirectoryNode parent) {
     return Node.fromEntry(entry, parent);
   }
 }

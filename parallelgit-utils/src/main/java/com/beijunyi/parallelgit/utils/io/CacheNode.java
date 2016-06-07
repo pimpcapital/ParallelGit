@@ -12,18 +12,18 @@ public final class CacheNode {
   private final DirCacheEntry entry;
   private String childrenPrefix;
 
-  private CacheNode(@Nonnull String path, @Nullable DirCacheEntry entry) {
+  private CacheNode(String path, @Nullable DirCacheEntry entry) {
     this.path = path;
     this.entry = entry;
   }
 
   @Nonnull
-  public static CacheNode file(@Nonnull String pathStr, @Nonnull DirCacheEntry entry) {
+  public static CacheNode file(String pathStr, DirCacheEntry entry) {
     return new CacheNode(pathStr, entry);
   }
 
   @Nonnull
-  public static CacheNode directory(@Nonnull String pathStr) {
+  public static CacheNode directory(String pathStr) {
     return new CacheNode(pathStr, null);
   }
 
@@ -47,7 +47,7 @@ public final class CacheNode {
     return entry;
   }
 
-  boolean hasChild(@Nonnull String childPath) {
+  boolean hasChild(String childPath) {
     return isDirectory() && childPath.startsWith(getChildrenPrefix());
   }
 

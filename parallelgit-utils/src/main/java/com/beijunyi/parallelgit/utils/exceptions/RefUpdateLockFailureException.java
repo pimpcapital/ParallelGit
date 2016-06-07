@@ -1,10 +1,8 @@
 package com.beijunyi.parallelgit.utils.exceptions;
 
-import javax.annotation.Nonnull;
-
 public class RefUpdateLockFailureException extends RuntimeException {
 
-  public RefUpdateLockFailureException(@Nonnull String message) {
+  public RefUpdateLockFailureException(String message) {
     super(message);
   }
 

@@ -11,7 +11,7 @@ public class GfsCheckoutConflict {
   private final GitFileEntry target;
   private final GitFileEntry worktree;
 
-  public GfsCheckoutConflict(@Nonnull String path, @Nonnull GitFileEntry head, @Nonnull GitFileEntry target, @Nonnull GitFileEntry worktree) {
+  public GfsCheckoutConflict(@Nonnull String path, GitFileEntry head, GitFileEntry target, GitFileEntry worktree) {
     this.path = path;
     this.head = head;
     this.target = target;

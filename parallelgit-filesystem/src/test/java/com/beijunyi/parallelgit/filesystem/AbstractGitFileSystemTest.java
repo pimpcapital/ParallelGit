@@ -23,7 +23,7 @@ public abstract class AbstractGitFileSystemTest extends AbstractParallelGitTest 
       gfs.close();
   }
 
-  protected void writeToGfs(@Nonnull String path, @Nonnull byte[] data) throws IOException {
+  protected void writeToGfs(@Nonnull String path, byte[] data) throws IOException {
     GitPath file = gfs.getPath(path);
     GitPath parent = file.getParent();
     if(parent != null)
@@ -31,7 +31,7 @@ public abstract class AbstractGitFileSystemTest extends AbstractParallelGitTest 
     Files.write(file, data);
   }
 
-  protected void writeToGfs(@Nonnull String path, @Nonnull String content) throws IOException {
+  protected void writeToGfs(@Nonnull String path, String content) throws IOException {
     writeToGfs(path, Constants.encode(content));
   }
 

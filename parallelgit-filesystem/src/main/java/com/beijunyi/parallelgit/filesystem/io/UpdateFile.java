@@ -10,7 +10,7 @@ public class UpdateFile extends GfsChange {
   private final byte[] bytes;
   private final FileMode mode;
 
-  public UpdateFile(@Nonnull byte[] bytes, @Nonnull FileMode mode) {
+  public UpdateFile(@Nonnull byte[] bytes, FileMode mode) {
     this.bytes = bytes;
     this.mode = mode;
   }
@@ -27,7 +27,7 @@ public class UpdateFile extends GfsChange {
 
   @Nonnull
   @Override
-  protected Node createNode(@Nullable Node currentNode, @Nonnull DirectoryNode parent) {
+  protected Node createNode(@Nullable Node currentNode, DirectoryNode parent) {
     return FileNode.fromBytes(bytes, mode, parent);
   }
 }

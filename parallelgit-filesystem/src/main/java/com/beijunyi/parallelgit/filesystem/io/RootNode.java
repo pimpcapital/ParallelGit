@@ -11,7 +11,7 @@ import org.eclipse.jgit.revwalk.RevCommit;
 
 public class RootNode extends DirectoryNode {
 
-  public RootNode(@Nonnull ObjectId id, @Nonnull GfsObjectService objService) throws IOException {
+  public RootNode(@Nonnull ObjectId id, GfsObjectService objService) throws IOException {
     super(id, objService);
     updateOrigin(id);
   }
@@ -21,7 +21,7 @@ public class RootNode extends DirectoryNode {
   }
 
   @Nonnull
-  public static RootNode fromCommit(@Nonnull RevCommit commit, @Nonnull GfsObjectService objService) throws IOException {
+  public static RootNode fromCommit(@Nonnull RevCommit commit, GfsObjectService objService) throws IOException {
     return new RootNode(commit.getTree(), objService);
   }
 

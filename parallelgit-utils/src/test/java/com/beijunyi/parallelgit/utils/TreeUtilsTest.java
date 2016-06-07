@@ -13,7 +13,7 @@ import org.junit.Test;
 
 public class TreeUtilsTest extends AbstractParallelGitTest {
 
-  private static void assertNextEntry(@Nonnull TreeWalk treeWalk, @Nonnull String path) throws IOException {
+  private static void assertNextEntry(@Nonnull TreeWalk treeWalk, String path) throws IOException {
     Assert.assertTrue(treeWalk.next());
     Assert.assertEquals(path, treeWalk.getPathString());
   }

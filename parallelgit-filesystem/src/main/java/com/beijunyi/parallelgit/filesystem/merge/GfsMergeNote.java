@@ -14,7 +14,7 @@ public class GfsMergeNote {
   private final String message;
   private final Map<String, MergeResult<? extends Sequence>> conflicts;
 
-  private GfsMergeNote(@Nullable RevCommit source, @Nonnull String message, @Nullable Map<String, MergeResult<? extends Sequence>> conflicts) {
+  private GfsMergeNote(@Nullable RevCommit source, String message, @Nullable Map<String, MergeResult<? extends Sequence>> conflicts) {
     this.source = source;
     this.message = message;
     this.conflicts = conflicts;
@@ -26,7 +26,7 @@ public class GfsMergeNote {
   }
 
   @Nonnull
-  public static GfsMergeNote mergeNoCommit(@Nonnull RevCommit source, @Nonnull String message) {
+  public static GfsMergeNote mergeNoCommit(@Nonnull RevCommit source, String message) {
     return new GfsMergeNote(source, message, null);
   }
 
@@ -36,7 +36,7 @@ public class GfsMergeNote {
   }
 
   @Nonnull
-  public static GfsMergeNote mergeConflicting(@Nonnull RevCommit source, @Nonnull String message, @Nullable Map<String, MergeResult<? extends Sequence>> conflicts) {
+  public static GfsMergeNote mergeConflicting(@Nonnull RevCommit source, String message, @Nullable Map<String, MergeResult<? extends Sequence>> conflicts) {
     return new GfsMergeNote(source, message, conflicts);
   }
 

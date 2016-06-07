@@ -14,7 +14,7 @@ public class CacheEntryUpdate extends DirCacheEditor.PathEdit {
   private ObjectId newBlob;
   private FileMode newFileMode;
 
-  public CacheEntryUpdate(@Nonnull String entryPath) {
+  public CacheEntryUpdate(String entryPath) {
     super(TreeUtils.normalizeTreePath(entryPath));
   }
 
@@ -31,7 +31,7 @@ public class CacheEntryUpdate extends DirCacheEditor.PathEdit {
   }
 
   @Override
-  public void apply(@Nonnull DirCacheEntry ent) {
+  public void apply(DirCacheEntry ent) {
     if(newBlob != null)
       ent.setObjectId(newBlob);
     if(newFileMode != null)

@@ -12,14 +12,13 @@ import com.beijunyi.parallelgit.filesystem.io.RootNode;
 import org.eclipse.jgit.revwalk.RevCommit;
 
 import static com.beijunyi.parallelgit.filesystem.GitFileSystemProvider.GFS;
-import static com.beijunyi.parallelgit.filesystem.io.RootNode.fromCommit;
-import static com.beijunyi.parallelgit.filesystem.io.RootNode.newRoot;
+import static com.beijunyi.parallelgit.filesystem.io.RootNode.*;
 
 public class GfsFileStore extends FileStore {
 
   private final RootNode root;
 
-  public GfsFileStore(@Nullable RevCommit commit, @Nonnull GfsObjectService objService) throws IOException {
+  public GfsFileStore(@Nullable RevCommit commit, GfsObjectService objService) throws IOException {
     root = commit != null ? fromCommit(commit, objService) : newRoot(objService);
   }
 

@@ -44,7 +44,7 @@ public abstract class GfsFileAttributeView implements FileAttributeView {
   }
 
   @Nonnull
-  static <V extends FileAttributeView> V forNode(@Nonnull Node node, @Nonnull Class<V> type) throws UnsupportedOperationException {
+  static <V extends FileAttributeView> V forNode(@Nonnull Node node, Class<V> type) throws UnsupportedOperationException {
     if(type.isAssignableFrom(GfsFileAttributeView.Basic.class))
       return type.cast(new GfsFileAttributeView.Basic(node));
     if(type.isAssignableFrom(GfsFileAttributeView.Posix.class))
@@ -60,12 +60,12 @@ public abstract class GfsFileAttributeView implements FileAttributeView {
   }
 
   @Nullable
-  public <T> T readAttribute(@Nonnull String attribute, @Nonnull Class<T> clazz) throws IOException {
+  public <T> T readAttribute(@Nonnull String attribute, Class<T> clazz) throws IOException {
     return clazz.cast(readAttribute(attribute));
   }
 
   @Nonnull
-  public <T> T getAttribute(@Nonnull String attribute, @Nonnull Class<T> clazz) throws IOException {
+  public <T> T getAttribute(@Nonnull String attribute, Class<T> clazz) throws IOException {
     T ret = readAttribute(attribute, clazz);
     if(ret == null)
       throw new IllegalStateException();
@@ -102,7 +102,7 @@ public abstract class GfsFileAttributeView implements FileAttributeView {
     }
 
     @Override
-    public void setTimes(@Nonnull FileTime lastModifiedTime, @Nonnull FileTime lastAccessTime, @Nonnull FileTime createTime) {
+    public void setTimes(@Nonnull FileTime lastModifiedTime, FileTime lastAccessTime, FileTime createTime) {
       throw new UnsupportedOperationException();
     }
 

@@ -14,7 +14,7 @@ import static org.eclipse.jgit.lib.ObjectId.zeroId;
 
 public final class StashUtils {
 
-  public static void addToStash(@Nonnull RevCommit commit, @Nonnull Repository repo) throws IOException {
+  public static void addToStash(RevCommit commit, Repository repo) throws IOException {
     RefUpdate update = repo.updateRef(R_STASH);
     update.setNewObjectId(commit);
     update.setRefLogIdent(commit.getCommitterIdent());
@@ -24,7 +24,7 @@ public final class StashUtils {
   }
 
   @Nonnull
-  public static List<RevCommit> listStashes(@Nonnull Repository repo) throws IOException {
+  public static List<RevCommit> listStashes(Repository repo) throws IOException {
     List<RevCommit> ret = new ArrayList<>();
     List<ReflogEntry> logs = RefUtils.getRefLogs(R_STASH, Integer.MAX_VALUE, repo);
     try(RevWalk rw = new RevWalk(repo)) {
