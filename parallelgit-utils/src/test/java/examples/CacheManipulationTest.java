@@ -3,8 +3,8 @@ package examples;
 import java.io.IOException;
 
 import com.beijunyi.parallelgit.AbstractParallelGitTest;
+import com.beijunyi.parallelgit.utils.BlobUtils;
 import com.beijunyi.parallelgit.utils.CacheUtils;
-import com.beijunyi.parallelgit.utils.ObjectUtils;
 import org.eclipse.jgit.dircache.DirCache;
 import org.eclipse.jgit.lib.AnyObjectId;
 import org.eclipse.jgit.lib.ObjectId;
@@ -26,7 +26,7 @@ public class CacheManipulationTest extends AbstractParallelGitTest {
     DirCache cache = DirCache.newInCore();                                     // create a new cache
 
     byte[] fileContent = "This is an example".getBytes();                      // prepare data
-    AnyObjectId fileBlob = ObjectUtils.insertBlob(fileContent, repo);          // insert blob and get the blob id
+    AnyObjectId fileBlob = BlobUtils.insertBlob(fileContent, repo);          // insert blob and get the blob id
     CacheUtils.addFile("/my_file.txt", fileBlob, cache);                       // create a new file with this blob
 
     //check
@@ -51,7 +51,7 @@ public class CacheManipulationTest extends AbstractParallelGitTest {
     CacheUtils.addFile("/my_file.txt", someObjectId(), cache);                 // prepare "my_file.txt"
 
     byte[] fileContent = "This is an example".getBytes();                      // prepare data
-    ObjectId fileBlob = ObjectUtils.insertBlob(fileContent, repo);             // insert blob and get the blob id
+    ObjectId fileBlob = BlobUtils.insertBlob(fileContent, repo);             // insert blob and get the blob id
     CacheUtils.updateFileBlob("/my_file.txt", fileBlob, cache);                // create a new file with this blob
 
     //check

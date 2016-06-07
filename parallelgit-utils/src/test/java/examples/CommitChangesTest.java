@@ -26,7 +26,7 @@ public class CommitChangesTest extends AbstractParallelGitTest {
     DirCache cache = CacheUtils.forRevision(head, repo);                       // load the commit into cache
 
     byte[] fileContent = "This is an example".getBytes();                      // prepare file content
-    AnyObjectId blob = ObjectUtils.insertBlob(fileContent, repo);              // insert file content as blob
+    AnyObjectId blob = BlobUtils.insertBlob(fileContent, repo);              // insert file content as blob
     CacheUtils.addFile("/my_file.txt", blob, cache);                           // add the blob id to cache
 
     AnyObjectId newCommit                                                      // create commit

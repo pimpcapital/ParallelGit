@@ -12,7 +12,7 @@ import org.junit.Test;
 
 import static org.junit.Assert.assertEquals;
 
-public class ObjectUtilsReadTreeTest extends AbstractParallelGitTest {
+public class TreeUtilsReadTreeTest extends AbstractParallelGitTest {
 
   @Before
   public void setUp() throws IOException {
@@ -27,7 +27,7 @@ public class ObjectUtilsReadTreeTest extends AbstractParallelGitTest {
     ObjectId tree = commit().getTree();
 
     List<String> actual = new ArrayList<>();
-    TreeSnapshot snapshot = ObjectUtils.readTree(tree, repo);
+    TreeSnapshot snapshot = TreeUtils.readTree(tree, repo);
     for(String file : snapshot.getData().keySet())
       actual.add(file);
 

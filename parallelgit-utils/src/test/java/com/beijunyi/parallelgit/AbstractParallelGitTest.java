@@ -44,7 +44,7 @@ public abstract class AbstractParallelGitTest {
 
   @Nonnull
   protected ObjectId writeToCache(String path, byte[] content, FileMode mode) throws IOException {
-    ObjectId blobId = repo != null ? ObjectUtils.insertBlob(content, repo) : calculateBlobId(content);
+    ObjectId blobId = repo != null ? BlobUtils.insertBlob(content, repo) : calculateBlobId(content);
     CacheUtils.addFile(path, mode, blobId, cache);
     return blobId;
   }
@@ -72,7 +72,7 @@ public abstract class AbstractParallelGitTest {
   protected void writeMultipleToCache(String... paths) throws IOException {
     DirCacheBuilder builder = CacheUtils.keepEverything(cache);
     for(String path : paths) {
-      AnyObjectId blobId = repo != null ? ObjectUtils.insertBlob(someBytes(), repo) : someObjectId();
+      AnyObjectId blobId = repo != null ? BlobUtils.insertBlob(someBytes(), repo) : someObjectId();
       CacheUtils.addFile(path, REGULAR_FILE, blobId, builder);
     }
     builder.finish();
@@ -80,7 +80,7 @@ public abstract class AbstractParallelGitTest {
 
   @Nonnull
   protected ObjectId updateFile(String path, byte[] content) throws IOException {
-    ObjectId blobId = ObjectUtils.insertBlob(content, repo);
+    ObjectId blobId = BlobUtils.insertBlob(content, repo);
     CacheUtils.updateFileBlob(path, blobId, cache);
     return blobId;
   }

@@ -11,7 +11,7 @@ import org.junit.Test;
 
 import static org.junit.Assert.*;
 
-public class ObjectUtilsReadBlobTest extends AbstractParallelGitTest {
+public class BlobUtilsReadBlobTest extends AbstractParallelGitTest {
 
   @Before
   public void setUp() throws IOException {
@@ -24,7 +24,7 @@ public class ObjectUtilsReadBlobTest extends AbstractParallelGitTest {
     ObjectId blob = writeToCache(someFilename(), bytes);
     commit();
 
-    assertEquals(bytes.length, ObjectUtils.getBlobSize(blob, repo));
+    assertEquals(bytes.length, BlobUtils.getBlobSize(blob, repo));
   }
 
   @Test
@@ -33,7 +33,7 @@ public class ObjectUtilsReadBlobTest extends AbstractParallelGitTest {
     ObjectId blob = writeToCache(someFilename(), expected);
     commit();
 
-    try(InputStream input = ObjectUtils.openBlob(blob, repo)) {
+    try(InputStream input = BlobUtils.openBlob(blob, repo)) {
       byte[] actual = new byte[expected.length];
       assertEquals(actual.length, input.read(actual));
       assertArrayEquals(expected, actual);
@@ -46,7 +46,7 @@ public class ObjectUtilsReadBlobTest extends AbstractParallelGitTest {
     ObjectId blob = writeToCache(someFilename(), expected);
     commit();
 
-    BlobSnapshot snapshot = ObjectUtils.readBlob(blob, repo);
+    BlobSnapshot snapshot = BlobUtils.readBlob(blob, repo);
     assertEquals(blob, snapshot.getId());
     assertArrayEquals(expected, snapshot.getData());
   }

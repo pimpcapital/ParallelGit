@@ -73,7 +73,7 @@ public final class GitFileUtils {
     AnyObjectId blobId = TreeUtils.getObjectId(file, getRootTree(commit, reader), reader);
     if(blobId == null)
       throw new NoSuchFileException(file);
-    return ObjectUtils.openBlob(blobId, reader);
+    return BlobUtils.openBlob(blobId, reader);
   }
 
   @Nonnull
@@ -93,7 +93,7 @@ public final class GitFileUtils {
     ObjectId blobId = TreeUtils.getObjectId(file, getRootTree(commit, reader), reader);
     if(blobId == null)
       throw new NoSuchFileException(file);
-    return ObjectUtils.readBlob(blobId, reader);
+    return BlobUtils.readBlob(blobId, reader);
   }
 
   @Nonnull

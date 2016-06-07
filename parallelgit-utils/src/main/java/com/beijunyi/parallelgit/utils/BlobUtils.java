@@ -5,26 +5,16 @@ import java.io.InputStream;
 import javax.annotation.Nonnull;
 
 import com.beijunyi.parallelgit.utils.io.BlobSnapshot;
-import com.beijunyi.parallelgit.utils.io.TreeSnapshot;
 import org.eclipse.jgit.lib.*;
 
 import static org.eclipse.jgit.lib.Constants.OBJ_BLOB;
 
-public final class ObjectUtils {
+public final class BlobUtils {
 
   @Nonnull
   public static ObjectId insertBlob(byte[] data, Repository repo) throws IOException {
     try(ObjectInserter inserter = repo.newObjectInserter()) {
       ObjectId blobId = inserter.insert(OBJ_BLOB, data);
-      inserter.flush();
-      return blobId;
-    }
-  }
-
-  @Nonnull
-  public static ObjectId insertTree(TreeFormatter tf, Repository repo) throws IOException {
-    try(ObjectInserter inserter = repo.newObjectInserter()) {
-      ObjectId blobId = inserter.insert(tf);
       inserter.flush();
       return blobId;
     }
@@ -61,18 +51,6 @@ public final class ObjectUtils {
   public static BlobSnapshot readBlob(ObjectId id, Repository repo) throws IOException {
     try(ObjectReader reader = repo.newObjectReader()) {
       return readBlob(id, reader);
-    }
-  }
-
-  @Nonnull
-  public static TreeSnapshot readTree(ObjectId id, ObjectReader reader) throws IOException {
-    return TreeSnapshot.load(id, reader);
-  }
-
-  @Nonnull
-  public static TreeSnapshot readTree(ObjectId id, Repository repo) throws IOException {
-    try(ObjectReader reader = repo.newObjectReader()) {
-      return readTree(id, reader);
     }
   }
 

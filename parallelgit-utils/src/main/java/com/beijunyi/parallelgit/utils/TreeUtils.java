@@ -3,7 +3,6 @@ package com.beijunyi.parallelgit.utils;
 import java.io.IOException;
 import java.io.InputStream;
 import java.nio.file.NoSuchFileException;
-import java.nio.file.NotDirectoryException;
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 
@@ -98,47 +97,32 @@ public final class TreeUtils {
   }
 
   @Nonnull
-  public static InputStream openFile(String file, AnyObjectId tree, ObjectReader reader) throws IOException {
-    AnyObjectId blobId = getObjectId(file, tree, reader);
+  public static InputStream openFile(String path, AnyObjectId tree, ObjectReader reader) throws IOException {
+    AnyObjectId blobId = getObjectId(path, tree, reader);
     if(blobId == null)
-      throw new NoSuchFileException(file);
-    return ObjectUtils.openBlob(blobId, reader);
+      throw new NoSuchFileException(path);
+    return BlobUtils.openBlob(blobId, reader);
   }
 
   @Nonnull
-  public static InputStream openFile(String file, AnyObjectId tree, Repository repo) throws IOException {
+  public static InputStream openFile(String path, AnyObjectId tree, Repository repo) throws IOException {
     try(ObjectReader reader = repo.newObjectReader()) {
-      return openFile(file, tree, reader);
+      return openFile(path, tree, reader);
     }
   }
 
   @Nonnull
-  public static BlobSnapshot readFile(String file, ObjectId tree, ObjectReader reader) throws IOException {
-    ObjectId blobId = getObjectId(file, tree, reader);
+  public static BlobSnapshot readFile(String path, ObjectId tree, ObjectReader reader) throws IOException {
+    ObjectId blobId = getObjectId(path, tree, reader);
     if(blobId == null)
-      throw new NoSuchFileException(file);
-    return ObjectUtils.readBlob(blobId, reader);
+      throw new NoSuchFileException(path);
+    return BlobUtils.readBlob(blobId, reader);
   }
 
   @Nonnull
-  public static BlobSnapshot readFile(String file, ObjectId tree, Repository repo) throws IOException {
+  public static BlobSnapshot readFile(String path, ObjectId tree, Repository repo) throws IOException {
     try(ObjectReader reader = repo.newObjectReader()) {
-      return readFile(file, tree, reader);
-    }
-  }
-
-  @Nonnull
-  public static TreeSnapshot readDirectory(String dir, ObjectId tree, ObjectReader reader) throws IOException {
-    ObjectId blobId = getObjectId(dir, tree, reader);
-    if(blobId == null)
-      throw new NotDirectoryException(dir);
-    return ObjectUtils.readTree(blobId, reader);
-  }
-
-  @Nonnull
-  public static TreeSnapshot readDirectory(String dir, ObjectId tree, Repository repo) throws IOException {
-    try(ObjectReader reader = repo.newObjectReader()) {
-      return readDirectory(dir, tree, reader);
+      return readFile(path, tree, reader);
     }
   }
 
@@ -189,5 +173,27 @@ public final class TreeUtils {
       return isSymbolicLink(path, tree, reader);
     }
   }
+
+  @Nonnull
+  public static ObjectId insertTree(TreeFormatter tf, Repository repo) throws IOException {
+    try(ObjectInserter inserter = repo.newObjectInserter()) {
+      ObjectId treeId = inserter.insert(tf);
+      inserter.flush();
+      return treeId;
+    }
+  }
+
+  @Nonnull
+  public static TreeSnapshot readTree(ObjectId id, ObjectReader reader) throws IOException {
+    return TreeSnapshot.load(id, reader);
+  }
+
+  @Nonnull
+  public static TreeSnapshot readTree(ObjectId id, Repository repo) throws IOException {
+    try(ObjectReader reader = repo.newObjectReader()) {
+      return readTree(id, reader);
+    }
+  }
+
 
 }

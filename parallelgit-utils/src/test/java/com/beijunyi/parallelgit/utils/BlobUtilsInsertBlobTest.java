@@ -8,16 +8,16 @@ import org.junit.Test;
 
 import static org.junit.Assert.assertArrayEquals;
 
-public class ObjectUtilsInsertBlobTest extends AbstractParallelGitTest {
+public class BlobUtilsInsertBlobTest extends AbstractParallelGitTest {
 
   @Test
   public void insertBlobIntoRepository_shouldBeAbleToRetrieveByteArrayByBlobId() throws IOException {
     initRepository();
 
     byte[] bytes = someBytes();
-    ObjectId blob = ObjectUtils.insertBlob(bytes, repo);
+    ObjectId blob = BlobUtils.insertBlob(bytes, repo);
 
-    assertArrayEquals(bytes, ObjectUtils.readBlob(blob, repo).getData());
+    assertArrayEquals(bytes, BlobUtils.readBlob(blob, repo).getData());
   }
 
 }

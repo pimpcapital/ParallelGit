@@ -8,8 +8,8 @@ import javax.annotation.Nonnull;
 import com.beijunyi.parallelgit.filesystem.AbstractGitFileSystemTest;
 import com.beijunyi.parallelgit.filesystem.exceptions.GfsCheckoutConflictException;
 import com.beijunyi.parallelgit.filesystem.test.NioUtils;
+import com.beijunyi.parallelgit.utils.BlobUtils;
 import com.beijunyi.parallelgit.utils.CacheUtils;
-import com.beijunyi.parallelgit.utils.ObjectUtils;
 import org.eclipse.jgit.dircache.DirCache;
 import org.eclipse.jgit.lib.AnyObjectId;
 import org.eclipse.jgit.lib.ObjectId;
@@ -178,7 +178,7 @@ public class GfsDefaultCheckoutTreeTest extends AbstractGitFileSystemTest {
   @Nonnull
   private ObjectId createTreeWithFile(String path, byte[] bytes) throws IOException {
     DirCache cache = DirCache.newInCore();
-    CacheUtils.addFile(path, REGULAR_FILE, ObjectUtils.insertBlob(bytes, repo), cache);
+    CacheUtils.addFile(path, REGULAR_FILE, BlobUtils.insertBlob(bytes, repo), cache);
     return CacheUtils.writeTree(cache, repo);
   }
 

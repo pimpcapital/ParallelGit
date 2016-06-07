@@ -5,7 +5,8 @@ import java.io.IOException;
 import java.nio.file.ClosedFileSystemException;
 import javax.annotation.Nonnull;
 
-import com.beijunyi.parallelgit.utils.ObjectUtils;
+import com.beijunyi.parallelgit.utils.BlobUtils;
+import com.beijunyi.parallelgit.utils.TreeUtils;
 import com.beijunyi.parallelgit.utils.io.*;
 import org.eclipse.jgit.lib.*;
 
@@ -58,14 +59,14 @@ public class GfsObjectService implements Closeable {
   public BlobSnapshot readBlob(ObjectId id) throws IOException {
     checkClosed();
     synchronized(reader) {
-      return ObjectUtils.readBlob(id, reader);
+      return BlobUtils.readBlob(id, reader);
     }
   }
 
   public long getBlobSize(ObjectId id) throws IOException {
     checkClosed();
     synchronized(reader) {
-      return ObjectUtils.getBlobSize(id, reader);
+      return BlobUtils.getBlobSize(id, reader);
     }
   }
 
@@ -73,7 +74,7 @@ public class GfsObjectService implements Closeable {
   public TreeSnapshot readTree(ObjectId id) throws IOException {
     checkClosed();
     synchronized(reader) {
-      return ObjectUtils.readTree(id, reader);
+      return TreeUtils.readTree(id, reader);
     }
   }
 
