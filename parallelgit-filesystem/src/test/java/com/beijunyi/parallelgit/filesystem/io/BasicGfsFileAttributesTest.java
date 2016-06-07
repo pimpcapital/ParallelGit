@@ -5,9 +5,9 @@ import java.nio.file.attribute.BasicFileAttributes;
 import java.nio.file.attribute.FileTime;
 
 import com.beijunyi.parallelgit.filesystem.AbstractGitFileSystemTest;
-import org.eclipse.jgit.lib.FileMode;
 import org.junit.Test;
 
+import static org.eclipse.jgit.lib.FileMode.*;
 import static org.junit.Assert.*;
 
 public class BasicGfsFileAttributesTest extends AbstractGitFileSystemTest {
@@ -115,7 +115,7 @@ public class BasicGfsFileAttributesTest extends AbstractGitFileSystemTest {
   @Test
   public void getIsRegularFileAttributeOfExecutableFile_shouldReturnTrue() throws IOException {
     initRepository();
-    writeToCache("/file.txt", "some data".getBytes(), FileMode.EXECUTABLE_FILE);
+    writeToCache("/file.txt", "some data".getBytes(), EXECUTABLE_FILE);
     commitToMaster();
     initGitFileSystem();
 
@@ -148,7 +148,7 @@ public class BasicGfsFileAttributesTest extends AbstractGitFileSystemTest {
   @Test
   public void getIsSymbolicLinkAttributeOfSymbolicLink_shouldReturnTrue() throws IOException {
     initRepository();
-    writeToCache("/file.txt", "some link".getBytes(), FileMode.SYMLINK);
+    writeToCache("/file.txt", "some link".getBytes(), SYMLINK);
     commitToMaster();
     initGitFileSystem();
 

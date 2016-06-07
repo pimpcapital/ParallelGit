@@ -7,6 +7,7 @@ import javax.annotation.Nonnull;
 
 import com.beijunyi.parallelgit.utils.io.BlobSnapshot;
 import org.eclipse.jgit.lib.*;
+import org.eclipse.jgit.revwalk.RevTree;
 
 public final class GitFileUtils {
 
@@ -39,7 +40,8 @@ public final class GitFileUtils {
   }
 
   public static boolean isFile(String file, AnyObjectId commit, ObjectReader reader) throws IOException {
-    return TreeUtils.isRegularOrExecutableFile(file, getRootTree(commit, reader), reader);
+    ObjectId root = getRootTree(commit, reader);
+    return TreeUtils.isFile(file, root, reader);
   }
 
   public static boolean isFile(String file, AnyObjectId commit, Repository repo) throws IOException {
@@ -107,7 +109,7 @@ public final class GitFileUtils {
   }
 
   @Nonnull
-  private static ObjectId getRootTree(AnyObjectId commit, ObjectReader reader) throws IOException {
+  private static RevTree getRootTree(AnyObjectId commit, ObjectReader reader) throws IOException {
     return CommitUtils.getCommit(commit, reader).getTree();
   }
 

@@ -10,10 +10,10 @@ import java.util.HashSet;
 import javax.annotation.Nonnull;
 
 import com.beijunyi.parallelgit.filesystem.AbstractGitFileSystemTest;
-import org.eclipse.jgit.lib.FileMode;
 import org.junit.Test;
 
 import static com.beijunyi.parallelgit.filesystem.io.BasicGfsFileAttributeViewTest.readAttribute;
+import static org.eclipse.jgit.lib.FileMode.EXECUTABLE_FILE;
 import static org.junit.Assert.*;
 
 public class PosixGfsFileAttributeViewTest extends AbstractGitFileSystemTest {
@@ -150,7 +150,7 @@ public class PosixGfsFileAttributeViewTest extends AbstractGitFileSystemTest {
   @Test
   public void getPermissionOfExecutableFile_shouldContainOwnerExecute() throws IOException {
     initRepository();
-    writeToCache("/file.txt", "some data".getBytes(), FileMode.EXECUTABLE_FILE);
+    writeToCache("/file.txt", "some data".getBytes(), EXECUTABLE_FILE);
     commitToMaster();
     initGitFileSystem();
 

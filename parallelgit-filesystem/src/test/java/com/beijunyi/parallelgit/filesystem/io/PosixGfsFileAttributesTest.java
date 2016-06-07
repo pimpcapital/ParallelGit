@@ -6,9 +6,9 @@ import java.nio.file.attribute.PosixFilePermission;
 import java.util.Collection;
 
 import com.beijunyi.parallelgit.filesystem.AbstractGitFileSystemTest;
-import org.eclipse.jgit.lib.FileMode;
 import org.junit.Test;
 
+import static org.eclipse.jgit.lib.FileMode.EXECUTABLE_FILE;
 import static org.junit.Assert.*;
 
 public class PosixGfsFileAttributesTest extends AbstractGitFileSystemTest {
@@ -65,7 +65,7 @@ public class PosixGfsFileAttributesTest extends AbstractGitFileSystemTest {
   @Test
   public void getPermissionOfExecutableFile_shouldContainOwnerExecute() throws IOException {
     initRepository();
-    writeToCache("/file.txt", "some data".getBytes(), FileMode.EXECUTABLE_FILE);
+    writeToCache("/file.txt", "some data".getBytes(), EXECUTABLE_FILE);
     commitToMaster();
     initGitFileSystem();
 

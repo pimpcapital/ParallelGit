@@ -13,6 +13,7 @@ import org.eclipse.jgit.lib.ObjectId;
 import org.junit.Before;
 import org.junit.Test;
 
+import static org.eclipse.jgit.lib.FileMode.*;
 import static org.junit.Assert.*;
 
 public class CacheUtilsEditTest extends AbstractParallelGitTest {
@@ -22,7 +23,7 @@ public class CacheUtilsEditTest extends AbstractParallelGitTest {
     DirCache cache = DirCache.newInCore();
     DirCacheBuilder builder = cache.builder();
     for(String file : files)
-      CacheUtils.addFile(file, FileMode.REGULAR_FILE, ObjectId.zeroId(), builder);
+      CacheUtils.addFile(file, REGULAR_FILE, ObjectId.zeroId(), builder);
     builder.finish();
     return cache;
   }
@@ -56,7 +57,7 @@ public class CacheUtilsEditTest extends AbstractParallelGitTest {
 
   @Test
   public void addFile_theAddedFileShouldHaveTheSpecifiedFileMode() {
-    FileMode expected = FileMode.EXECUTABLE_FILE;
+    FileMode expected = EXECUTABLE_FILE;
     CacheUtils.addFile("/test_file.txt", expected, someObjectId(), cache);
     assertEquals(expected, CacheUtils.getFileMode("/test_file.txt", cache));
   }
@@ -71,7 +72,7 @@ public class CacheUtilsEditTest extends AbstractParallelGitTest {
                                     "a/c3.txt",
                                     "a/b/c4.txt"};
     for(String file : files)
-      CacheUtils.addFile(file, FileMode.REGULAR_FILE, ObjectId.zeroId(), builder);builder.finish();
+      CacheUtils.addFile(file, REGULAR_FILE, ObjectId.zeroId(), builder);builder.finish();
 
     int entryCount = cache.getEntryCount();
     assertEquals(4, entryCount);
@@ -167,8 +168,8 @@ public class CacheUtilsEditTest extends AbstractParallelGitTest {
   public void updateFileMode_theEntryFileModeShouldEqualToTheInputFileModeAfterTheOperation() throws IOException {
     writeToCache("/test_file.txt");
 
-    CacheUtils.updateFileMode("/test_file.txt", FileMode.EXECUTABLE_FILE, cache);
-    assertEquals(FileMode.EXECUTABLE_FILE, CacheUtils.getFileMode("/test_file.txt", cache));
+    CacheUtils.updateFileMode("/test_file.txt", EXECUTABLE_FILE, cache);
+    assertEquals(EXECUTABLE_FILE, CacheUtils.getFileMode("/test_file.txt", cache));
   }
 
 }

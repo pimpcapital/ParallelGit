@@ -13,7 +13,7 @@ import org.eclipse.jgit.lib.TreeFormatter;
 import org.junit.Before;
 import org.junit.Test;
 
-import static org.eclipse.jgit.lib.FileMode.REGULAR_FILE;
+import static org.eclipse.jgit.lib.FileMode.*;
 import static org.junit.Assert.*;
 
 public class GfsChangesCollectorTest extends AbstractGitFileSystemTest {
@@ -145,7 +145,7 @@ public class GfsChangesCollectorTest extends AbstractGitFileSystemTest {
       tf.append(child, childEntry.getMode(), childEntry.getId());
     }
     ObjectId treeId = ObjectUtils.insertTree(tf, repo);
-    return new GitFileEntry(treeId, FileMode.TREE);
+    return new GitFileEntry(treeId, TREE);
   }
 
   @Nonnull

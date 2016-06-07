@@ -5,9 +5,10 @@ import java.nio.file.AccessDeniedException;
 import java.nio.file.AccessMode;
 import java.nio.file.NoSuchFileException;
 
-import org.eclipse.jgit.lib.FileMode;
 import org.junit.Before;
 import org.junit.Test;
+
+import static org.eclipse.jgit.lib.FileMode.EXECUTABLE_FILE;
 
 public class GitFileSystemProviderCheckAccessTest extends AbstractGitFileSystemTest {
 
@@ -15,7 +16,7 @@ public class GitFileSystemProviderCheckAccessTest extends AbstractGitFileSystemT
   public void setupFileSystem() throws IOException {
     initRepository();
     writeToCache("dir/file.txt");
-    writeToCache("dir/executable.sh", "echo test".getBytes(), FileMode.EXECUTABLE_FILE);
+    writeToCache("dir/executable.sh", "echo test".getBytes(), EXECUTABLE_FILE);
     commitToMaster();
     initGitFileSystem();
   }

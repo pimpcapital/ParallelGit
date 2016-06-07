@@ -3,11 +3,11 @@ package com.beijunyi.parallelgit.utils;
 import java.io.IOException;
 
 import com.beijunyi.parallelgit.AbstractParallelGitTest;
-import org.eclipse.jgit.lib.FileMode;
 import org.eclipse.jgit.revwalk.RevCommit;
 import org.junit.Before;
 import org.junit.Test;
 
+import static org.eclipse.jgit.lib.FileMode.*;
 import static org.junit.Assert.*;
 
 public class GitFileUtilsGetFileAttributesTest extends AbstractParallelGitTest {
@@ -46,6 +46,13 @@ public class GitFileUtilsGetFileAttributesTest extends AbstractParallelGitTest {
   }
 
   @Test
+  public void testIsFileWhenExecutableFileExists_shouldReturnFalse() throws IOException {
+    writeToCache("/test_file.sh", "some excutable data".getBytes(), EXECUTABLE_FILE);
+    RevCommit commit = commit();
+    assertTrue(GitFileUtils.isFile("/test_file.sh", commit.getName(), repo));
+  }
+
+  @Test
   public void testIsFileWhenDirectoryExists_shouldReturnFalse() throws IOException {
     writeToCache("/dir/file.txt");
     RevCommit commit = commit();
@@ -54,7 +61,7 @@ public class GitFileUtilsGetFileAttributesTest extends AbstractParallelGitTest {
 
   @Test
   public void testIsFileWhenSymbolicLinkExists_shouldReturnFalse() throws IOException {
-    writeToCache("/test_file.txt", "some link data".getBytes(), FileMode.SYMLINK);
+    writeToCache("/test_file", "some link data".getBytes(), SYMLINK);
     RevCommit commit = commit();
     assertFalse(GitFileUtils.isFile("/test_file", commit.getName(), repo));
   }
@@ -82,7 +89,7 @@ public class GitFileUtilsGetFileAttributesTest extends AbstractParallelGitTest {
 
   @Test
   public void testIsSymbolicLinkWhenSymbolicLinkExists_shouldReturnTrue() throws IOException {
-    writeToCache("/test_file.txt", "some link data".getBytes(), FileMode.SYMLINK);
+    writeToCache("/test_file.txt", "some link data".getBytes(), SYMLINK);
     RevCommit commit = commit();
     assertTrue(GitFileUtils.isSymbolicLink("/test_file.txt", commit.getName(), repo));
   }

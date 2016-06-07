@@ -8,7 +8,7 @@ import org.junit.Test;
 
 import static org.junit.Assert.assertEquals;
 
-public class RefUtilsGetRefLogTests extends AbstractParallelGitTest {
+public class RefUtilsGetRefLogTest extends AbstractParallelGitTest {
 
   @Before
   public void setUp() throws Exception {

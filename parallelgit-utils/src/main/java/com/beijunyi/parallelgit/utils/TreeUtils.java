@@ -12,7 +12,7 @@ import com.beijunyi.parallelgit.utils.io.TreeSnapshot;
 import org.eclipse.jgit.lib.*;
 import org.eclipse.jgit.treewalk.TreeWalk;
 
-import static org.eclipse.jgit.lib.Constants.*;
+import static org.eclipse.jgit.lib.FileMode.*;
 
 public final class TreeUtils {
 
@@ -27,9 +27,9 @@ public final class TreeUtils {
 
   @Nonnull
   public static TreeWalk newTreeWalk(AnyObjectId tree, ObjectReader reader) throws IOException {
-    TreeWalk treeWalk = new TreeWalk(reader);
-    treeWalk.reset(tree);
-    return treeWalk;
+    TreeWalk tw = new TreeWalk(reader);
+    tw.reset(tree);
+    return tw;
   }
 
   @Nonnull
@@ -60,14 +60,14 @@ public final class TreeUtils {
   }
 
   @Nullable
-  public static ObjectId getObjectId(TreeWalk treeWalk) {
-    return treeWalk.getObjectId(0);
+  public static ObjectId getObjectId(TreeWalk tw) {
+    return tw.getObjectId(0);
   }
 
   @Nullable
   public static ObjectId getObjectId(String path, AnyObjectId tree, ObjectReader reader) throws IOException {
-    try(TreeWalk treeWalk = forPath(path, tree, reader)) {
-      return treeWalk != null ? getObjectId(treeWalk) : null;
+    try(TreeWalk tw = forPath(path, tree, reader)) {
+      return tw != null ? getObjectId(tw) : null;
     }
   }
 
@@ -75,6 +75,25 @@ public final class TreeUtils {
   public static ObjectId getObjectId(String path, AnyObjectId tree, Repository repo) throws IOException {
     try(ObjectReader reader = repo.newObjectReader()) {
       return getObjectId(path, tree, reader);
+    }
+  }
+
+  @Nullable
+  public static FileMode getFileMode(TreeWalk tw) {
+    return tw.getFileMode(0);
+  }
+
+  @Nullable
+  public static FileMode getFileMode(String path, AnyObjectId tree, ObjectReader reader) throws IOException {
+    try(TreeWalk tw = forPath(path, tree, reader)) {
+      return tw != null ? getFileMode(tw) : null;
+    }
+  }
+
+  @Nullable
+  public static FileMode getFileMode(String path, AnyObjectId tree, Repository repo) throws IOException {
+    try(ObjectReader reader = repo.newObjectReader()) {
+      return getFileMode(path, tree, reader);
     }
   }
 
@@ -123,29 +142,13 @@ public final class TreeUtils {
     }
   }
 
-  public static boolean isBlob(TreeWalk treeWalk) {
-    return treeWalk.getFileMode(0).getObjectType() == OBJ_BLOB;
-  }
-
-  public static boolean isFileOrSymbolicLink(String path, AnyObjectId tree, ObjectReader reader) throws IOException {
-    try(TreeWalk treeWalk = forPath(path, tree, reader)) {
-      return treeWalk != null && isBlob(treeWalk);
-    }
-  }
-
-  public static boolean isFileOrSymbolicLink(String path, AnyObjectId tree, Repository repo) throws IOException {
-    try(ObjectReader reader = repo.newObjectReader()) {
-      return isFileOrSymbolicLink(path, tree, reader);
-    }
-  }
-
-  public static boolean isTree(TreeWalk treeWalk) {
-    return treeWalk.getFileMode(0).getObjectType() == OBJ_TREE;
+  public static boolean isDirectory(TreeWalk tw) {
+    return TREE.equals(getFileMode(tw));
   }
 
   public static boolean isDirectory(String path, AnyObjectId tree, ObjectReader reader) throws IOException {
-    try(TreeWalk treeWalk = forPath(path, tree, reader)) {
-      return treeWalk != null && isTree(treeWalk);
+    try(TreeWalk tw = forPath(path, tree, reader)) {
+      return tw != null && isDirectory(tw);
     }
   }
 
@@ -155,61 +158,29 @@ public final class TreeUtils {
     }
   }
 
-  public static boolean isRegular(TreeWalk treeWalk) {
-    return treeWalk.getFileMode(0) == FileMode.REGULAR_FILE;
+  public static boolean isFile(TreeWalk tw) {
+    return REGULAR_FILE.equals(getFileMode(tw)) || EXECUTABLE_FILE.equals(getFileMode(tw));
   }
 
-  public static boolean isRegularFile(String path, AnyObjectId tree, ObjectReader reader) throws IOException {
-    try(TreeWalk treeWalk = forPath(path, tree, reader)) {
-      return treeWalk != null && isRegular(treeWalk);
+  public static boolean isFile(String path, AnyObjectId tree, ObjectReader reader) throws IOException {
+    try(TreeWalk tw = forPath(path, tree, reader)) {
+      return tw != null && isFile(tw);
     }
   }
 
-  public static boolean isRegularFile(String path, AnyObjectId tree, Repository repo) throws IOException {
+  public static boolean isFile(String path, AnyObjectId tree, Repository repo) throws IOException {
     try(ObjectReader reader = repo.newObjectReader()) {
-      return isRegularFile(path, tree, reader);
+      return isFile(path, tree, reader);
     }
   }
 
-  public static boolean isExecutable(TreeWalk treeWalk) {
-    return treeWalk.getFileMode(0) == FileMode.EXECUTABLE_FILE;
-  }
-
-  public static boolean isExecutableFile(String path, AnyObjectId tree, ObjectReader reader) throws IOException {
-    try(TreeWalk treeWalk = forPath(path, tree, reader)) {
-      return treeWalk != null && isExecutable(treeWalk);
-    }
-  }
-
-  public static boolean isExecutableFile(String path, AnyObjectId tree, Repository repo) throws IOException {
-    try(ObjectReader reader = repo.newObjectReader()) {
-      return isExecutableFile(path, tree, reader);
-    }
-  }
-
-  public static boolean isRegularOrExecutable(TreeWalk treeWalk) {
-    return treeWalk.getFileMode(0) == FileMode.REGULAR_FILE || treeWalk.getFileMode(0) == FileMode.EXECUTABLE_FILE;
-  }
-
-  public static boolean isRegularOrExecutableFile(String path, AnyObjectId tree, ObjectReader reader) throws IOException {
-    try(TreeWalk treeWalk = forPath(path, tree, reader)) {
-      return treeWalk != null && isRegularOrExecutable(treeWalk);
-    }
-  }
-
-  public static boolean isRegularOrExecutableFile(String path, AnyObjectId tree, Repository repo) throws IOException {
-    try(ObjectReader reader = repo.newObjectReader()) {
-      return isRegularOrExecutableFile(path, tree, reader);
-    }
-  }
-
-  public static boolean isSymbolicLink(TreeWalk treeWalk) {
-    return treeWalk.getFileMode(0) == FileMode.SYMLINK;
+  public static boolean isSymbolicLink(TreeWalk tw) {
+    return SYMLINK.equals(getFileMode(tw));
   }
 
   public static boolean isSymbolicLink(String path, AnyObjectId tree, ObjectReader reader) throws IOException {
-    try(TreeWalk treeWalk = forPath(path, tree, reader)) {
-      return treeWalk != null && isSymbolicLink(treeWalk);
+    try(TreeWalk tw = forPath(path, tree, reader)) {
+      return tw != null && isSymbolicLink(tw);
     }
   }
 

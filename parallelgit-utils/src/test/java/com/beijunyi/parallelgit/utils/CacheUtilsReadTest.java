@@ -3,10 +3,10 @@ package com.beijunyi.parallelgit.utils;
 import java.io.IOException;
 
 import com.beijunyi.parallelgit.AbstractParallelGitTest;
-import org.eclipse.jgit.lib.FileMode;
 import org.junit.Before;
 import org.junit.Test;
 
+import static org.eclipse.jgit.lib.FileMode.*;
 import static org.junit.Assert.*;
 
 public class CacheUtilsReadTest extends AbstractParallelGitTest {
@@ -86,7 +86,7 @@ public class CacheUtilsReadTest extends AbstractParallelGitTest {
 
   @Test
   public void testIsSymbolicLinkWhenSymbolicLinkExists_shouldReturnTrue() throws IOException {
-    writeToCache("/test_file.txt", "some link data".getBytes(), FileMode.SYMLINK);
+    writeToCache("/test_file.txt", "some link data".getBytes(), SYMLINK);
     assertTrue(CacheUtils.isSymbolicLink("/test_file.txt", cache));
   }
 
@@ -98,7 +98,7 @@ public class CacheUtilsReadTest extends AbstractParallelGitTest {
 
   @Test
   public void testIsRegularFileWhenSymbolicLinkExists_shouldReturnFalse() throws IOException {
-    writeToCache("/test_file.txt", "some link data".getBytes(), FileMode.SYMLINK);
+    writeToCache("/test_file.txt", "some link data".getBytes(), SYMLINK);
     assertFalse(CacheUtils.isRegularFile("/test_file.txt", cache));
   }
 
@@ -110,7 +110,7 @@ public class CacheUtilsReadTest extends AbstractParallelGitTest {
 
   @Test
   public void testIsExecutableFileWhenExecutableFileExists_shouldReturnTrue() throws IOException {
-    writeToCache("/test_file.sh", "some executable data".getBytes(), FileMode.EXECUTABLE_FILE);
+    writeToCache("/test_file.sh", "some executable data".getBytes(), EXECUTABLE_FILE);
     assertTrue(CacheUtils.isExecutableFile("/test_file.sh", cache));
   }
 
@@ -122,13 +122,13 @@ public class CacheUtilsReadTest extends AbstractParallelGitTest {
 
   @Test
   public void testIsRegularOrExecutableFileWhenExecutableFileExists_shouldReturnTrue() throws IOException {
-    writeToCache("/test_file.sh", "some executable data".getBytes(), FileMode.EXECUTABLE_FILE);
+    writeToCache("/test_file.sh", "some executable data".getBytes(), EXECUTABLE_FILE);
     assertTrue(CacheUtils.isRegularOrExecutableFile("/test_file.sh", cache));
   }
 
   @Test
   public void testIsRegularOrExecutableFileWhenSymbolicLinkExists_shouldReturnTrue() throws IOException {
-    writeToCache("/test_file.txt", "some link data".getBytes(), FileMode.SYMLINK);
+    writeToCache("/test_file.txt", "some link data".getBytes(), SYMLINK);
     assertFalse(CacheUtils.isRegularOrExecutableFile("/test_file.txt", cache));
   }
 

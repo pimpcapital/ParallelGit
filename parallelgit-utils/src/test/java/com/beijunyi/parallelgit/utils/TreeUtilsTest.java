@@ -13,11 +13,6 @@ import static org.junit.Assert.*;
 
 public class TreeUtilsTest extends AbstractParallelGitTest {
 
-  private static void assertNextEntry(TreeWalk treeWalk, String path) throws IOException {
-    assertTrue(treeWalk.next());
-    assertEquals(path, treeWalk.getPathString());
-  }
-
   @Before
   public void setUp() throws Exception {
     initRepository();
@@ -47,27 +42,24 @@ public class TreeUtilsTest extends AbstractParallelGitTest {
   }
 
   @Test
-  public void getObjectTest() throws IOException {
+  public void getObjectIdTest() throws IOException {
     AnyObjectId objectId = writeToCache("a/b.txt");
     RevTree tree = commitToMaster().getTree();
     assertEquals(objectId, TreeUtils.getObjectId("a/b.txt", tree, repo));
   }
 
   @Test
-  public void isBlobTest() throws IOException {
-    writeToCache("a/b.txt");
-    RevTree tree = commitToMaster().getTree();
-    assertFalse(TreeUtils.isFileOrSymbolicLink("a", tree, repo));
-    assertTrue(TreeUtils.isFileOrSymbolicLink("a/b.txt", tree, repo));
-    assertFalse(TreeUtils.isFileOrSymbolicLink("a/b", tree, repo));
-  }
-
-  @Test
-  public void isTreeTest() throws IOException {
+  public void isDirectoryTest() throws IOException {
     writeToCache("a/b.txt");
     RevTree tree = commitToMaster().getTree();
     assertTrue(TreeUtils.isDirectory("a", tree, repo));
     assertFalse(TreeUtils.isDirectory("a/b.txt", tree, repo));
     assertFalse(TreeUtils.isDirectory("a/b", tree, repo));
   }
+
+  private static void assertNextEntry(TreeWalk treeWalk, String path) throws IOException {
+    assertTrue(treeWalk.next());
+    assertEquals(path, treeWalk.getPathString());
+  }
+
 }

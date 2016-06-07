@@ -9,12 +9,12 @@ import com.beijunyi.parallelgit.utils.CacheUtils;
 import org.eclipse.jgit.dircache.DirCache;
 import org.eclipse.jgit.dircache.DirCacheBuilder;
 import org.eclipse.jgit.dircache.DirCacheEntry;
-import org.eclipse.jgit.lib.FileMode;
 import org.junit.Test;
 
 import static com.beijunyi.parallelgit.utils.TreeUtils.normalizeTreePath;
 import static java.util.Collections.singleton;
 import static org.eclipse.jgit.dircache.DirCacheEntry.*;
+import static org.eclipse.jgit.lib.FileMode.REGULAR_FILE;
 import static org.junit.Assert.*;
 
 public class GfsDefaultCheckoutCacheTest extends AbstractGitFileSystemTest {
@@ -84,14 +84,14 @@ public class GfsDefaultCheckoutCacheTest extends AbstractGitFileSystemTest {
   @Nonnull
   private DirCache createCacheWithFile(String path) throws IOException {
     DirCache cache = DirCache.newInCore();
-    CacheUtils.addFile(path, FileMode.REGULAR_FILE, someObjectId(), cache);
+    CacheUtils.addFile(path, REGULAR_FILE, someObjectId(), cache);
     return cache;
   }
 
   @Nonnull
   private DirCacheEntry someEntry(String path, int stage) {
     DirCacheEntry ret = new DirCacheEntry(normalizeTreePath(path), stage);
-    ret.setFileMode(FileMode.REGULAR_FILE);
+    ret.setFileMode(REGULAR_FILE);
     ret.setObjectId(someObjectId());
     return ret;
   }
