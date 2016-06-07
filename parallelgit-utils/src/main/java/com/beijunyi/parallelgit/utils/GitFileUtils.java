@@ -70,7 +70,7 @@ public final class GitFileUtils {
 
   @Nonnull
   public static InputStream openFile(String file, AnyObjectId commit, ObjectReader reader) throws IOException {
-    AnyObjectId blobId = ObjectUtils.findObject(file, commit, reader);
+    AnyObjectId blobId = TreeUtils.getObjectId(file, getRootTree(commit, reader), reader);
     if(blobId == null)
       throw new NoSuchFileException(file);
     return ObjectUtils.openBlob(blobId, reader);
@@ -90,7 +90,7 @@ public final class GitFileUtils {
 
   @Nonnull
   public static BlobSnapshot readFile(String file, AnyObjectId commit, ObjectReader reader) throws IOException {
-    ObjectId blobId = ObjectUtils.findObject(file, commit, reader);
+    ObjectId blobId = TreeUtils.getObjectId(file, getRootTree(commit, reader), reader);
     if(blobId == null)
       throw new NoSuchFileException(file);
     return ObjectUtils.readBlob(blobId, reader);

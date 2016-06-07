@@ -5,13 +5,13 @@ import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 
 import com.beijunyi.parallelgit.filesystem.GfsObjectService;
-import com.beijunyi.parallelgit.utils.ObjectUtils;
 import com.beijunyi.parallelgit.utils.io.GitFileEntry;
 import com.beijunyi.parallelgit.utils.io.ObjectSnapshot;
 import org.eclipse.jgit.lib.FileMode;
 import org.eclipse.jgit.lib.ObjectId;
 
 import static org.eclipse.jgit.lib.FileMode.*;
+import static org.eclipse.jgit.lib.ObjectId.zeroId;
 
 public abstract class Node<Snapshot extends ObjectSnapshot, Data> {
 
@@ -83,7 +83,7 @@ public abstract class Node<Snapshot extends ObjectSnapshot, Data> {
   public ObjectId getObjectId(boolean persist) throws IOException {
     if(id == null || persist && !objService.hasObject(id)) {
       Snapshot snapshot = takeSnapshot(persist);
-      id = snapshot != null ? snapshot.getId() : ObjectId.zeroId();
+      id = snapshot != null ? snapshot.getId() : zeroId();
     }
     return id;
   }
@@ -128,7 +128,7 @@ public abstract class Node<Snapshot extends ObjectSnapshot, Data> {
   }
 
   protected boolean isTrivial() throws IOException {
-    return ObjectUtils.isTrivial(getObjectId(false));
+    return isTrivial(getObjectId(false));
   }
 
   @Nonnull
@@ -212,5 +212,9 @@ public abstract class Node<Snapshot extends ObjectSnapshot, Data> {
 
   @Nonnull
   protected abstract Node clone(DirectoryNode parent) throws IOException;
+
+  protected static boolean isTrivial(ObjectId id) {
+    return zeroId().equals(id);
+  }
 
 }
