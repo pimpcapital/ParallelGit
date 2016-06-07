@@ -6,12 +6,12 @@ import javax.annotation.Nullable;
 import com.beijunyi.parallelgit.utils.TreeUtils;
 import org.eclipse.jgit.dircache.DirCacheEditor;
 import org.eclipse.jgit.dircache.DirCacheEntry;
-import org.eclipse.jgit.lib.AnyObjectId;
 import org.eclipse.jgit.lib.FileMode;
+import org.eclipse.jgit.lib.ObjectId;
 
 public class CacheEntryUpdate extends DirCacheEditor.PathEdit {
 
-  private AnyObjectId newBlob;
+  private ObjectId newBlob;
   private FileMode newFileMode;
 
   public CacheEntryUpdate(@Nonnull String entryPath) {
@@ -19,7 +19,7 @@ public class CacheEntryUpdate extends DirCacheEditor.PathEdit {
   }
 
   @Nonnull
-  public CacheEntryUpdate setNewBlob(@Nullable AnyObjectId blob) {
+  public CacheEntryUpdate setNewBlob(@Nullable ObjectId blob) {
     this.newBlob = blob;
     return this;
   }

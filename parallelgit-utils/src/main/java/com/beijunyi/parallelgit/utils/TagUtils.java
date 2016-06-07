@@ -19,11 +19,11 @@ public final class TagUtils {
   }
 
   @Nonnull
-  public static AnyObjectId getTaggedCommit(@Nonnull String name, @Nonnull Repository repo) throws IOException {
+  public static ObjectId getTaggedCommit(@Nonnull String name, @Nonnull Repository repo) throws IOException {
     Ref tagRef = RefUtils.getTagRef(name, repo);
     if(tagRef == null)
       throw new NoSuchTagException(name);
-    AnyObjectId ret = tagRef.getPeeledObjectId();
+    ObjectId ret = tagRef.getPeeledObjectId();
     return ret != null ? ret : CommitUtils.getCommit(tagRef.getObjectId(), repo);
   }
 

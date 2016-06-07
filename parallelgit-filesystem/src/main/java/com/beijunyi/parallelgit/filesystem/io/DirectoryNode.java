@@ -11,14 +11,14 @@ import com.beijunyi.parallelgit.filesystem.exceptions.IncompatibleFileModeExcept
 import com.beijunyi.parallelgit.utils.ObjectUtils;
 import com.beijunyi.parallelgit.utils.io.GitFileEntry;
 import com.beijunyi.parallelgit.utils.io.TreeSnapshot;
-import org.eclipse.jgit.lib.AnyObjectId;
 import org.eclipse.jgit.lib.FileMode;
+import org.eclipse.jgit.lib.ObjectId;
 
 import static org.eclipse.jgit.lib.FileMode.TREE;
 
 public class DirectoryNode extends Node<TreeSnapshot, Map<String, Node>> {
 
-  protected DirectoryNode(@Nonnull AnyObjectId id, @Nonnull GfsObjectService objService) {
+  protected DirectoryNode(@Nonnull ObjectId id, @Nonnull GfsObjectService objService) {
     super(id, TREE, objService);
   }
 
@@ -26,7 +26,7 @@ public class DirectoryNode extends Node<TreeSnapshot, Map<String, Node>> {
     super(TREE, objService);
   }
 
-  protected DirectoryNode(@Nonnull AnyObjectId id, @Nonnull DirectoryNode parent) {
+  protected DirectoryNode(@Nonnull ObjectId id, @Nonnull DirectoryNode parent) {
     super(id, TREE, parent);
   }
 
@@ -35,7 +35,7 @@ public class DirectoryNode extends Node<TreeSnapshot, Map<String, Node>> {
   }
 
   @Nonnull
-  public static DirectoryNode fromObject(@Nonnull AnyObjectId id, @Nonnull DirectoryNode parent) {
+  public static DirectoryNode fromObject(@Nonnull ObjectId id, @Nonnull DirectoryNode parent) {
     return new DirectoryNode(id, parent);
   }
 
@@ -70,7 +70,7 @@ public class DirectoryNode extends Node<TreeSnapshot, Map<String, Node>> {
     }
   }
 
-  public void updateOrigin(@Nonnull AnyObjectId id) throws IOException {
+  public void updateOrigin(@Nonnull ObjectId id) throws IOException {
     updateOrigin(GitFileEntry.tree(id));
   }
 
@@ -105,7 +105,7 @@ public class DirectoryNode extends Node<TreeSnapshot, Map<String, Node>> {
     SortedMap<String, GitFileEntry> entries = new TreeMap<>();
     for(Map.Entry<String, Node> child : data.entrySet()) {
       Node node = child.getValue();
-      AnyObjectId id = node.getObjectId(persist);
+      ObjectId id = node.getObjectId(persist);
       if(!ObjectUtils.isZeroId(id))
         entries.put(child.getKey(), new GitFileEntry(id, node.getMode()));
     }

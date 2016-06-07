@@ -3,7 +3,6 @@ package com.beijunyi.parallelgit.filesystem.io;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.util.Collections;
-
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 
@@ -238,8 +237,8 @@ public class GitFileAttributeViewTest extends AbstractGitFileSystemTest {
   }
 
   @Nullable
-  private AnyObjectId objectId(@Nonnull String path) throws IOException {
-    return (AnyObjectId) readAttribute(path, OBJECT_ID);
+  private ObjectId objectId(@Nonnull String path) throws IOException {
+    return (ObjectId) readAttribute(path, OBJECT_ID);
   }
 
   @Nullable

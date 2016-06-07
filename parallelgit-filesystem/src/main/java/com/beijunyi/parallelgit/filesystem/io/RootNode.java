@@ -5,13 +5,13 @@ import java.util.Map;
 import javax.annotation.Nonnull;
 
 import com.beijunyi.parallelgit.filesystem.GfsObjectService;
-import org.eclipse.jgit.lib.AnyObjectId;
+import org.eclipse.jgit.lib.ObjectId;
 import org.eclipse.jgit.revwalk.RevCommit;
 
 
 public class RootNode extends DirectoryNode {
 
-  public RootNode(@Nonnull AnyObjectId id, @Nonnull GfsObjectService objService) throws IOException {
+  public RootNode(@Nonnull ObjectId id, @Nonnull GfsObjectService objService) throws IOException {
     super(id, objService);
     updateOrigin(id);
   }

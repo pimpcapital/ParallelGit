@@ -40,29 +40,29 @@ public abstract class AbstractParallelGitTest {
   }
 
   @Nonnull
-  protected AnyObjectId writeToCache(@Nonnull String path, @Nonnull byte[] content, @Nonnull FileMode mode) throws IOException {
-    AnyObjectId blobId = repo != null ? ObjectUtils.insertBlob(content, repo) : calculateBlobId(content);
+  protected ObjectId writeToCache(@Nonnull String path, @Nonnull byte[] content, @Nonnull FileMode mode) throws IOException {
+    ObjectId blobId = repo != null ? ObjectUtils.insertBlob(content, repo) : calculateBlobId(content);
     CacheUtils.addFile(path, mode, blobId, cache);
     return blobId;
   }
 
   @Nonnull
-  protected AnyObjectId writeToCache(@Nonnull String path, @Nonnull byte[] content) throws IOException {
+  protected ObjectId writeToCache(@Nonnull String path, @Nonnull byte[] content) throws IOException {
     return writeToCache(path, content, FileMode.REGULAR_FILE);
   }
 
   @Nonnull
-  protected AnyObjectId writeToCache(@Nonnull String path, @Nonnull String content) throws IOException {
+  protected ObjectId writeToCache(@Nonnull String path, @Nonnull String content) throws IOException {
     return writeToCache(path, Constants.encode(content));
   }
 
   @Nonnull
-  protected AnyObjectId writeToCache(@Nonnull String path) throws IOException {
+  protected ObjectId writeToCache(@Nonnull String path) throws IOException {
     return writeToCache(path, someBytes());
   }
 
   @Nonnull
-  protected AnyObjectId writeSomethingToCache() throws IOException {
+  protected ObjectId writeSomethingToCache() throws IOException {
     return writeToCache(UUID.randomUUID().toString() + ".txt");
   }
 
@@ -76,14 +76,14 @@ public abstract class AbstractParallelGitTest {
   }
 
   @Nonnull
-  protected AnyObjectId updateFile(@Nonnull String path, @Nonnull byte[] content) throws IOException {
-    AnyObjectId blobId = ObjectUtils.insertBlob(content, repo);
+  protected ObjectId updateFile(@Nonnull String path, @Nonnull byte[] content) throws IOException {
+    ObjectId blobId = ObjectUtils.insertBlob(content, repo);
     CacheUtils.updateFileBlob(path, blobId, cache);
     return blobId;
   }
 
   @Nonnull
-  protected AnyObjectId updateFile(@Nonnull String path, @Nonnull String content) throws IOException {
+  protected ObjectId updateFile(@Nonnull String path, @Nonnull String content) throws IOException {
     return updateFile(path, Constants.encode(content));
   }
 
@@ -103,7 +103,7 @@ public abstract class AbstractParallelGitTest {
   }
 
   @Nonnull
-  protected AnyObjectId someObjectId() {
+  protected ObjectId someObjectId() {
     return calculateBlobId(someBytes());
   }
 
@@ -217,7 +217,7 @@ public abstract class AbstractParallelGitTest {
   }
 
   @Nonnull
-  public static AnyObjectId calculateBlobId(@Nonnull byte[] data) {
+  public static ObjectId calculateBlobId(@Nonnull byte[] data) {
     return new ObjectInserter.Formatter().idFor(Constants.OBJ_BLOB, data);
   }
 

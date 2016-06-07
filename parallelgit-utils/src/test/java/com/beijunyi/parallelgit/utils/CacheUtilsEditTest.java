@@ -157,7 +157,7 @@ public class CacheUtilsEditTest extends AbstractParallelGitTest {
   public void updateFileBlob_theEntryBlobShouldEqualToTheInputBlobAfterTheOperation() throws IOException {
     writeToCache("/test_file.txt");
 
-    AnyObjectId expected = someObjectId();
+    ObjectId expected = someObjectId();
     CacheUtils.updateFileBlob("/test_file.txt", expected, cache);
     Assert.assertEquals(expected, CacheUtils.getBlob("/test_file.txt", cache));
   }

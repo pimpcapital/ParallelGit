@@ -13,7 +13,7 @@ import org.eclipse.jgit.treewalk.TreeWalk;
 
 public class TreeSnapshot extends ObjectSnapshot<SortedMap<String, GitFileEntry>> {
 
-  private TreeSnapshot(@Nonnull AnyObjectId id, @Nonnull SortedMap<String, GitFileEntry> data) {
+  private TreeSnapshot(@Nonnull ObjectId id, @Nonnull SortedMap<String, GitFileEntry> data) {
     super(id, data);
   }
 
@@ -23,12 +23,12 @@ public class TreeSnapshot extends ObjectSnapshot<SortedMap<String, GitFileEntry>
   }
 
   @Nonnull
-  public AnyObjectId persist(@Nonnull ObjectInserter inserter) throws IOException {
+  public ObjectId persist(@Nonnull ObjectInserter inserter) throws IOException {
     return inserter.insert(format(data));
   }
 
   @Nonnull
-  public static TreeSnapshot load(@Nonnull AnyObjectId id, @Nonnull ObjectReader reader) throws IOException {
+  public static TreeSnapshot load(@Nonnull ObjectId id, @Nonnull ObjectReader reader) throws IOException {
     SortedMap<String, GitFileEntry> ret = new TreeMap<>();
     try(TreeWalk tw = TreeUtils.newTreeWalk(id, reader)) {
       while(tw.next())
@@ -54,7 +54,7 @@ public class TreeSnapshot extends ObjectSnapshot<SortedMap<String, GitFileEntry>
   }
 
   @Nonnull
-  private static AnyObjectId computeTreeId(@Nonnull SortedMap<String, GitFileEntry> data) {
+  private static ObjectId computeTreeId(@Nonnull SortedMap<String, GitFileEntry> data) {
     return new ObjectInserter.Formatter().idFor(Constants.OBJ_TREE, format(data).toByteArray());
   }
 

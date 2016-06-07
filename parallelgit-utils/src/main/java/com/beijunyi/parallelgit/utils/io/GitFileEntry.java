@@ -3,7 +3,6 @@ package com.beijunyi.parallelgit.utils.io;
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 
-import org.eclipse.jgit.lib.AnyObjectId;
 import org.eclipse.jgit.lib.FileMode;
 import org.eclipse.jgit.lib.ObjectId;
 import org.eclipse.jgit.treewalk.TreeWalk;
@@ -15,16 +14,16 @@ public class GitFileEntry {
 
   public static final GitFileEntry TRIVIAL = new GitFileEntry(ObjectId.zeroId(), FileMode.MISSING);
 
-  private final AnyObjectId id;
+  private final ObjectId id;
   private final FileMode mode;
 
-  public GitFileEntry(@Nonnull AnyObjectId id, @Nonnull FileMode mode) {
+  public GitFileEntry(@Nonnull ObjectId id, @Nonnull FileMode mode) {
     this.id = id;
     this.mode = mode;
   }
 
   @Nonnull
-  public static GitFileEntry tree(@Nonnull AnyObjectId id) {
+  public static GitFileEntry tree(@Nonnull ObjectId id) {
     return new GitFileEntry(id, TREE);
   }
 
@@ -34,7 +33,7 @@ public class GitFileEntry {
   }
 
   @Nonnull
-  public AnyObjectId getId() {
+  public ObjectId getId() {
     return id;
   }
 

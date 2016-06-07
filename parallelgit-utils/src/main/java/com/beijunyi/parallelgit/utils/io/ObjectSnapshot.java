@@ -4,15 +4,15 @@ import java.io.IOException;
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 
-import org.eclipse.jgit.lib.AnyObjectId;
+import org.eclipse.jgit.lib.ObjectId;
 import org.eclipse.jgit.lib.ObjectInserter;
 
 public abstract class ObjectSnapshot<Data> {
 
-  protected final AnyObjectId id;
+  protected final ObjectId id;
   protected final Data data;
 
-  protected ObjectSnapshot(@Nonnull AnyObjectId id, @Nonnull Data data) {
+  protected ObjectSnapshot(@Nonnull ObjectId id, @Nonnull Data data) {
     this.id = id;
     this.data = data;
   }
@@ -23,17 +23,17 @@ public abstract class ObjectSnapshot<Data> {
   }
 
   @Nonnull
-  public AnyObjectId getId() {
+  public ObjectId getId() {
     return id;
   }
 
   @Nonnull
-  public AnyObjectId insert(@Nonnull ObjectInserter inserter) throws IOException {
+  public ObjectId insert(@Nonnull ObjectInserter inserter) throws IOException {
     return persist(inserter);
   }
 
   @Nonnull
-  protected abstract AnyObjectId persist(@Nonnull ObjectInserter inserter) throws IOException;
+  protected abstract ObjectId persist(@Nonnull ObjectInserter inserter) throws IOException;
 
   @Override
   public boolean equals(@Nullable Object that) {

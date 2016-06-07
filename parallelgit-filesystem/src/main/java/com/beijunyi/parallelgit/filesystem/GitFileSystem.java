@@ -12,7 +12,7 @@ import com.beijunyi.parallelgit.filesystem.io.RootNode;
 import com.beijunyi.parallelgit.filesystem.utils.GfsConfiguration;
 import com.beijunyi.parallelgit.filesystem.utils.GitGlobs;
 import com.beijunyi.parallelgit.utils.RefUtils;
-import org.eclipse.jgit.lib.AnyObjectId;
+import org.eclipse.jgit.lib.ObjectId;
 import org.eclipse.jgit.lib.Repository;
 import org.eclipse.jgit.revwalk.RevCommit;
 
@@ -202,14 +202,14 @@ public class GitFileSystem extends FileSystem {
   }
 
   @Nonnull
-  public AnyObjectId flush() throws IOException {
+  public ObjectId flush() throws IOException {
     RootNode root = fileStore.getRoot();
-    AnyObjectId ret = root.getObjectId(true);
+    ObjectId ret = root.getObjectId(true);
     objService.flush();
     return ret;
   }
 
-  public void updateOrigin(@Nonnull AnyObjectId rootTree) throws IOException {
+  public void updateOrigin(@Nonnull ObjectId rootTree) throws IOException {
     RootNode root = fileStore.getRoot();
     root.updateOrigin(rootTree);
   }

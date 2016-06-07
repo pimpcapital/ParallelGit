@@ -151,7 +151,7 @@ public final class CacheUtils {
     editor.finish();
   }
 
-  public static void updateFileBlob(@Nonnull String path, @Nonnull AnyObjectId blob, @Nonnull DirCache cache) {
+  public static void updateFileBlob(@Nonnull String path, @Nonnull ObjectId blob, @Nonnull DirCache cache) {
     updateFile(new CacheEntryUpdate(path).setNewBlob(blob), cache);
   }
 
@@ -168,7 +168,7 @@ public final class CacheUtils {
   }
 
   @Nonnull
-  public static AnyObjectId getBlob(@Nonnull String path, @Nonnull DirCache cache) throws NoSuchCacheEntryException {
+  public static ObjectId getBlob(@Nonnull String path, @Nonnull DirCache cache) throws NoSuchCacheEntryException {
     return ensureEntry(path, cache).getObjectId();
   }
 
@@ -234,9 +234,9 @@ public final class CacheUtils {
   }
 
   @Nonnull
-  public static AnyObjectId writeTree(@Nonnull DirCache cache, @Nonnull Repository repo) throws IOException {
+  public static ObjectId writeTree(@Nonnull DirCache cache, @Nonnull Repository repo) throws IOException {
     try(ObjectInserter inserter = repo.newObjectInserter()) {
-      AnyObjectId tree = cache.writeTree(inserter);
+      ObjectId tree = cache.writeTree(inserter);
       inserter.flush();
       return tree;
     }

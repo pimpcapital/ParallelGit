@@ -13,6 +13,7 @@ import com.beijunyi.parallelgit.utils.ObjectUtils;
 import org.eclipse.jgit.dircache.DirCache;
 import org.eclipse.jgit.lib.AnyObjectId;
 import org.eclipse.jgit.lib.FileMode;
+import org.eclipse.jgit.lib.ObjectId;
 import org.junit.Assert;
 import org.junit.Test;
 
@@ -176,7 +177,7 @@ public class GfsCheckoutTreeTest extends AbstractGitFileSystemTest {
   }
 
   @Nonnull
-  private AnyObjectId createTreeWithFile(@Nonnull String path, @Nonnull byte[] bytes) throws IOException {
+  private ObjectId createTreeWithFile(@Nonnull String path, @Nonnull byte[] bytes) throws IOException {
     DirCache cache = DirCache.newInCore();
     CacheUtils.addFile(path, FileMode.REGULAR_FILE, ObjectUtils.insertBlob(bytes, repo), cache);
     return CacheUtils.writeTree(cache, repo);

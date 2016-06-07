@@ -19,7 +19,7 @@ public class GfsTreeIterator extends WorkingTreeIterator {
 
   private final List<GfsTreeEntry> files;
   private int index = -1;
-  private AnyObjectId id;
+  private ObjectId id;
 
   private GfsTreeIterator(@Nonnull List<GfsTreeEntry> files, @Nonnull GfsTreeIterator parent) {
     super(parent);
@@ -135,7 +135,7 @@ public class GfsTreeIterator extends WorkingTreeIterator {
     }
 
     @Nonnull
-    public AnyObjectId getId() {
+    public ObjectId getId() {
       try {
         return node.getObjectId(false);
       } catch(IOException e) {

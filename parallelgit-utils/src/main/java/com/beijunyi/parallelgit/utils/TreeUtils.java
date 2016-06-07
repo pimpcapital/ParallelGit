@@ -58,19 +58,19 @@ public final class TreeUtils {
   }
 
   @Nullable
-  public static AnyObjectId getObjectId(@Nonnull TreeWalk treeWalk) {
+  public static ObjectId getObjectId(@Nonnull TreeWalk treeWalk) {
     return treeWalk.getObjectId(0);
   }
 
   @Nullable
-  public static AnyObjectId getObjectId(@Nonnull String path, @Nonnull AnyObjectId tree, @Nonnull ObjectReader reader) throws IOException {
+  public static ObjectId getObjectId(@Nonnull String path, @Nonnull AnyObjectId tree, @Nonnull ObjectReader reader) throws IOException {
     try(TreeWalk treeWalk = forPath(path, tree, reader)) {
       return treeWalk != null ? getObjectId(treeWalk) : null;
     }
   }
 
   @Nullable
-  public static AnyObjectId getObjectId(@Nonnull String path, @Nonnull AnyObjectId tree, @Nonnull Repository repo) throws IOException {
+  public static ObjectId getObjectId(@Nonnull String path, @Nonnull AnyObjectId tree, @Nonnull Repository repo) throws IOException {
     try(ObjectReader reader = repo.newObjectReader()) {
       return getObjectId(path, tree, reader);
     }
@@ -92,30 +92,30 @@ public final class TreeUtils {
   }
 
   @Nonnull
-  public static BlobSnapshot readFile(@Nonnull String file, @Nonnull AnyObjectId tree, @Nonnull ObjectReader reader) throws IOException {
-    AnyObjectId blobId = getObjectId(file, tree, reader);
+  public static BlobSnapshot readFile(@Nonnull String file, @Nonnull ObjectId tree, @Nonnull ObjectReader reader) throws IOException {
+    ObjectId blobId = getObjectId(file, tree, reader);
     if(blobId == null)
       throw new NoSuchFileException(file);
     return ObjectUtils.readBlob(blobId, reader);
   }
 
   @Nonnull
-  public static BlobSnapshot readFile(@Nonnull String file, @Nonnull AnyObjectId tree, @Nonnull Repository repo) throws IOException {
+  public static BlobSnapshot readFile(@Nonnull String file, @Nonnull ObjectId tree, @Nonnull Repository repo) throws IOException {
     try(ObjectReader reader = repo.newObjectReader()) {
       return readFile(file, tree, reader);
     }
   }
 
   @Nonnull
-  public static TreeSnapshot readDirectory(@Nonnull String dir, @Nonnull AnyObjectId tree, @Nonnull ObjectReader reader) throws IOException {
-    AnyObjectId blobId = getObjectId(dir, tree, reader);
+  public static TreeSnapshot readDirectory(@Nonnull String dir, @Nonnull ObjectId tree, @Nonnull ObjectReader reader) throws IOException {
+    ObjectId blobId = getObjectId(dir, tree, reader);
     if(blobId == null)
       throw new NotDirectoryException(dir);
     return ObjectUtils.readTree(blobId, reader);
   }
 
   @Nonnull
-  public static TreeSnapshot readDirectory(@Nonnull String dir, @Nonnull AnyObjectId tree, @Nonnull Repository repo) throws IOException {
+  public static TreeSnapshot readDirectory(@Nonnull String dir, @Nonnull ObjectId tree, @Nonnull Repository repo) throws IOException {
     try(ObjectReader reader = repo.newObjectReader()) {
       return readDirectory(dir, tree, reader);
     }

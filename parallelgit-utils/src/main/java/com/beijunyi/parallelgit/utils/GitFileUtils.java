@@ -6,9 +6,7 @@ import java.nio.file.NoSuchFileException;
 import javax.annotation.Nonnull;
 
 import com.beijunyi.parallelgit.utils.io.BlobSnapshot;
-import org.eclipse.jgit.lib.AnyObjectId;
-import org.eclipse.jgit.lib.ObjectReader;
-import org.eclipse.jgit.lib.Repository;
+import org.eclipse.jgit.lib.*;
 
 public final class GitFileUtils {
 
@@ -90,7 +88,7 @@ public final class GitFileUtils {
 
   @Nonnull
   public static BlobSnapshot readFile(@Nonnull String file, @Nonnull AnyObjectId commit, @Nonnull ObjectReader reader) throws IOException {
-    AnyObjectId blobId = ObjectUtils.findObject(file, commit, reader);
+    ObjectId blobId = ObjectUtils.findObject(file, commit, reader);
     if(blobId == null)
       throw new NoSuchFileException(file);
     return ObjectUtils.readBlob(blobId, reader);
@@ -109,7 +107,7 @@ public final class GitFileUtils {
   }
 
   @Nonnull
-  private static AnyObjectId getRootTree(@Nonnull AnyObjectId commit, @Nonnull ObjectReader reader) throws IOException {
+  private static ObjectId getRootTree(@Nonnull AnyObjectId commit, @Nonnull ObjectReader reader) throws IOException {
     return CommitUtils.getCommit(commit, reader).getTree();
   }
 

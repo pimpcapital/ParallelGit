@@ -170,7 +170,7 @@ public class GfsMergerNoConflictMergeTest extends AbstractParallelGitTest {
 //  }
 //
 //  @Nonnull
-//  private AnyObjectId merge(@Nonnull AnyObjectId ours, @Nonnull AnyObjectId theirs) throws IOException {
+//  private ObjectId merge(@Nonnull AnyObjectId ours, @Nonnull AnyObjectId theirs) throws IOException {
 //    try(GitFileSystem gfs = Gfs.newFileSystem(ours, repo)) {
 //      GfsMerger merger = new GfsMerger(gfs);
 //      merger.merge(ours, theirs);

@@ -12,6 +12,7 @@ import com.beijunyi.parallelgit.filesystem.exceptions.UnsuccessfulOperationExcep
 import com.beijunyi.parallelgit.utils.BranchUtils;
 import com.beijunyi.parallelgit.utils.CommitUtils;
 import org.eclipse.jgit.lib.AnyObjectId;
+import org.eclipse.jgit.lib.ObjectId;
 import org.eclipse.jgit.lib.PersonIdent;
 import org.eclipse.jgit.revwalk.RevCommit;
 
@@ -43,7 +44,7 @@ public final class GfsCommit extends GfsCommand<GfsCommit.Result> {
     prepareCommitter();
     prepareAuthor();
     prepareParents();
-    AnyObjectId resultTree = gfs.flush();
+    ObjectId resultTree = gfs.flush();
     gfs.updateOrigin(resultTree);
     if(!allowEmpty && !amend && isSameAsParent(resultTree))
       return Result.noChange();

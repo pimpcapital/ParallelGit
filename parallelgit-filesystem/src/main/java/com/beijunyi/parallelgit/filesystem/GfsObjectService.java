@@ -46,7 +46,7 @@ public class GfsObjectService implements Closeable {
   }
 
   @Nonnull
-  public <S extends ObjectSnapshot> S read(@Nonnull AnyObjectId id, @Nonnull Class<S> type) throws IOException {
+  public <S extends ObjectSnapshot> S read(@Nonnull ObjectId id, @Nonnull Class<S> type) throws IOException {
     if(BlobSnapshot.class.isAssignableFrom(type))
       return type.cast(readBlob(id));
     if(TreeSnapshot.class.isAssignableFrom(type))
@@ -55,14 +55,14 @@ public class GfsObjectService implements Closeable {
   }
 
   @Nonnull
-  public BlobSnapshot readBlob(@Nonnull AnyObjectId id) throws IOException {
+  public BlobSnapshot readBlob(@Nonnull ObjectId id) throws IOException {
     checkClosed();
     synchronized(reader) {
       return ObjectUtils.readBlob(id, reader);
     }
   }
 
-  public long getBlobSize(@Nonnull AnyObjectId id) throws IOException {
+  public long getBlobSize(@Nonnull ObjectId id) throws IOException {
     checkClosed();
     synchronized(reader) {
       return ObjectUtils.getBlobSize(id, reader);
@@ -70,7 +70,7 @@ public class GfsObjectService implements Closeable {
   }
 
   @Nonnull
-  public TreeSnapshot readTree(@Nonnull AnyObjectId id) throws IOException {
+  public TreeSnapshot readTree(@Nonnull ObjectId id) throws IOException {
     checkClosed();
     synchronized(reader) {
       return ObjectUtils.readTree(id, reader);
@@ -78,11 +78,11 @@ public class GfsObjectService implements Closeable {
   }
 
   @Nonnull
-  public AnyObjectId write(@Nonnull ObjectSnapshot snapshot) throws IOException {
+  public ObjectId write(@Nonnull ObjectSnapshot snapshot) throws IOException {
     return snapshot.insert(inserter);
   }
 
-  public void pullObject(@Nonnull AnyObjectId id, boolean flush, @Nonnull GfsObjectService sourceObjService) throws IOException {
+  public void pullObject(@Nonnull ObjectId id, boolean flush, @Nonnull GfsObjectService sourceObjService) throws IOException {
     if(!hasObject(id)) {
       ObjectLoader loader = sourceObjService.open(id);
       switch(loader.getType()) {
@@ -100,7 +100,7 @@ public class GfsObjectService implements Closeable {
     }
   }
 
-  public void pullObject(@Nonnull AnyObjectId id, @Nonnull GfsObjectService sourceObjService) throws IOException {
+  public void pullObject(@Nonnull ObjectId id, @Nonnull GfsObjectService sourceObjService) throws IOException {
     pullObject(id, true, sourceObjService);
   }
 
@@ -121,14 +121,14 @@ public class GfsObjectService implements Closeable {
     }
   }
 
-  private void pullTree(@Nonnull AnyObjectId id, @Nonnull GfsObjectService sourceObjService) throws IOException {
+  private void pullTree(@Nonnull ObjectId id, @Nonnull GfsObjectService sourceObjService) throws IOException {
     TreeSnapshot tree = sourceObjService.readTree(id);
     for(GitFileEntry entry : tree.getData().values())
       pullObject(entry.getId(), false, sourceObjService);
     write(tree);
   }
 
-  private void pullBlob(@Nonnull AnyObjectId id, @Nonnull GfsObjectService sourceObjService) throws IOException {
+  private void pullBlob(@Nonnull ObjectId id, @Nonnull GfsObjectService sourceObjService) throws IOException {
     write(sourceObjService.readBlob(id));
   }
 

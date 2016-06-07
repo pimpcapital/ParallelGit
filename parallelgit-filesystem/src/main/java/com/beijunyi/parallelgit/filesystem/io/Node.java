@@ -21,7 +21,7 @@ public abstract class Node<Snapshot extends ObjectSnapshot, Data> {
   protected volatile GitFileEntry origin = GitFileEntry.TRIVIAL;
   protected volatile DirectoryNode parent;
   protected volatile Snapshot snapshot;
-  protected volatile AnyObjectId id;
+  protected volatile ObjectId id;
   protected volatile FileMode mode;
   protected volatile Data data;
 
@@ -31,7 +31,7 @@ public abstract class Node<Snapshot extends ObjectSnapshot, Data> {
     initialize();
   }
 
-  protected Node(@Nonnull AnyObjectId id, @Nonnull FileMode mode, @Nonnull GfsObjectService objService) {
+  protected Node(@Nonnull ObjectId id, @Nonnull FileMode mode, @Nonnull GfsObjectService objService) {
     this.objService = objService;
     this.id = id;
     this.mode = mode;
@@ -42,7 +42,7 @@ public abstract class Node<Snapshot extends ObjectSnapshot, Data> {
     this.parent = parent;
   }
 
-  protected Node(@Nonnull AnyObjectId id, @Nonnull FileMode mode, @Nonnull DirectoryNode parent) {
+  protected Node(@Nonnull ObjectId id, @Nonnull FileMode mode, @Nonnull DirectoryNode parent) {
     this(id, mode, parent.getObjectService());
     this.parent = parent;
   }
@@ -81,7 +81,7 @@ public abstract class Node<Snapshot extends ObjectSnapshot, Data> {
   }
 
   @Nonnull
-  public AnyObjectId getObjectId(boolean persist) throws IOException {
+  public ObjectId getObjectId(boolean persist) throws IOException {
     if(id == null || persist && !objService.hasObject(id)) {
       Snapshot snapshot = takeSnapshot(persist);
       id = snapshot != null ? snapshot.getId() : ObjectId.zeroId();
@@ -133,7 +133,7 @@ public abstract class Node<Snapshot extends ObjectSnapshot, Data> {
   }
 
   @Nonnull
-  private Snapshot loadSnapshot(@Nonnull AnyObjectId id) throws IOException {
+  private Snapshot loadSnapshot(@Nonnull ObjectId id) throws IOException {
     Snapshot ret = objService.read(id, getSnapshotType());
     if(origin.getId().equals(id))
       snapshot = ret;

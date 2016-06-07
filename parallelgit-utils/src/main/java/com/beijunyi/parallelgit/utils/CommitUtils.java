@@ -179,7 +179,7 @@ public final class CommitUtils {
   }
 
   @Nonnull
-  private static AnyObjectId insertCommit(@Nonnull String message, @Nonnull AnyObjectId treeId, @Nonnull PersonIdent author, @Nonnull PersonIdent committer, @Nonnull List<? extends AnyObjectId> parents, @Nonnull ObjectInserter inserter) throws IOException {
+  private static ObjectId insertCommit(@Nonnull String message, @Nonnull AnyObjectId treeId, @Nonnull PersonIdent author, @Nonnull PersonIdent committer, @Nonnull List<? extends AnyObjectId> parents, @Nonnull ObjectInserter inserter) throws IOException {
     CommitBuilder builder = new CommitBuilder();
     builder.setCommitter(committer);
     builder.setAuthor(author);

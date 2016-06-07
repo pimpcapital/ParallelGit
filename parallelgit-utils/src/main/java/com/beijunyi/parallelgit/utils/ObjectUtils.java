@@ -13,37 +13,37 @@ import static org.eclipse.jgit.lib.Constants.OBJ_BLOB;
 
 public final class ObjectUtils {
 
-  public static final AnyObjectId TRIVIAL_OBJECT = ObjectId.zeroId();
+  public static final ObjectId TRIVIAL_OBJECT = ObjectId.zeroId();
 
   public static boolean isZeroId(@Nonnull AnyObjectId id) {
     return TRIVIAL_OBJECT.equals(id);
   }
 
   @Nonnull
-  public static AnyObjectId insertBlob(@Nonnull byte[] data, @Nonnull Repository repo) throws IOException {
+  public static ObjectId insertBlob(@Nonnull byte[] data, @Nonnull Repository repo) throws IOException {
     try(ObjectInserter inserter = repo.newObjectInserter()) {
-      AnyObjectId blobId = inserter.insert(OBJ_BLOB, data);
+      ObjectId blobId = inserter.insert(OBJ_BLOB, data);
       inserter.flush();
       return blobId;
     }
   }
 
   @Nonnull
-  public static AnyObjectId insertTree(@Nonnull TreeFormatter tf, @Nonnull Repository repo) throws IOException {
+  public static ObjectId insertTree(@Nonnull TreeFormatter tf, @Nonnull Repository repo) throws IOException {
     try(ObjectInserter inserter = repo.newObjectInserter()) {
-      AnyObjectId blobId = inserter.insert(tf);
+      ObjectId blobId = inserter.insert(tf);
       inserter.flush();
       return blobId;
     }
   }
 
   @Nullable
-  public static AnyObjectId findObject(@Nonnull String file, @Nonnull AnyObjectId commit, @Nonnull ObjectReader reader) throws IOException {
+  public static ObjectId findObject(@Nonnull String file, @Nonnull AnyObjectId commit, @Nonnull ObjectReader reader) throws IOException {
     return TreeUtils.getObjectId(file, CommitUtils.getCommit(commit, reader).getTree(), reader);
   }
 
   @Nullable
-  public static AnyObjectId findObject(@Nonnull String file, @Nonnull AnyObjectId commit, @Nonnull Repository repo) throws IOException {
+  public static ObjectId findObject(@Nonnull String file, @Nonnull AnyObjectId commit, @Nonnull Repository repo) throws IOException {
     try(ObjectReader reader = repo.newObjectReader()) {
       return findObject(file, commit, reader);
     }
@@ -72,24 +72,24 @@ public final class ObjectUtils {
   }
 
   @Nonnull
-  public static BlobSnapshot readBlob(@Nonnull AnyObjectId id, @Nonnull ObjectReader reader) throws IOException {
+  public static BlobSnapshot readBlob(@Nonnull ObjectId id, @Nonnull ObjectReader reader) throws IOException {
     return BlobSnapshot.load(id, reader);
   }
 
   @Nonnull
-  public static BlobSnapshot readBlob(@Nonnull AnyObjectId id, @Nonnull Repository repo) throws IOException {
+  public static BlobSnapshot readBlob(@Nonnull ObjectId id, @Nonnull Repository repo) throws IOException {
     try(ObjectReader reader = repo.newObjectReader()) {
       return readBlob(id, reader);
     }
   }
 
   @Nonnull
-  public static TreeSnapshot readTree(@Nonnull AnyObjectId id, @Nonnull ObjectReader reader) throws IOException {
+  public static TreeSnapshot readTree(@Nonnull ObjectId id, @Nonnull ObjectReader reader) throws IOException {
     return TreeSnapshot.load(id, reader);
   }
 
   @Nonnull
-  public static TreeSnapshot readTree(@Nonnull AnyObjectId id, @Nonnull Repository repo) throws IOException {
+  public static TreeSnapshot readTree(@Nonnull ObjectId id, @Nonnull Repository repo) throws IOException {
     try(ObjectReader reader = repo.newObjectReader()) {
       return readTree(id, reader);
     }

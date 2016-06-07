@@ -7,7 +7,9 @@ import javax.annotation.Nonnull;
 import com.beijunyi.parallelgit.filesystem.AbstractGitFileSystemTest;
 import com.beijunyi.parallelgit.utils.ObjectUtils;
 import com.beijunyi.parallelgit.utils.io.GitFileEntry;
-import org.eclipse.jgit.lib.*;
+import org.eclipse.jgit.lib.FileMode;
+import org.eclipse.jgit.lib.ObjectId;
+import org.eclipse.jgit.lib.TreeFormatter;
 import org.junit.Before;
 import org.junit.Test;
 
@@ -121,7 +123,7 @@ public class GfsChangesCollectorTest extends AbstractGitFileSystemTest {
 
   @Nonnull
   private GitFileEntry newFileEntry(@Nonnull byte[] bytes) throws IOException {
-    AnyObjectId blobId = ObjectUtils.insertBlob(bytes, repo);
+    ObjectId blobId = ObjectUtils.insertBlob(bytes, repo);
     return new GitFileEntry(blobId, REGULAR_FILE);
   }
 
@@ -142,7 +144,7 @@ public class GfsChangesCollectorTest extends AbstractGitFileSystemTest {
       GitFileEntry childEntry = someFileEntry();
       tf.append(child, childEntry.getMode(), childEntry.getId());
     }
-    AnyObjectId treeId = ObjectUtils.insertTree(tf, repo);
+    ObjectId treeId = ObjectUtils.insertTree(tf, repo);
     return new GitFileEntry(treeId, FileMode.TREE);
   }
 

@@ -7,8 +7,8 @@ import java.util.Set;
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 
-import org.eclipse.jgit.lib.AnyObjectId;
 import org.eclipse.jgit.lib.FileMode;
+import org.eclipse.jgit.lib.ObjectId;
 
 import static com.beijunyi.parallelgit.filesystem.io.GfsFileAttributeView.*;
 
@@ -131,14 +131,14 @@ public abstract class GfsFileAttributes {
 
     private final boolean isNew;
     private final boolean isModified;
-    private final AnyObjectId objectId;
+    private final ObjectId objectId;
     private final FileMode fileMode;
 
     public Git(@Nonnull Map<String, Object> attributes) throws IOException {
       super(attributes);
       isNew = (boolean) attributes.get(GfsFileAttributeView.IS_NEW);
       isModified = (boolean) attributes.get(GfsFileAttributeView.IS_MODIFIED);
-      objectId = (AnyObjectId) attributes.get(GfsFileAttributeView.OBJECT_ID);
+      objectId = (ObjectId) attributes.get(GfsFileAttributeView.OBJECT_ID);
       fileMode = (FileMode) attributes.get(GfsFileAttributeView.FILE_MODE);
     }
 
@@ -158,7 +158,7 @@ public abstract class GfsFileAttributes {
 
     @Nullable
     @Override
-    public AnyObjectId getObjectId() throws IOException {
+    public ObjectId getObjectId() throws IOException {
       return objectId;
     }
 

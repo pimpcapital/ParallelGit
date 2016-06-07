@@ -5,8 +5,8 @@ import javax.annotation.Nonnull;
 
 import com.beijunyi.parallelgit.filesystem.exceptions.IncompatibleFileModeException;
 import com.beijunyi.parallelgit.utils.io.BlobSnapshot;
-import org.eclipse.jgit.lib.AnyObjectId;
 import org.eclipse.jgit.lib.FileMode;
+import org.eclipse.jgit.lib.ObjectId;
 
 import static org.eclipse.jgit.lib.FileMode.*;
 
@@ -16,7 +16,7 @@ public class FileNode extends Node<BlobSnapshot, byte[]> {
 
   private long size = -1;
 
-  private FileNode(@Nonnull AnyObjectId id, @Nonnull FileMode mode, @Nonnull DirectoryNode parent) {
+  private FileNode(@Nonnull ObjectId id, @Nonnull FileMode mode, @Nonnull DirectoryNode parent) {
     super(id, mode, parent);
   }
 
@@ -29,7 +29,7 @@ public class FileNode extends Node<BlobSnapshot, byte[]> {
   }
 
   @Nonnull
-  protected static FileNode fromObject(@Nonnull AnyObjectId id, @Nonnull FileMode mode, @Nonnull DirectoryNode parent) {
+  protected static FileNode fromObject(@Nonnull ObjectId id, @Nonnull FileMode mode, @Nonnull DirectoryNode parent) {
     return new FileNode(id, mode, parent);
   }
 

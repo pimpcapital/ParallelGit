@@ -7,8 +7,8 @@ import org.junit.Ignore;
 public class GfsMergerConflictingMergeTest extends AbstractParallelGitTest {
 //
 //  private GfsMerger merger;
-//  private AnyObjectId ours;
-//  private AnyObjectId theirs;
+//  private ObjectId ours;
+//  private ObjectId theirs;
 //
 //  @Before
 //  public void setUp() throws IOException {

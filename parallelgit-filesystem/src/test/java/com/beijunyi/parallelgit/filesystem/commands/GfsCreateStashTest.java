@@ -7,7 +7,7 @@ import com.beijunyi.parallelgit.filesystem.commands.GfsCreateStash.Result;
 import com.beijunyi.parallelgit.filesystem.exceptions.UnsuccessfulOperationException;
 import com.beijunyi.parallelgit.utils.CommitUtils;
 import com.beijunyi.parallelgit.utils.TreeUtils;
-import org.eclipse.jgit.lib.AnyObjectId;
+import org.eclipse.jgit.lib.ObjectId;
 import org.eclipse.jgit.revwalk.RevCommit;
 import org.junit.Test;
 
@@ -74,7 +74,7 @@ public class GfsCreateStashTest extends PreSetupGitFileSystemTest {
     writeToGfs("/test_file.txt", expected);
     Result result = stash(gfs).execute();
     RevCommit stash = result.getCommit();
-    AnyObjectId tree = stash.getTree();
+    ObjectId tree = stash.getTree();
     byte[] actual = TreeUtils.readFile("/test_file.txt", tree, repo).getData();
     assertArrayEquals(expected, actual);
   }

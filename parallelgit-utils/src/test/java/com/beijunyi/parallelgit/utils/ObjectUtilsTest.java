@@ -13,9 +13,9 @@ public class ObjectUtilsTest extends AbstractParallelGitTest {
   public void findFileBlobIdTest() throws IOException {
     initRepository();
     String file = "a.txt";
-    AnyObjectId fileBlob = writeToCache(file);
+    AnyObjectId fileBlobId = writeToCache(file);
     AnyObjectId commit = commitToMaster();
-    Assert.assertEquals(fileBlob, ObjectUtils.findObject(file, commit, repo));
+    Assert.assertEquals(fileBlobId, ObjectUtils.findObject(file, commit, repo));
   }
 
   @Test

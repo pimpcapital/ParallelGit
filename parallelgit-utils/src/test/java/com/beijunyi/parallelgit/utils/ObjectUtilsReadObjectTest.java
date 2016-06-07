@@ -5,6 +5,7 @@ import java.io.InputStream;
 
 import com.beijunyi.parallelgit.AbstractParallelGitTest;
 import org.eclipse.jgit.lib.AnyObjectId;
+import org.eclipse.jgit.lib.ObjectId;
 import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
@@ -30,7 +31,7 @@ public class ObjectUtilsReadObjectTest extends AbstractParallelGitTest {
   @Test
   public void readObject_theResultShouldEqualToTheObjectData() throws Exception {
     byte[] expected = "test text data".getBytes();
-    AnyObjectId objectId = ObjectUtils.insertBlob(expected, repo);
+    ObjectId objectId = ObjectUtils.insertBlob(expected, repo);
     Assert.assertArrayEquals(expected, ObjectUtils.readBlob(objectId, repo).getData());
   }
 
