@@ -14,24 +14,24 @@ import com.beijunyi.parallelgit.utils.io.CacheNode;
 import org.eclipse.jgit.dircache.*;
 import org.eclipse.jgit.lib.*;
 
-import static com.beijunyi.parallelgit.utils.TreeUtils.normalizeTreePath;
+import static com.beijunyi.parallelgit.utils.TreeUtils.normalizeNodePath;
 import static org.eclipse.jgit.lib.FileMode.*;
 
 public final class CacheUtils {
 
   @Nonnull
   public static DirCacheEntry newDirCacheEntry(String path) {
-    return new DirCacheEntry(normalizeTreePath(path));
+    return new DirCacheEntry(normalizeNodePath(path));
   }
 
   @Nonnull
   public static DirCacheEditor.DeletePath deleteEntry(String path) {
-    return new DirCacheEditor.DeletePath(normalizeTreePath(path));
+    return new DirCacheEditor.DeletePath(normalizeNodePath(path));
   }
 
   @Nonnull
   public static DirCacheEditor.DeleteTree deleteChildren(String path) {
-    return new DirCacheEditor.DeleteTree(normalizeTreePath(path));
+    return new DirCacheEditor.DeleteTree(normalizeNodePath(path));
   }
 
   public static void loadTree(AnyObjectId treeId, DirCache cache, ObjectReader reader) throws IOException {
@@ -93,7 +93,7 @@ public final class CacheUtils {
   }
 
   public static void addTree(String path, AnyObjectId treeId, DirCacheBuilder builder, ObjectReader reader) throws IOException {
-    builder.addTree(normalizeTreePath(path).getBytes(), DirCacheEntry.STAGE_0, reader, treeId);
+    builder.addTree(normalizeNodePath(path).getBytes(), DirCacheEntry.STAGE_0, reader, treeId);
   }
 
   public static void addTree(String path, AnyObjectId treeId, DirCache cache, ObjectReader reader) throws IOException {
@@ -141,7 +141,7 @@ public final class CacheUtils {
 
   @Nullable
   public static DirCacheEntry getEntry(String path, DirCache cache) {
-    return cache.getEntry(normalizeTreePath(path));
+    return cache.getEntry(normalizeNodePath(path));
   }
 
   public static void updateFile(CacheEntryUpdate update, DirCacheEditor editor) {
@@ -163,7 +163,7 @@ public final class CacheUtils {
   }
 
   public static int findEntry(String path, DirCache cache) {
-    return cache.findEntry(normalizeTreePath(path));
+    return cache.findEntry(normalizeNodePath(path));
   }
 
   public static boolean entryExists(String path, DirCache cache) {
@@ -207,7 +207,7 @@ public final class CacheUtils {
   }
 
   public static boolean isNonEmptyDirectory(String path, DirCache cache) {
-    path = normalizeTreePath(path) + "/";
+    path = normalizeNodePath(path) + "/";
     if(path.equals("/")) // if it is root
       return true;
 
@@ -224,7 +224,7 @@ public final class CacheUtils {
 
   @Nonnull
   public static Iterator<CacheNode> iterateDirectory(String path, boolean recursive, DirCache cache) {
-    path = normalizeTreePath(path);
+    path = normalizeNodePath(path);
     DirCacheEntry[] entries = cache.getEntriesWithin(path);
     if(entries.length == 0)
       throw new NoSuchCacheDirectoryException("/" + path);
@@ -249,7 +249,7 @@ public final class CacheUtils {
   private static DirCacheEntry ensureEntry(String path, DirCache cache) {
     DirCacheEntry entry = getEntry(path, cache);
     if(entry == null)
-      throw new NoSuchCacheEntryException("/" + normalizeTreePath(path));
+      throw new NoSuchCacheEntryException("/" + normalizeNodePath(path));
     return entry;
   }
 

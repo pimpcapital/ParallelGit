@@ -15,7 +15,7 @@ public class CacheEntryUpdate extends DirCacheEditor.PathEdit {
   private FileMode newFileMode;
 
   public CacheEntryUpdate(String entryPath) {
-    super(TreeUtils.normalizeTreePath(entryPath));
+    super(TreeUtils.normalizeNodePath(entryPath));
   }
 
   @Nonnull

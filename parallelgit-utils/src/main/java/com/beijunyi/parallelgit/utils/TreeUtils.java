@@ -17,7 +17,7 @@ import static org.eclipse.jgit.lib.FileMode.*;
 public final class TreeUtils {
 
   @Nonnull
-  public static String normalizeTreePath(String path) {
+  public static String normalizeNodePath(String path) {
     if(path.startsWith("/"))
       return path.substring(1);
     if(path.endsWith("/"))
@@ -39,7 +39,7 @@ public final class TreeUtils {
 
   @Nullable
   public static TreeWalk forPath(String path, AnyObjectId tree, ObjectReader reader) throws IOException {
-    return TreeWalk.forPath(reader, normalizeTreePath(path), tree);
+    return TreeWalk.forPath(reader, normalizeNodePath(path), tree);
   }
 
   @Nullable

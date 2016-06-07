@@ -84,7 +84,7 @@ public final class CommitUtils {
 
   @Nonnull
   public static List<RevCommit> getFileRevisions(String file, AnyObjectId start, int skip, int limit, ObjectReader reader) throws IOException {
-    file = TreeUtils.normalizeTreePath(file);
+    file = TreeUtils.normalizeNodePath(file);
     TreeFilter filter = AndTreeFilter.create(PathFilterGroup.createFromStrings(file), TreeFilter.ANY_DIFF);
     return getCommitHistory(start, skip, limit, filter, reader);
   }

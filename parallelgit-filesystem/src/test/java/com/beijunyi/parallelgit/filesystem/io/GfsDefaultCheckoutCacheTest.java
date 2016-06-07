@@ -11,7 +11,7 @@ import org.eclipse.jgit.dircache.DirCacheBuilder;
 import org.eclipse.jgit.dircache.DirCacheEntry;
 import org.junit.Test;
 
-import static com.beijunyi.parallelgit.utils.TreeUtils.normalizeTreePath;
+import static com.beijunyi.parallelgit.utils.TreeUtils.normalizeNodePath;
 import static java.util.Collections.singleton;
 import static org.eclipse.jgit.dircache.DirCacheEntry.*;
 import static org.eclipse.jgit.lib.FileMode.REGULAR_FILE;
@@ -90,7 +90,7 @@ public class GfsDefaultCheckoutCacheTest extends AbstractGitFileSystemTest {
 
   @Nonnull
   private DirCacheEntry someEntry(String path, int stage) {
-    DirCacheEntry ret = new DirCacheEntry(normalizeTreePath(path), stage);
+    DirCacheEntry ret = new DirCacheEntry(normalizeNodePath(path), stage);
     ret.setFileMode(REGULAR_FILE);
     ret.setObjectId(someObjectId());
     return ret;
