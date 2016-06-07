@@ -1,5 +1,0 @@
-public void copyFile(String src, Repository repo, Path dest) {
-  GitFileSystem gfs = GitFileSystems.forRevision("master", repo);
-  Path srcFile = gfs.getPath(src);
-  Files.copy(srcFile, dest);
-}

@@ -1,9 +1,0 @@
-public Repository createProjectRepository() {
-  File dir = new File("/home/project/repo");
-  Repository repo = new RepositoryBuilder()
-                      .readEnvironment()
-                      .setGitDir(dir)
-                      .build();
-  repo.create(bare);
-  return repo;
-}

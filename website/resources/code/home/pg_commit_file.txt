@@ -1,6 +1,0 @@
-public void copyAndCommitFile(Path src, String dest, Repository repo) {
-  GitFileSystem gfs = GitFileSystems.forRevision("master", repo));
-  Path destFile = gfs.getPath(dest);
-  Files.copy(src, destFile);
-  Requests.commit(gfs).message("copied " + src).execute();
-}

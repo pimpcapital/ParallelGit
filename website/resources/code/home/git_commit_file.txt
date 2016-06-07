@@ -1,6 +1,0 @@
-public void copyAndCommitFile(Path src, String dest, Repository repo) {
-  new Git(repo).checkout().setName("master").call();
-  Path destFile = repo.getWorkTree().toPath().resolve(dest);
-  Files.copy(src, destFile);
-  new Git(repo).commit().setMessage("copied " + src).call();
-}

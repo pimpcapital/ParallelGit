@@ -1,9 +1,0 @@
-public Repository copyMyFileToRepository() throws IOException {
-  Repository repo = RepositoryUtils.openRepository(new File("/home/repo"));
-  Path myFile = Paths.get("/home/myFile.txt");
-  return ParallelCommitCommand.prepare(repo)
-                                 .branch("master")
-                                 .addFile(myFile, "/fileInRepo.txt")
-                                 .message("copied myFile.txt")
-                                 .call();
-}

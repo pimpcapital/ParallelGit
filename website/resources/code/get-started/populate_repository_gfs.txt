@@ -1,9 +1,0 @@
-public Repository copyMyFileToRepository() throws IOException {
-  Repository repo = RepositoryUtils.openRepository(new File("/home/repo"));
-  Path myFile = Paths.get("/home/myFile.txt");
-  try(FileSystem master = GitFileSystems.forRevision("master", repo)) {
-    Path fileInRepo = master.getPath("/fileInRepo.txt");
-    Files.copy(myFile, fileInRepo);
-    return Requests.commit(master).message("copied myFile.txt").execute()
-  }
-}

@@ -1,4 +1,0 @@
-public Repository createProjectRepository() {
-  File dir = new File("/home/project/repo");
-  return RepositoryUtils.createRepository(dir);
-}

@@ -9,7 +9,6 @@
   <modules>
     <module>parallelgit-utils</module>
     <module>parallelgit-filesystem</module>
-    <module>parallelgit-web</module>
   </modules>
 
   <name>ParallelGit</name>
@@ -42,7 +41,6 @@
 
   <properties>
     <maven-compiler-plugin.version>3.3</maven-compiler-plugin.version>
-    <maven-site-plugin.version>3.4</maven-site-plugin.version>
     <javac.src.version>1.7</javac.src.version>
     <javac.target.version>1.7</javac.target.version>
     <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
@@ -147,39 +145,6 @@
           <format>xml</format>
           <aggregate>true</aggregate>
         </configuration>
-      </plugin>
-
-      <plugin>
-        <groupId>org.apache.maven.plugins</groupId>
-        <artifactId>maven-site-plugin</artifactId>
-        <version>${maven-site-plugin.version}</version>
-        <configuration>
-          <skip>true</skip>
-        </configuration>
-      </plugin>
-
-      <plugin>
-        <groupId>com.github.github</groupId>
-        <artifactId>site-maven-plugin</artifactId>
-        <version>0.12</version>
-        <inherited>false</inherited>
-        <configuration>
-          <message>Maven artifacts for ${project.version}</message>
-          <noJekyll>true</noJekyll>
-          <outputDirectory>website</outputDirectory>
-          <includes><include>**/*</include></includes>
-          <server>github</server>
-          <repositoryName>ParallelGit</repositoryName>
-          <repositoryOwner>beijunyi</repositoryOwner>
-        </configuration>
-        <executions>
-          <execution>
-            <goals>
-              <goal>site</goal>
-            </goals>
-            <phase>site</phase>
-          </execution>
-        </executions>
       </plugin>
 
     </plugins>

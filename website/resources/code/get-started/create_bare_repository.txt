@@ -1,4 +1,0 @@
-public Repository createMyRepository() throws IOException {
-  File dir = new File("/home/repo");
-  return RepositoryUtils.createRepository(dir); // equivalent to createRepository(dir, true)
-}

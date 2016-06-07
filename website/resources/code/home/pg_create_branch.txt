@@ -1,3 +1,0 @@
-public void branchFromMaster(String newBranch, Repository repo) {
-  BranchUtils.createBranch(newBranch, "master", repo)
-}

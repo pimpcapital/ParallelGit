@@ -1,5 +1,0 @@
-public void printFile(String filename, Repository repo) {
-  byte[] blob = GitFileUtils.readFile(filename, "master", repo);
-  String text = new String(blob);
-  System.out.println(text);
-}
