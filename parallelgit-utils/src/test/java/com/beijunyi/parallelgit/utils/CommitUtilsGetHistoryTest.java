@@ -11,7 +11,7 @@ import org.junit.Test;
 
 import static org.junit.Assert.assertEquals;
 
-public class CommitUtilsGetCommitHistoryTest extends AbstractParallelGitTest {
+public class CommitUtilsGetHistoryTest extends AbstractParallelGitTest {
 
   @Before
   public void setUp() throws IOException {

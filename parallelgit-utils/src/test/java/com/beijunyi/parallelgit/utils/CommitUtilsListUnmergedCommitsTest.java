@@ -21,7 +21,7 @@ public class CommitUtilsListUnmergedCommitsTest extends AbstractParallelGitTest 
   }
 
   @Test
-  public void whenBranchIsAheadOfMaster_shouldReturnTheNewCommitsInBranchInReverseOrder() throws IOException {
+  public void listUnmergedCommitsWhenBranchIsAheadOfMaster_shouldReturnTheNewCommitsInBranchInReverseOrder() throws IOException {
     writeSomethingToCache();
     RevCommit masterFirst = commitToMaster();
     writeSomethingToCache();
@@ -35,7 +35,7 @@ public class CommitUtilsListUnmergedCommitsTest extends AbstractParallelGitTest 
   }
 
   @Test
-  public void whenMasterIsSameAsBranch_shouldReturnEmptyList() throws IOException {
+  public void listUnmergedCommitsWhenMasterIsSameAsBranch_shouldReturnEmptyList() throws IOException {
     writeSomethingToCache();
     RevCommit masterFirst = commitToMaster();
     createBranch("test_branch", masterFirst, repo);
@@ -45,7 +45,7 @@ public class CommitUtilsListUnmergedCommitsTest extends AbstractParallelGitTest 
   }
 
   @Test
-  public void whenMasterIsAheadOfBranch_shouldReturnEmptyList() throws IOException {
+  public void listUnmergedCommitsWhenMasterIsAheadOfBranch_shouldReturnEmptyList() throws IOException {
     writeSomethingToCache();
     RevCommit masterFirst = commitToMaster();
     createBranch("test_branch", masterFirst, repo);

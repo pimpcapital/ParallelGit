@@ -19,7 +19,6 @@ import org.eclipse.jgit.treewalk.filter.TreeFilter;
 
 import static com.beijunyi.parallelgit.utils.TreeUtils.normalizeNodePath;
 import static java.util.Collections.unmodifiableList;
-import static org.eclipse.jgit.lib.Constants.OBJ_COMMIT;
 import static org.eclipse.jgit.treewalk.filter.TreeFilter.ANY_DIFF;
 
 public final class CommitUtils {
@@ -52,18 +51,18 @@ public final class CommitUtils {
 
   @Nonnull
   public static RevCommit getCommit(String id, Repository repo) throws IOException {
-    AnyObjectId commitId = repo.resolve(id);
+    ObjectId commitId = repo.resolve(id);
     if(commitId == null)
       throw new NoSuchCommitException(id);
     return getCommit(commitId, repo);
   }
 
   public static boolean exists(String name, Repository repo) throws IOException {
-    AnyObjectId obj = repo.resolve(name);
+    ObjectId obj = repo.resolve(name);
     if(obj == null)
       return false;
     try(RevWalk rw = new RevWalk(repo)) {
-      return rw.parseAny(obj).getType() == OBJ_COMMIT;
+      return rw.lookupCommit(obj) != null;
     }
   }
 
@@ -129,15 +128,15 @@ public final class CommitUtils {
     return id != null ? getLatestFileRevision(path, id, repo) : null;
   }
 
-  public static boolean isMergedInto(AnyObjectId branchHead, AnyObjectId masterHead, ObjectReader reader) throws IOException {
+  public static boolean isMergedInto(AnyObjectId sourceHead, AnyObjectId masterHead, ObjectReader reader) throws IOException {
     try(RevWalk rw = new RevWalk(reader)) {
-      return rw.isMergedInto(rw.lookupCommit(branchHead), rw.lookupCommit(masterHead));
+      return rw.isMergedInto(rw.lookupCommit(sourceHead), rw.lookupCommit(masterHead));
     }
   }
 
-  public static boolean isMergedInto(AnyObjectId branchHead, AnyObjectId masterHead, Repository repo) throws IOException {
+  public static boolean isMergedInto(AnyObjectId sourceHead, AnyObjectId masterHead, Repository repo) throws IOException {
     try(ObjectReader reader = repo.newObjectReader()) {
-      return isMergedInto(branchHead, masterHead, reader);
+      return isMergedInto(sourceHead, masterHead, reader);
     }
   }
 

@@ -7,6 +7,8 @@ import org.eclipse.jgit.revwalk.RevCommit;
 import org.junit.Before;
 import org.junit.Test;
 
+import static com.beijunyi.parallelgit.utils.BranchUtils.createBranch;
+import static org.eclipse.jgit.lib.Constants.MASTER;
 import static org.junit.Assert.*;
 
 public class CommitUtilsIsMergedIntoTest extends AbstractParallelGitTest {
@@ -17,23 +19,34 @@ public class CommitUtilsIsMergedIntoTest extends AbstractParallelGitTest {
   }
 
   @Test
-  public void testIfCommitMergedIntoItself_shouldReturnTrue() throws IOException {
-    RevCommit commit = commit();
-    assertTrue(CommitUtils.isMergedInto(commit, commit, repo));
+  public void testIfBranchIsMergedIntoItself_shouldReturnTrue() throws IOException {
+    writeSomethingToCache();
+    commitToBranch("test_branch");
+
+    assertTrue(CommitUtils.isMergedInto("test_branch", "test_branch", repo));
   }
 
   @Test
-  public void testIfCommitMergedIntoItsParent_shouldReturnFalse() throws IOException {
-    RevCommit parent = commit();
-    RevCommit commit = commit(parent);
-    assertFalse(CommitUtils.isMergedInto(commit, parent, repo));
+  public void testIfBranchIsMergedIntoMasterWhenBranchIsAheadOfMaster_shouldReturnFalse() throws IOException {
+    writeSomethingToCache();
+    RevCommit masterFirst = commitToMaster();
+    writeSomethingToCache();
+    commitToBranch("test_branch", masterFirst);
+    writeSomethingToCache();
+    commitToBranch("test_branch");
+
+    assertFalse(CommitUtils.isMergedInto("test_branch", MASTER, repo));
   }
 
   @Test
-  public void testIfCommitMergedIntoItsChild_shouldReturnTrue() throws IOException {
-    RevCommit commit = commit();
-    RevCommit child = commit(commit);
-    assertTrue(CommitUtils.isMergedInto(commit, child, repo));
+  public void testIfBranchIsMergedIntoMasterWhenMasterIsAheadOfBranch_shouldReturnTrue() throws IOException {
+    writeSomethingToCache();
+    RevCommit masterFirst = commitToMaster();
+    createBranch("test_branch", masterFirst, repo);
+    writeSomethingToCache();
+    commitToMaster();
+
+    assertTrue(CommitUtils.isMergedInto("test_branch", MASTER, repo));
   }
 
 }
