@@ -17,6 +17,7 @@ import org.junit.Test;
 import static com.beijunyi.parallelgit.filesystem.io.GfsFileAttributeView.*;
 import static com.beijunyi.parallelgit.utils.TreeUtils.getObjectId;
 import static org.eclipse.jgit.lib.FileMode.*;
+import static org.eclipse.jgit.lib.ObjectId.zeroId;
 import static org.junit.Assert.*;
 
 public class GitFileAttributeViewTest extends AbstractGitFileSystemTest {
@@ -178,7 +179,7 @@ public class GitFileAttributeViewTest extends AbstractGitFileSystemTest {
   public void whenDirectoryIsEmpty_getObjectIdShouldReturnZeroId() throws IOException {
     initGitFileSystem();
     Files.createDirectory(gfs.getPath("/dir"));
-    assertEquals(ObjectId.zeroId(), objectId("/dir"));
+    assertEquals(zeroId(), objectId("/dir"));
   }
 
   @Test

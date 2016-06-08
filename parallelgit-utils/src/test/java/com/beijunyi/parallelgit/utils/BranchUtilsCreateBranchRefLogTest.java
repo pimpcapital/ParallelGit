@@ -52,7 +52,7 @@ public class BranchUtilsCreateBranchRefLogTest extends AbstractParallelGitTest {
   public void createBranchFromBranchRef_theRefLogShouldStartWithBranchCreatedFromBranch() throws IOException {
     writeSomethingToCache();
     commitToBranch("source_branch");
-    BranchUtils.createBranch("test_branch", repo.getRef("source_branch"), repo);
+    BranchUtils.createBranch("test_branch", repo.findRef("source_branch"), repo);
     ReflogEntry lastRefLog = BranchUtils.getLastLog("test_branch", repo);
     assert lastRefLog != null;
     assertTrue(lastRefLog.getComment().startsWith("branch: Created from branch"));
@@ -72,7 +72,7 @@ public class BranchUtilsCreateBranchRefLogTest extends AbstractParallelGitTest {
   public void createBranchFromTagRef_theHeadOfTheNewBranchShouldEqualToTheTaggedTag() throws IOException {
     writeSomethingToCache();
     TagUtils.tagCommit("source_tag", commitToMaster(), repo);
-    BranchUtils.createBranch("test_branch", repo.getRef("source_tag"), repo);
+    BranchUtils.createBranch("test_branch", repo.findRef("source_tag"), repo);
     ReflogEntry lastRefLog = BranchUtils.getLastLog("test_branch", repo);
     assert lastRefLog != null;
     assertTrue(lastRefLog.getComment().startsWith("branch: Created from tag"));

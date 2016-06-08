@@ -29,6 +29,7 @@ import org.eclipse.jgit.revwalk.RevCommit;
 import static com.beijunyi.parallelgit.filesystem.GfsState.*;
 import static com.beijunyi.parallelgit.filesystem.merge.GfsMergeNote.mergeSquash;
 import static com.beijunyi.parallelgit.filesystem.utils.GfsPathUtils.toAbsolutePath;
+import static com.beijunyi.parallelgit.utils.CommitUtils.listUnmergedCommits;
 import static com.beijunyi.parallelgit.utils.RefUtils.ensureBranchRefName;
 import static java.util.Collections.singletonList;
 import static org.eclipse.jgit.api.MergeResult.MergeStatus.*;
@@ -168,7 +169,7 @@ public final class GfsMerge extends GfsCommand<GfsMerge.Result> {
   private void prepareMessage() throws IOException {
     if(message == null) {
       if(squash) {
-        List<RevCommit> squashedCommits = CommitUtils.findSquashableCommits(sourceHeadCommit, headCommit, repo);
+        List<RevCommit> squashedCommits = listUnmergedCommits(sourceHeadCommit, headCommit, repo);
         message = new SquashMessageFormatter().format(squashedCommits, branchRef);
       } else
         message = new MergeMessageFormatter().format(singletonList(sourceRef), branchRef);

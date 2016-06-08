@@ -22,7 +22,7 @@ public class BranchUtilsDeleteBranchTest extends AbstractParallelGitTest {
     writeSomethingToCache();
     commitToBranch("test_branch");
     BranchUtils.deleteBranch("test_branch", repo);
-    assertNull(repo.getRef("test_branch"));
+    assertNull(repo.findRef("test_branch"));
   }
 
   @Test
@@ -30,7 +30,7 @@ public class BranchUtilsDeleteBranchTest extends AbstractParallelGitTest {
     writeSomethingToCache();
     commitToBranch("test_branch");
     BranchUtils.deleteBranch("refs/heads/test_branch", repo);
-    assertNull(repo.getRef("test_branch"));
+    assertNull(repo.findRef("test_branch"));
   }
 
   @Test
@@ -39,7 +39,7 @@ public class BranchUtilsDeleteBranchTest extends AbstractParallelGitTest {
     commitToBranch("test_branch");
     RepositoryUtils.setRepositoryHead(repo, "test_branch");
     BranchUtils.deleteBranch("refs/heads/test_branch", repo);
-    assertNull(repo.getRef("test_branch"));
+    assertNull(repo.findRef("test_branch"));
   }
 
   @Test

@@ -12,24 +12,40 @@ import static org.eclipse.jgit.lib.ObjectId.zeroId;
 
 public class GitFileEntry {
 
-  public static final GitFileEntry TRIVIAL = new GitFileEntry(ObjectId.zeroId(), FileMode.MISSING);
+  private static final GitFileEntry MISSING_ENTRY = new GitFileEntry(zeroId(), MISSING);
+  private static final GitFileEntry NEW_DIRECTORY_ENTRY = new GitFileEntry(zeroId(), TREE);
 
   private final ObjectId id;
   private final FileMode mode;
 
-  public GitFileEntry(ObjectId id, FileMode mode) {
+  private GitFileEntry(ObjectId id, FileMode mode) {
     this.id = id;
     this.mode = mode;
   }
 
   @Nonnull
-  public static GitFileEntry tree(ObjectId id) {
-    return new GitFileEntry(id, TREE);
+  public static GitFileEntry newEntry(ObjectId id, FileMode mode) {
+    return new GitFileEntry(id, mode);
   }
 
   @Nonnull
-  public static GitFileEntry forTreeNode(TreeWalk tw, int index) {
-    return new GitFileEntry(tw.getObjectId(index), tw.getFileMode(index));
+  public static GitFileEntry newEntry(TreeWalk tw, int index) {
+    return newEntry(tw.getObjectId(index), tw.getFileMode(index));
+  }
+
+  @Nonnull
+  public static GitFileEntry newEntry(TreeWalk tw) {
+    return newEntry(tw, 0);
+  }
+
+  @Nonnull
+  public static GitFileEntry missingEntry() {
+    return MISSING_ENTRY;
+  }
+
+  @Nonnull
+  public static GitFileEntry newTreeEntry(ObjectId id) {
+    return newEntry(id, TREE);
   }
 
   @Nonnull
@@ -42,41 +58,18 @@ public class GitFileEntry {
     return mode;
   }
 
-  public boolean isRegularFile() {
-    return mode.equals(REGULAR_FILE);
-  }
-
-  public boolean isExecutableFile() {
-    return mode.equals(EXECUTABLE_FILE);
-  }
-
   public boolean isDirectory() {
     return mode.equals(TREE);
   }
 
-  public boolean isVirtualDirectory() {
-    return isDirectory() && zeroId().equals(id);
-  }
-
-  public boolean isSymbolicLink() {
-    return mode.equals(SYMLINK);
-  }
-
-  public boolean isGitLink() {
-    return mode.equals(GITLINK);
+  public boolean isNewDirectory() {
+    return NEW_DIRECTORY_ENTRY.equals(this);
   }
 
   public boolean isMissing() {
-    return mode.equals(MISSING);
+    return MISSING_ENTRY.equals(this);
   }
 
-  public boolean hasSameObjectAs(GitFileEntry entry) {
-    return id.equals(entry.getId());
-  }
-
-  public boolean hasSameModeAs(GitFileEntry entry) {
-    return mode.equals(entry.getMode());
-  }
 
   @Override
   public boolean equals(@Nullable Object obj) {

@@ -87,7 +87,7 @@ public final class RepositoryUtils {
   }
 
   public static void setRepositoryHead(Repository repo, String name) throws IOException {
-    Ref ref = repo.getRef(name);
+    Ref ref = repo.findRef(name);
     if(ref != null) {
       if(!ref.getName().startsWith(R_HEADS))
         detachRepositoryHead(repo, repo.resolve(name));

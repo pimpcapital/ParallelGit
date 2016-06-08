@@ -8,13 +8,13 @@ import com.beijunyi.parallelgit.filesystem.AbstractGitFileSystemTest;
 import com.beijunyi.parallelgit.utils.BlobUtils;
 import com.beijunyi.parallelgit.utils.TreeUtils;
 import com.beijunyi.parallelgit.utils.io.GitFileEntry;
-import org.eclipse.jgit.lib.FileMode;
 import org.eclipse.jgit.lib.ObjectId;
 import org.eclipse.jgit.lib.TreeFormatter;
 import org.junit.Before;
 import org.junit.Test;
 
-import static org.eclipse.jgit.lib.FileMode.*;
+import static com.beijunyi.parallelgit.utils.io.GitFileEntry.*;
+import static org.eclipse.jgit.lib.FileMode.REGULAR_FILE;
 import static org.junit.Assert.*;
 
 public class GfsChangesCollectorTest extends AbstractGitFileSystemTest {
@@ -125,7 +125,7 @@ public class GfsChangesCollectorTest extends AbstractGitFileSystemTest {
   @Nonnull
   private GitFileEntry newFileEntry(byte[] bytes) throws IOException {
     ObjectId blobId = BlobUtils.insertBlob(bytes, repo);
-    return new GitFileEntry(blobId, REGULAR_FILE);
+    return newEntry(blobId, REGULAR_FILE);
   }
 
   @Nonnull
@@ -135,7 +135,7 @@ public class GfsChangesCollectorTest extends AbstractGitFileSystemTest {
 
   @Nonnull
   private GitFileEntry deletion() {
-    return new GitFileEntry(ObjectId.zeroId(), FileMode.MISSING);
+    return missingEntry();
   }
 
   @Nonnull
@@ -146,7 +146,7 @@ public class GfsChangesCollectorTest extends AbstractGitFileSystemTest {
       tf.append(child, childEntry.getMode(), childEntry.getId());
     }
     ObjectId treeId = TreeUtils.insertTree(tf, repo);
-    return new GitFileEntry(treeId, TREE);
+    return newTreeEntry(treeId);
   }
 
   @Nonnull

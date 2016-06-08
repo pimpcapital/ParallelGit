@@ -35,7 +35,7 @@ public class RepositoryUtilsSetRepositoryHeadTest extends AbstractParallelGitTes
   public void attachHeadToBranchRef_theRepositoryHeadShouldBecomeTheSpecifiedBranch() throws IOException {
     String branch = "test_branch";
     commitToBranch(branch);
-    Ref branchRef = repo.getRef(branch);
+    Ref branchRef = repo.findRef(branch);
     RepositoryUtils.attachRepositoryHead(repo, branchRef);
     assertEquals(branch, repo.getBranch());
   }

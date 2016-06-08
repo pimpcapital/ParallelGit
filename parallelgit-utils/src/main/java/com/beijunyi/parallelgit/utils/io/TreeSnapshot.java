@@ -11,6 +11,7 @@ import com.beijunyi.parallelgit.utils.TreeUtils;
 import org.eclipse.jgit.lib.*;
 import org.eclipse.jgit.treewalk.TreeWalk;
 
+import static com.beijunyi.parallelgit.utils.io.GitFileEntry.newEntry;
 import static org.eclipse.jgit.lib.Constants.OBJ_TREE;
 
 public class TreeSnapshot extends ObjectSnapshot<SortedMap<String, GitFileEntry>> {
@@ -33,8 +34,7 @@ public class TreeSnapshot extends ObjectSnapshot<SortedMap<String, GitFileEntry>
   public static TreeSnapshot load(ObjectId id, ObjectReader reader) throws IOException {
     SortedMap<String, GitFileEntry> ret = new TreeMap<>();
     try(TreeWalk tw = TreeUtils.newTreeWalk(id, reader)) {
-      while(tw.next())
-        ret.put(tw.getNameString(), new GitFileEntry(tw.getObjectId(0), tw.getFileMode(0)));
+      while(tw.next()) ret.put(tw.getNameString(), newEntry(tw));
     }
     return new TreeSnapshot(id, ret);
   }

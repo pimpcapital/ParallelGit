@@ -1,19 +1,24 @@
 package com.beijunyi.parallelgit.filesystem.io;
 
 import java.io.IOException;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Map;
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 
 import com.beijunyi.parallelgit.filesystem.GfsFileStore;
 import com.beijunyi.parallelgit.filesystem.GitFileSystem;
 import org.eclipse.jgit.dircache.DirCacheEntry;
-import org.eclipse.jgit.lib.*;
+import org.eclipse.jgit.lib.FileMode;
+import org.eclipse.jgit.lib.ObjectId;
+import org.eclipse.jgit.lib.ObjectReader;
 import org.eclipse.jgit.treewalk.AbstractTreeIterator;
 import org.eclipse.jgit.treewalk.WorkingTreeIterator;
 import org.eclipse.jgit.treewalk.WorkingTreeOptions;
 
-import static org.eclipse.jgit.lib.Constants.OBJECT_ID_LENGTH;
+import static java.util.Collections.*;
+import static org.eclipse.jgit.lib.Constants.*;
 
 public class GfsTreeIterator extends WorkingTreeIterator {
 
@@ -88,8 +93,7 @@ public class GfsTreeIterator extends WorkingTreeIterator {
   @Override
   public void next(int delta) {
     index = Math.min(files.size(), index + delta);
-    if(!eof())
-      readEntry();
+    if(!eof()) readEntry();
   }
 
   @Override
@@ -109,7 +113,7 @@ public class GfsTreeIterator extends WorkingTreeIterator {
     mode = entry.getMode().getBits();
     id = entry.getId();
 
-    byte[] name = Constants.encode(entry.getName());
+    byte[] name = encode(entry.getName());
     ensurePathCapacity(pathOffset + name.length, pathOffset);
     System.arraycopy(name, 0, path, pathOffset, name.length);
     pathLen = pathOffset + name.length;
@@ -119,9 +123,14 @@ public class GfsTreeIterator extends WorkingTreeIterator {
     private final String name;
     private final Node node;
 
-    public GfsTreeEntry(String name, Node node) {
+    private GfsTreeEntry(String name, Node node) {
       this.name = name;
       this.node = node;
+    }
+
+    @Nonnull
+    public static GfsTreeEntry forNode(String name, Node node) {
+      return new GfsTreeEntry(name, node);
     }
 
     @Override
@@ -160,11 +169,10 @@ public class GfsTreeIterator extends WorkingTreeIterator {
       List<GfsTreeEntry> ret = new ArrayList<>();
       for(Map.Entry<String, Node> child : dir.getData().entrySet()) {
         Node node = child.getValue();
-        if(!node.isTrivial())
-          ret.add(new GfsTreeEntry(child.getKey(), node));
+        if(!node.isTrivial()) ret.add(forNode(child.getKey(), node));
       }
-      Collections.sort(ret);
-      return ret;
+      sort(ret);
+      return unmodifiableList(ret);
     }
   }
 

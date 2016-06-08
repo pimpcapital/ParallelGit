@@ -13,6 +13,7 @@ import org.eclipse.jgit.lib.AnyObjectId;
 import org.eclipse.jgit.lib.ObjectReader;
 import org.eclipse.jgit.treewalk.*;
 
+import static com.beijunyi.parallelgit.filesystem.io.GfsCheckoutConflict.threeWayConflict;
 import static com.beijunyi.parallelgit.filesystem.utils.GfsPathUtils.toAbsolutePath;
 
 public class GfsDefaultCheckout {
@@ -92,24 +93,21 @@ public class GfsDefaultCheckout {
       String path = toAbsolutePath(tw.getPathString());
       if(skips(path))
         continue;
-      GitFileEntry head = GitFileEntry.forTreeNode(tw, HEAD);
-      GitFileEntry target = GitFileEntry.forTreeNode(tw, TARGET);
-      GitFileEntry worktree = GitFileEntry.forTreeNode(tw, WORKTREE);
-      if(mergeEntries(path, head, target, worktree))
-        tw.enterSubtree();
+      GitFileEntry head = GitFileEntry.newEntry(tw, HEAD);
+      GitFileEntry target = GitFileEntry.newEntry(tw, TARGET);
+      GitFileEntry worktree = GitFileEntry.newEntry(tw, WORKTREE);
+      if(mergeEntries(path, head, target, worktree)) tw.enterSubtree();
     }
   }
 
   private boolean mergeEntries(String path, GitFileEntry head, GitFileEntry target, GitFileEntry worktree) throws IOException {
-    if(target.equals(worktree) || target.equals(head))
-      return false;
+    if(target.equals(worktree) || target.equals(head)) return false;
     if(head.equals(worktree)) {
       changes.addChange(path, target);
-      return target.isVirtualDirectory();
+      return target.isNewDirectory();
     }
-    if(target.isDirectory() && worktree.isDirectory())
-      return true;
-    changes.addConflict(new GfsCheckoutConflict(path, head, target, worktree));
+    if(target.isDirectory() && worktree.isDirectory()) return true;
+    changes.addConflict(threeWayConflict(path, head, target, worktree));
     return false;
   }
 

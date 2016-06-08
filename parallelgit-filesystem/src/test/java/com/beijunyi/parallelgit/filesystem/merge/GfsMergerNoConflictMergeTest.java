@@ -146,13 +146,13 @@ public class GfsMergerNoConflictMergeTest extends AbstractParallelGitTest {
 //    writeToCache("/test_file.txt", "a\nB\nc\nD\nd\ne");
 //    RevCommit theirs = commit(base);
 //
-//    AnyObjectId tree;
+//    AnyObjectId newTreeEntry;
 //    try(GitFileSystem gfs = Gfs.newFileSystem(ours, repo)) {
 //      GfsMerger merger = new GfsMerger(gfs);
 //      merger.merge(ours, theirs);
-//      tree = merger.getResultTreeId();
+//      newTreeEntry = merger.getResultTreeId();
 //    }
-//    assertArrayEquals("".getBytes(), TreeUtils.readFile("/test_file.txt", tree, repo).getBytes());
+//    assertArrayEquals("".getBytes(), TreeUtils.readFile("/test_file.txt", newTreeEntry, repo).getBytes());
 //  }
 //
 //  @Nonnull

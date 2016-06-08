@@ -82,7 +82,7 @@ public class GfsConfiguration {
       commit = getCommit(name, repo);
     else {
       branch = RefUtils.ensureBranchRefName(name);
-      Ref ref = repo.getRef(branch);
+      Ref ref = repo.exactRef(branch);
       if(ref != null)
         commit = getCommit(ref, repo);
     }

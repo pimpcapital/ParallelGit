@@ -44,7 +44,7 @@ public class CommitUtilsGetCommitTest extends AbstractParallelGitTest {
   public void getCommitFromBranchRef_theResultShouldEqualToTheBranchHead() throws IOException {
     writeSomethingToCache();
     AnyObjectId headCommitId = commitToBranch("test_branch");
-    assertEquals(headCommitId, CommitUtils.getCommit(repo.getRef("test_branch"), repo));
+    assertEquals(headCommitId, CommitUtils.getCommit(repo.findRef("test_branch"), repo));
   }
 
 

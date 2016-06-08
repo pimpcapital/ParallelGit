@@ -96,12 +96,10 @@ public class GitFileSystemProvider extends FileSystemProvider {
     for(OpenOption option : options) {
       if(!SUPPORTED_OPEN_OPTIONS.contains(option))
         throw new UnsupportedOperationException(option.toString());
-      if(option == APPEND)
-        amended.add(WRITE);
+      if(option == APPEND) amended.add(WRITE);
       amended.add(option);
     }
-    if(!amended.contains(WRITE))
-      amended.add(READ);
+    if(!amended.contains(WRITE)) amended.add(READ);
     return GfsIO.newByteChannel(((GitPath)path).toRealPath(), amended, asList(attrs));
   }
 

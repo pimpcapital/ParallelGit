@@ -55,7 +55,7 @@ public class BranchUtilsCreateBranchTest extends AbstractParallelGitTest {
   public void createBranchFromBranchRef_theHeadsOfTheTwoBranchesShouldEqual() throws IOException {
     writeSomethingToCache();
     commitToBranch("source_branch");
-    BranchUtils.createBranch("test_branch", repo.getRef("source_branch"), repo);
+    BranchUtils.createBranch("test_branch", repo.findRef("source_branch"), repo);
     assertEquals(BranchUtils.getHeadCommit("source_branch", repo), BranchUtils.getHeadCommit("test_branch", repo));
   }
 
@@ -71,7 +71,7 @@ public class BranchUtilsCreateBranchTest extends AbstractParallelGitTest {
   public void createBranchFromTagRef_theHeadOfTheNewBranchShouldEqualToTheTaggedCommit() throws IOException {
     writeSomethingToCache();
     TagUtils.tagCommit("source_tag", commitToMaster(), repo);
-    BranchUtils.createBranch("test_branch", repo.getRef("source_tag"), repo);
+    BranchUtils.createBranch("test_branch", repo.findRef("source_tag"), repo);
     assertEquals(TagUtils.getTaggedCommit("source_tag", repo), BranchUtils.getHeadCommit("test_branch", repo));
   }
 

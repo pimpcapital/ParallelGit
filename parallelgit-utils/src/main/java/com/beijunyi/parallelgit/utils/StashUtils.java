@@ -2,6 +2,7 @@ package com.beijunyi.parallelgit.utils;
 
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 import javax.annotation.Nonnull;
 
@@ -31,7 +32,7 @@ public final class StashUtils {
       for(ReflogEntry log : logs)
         ret.add(rw.parseCommit(log.getNewId()));
     }
-    return ret;
+    return Collections.unmodifiableList(ret);
   }
 
 }

@@ -60,12 +60,12 @@ public final class RefUtils {
 
   @Nullable
   public static Ref getBranchRef(String name, Repository repo) throws IOException {
-    return repo.getRef(ensureBranchRefName(name));
+    return repo.exactRef(ensureBranchRefName(name));
   }
 
   @Nullable
   public static Ref getTagRef(String name, Repository repo) throws IOException {
-    return repo.getRef(ensureTagRefName(name));
+    return repo.exactRef(ensureTagRefName(name));
   }
 
   @Nonnull

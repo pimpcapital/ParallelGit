@@ -11,11 +11,16 @@ public class GfsCheckoutConflict {
   private final GitFileEntry target;
   private final GitFileEntry worktree;
 
-  public GfsCheckoutConflict(String path, GitFileEntry head, GitFileEntry target, GitFileEntry worktree) {
+  private GfsCheckoutConflict(String path, GitFileEntry head, GitFileEntry target, GitFileEntry worktree) {
     this.path = path;
     this.head = head;
     this.target = target;
     this.worktree = worktree;
+  }
+
+  @Nonnull
+  public static GfsCheckoutConflict threeWayConflict(String path, GitFileEntry head, GitFileEntry target, GitFileEntry worktree) {
+    return new GfsCheckoutConflict(path, head, target, worktree);
   }
 
   @Nonnull

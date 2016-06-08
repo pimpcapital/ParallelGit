@@ -14,12 +14,13 @@ import org.eclipse.jgit.revwalk.*;
 
 import static com.beijunyi.parallelgit.utils.RefUtils.ensureBranchRefName;
 import static org.eclipse.jgit.lib.Constants.*;
+import static org.eclipse.jgit.lib.ObjectId.zeroId;
 
 public final class BranchUtils {
 
   @Nonnull
   public static List<RevCommit> getHistory(String name, Repository repo) throws IOException {
-    Ref branchRef = repo.getRef(ensureBranchRefName(name));
+    Ref branchRef = repo.exactRef(ensureBranchRefName(name));
     if(branchRef == null)
       throw new NoSuchBranchException(name);
     RevCommit head = CommitUtils.getCommit(branchRef, repo);
@@ -32,7 +33,7 @@ public final class BranchUtils {
   }
 
   public static boolean branchExists(String name, Repository repo) throws IOException {
-    Ref ref = repo.getRef(ensureBranchRefName(name));
+    Ref ref = repo.exactRef(ensureBranchRefName(name));
     return ref != null;
   }
 
@@ -78,7 +79,7 @@ public final class BranchUtils {
   }
 
   public static void createBranch(String name, String startPoint, Repository repo) throws IOException {
-    Ref ref = repo.getRef(startPoint);
+    Ref ref = repo.findRef(startPoint);
     if(ref != null)
       createBranch(name, ref, repo);
     else {
@@ -143,7 +144,7 @@ public final class BranchUtils {
     String refName = ensureBranchRefName(name);
     AnyObjectId currentHead = repo.resolve(refName);
     if(currentHead == null)
-      currentHead = ObjectId.zeroId();
+      currentHead = zeroId();
 
     RefUpdate update = repo.updateRef(refName);
     update.setRefLogMessage(refLogMessage, false);

@@ -18,7 +18,10 @@ import org.eclipse.jgit.treewalk.filter.AndTreeFilter;
 import org.eclipse.jgit.treewalk.filter.PathFilterGroup;
 import org.eclipse.jgit.treewalk.filter.TreeFilter;
 
+import static com.beijunyi.parallelgit.utils.TreeUtils.normalizeNodePath;
+import static java.util.Collections.unmodifiableList;
 import static org.eclipse.jgit.lib.Constants.OBJ_COMMIT;
+import static org.eclipse.jgit.treewalk.filter.TreeFilter.ANY_DIFF;
 
 public final class CommitUtils {
 
@@ -83,15 +86,15 @@ public final class CommitUtils {
   }
 
   @Nonnull
-  public static List<RevCommit> getFileRevisions(String file, AnyObjectId start, int skip, int limit, ObjectReader reader) throws IOException {
-    file = TreeUtils.normalizeNodePath(file);
-    TreeFilter filter = AndTreeFilter.create(PathFilterGroup.createFromStrings(file), TreeFilter.ANY_DIFF);
+  public static List<RevCommit> getFileRevisions(String path, AnyObjectId start, int skip, int limit, ObjectReader reader) throws IOException {
+    path = normalizeNodePath(path);
+    TreeFilter filter = AndTreeFilter.create(PathFilterGroup.createFromStrings(path), ANY_DIFF);
     return getCommitHistory(start, skip, limit, filter, reader);
   }
 
   @Nonnull
-  public static List<RevCommit> getFileRevisions(String file, AnyObjectId start, ObjectReader reader) throws IOException {
-    return getFileRevisions(file, start, 0, Integer.MAX_VALUE, reader);
+  public static List<RevCommit> getFileRevisions(String path, AnyObjectId start, ObjectReader reader) throws IOException {
+    return getFileRevisions(path, start, 0, Integer.MAX_VALUE, reader);
   }
 
   @Nonnull
@@ -102,43 +105,56 @@ public final class CommitUtils {
   }
 
   @Nonnull
-  public static RevCommit getLatestFileRevision(String file, AnyObjectId start, ObjectReader reader) throws IOException {
-    List<RevCommit> commits = getFileRevisions(file, start, 0, 1, reader);
+  public static RevCommit getLatestFileRevision(String path, AnyObjectId start, ObjectReader reader) throws IOException {
+    List<RevCommit> commits = getFileRevisions(path, start, 0, 1, reader);
     if(commits.isEmpty())
-      throw new NoSuchFileException(file);
+      throw new NoSuchFileException(path);
     return commits.get(0);
   }
 
   @Nonnull
-  public static RevCommit getLatestFileRevision(String file, AnyObjectId start, Repository repo) throws IOException {
+  public static RevCommit getLatestFileRevision(String path, AnyObjectId start, Repository repo) throws IOException {
     try(ObjectReader reader = repo.newObjectReader()) {
-      return getLatestFileRevision(file, start, reader);
+      return getLatestFileRevision(path, start, reader);
     }
   }
 
-  public static boolean isMergedInto(AnyObjectId base, AnyObjectId target, ObjectReader reader) throws IOException {
+  public static boolean isMergedInto(AnyObjectId branchHead, AnyObjectId masterHead, ObjectReader reader) throws IOException {
     try(RevWalk rw = new RevWalk(reader)) {
-      return rw.isMergedInto(rw.lookupCommit(base), rw.lookupCommit(target));
+      return rw.isMergedInto(rw.lookupCommit(branchHead), rw.lookupCommit(masterHead));
     }
   }
 
-  public static boolean isMergedInto(AnyObjectId base, AnyObjectId target, Repository repo) throws IOException {
+  public static boolean isMergedInto(AnyObjectId branchHead, AnyObjectId masterHead, Repository repo) throws IOException {
     try(ObjectReader reader = repo.newObjectReader()) {
-      return isMergedInto(base, target, reader);
+      return isMergedInto(branchHead, masterHead, reader);
+    }
+  }
+
+  public static boolean isMergedInto(String source, String master, Repository repo) throws IOException {
+    try(ObjectReader reader = repo.newObjectReader()) {
+      return isMergedInto(repo.resolve(source), repo.resolve(master), reader);
     }
   }
 
   @Nonnull
-  public static List<RevCommit> findSquashableCommits(RevCommit start, @Nullable RevCommit end, ObjectReader reader) throws IOException {
+  public static List<RevCommit> listUnmergedCommits(AnyObjectId sourceHead, AnyObjectId masterHead, ObjectReader reader) throws IOException {
     try(RevWalk rw = new RevWalk(reader)) {
-      return RevWalkUtils.find(rw, start, end);
+      return unmodifiableList(RevWalkUtils.find(rw, rw.lookupCommit(sourceHead), rw.lookupCommit(masterHead)));
     }
   }
 
   @Nonnull
-  public static List<RevCommit> findSquashableCommits(RevCommit start, @Nullable RevCommit end, Repository repo) throws IOException {
+  public static List<RevCommit> listUnmergedCommits(AnyObjectId sourceHead, AnyObjectId masterHead, Repository repo) throws IOException {
     try(ObjectReader reader = repo.newObjectReader()) {
-      return findSquashableCommits(start, end, reader);
+      return listUnmergedCommits(sourceHead, masterHead, reader);
+    }
+  }
+
+  @Nonnull
+  public static List<RevCommit> listUnmergedCommits(String source, String master, Repository repo) throws IOException {
+    try(ObjectReader reader = repo.newObjectReader()) {
+      return listUnmergedCommits(repo.resolve(source), repo.resolve(master), reader);
     }
   }
 
@@ -219,7 +235,7 @@ public final class CommitUtils {
       if(count++ >= max)
         break;
     }
-    return commits;
+    return unmodifiableList(commits);
   }
 
 }

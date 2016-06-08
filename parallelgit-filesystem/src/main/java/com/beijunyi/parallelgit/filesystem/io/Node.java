@@ -10,6 +10,7 @@ import com.beijunyi.parallelgit.utils.io.ObjectSnapshot;
 import org.eclipse.jgit.lib.FileMode;
 import org.eclipse.jgit.lib.ObjectId;
 
+import static com.beijunyi.parallelgit.utils.io.GitFileEntry.missingEntry;
 import static org.eclipse.jgit.lib.FileMode.*;
 import static org.eclipse.jgit.lib.ObjectId.zeroId;
 
@@ -17,7 +18,7 @@ public abstract class Node<Snapshot extends ObjectSnapshot, Data> {
 
   protected final GfsObjectService objService;
 
-  protected volatile GitFileEntry origin = GitFileEntry.TRIVIAL;
+  protected volatile GitFileEntry origin = missingEntry();
   protected volatile DirectoryNode parent;
   protected volatile Snapshot snapshot;
   protected volatile ObjectId id;

@@ -13,6 +13,8 @@ import com.beijunyi.parallelgit.utils.io.TreeSnapshot;
 import org.eclipse.jgit.lib.FileMode;
 import org.eclipse.jgit.lib.ObjectId;
 
+import static com.beijunyi.parallelgit.utils.io.GitFileEntry.*;
+import static java.util.Collections.*;
 import static org.eclipse.jgit.lib.FileMode.TREE;
 
 public class DirectoryNode extends Node<TreeSnapshot, Map<String, Node>> {
@@ -70,7 +72,7 @@ public class DirectoryNode extends Node<TreeSnapshot, Map<String, Node>> {
   }
 
   public void updateOrigin(ObjectId id) throws IOException {
-    updateOrigin(GitFileEntry.tree(id));
+    updateOrigin(newTreeEntry(id));
   }
 
   @Nonnull
@@ -106,7 +108,7 @@ public class DirectoryNode extends Node<TreeSnapshot, Map<String, Node>> {
       Node node = child.getValue();
       ObjectId id = node.getObjectId(persist);
       if(!isTrivial(id))
-        entries.put(child.getKey(), new GitFileEntry(id, node.getMode()));
+        entries.put(child.getKey(), newEntry(id, node.getMode()));
     }
     return TreeSnapshot.capture(entries);
   }
@@ -134,7 +136,7 @@ public class DirectoryNode extends Node<TreeSnapshot, Map<String, Node>> {
   public List<String> listChildren() throws IOException {
     List<String> ret = new ArrayList<>(getData().keySet());
     Collections.sort(ret);
-    return Collections.unmodifiableList(ret);
+    return unmodifiableList(ret);
   }
 
   public boolean hasChild(String name) throws IOException {
@@ -193,7 +195,7 @@ public class DirectoryNode extends Node<TreeSnapshot, Map<String, Node>> {
         node.updateOrigin(child.getValue());
       ret.add(name);
     }
-    return ret;
+    return unmodifiableSet(ret);
   }
 
   @Nonnull
@@ -204,12 +206,12 @@ public class DirectoryNode extends Node<TreeSnapshot, Map<String, Node>> {
       if(!updatedChildren.contains(name))
         ret.add(child.getValue());
     }
-    return ret;
+    return unmodifiableList(ret);
   }
 
   private void updateOriginsToTrivial(Collection<Node> nodes) throws IOException {
     for(Node node : nodes) {
-      node.updateOrigin(GitFileEntry.TRIVIAL);
+      node.updateOrigin(missingEntry());
     }
   }
 

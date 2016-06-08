@@ -14,6 +14,7 @@ import org.junit.Before;
 import org.junit.Test;
 
 import static org.eclipse.jgit.lib.FileMode.*;
+import static org.eclipse.jgit.lib.ObjectId.zeroId;
 import static org.junit.Assert.*;
 
 public class CacheUtilsEditTest extends AbstractParallelGitTest {
@@ -23,7 +24,7 @@ public class CacheUtilsEditTest extends AbstractParallelGitTest {
     DirCache cache = DirCache.newInCore();
     DirCacheBuilder builder = cache.builder();
     for(String file : files)
-      CacheUtils.addFile(file, REGULAR_FILE, ObjectId.zeroId(), builder);
+      CacheUtils.addFile(file, REGULAR_FILE, zeroId(), builder);
     builder.finish();
     return cache;
   }
@@ -72,7 +73,7 @@ public class CacheUtilsEditTest extends AbstractParallelGitTest {
                                     "a/c3.txt",
                                     "a/b/c4.txt"};
     for(String file : files)
-      CacheUtils.addFile(file, REGULAR_FILE, ObjectId.zeroId(), builder);builder.finish();
+      CacheUtils.addFile(file, REGULAR_FILE, zeroId(), builder);builder.finish();
 
     int entryCount = cache.getEntryCount();
     assertEquals(4, entryCount);
