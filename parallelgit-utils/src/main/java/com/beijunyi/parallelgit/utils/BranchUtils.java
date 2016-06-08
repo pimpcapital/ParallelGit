@@ -24,7 +24,7 @@ public final class BranchUtils {
     if(branchRef == null)
       throw new NoSuchBranchException(name);
     RevCommit head = CommitUtils.getCommit(branchRef, repo);
-    return CommitUtils.getCommitHistory(head, repo);
+    return CommitUtils.getHistory(head, repo);
   }
 
   @Nonnull

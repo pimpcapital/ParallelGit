@@ -1,7 +1,6 @@
 package com.beijunyi.parallelgit.utils;
 
 import java.io.IOException;
-import java.nio.file.NoSuchFileException;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
@@ -59,8 +58,8 @@ public final class CommitUtils {
     return getCommit(commitId, repo);
   }
 
-  public static boolean commitExists(String id, Repository repo) throws IOException {
-    AnyObjectId obj = repo.resolve(id);
+  public static boolean exists(String name, Repository repo) throws IOException {
+    AnyObjectId obj = repo.resolve(name);
     if(obj == null)
       return false;
     try(RevWalk rw = new RevWalk(repo)) {
@@ -69,19 +68,19 @@ public final class CommitUtils {
   }
 
   @Nonnull
-  public static List<RevCommit> getCommitHistory(AnyObjectId start, int skip, int limit, ObjectReader reader) throws IOException {
-    return getCommitHistory(start, skip, limit, null, reader);
+  public static List<RevCommit> getHistory(AnyObjectId start, int skip, int limit, ObjectReader reader) throws IOException {
+    return getHistory(start, skip, limit, null, reader);
   }
 
   @Nonnull
-  public static List<RevCommit> getCommitHistory(AnyObjectId start, ObjectReader reader) throws IOException {
-    return getCommitHistory(start, 0, Integer.MAX_VALUE, reader);
+  public static List<RevCommit> getHistory(AnyObjectId start, ObjectReader reader) throws IOException {
+    return getHistory(start, 0, Integer.MAX_VALUE, reader);
   }
 
   @Nonnull
-  public static List<RevCommit> getCommitHistory(AnyObjectId start, Repository repo) throws IOException {
+  public static List<RevCommit> getHistory(AnyObjectId start, Repository repo) throws IOException {
     try(ObjectReader reader = repo.newObjectReader()) {
-      return getCommitHistory(start, reader);
+      return getHistory(start, reader);
     }
   }
 
@@ -89,7 +88,7 @@ public final class CommitUtils {
   public static List<RevCommit> getFileRevisions(String path, AnyObjectId start, int skip, int limit, ObjectReader reader) throws IOException {
     path = normalizeNodePath(path);
     TreeFilter filter = AndTreeFilter.create(PathFilterGroup.createFromStrings(path), ANY_DIFF);
-    return getCommitHistory(start, skip, limit, filter, reader);
+    return getHistory(start, skip, limit, filter, reader);
   }
 
   @Nonnull
@@ -105,18 +104,29 @@ public final class CommitUtils {
   }
 
   @Nonnull
+  public static List<RevCommit> getFileRevisions(String file, String start, Repository repo) throws IOException {
+    ObjectId id = repo.resolve(start);
+    return id != null ? getFileRevisions(file, id, repo) : Collections.<RevCommit>emptyList();
+  }
+
+  @Nullable
   public static RevCommit getLatestFileRevision(String path, AnyObjectId start, ObjectReader reader) throws IOException {
     List<RevCommit> commits = getFileRevisions(path, start, 0, 1, reader);
-    if(commits.isEmpty())
-      throw new NoSuchFileException(path);
+    if(commits.isEmpty()) return null;
     return commits.get(0);
   }
 
-  @Nonnull
+  @Nullable
   public static RevCommit getLatestFileRevision(String path, AnyObjectId start, Repository repo) throws IOException {
     try(ObjectReader reader = repo.newObjectReader()) {
       return getLatestFileRevision(path, start, reader);
     }
+  }
+
+  @Nullable
+  public static RevCommit getLatestFileRevision(String path, String start, Repository repo) throws IOException {
+    ObjectId id = repo.resolve(start);
+    return id != null ? getLatestFileRevision(path, id, repo) : null;
   }
 
   public static boolean isMergedInto(AnyObjectId branchHead, AnyObjectId masterHead, ObjectReader reader) throws IOException {
@@ -132,9 +142,7 @@ public final class CommitUtils {
   }
 
   public static boolean isMergedInto(String source, String master, Repository repo) throws IOException {
-    try(ObjectReader reader = repo.newObjectReader()) {
-      return isMergedInto(repo.resolve(source), repo.resolve(master), reader);
-    }
+    return isMergedInto(repo.resolve(source), repo.resolve(master), repo);
   }
 
   @Nonnull
@@ -153,9 +161,7 @@ public final class CommitUtils {
 
   @Nonnull
   public static List<RevCommit> listUnmergedCommits(String source, String master, Repository repo) throws IOException {
-    try(ObjectReader reader = repo.newObjectReader()) {
-      return listUnmergedCommits(repo.resolve(source), repo.resolve(master), reader);
-    }
+    return listUnmergedCommits(repo.resolve(source), repo.resolve(master), repo);
   }
 
   @Nonnull
@@ -213,7 +219,7 @@ public final class CommitUtils {
   }
 
   @Nonnull
-  private static List<RevCommit> getCommitHistory(AnyObjectId start, int skip, int limit, @Nullable TreeFilter filter, ObjectReader reader) throws IOException {
+  private static List<RevCommit> getHistory(AnyObjectId start, int skip, int limit, @Nullable TreeFilter filter, ObjectReader reader) throws IOException {
     List<RevCommit> commits;
     try(RevWalk rw = new RevWalk(reader)) {
       rw.markStart(CommitUtils.getCommit(start, reader));

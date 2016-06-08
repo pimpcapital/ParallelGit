@@ -88,7 +88,7 @@ public final class GfsCheckout extends GfsCommand<GfsCheckout.Result> {
       }
     }
     if(targetCommit == null) {
-      if(CommitUtils.commitExists(target, repo))
+      if(CommitUtils.exists(target, repo))
         targetCommit = CommitUtils.getCommit(target, repo);
       else
         throw new NoSuchBranchException(target);

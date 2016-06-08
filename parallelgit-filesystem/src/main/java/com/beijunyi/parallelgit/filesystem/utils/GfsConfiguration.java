@@ -78,7 +78,7 @@ public class GfsConfiguration {
   public GfsConfiguration branch(String name) throws IOException {
     if(commit != null)
       throw new HeadAlreadyDefinedException();
-    if(!branchExists(name, repo) && commitExists(name, repo))
+    if(!branchExists(name, repo) && exists(name, repo))
       commit = getCommit(name, repo);
     else {
       branch = RefUtils.ensureBranchRefName(name);

@@ -29,7 +29,7 @@ public class CommitUtilsGetCommitHistoryTest extends AbstractParallelGitTest {
     RevCommit commit3 = commitToBranch(branch);
 
     List<RevCommit> expected = Arrays.asList(commit3, commit2, commit1);
-    List<RevCommit> actual = CommitUtils.getCommitHistory(commit3, repo);
+    List<RevCommit> actual = CommitUtils.getHistory(commit3, repo);
     assertEquals(expected, actual);
   }
 
@@ -46,7 +46,7 @@ public class CommitUtilsGetCommitHistoryTest extends AbstractParallelGitTest {
     RevCommit commit4 = commitToBranch(branch);
 
     List<RevCommit> expected = Arrays.asList(commit3, commit2);
-    List<RevCommit> actual = CommitUtils.getCommitHistory(commit4, 1, 2, repo.newObjectReader());
+    List<RevCommit> actual = CommitUtils.getHistory(commit4, 1, 2, repo.newObjectReader());
     assertEquals(expected, actual);
   }
 
@@ -63,24 +63,7 @@ public class CommitUtilsGetCommitHistoryTest extends AbstractParallelGitTest {
     RevCommit commit4 = commitToBranch(branch);
 
     List<RevCommit> expected = Arrays.asList(commit3, commit2, commit1);
-    List<RevCommit> actual = CommitUtils.getCommitHistory(commit4, 1, Integer.MAX_VALUE, repo.newObjectReader());
-    assertEquals(expected, actual);
-  }
-
-  @Test
-  public void getFileChangeCommits_shouldReturnTheCommitsWhereTheSpecifiedFileIsChanged() throws IOException {
-    String branch = "orphan_branch";
-    writeSomethingToCache();
-    /*RevCommit commit1 = */commitToBranch(branch);
-    writeToCache("/test_file.txt", "some text data");
-    RevCommit commit2 = commitToBranch(branch);
-    updateFile("/test_file.txt", "some other text data");
-    RevCommit commit3 = commitToBranch(branch);
-    writeSomethingToCache();
-    RevCommit commit4 = commitToBranch(branch);
-
-    List<RevCommit> expected = Arrays.asList(commit3, commit2);
-    List<RevCommit> actual = CommitUtils.getFileRevisions("/test_file.txt", commit4, repo);
+    List<RevCommit> actual = CommitUtils.getHistory(commit4, 1, Integer.MAX_VALUE, repo.newObjectReader());
     assertEquals(expected, actual);
   }
 
