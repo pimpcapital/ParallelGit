@@ -6,15 +6,16 @@ import javax.annotation.Nullable;
 
 import org.eclipse.jgit.lib.ObjectId;
 import org.eclipse.jgit.lib.ObjectInserter;
+import org.eclipse.jgit.lib.ObjectInserter.Formatter;
 
 public abstract class ObjectSnapshot<Data> {
 
   protected final ObjectId id;
   protected final Data data;
 
-  protected ObjectSnapshot(ObjectId id, Data data) {
-    this.id = id;
+  protected ObjectSnapshot(Data data, @Nullable ObjectId id) {
     this.data = data;
+    this.id = id != null ? id : new Formatter().idFor(getType(), toByteArray(data));
   }
 
   @Nonnull
@@ -34,6 +35,11 @@ public abstract class ObjectSnapshot<Data> {
 
   @Nonnull
   protected abstract ObjectId save(ObjectInserter inserter) throws IOException;
+
+  protected abstract int getType();
+
+  @Nonnull
+  protected abstract byte[] toByteArray(Data data);
 
   @Override
   public boolean equals(@Nullable Object that) {

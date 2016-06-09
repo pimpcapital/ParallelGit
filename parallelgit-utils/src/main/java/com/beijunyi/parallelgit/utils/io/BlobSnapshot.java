@@ -2,28 +2,32 @@ package com.beijunyi.parallelgit.utils.io;
 
 import java.io.IOException;
 import javax.annotation.Nonnull;
+import javax.annotation.Nullable;
 
 import org.eclipse.jgit.lib.ObjectId;
 import org.eclipse.jgit.lib.ObjectInserter;
-import org.eclipse.jgit.lib.ObjectInserter.Formatter;
 import org.eclipse.jgit.lib.ObjectReader;
 
 import static org.eclipse.jgit.lib.Constants.OBJ_BLOB;
 
 public class BlobSnapshot extends ObjectSnapshot<byte[]> {
 
-  private BlobSnapshot(ObjectId id, byte[] bytes) {
-    super(id, bytes);
+  private BlobSnapshot(byte[] bytes, @Nullable ObjectId id) {
+    super(bytes, id);
+  }
+
+  private BlobSnapshot(byte[] bytes) {
+    this(bytes, null);
   }
 
   @Nonnull
   public static BlobSnapshot load(ObjectId id, ObjectReader reader) throws IOException {
-    return new BlobSnapshot(id, reader.open(id).getBytes());
+    return new BlobSnapshot(reader.open(id).getBytes(), id);
   }
 
   @Nonnull
   public static BlobSnapshot capture(byte[] bytes) {
-    return new BlobSnapshot(computeBlobId(bytes), bytes);
+    return new BlobSnapshot(bytes);
   }
 
   @Nonnull
@@ -32,9 +36,15 @@ public class BlobSnapshot extends ObjectSnapshot<byte[]> {
     return inserter.insert(OBJ_BLOB, getData());
   }
 
+  @Override
+  protected int getType() {
+    return OBJ_BLOB;
+  }
+
   @Nonnull
-  private static ObjectId computeBlobId(byte[] data) {
-    return new Formatter().idFor(OBJ_BLOB, data);
+  @Override
+  protected byte[] toByteArray(byte[] bytes) {
+    return bytes;
   }
 
 }
