@@ -11,6 +11,7 @@ import com.beijunyi.parallelgit.filesystem.GitFileSystem;
 import com.beijunyi.parallelgit.filesystem.exceptions.NoBranchException;
 import com.beijunyi.parallelgit.filesystem.io.GfsCheckoutConflict;
 import com.beijunyi.parallelgit.filesystem.io.GfsDefaultCheckout;
+import com.beijunyi.parallelgit.utils.BranchUtils;
 import com.beijunyi.parallelgit.utils.CommitUtils;
 import com.beijunyi.parallelgit.utils.RefUtils;
 import com.beijunyi.parallelgit.utils.exceptions.NoSuchBranchException;
@@ -81,8 +82,8 @@ public final class GfsCheckout extends GfsCommand<GfsCheckout.Result> {
     if(target == null)
       throw new NoBranchException();
     if(!detach) {
-      Ref branchRef = RefUtils.getBranchRef(target, repo);
-      if(branchRef != null) {
+      if(BranchUtils.branchExists(target, repo)) {
+        Ref branchRef = RefUtils.getBranchRef(target, repo);
         targetBranch = branchRef.getName();
         targetCommit = CommitUtils.getCommit(targetBranch, repo);
       }

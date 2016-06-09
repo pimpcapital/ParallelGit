@@ -40,8 +40,6 @@ public final class BranchUtils {
   @Nonnull
   public static RevCommit getHeadCommit(String name, Repository repo) throws IOException {
     Ref ref = RefUtils.getBranchRef(name, repo);
-    if(ref == null)
-      throw new NoSuchBranchException(name);
     return CommitUtils.getCommit(ref.getObjectId(), repo);
   }
 
@@ -96,7 +94,7 @@ public final class BranchUtils {
     setBranchHead(name, commitId, repo, makeRefLogMessage("commit", commitId, repo), false);
   }
 
-  public static void amendCommit(String name, AnyObjectId commitId, Repository repo) throws IOException {
+  public static void amend(String name, AnyObjectId commitId, Repository repo) throws IOException {
     setBranchHead(name, commitId, repo, makeRefLogMessage("commit (amend)", commitId, repo), true);
   }
 
@@ -104,11 +102,11 @@ public final class BranchUtils {
     setBranchHead(name, commitId, repo, makeRefLogMessage("commit (initial)", commitId, repo), false);
   }
 
-  public static void cherryPickCommit(String name, AnyObjectId commitId, Repository repo) throws IOException {
+  public static void cherryPick(String name, AnyObjectId commitId, Repository repo) throws IOException {
     setBranchHead(name, commitId, repo, makeRefLogMessage("cherry-pick", commitId, repo), false);
   }
 
-  public static void mergeBranch(String name, AnyObjectId commitId, Ref targetRef, String details, Repository repo) throws IOException {
+  public static void merge(String name, AnyObjectId commitId, Ref targetRef, String details, Repository repo) throws IOException {
     setBranchHead(name, commitId, repo, makeRefLogMessage("merge " + targetRef.getName(), details), false);
   }
 

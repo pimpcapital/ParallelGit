@@ -79,7 +79,7 @@ public class GfsObjectService implements Closeable {
 
   @Nonnull
   public ObjectId write(ObjectSnapshot snapshot) throws IOException {
-    return snapshot.insert(inserter);
+    return snapshot.save(inserter);
   }
 
   public void pullObject(ObjectId id, boolean flush, GfsObjectService sourceObjService) throws IOException {

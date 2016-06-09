@@ -7,6 +7,7 @@ import javax.annotation.Nullable;
 import org.eclipse.jgit.lib.ObjectId;
 import org.eclipse.jgit.lib.ObjectInserter;
 import org.eclipse.jgit.lib.ObjectInserter.Formatter;
+import org.eclipse.jgit.lib.Repository;
 
 public abstract class ObjectSnapshot<Data> {
 
@@ -29,12 +30,16 @@ public abstract class ObjectSnapshot<Data> {
   }
 
   @Nonnull
-  public ObjectId insert(ObjectInserter inserter) throws IOException {
-    return save(inserter);
+  public ObjectId save(Repository repo) throws IOException {
+    try(ObjectInserter inserter = repo.newObjectInserter()) {
+      ObjectId ret = save(inserter);
+      inserter.flush();
+      return ret;
+    }
   }
 
   @Nonnull
-  protected abstract ObjectId save(ObjectInserter inserter) throws IOException;
+  public abstract ObjectId save(ObjectInserter inserter) throws IOException;
 
   protected abstract int getType();
 

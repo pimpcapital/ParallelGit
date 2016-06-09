@@ -145,7 +145,7 @@ public final class GfsCommit extends GfsCommand<GfsCommit.Result> {
   private void updateStatus(GfsStatusProvider.Update update, RevCommit newHead) throws IOException {
     if(status.isAttached()) {
       if(amend)
-        BranchUtils.amendCommit(status.branch(), newHead, repo);
+        BranchUtils.amend(status.branch(), newHead, repo);
       else if(status.isInitialized())
         BranchUtils.newCommit(status.branch(), newHead, repo);
       else

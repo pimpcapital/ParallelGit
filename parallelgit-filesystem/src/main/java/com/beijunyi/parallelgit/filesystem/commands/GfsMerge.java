@@ -16,7 +16,6 @@ import com.beijunyi.parallelgit.filesystem.merge.GfsMergeNote;
 import com.beijunyi.parallelgit.utils.BranchUtils;
 import com.beijunyi.parallelgit.utils.CommitUtils;
 import com.beijunyi.parallelgit.utils.RefUtils;
-import com.beijunyi.parallelgit.utils.exceptions.NoSuchBranchException;
 import org.eclipse.jgit.api.MergeResult.MergeStatus;
 import org.eclipse.jgit.diff.Sequence;
 import org.eclipse.jgit.dircache.DirCache;
@@ -30,7 +29,6 @@ import static com.beijunyi.parallelgit.filesystem.GfsState.*;
 import static com.beijunyi.parallelgit.filesystem.merge.GfsMergeNote.mergeSquash;
 import static com.beijunyi.parallelgit.filesystem.utils.GfsPathUtils.toAbsolutePath;
 import static com.beijunyi.parallelgit.utils.CommitUtils.listUnmergedCommits;
-import static com.beijunyi.parallelgit.utils.RefUtils.ensureBranchRefName;
 import static java.util.Collections.singletonList;
 import static org.eclipse.jgit.api.MergeResult.MergeStatus.*;
 import static org.eclipse.jgit.merge.MergeStrategy.RECURSIVE;
@@ -62,7 +60,7 @@ public final class GfsMerge extends GfsCommand<GfsMerge.Result> {
   @Override
   protected Result doExecute(GfsStatusProvider.Update update) throws IOException {
     prepareBranchHead();
-    prepareTarget();
+    prepareSource();
     prepareSourceCommit();
     prepareMessage();
 
@@ -149,14 +147,12 @@ public final class GfsMerge extends GfsCommand<GfsMerge.Result> {
     branch = status.branch();
 
     branchRef = RefUtils.getBranchRef(branch, repo);
-    if(branchRef == null)
-      throw new NoSuchBranchException(ensureBranchRefName(branch));
 
     if(status.isInitialized())
       headCommit = status.commit();
   }
 
-  private void prepareTarget() throws IOException {
+  private void prepareSource() throws IOException {
     if(sourceRef == null) {
       sourceRef = RefUtils.getBranchRef(source, repo);
     }
@@ -194,7 +190,7 @@ public final class GfsMerge extends GfsCommand<GfsMerge.Result> {
       update.mergeNote(mergeSquash(message));
       result = Result.fastForwardSquashed();
     } else {
-      BranchUtils.mergeBranch(branch, sourceHeadCommit, sourceRef, FAST_FORWARD.toString(), repo);
+      BranchUtils.merge(branch, sourceHeadCommit, sourceRef, FAST_FORWARD.toString(), repo);
       result = Result.fastForward(sourceHeadCommit);
     }
     return result;
@@ -221,7 +217,7 @@ public final class GfsMerge extends GfsCommand<GfsMerge.Result> {
     if(commit && !squash) {
       prepareCommitter();
       newCommit = CommitUtils.createCommit(message, treeId, committer, committer, Arrays.asList(headCommit, sourceHeadCommit), repo);
-      BranchUtils.mergeBranch(branch, newCommit, sourceRef, "Merge made by " + strategy.getName() + ".", repo);
+      BranchUtils.merge(branch, newCommit, sourceRef, "Merge made by " + strategy.getName() + ".", repo);
     }
     if(!commit) {
       update.mergeNote(GfsMergeNote.mergeNoCommit(sourceHeadCommit, message));

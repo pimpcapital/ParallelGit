@@ -9,6 +9,7 @@ import org.eclipse.jgit.revwalk.RevCommit;
 import org.junit.Before;
 import org.junit.Test;
 
+import static org.eclipse.jgit.api.MergeResult.MergeStatus.FAST_FORWARD;
 import static org.junit.Assert.assertEquals;
 
 public class BranchUtilsSetBranchHeadTest extends AbstractParallelGitTest {
@@ -24,7 +25,7 @@ public class BranchUtilsSetBranchHeadTest extends AbstractParallelGitTest {
   }
 
   @Test
-  public void commitBranchHead_branchHeadShouldBecomeTheNewCommit() throws IOException {
+  public void createNewCommit_branchHeadShouldBecomeTheNewCommit() throws IOException {
     writeSomethingToCache();
     AnyObjectId childCommit = commit(branchHead);
     BranchUtils.newCommit(branch, childCommit, repo);
@@ -32,33 +33,34 @@ public class BranchUtilsSetBranchHeadTest extends AbstractParallelGitTest {
   }
 
   @Test(expected = RefUpdateRejectedException.class)
-  public void commitBranchHeadWhenInputCommitIsNotChildCommit_shouldThrowRefUpdateRejectedException() throws IOException {
+  public void createNewCommitWhenNewCommitHasDifferentAncestor_shouldThrowRefUpdateRejectedException() throws IOException {
     writeSomethingToCache();
     AnyObjectId nonChildCommit = commit();
     BranchUtils.newCommit(branch, nonChildCommit, repo);
   }
 
   @Test
-  public void amendBranchHead_branchHeadShouldBecomeTheAmendedCommit() throws IOException {
+  public void amendBranchHead_branchHeadShouldBecomeTheSpecifiedCommit() throws IOException {
     writeSomethingToCache();
     AnyObjectId amendedCommit = commit(branchHead.getParent(0));
-    BranchUtils.amendCommit(branch, amendedCommit, repo);
+    BranchUtils.amend(branch, amendedCommit, repo);
     assertEquals(amendedCommit, BranchUtils.getHeadCommit(branch, repo));
   }
 
   @Test
-  public void cherryPickBranchHead_branchHeadShouldBecomeTheCherryPickedCommit() throws IOException {
+  public void cherryPickCommit_branchHeadShouldBecomeTheSpecifiedCommit() throws IOException {
     writeSomethingToCache();
     AnyObjectId cherryPickedCommit = commit(branchHead);
-    BranchUtils.cherryPickCommit(branch, cherryPickedCommit, repo);
+    BranchUtils.cherryPick(branch, cherryPickedCommit, repo);
     assertEquals(cherryPickedCommit, BranchUtils.getHeadCommit(branch, repo));
   }
 
-  @Test(expected = RefUpdateRejectedException.class)
-  public void cherryPickBranchHeadWhenInputCommitIsNotChildCommit_branchHeadShouldBecomeTheCherryPickedCommit() throws IOException {
+  @Test
+  public void mergeBranch_branchHeadShouldBecomeTheSpecifiedCommit() throws IOException {
     writeSomethingToCache();
-    AnyObjectId cherryPickedCommit = commit();
-    BranchUtils.cherryPickCommit(branch, cherryPickedCommit, repo);
+    AnyObjectId branchHeadCommit = commitToBranch("test_branch", branchHead);
+    BranchUtils.merge(branch, branchHeadCommit, RefUtils.getBranchRef("test_branch", repo), FAST_FORWARD.toString(), repo);
+    assertEquals(branchHeadCommit, BranchUtils.getHeadCommit(branch, repo));
   }
 
 }

@@ -23,16 +23,16 @@ public class TreeSnapshotSaveTest extends AbstractParallelGitTest {
   }
 
   @Test
-  public void createSnapshotAndSave_shouldFindChildrenEntriesFromSavedTree() throws IOException {
+  public void createSnapshotAndSave_shouldFindChildrenEntriesFromTreeId() throws IOException {
     SortedMap<String, GitFileEntry> children = new TreeMap<>();
     GitFileEntry entry1 = newEntry(someObjectId(), REGULAR_FILE);
     children.put("file1.txt", entry1);
     GitFileEntry entry2 = newEntry(someObjectId(), REGULAR_FILE);
     children.put("file2.txt", entry2);
-    ObjectId tree = TreeSnapshot.capture(children).save(repo);
+    ObjectId treeId = TreeSnapshot.capture(children).save(repo);
 
-    assertEquals(entry1, GitFileEntry.newEntry("file1.txt", tree, repo));
-    assertEquals(entry2, GitFileEntry.newEntry("file2.txt", tree, repo));
+    assertEquals(entry1, newEntry("file1.txt", treeId, repo));
+    assertEquals(entry2, newEntry("file2.txt", treeId, repo));
   }
 
   @Test

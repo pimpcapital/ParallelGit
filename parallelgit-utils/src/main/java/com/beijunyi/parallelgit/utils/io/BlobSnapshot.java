@@ -4,9 +4,7 @@ import java.io.IOException;
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 
-import org.eclipse.jgit.lib.ObjectId;
-import org.eclipse.jgit.lib.ObjectInserter;
-import org.eclipse.jgit.lib.ObjectReader;
+import org.eclipse.jgit.lib.*;
 
 import static org.eclipse.jgit.lib.Constants.OBJ_BLOB;
 
@@ -23,6 +21,13 @@ public class BlobSnapshot extends ObjectSnapshot<byte[]> {
   @Nonnull
   public static BlobSnapshot load(ObjectId id, ObjectReader reader) throws IOException {
     return new BlobSnapshot(reader.open(id).getBytes(), id);
+  }
+
+  @Nonnull
+  public static BlobSnapshot load(ObjectId id, Repository repo) throws IOException {
+    try(ObjectReader reader = repo.newObjectReader()) {
+      return load(id, reader);
+    }
   }
 
   @Nonnull

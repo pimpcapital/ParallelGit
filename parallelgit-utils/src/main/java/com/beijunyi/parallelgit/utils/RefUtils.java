@@ -6,6 +6,7 @@ import java.util.List;
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 
+import com.beijunyi.parallelgit.utils.exceptions.NoSuchBranchException;
 import org.eclipse.jgit.lib.*;
 
 import static org.eclipse.jgit.lib.Constants.*;
@@ -58,9 +59,11 @@ public final class RefUtils {
     return ensureRefPrefix(name, R_TAGS);
   }
 
-  @Nullable
+  @Nonnull
   public static Ref getBranchRef(String name, Repository repo) throws IOException {
-    return repo.exactRef(ensureBranchRefName(name));
+    Ref ret = repo.exactRef(ensureBranchRefName(name));
+    if(ret == null) throw new NoSuchBranchException(name);
+    return ret;
   }
 
   @Nullable

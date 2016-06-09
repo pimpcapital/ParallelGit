@@ -55,15 +55,6 @@ public class TreeSnapshot extends ObjectSnapshot<SortedMap<String, GitFileEntry>
   }
 
   @Nonnull
-  public ObjectId save(Repository repo) throws IOException {
-    try(ObjectInserter inserter = repo.newObjectInserter()) {
-      ObjectId ret = save(inserter);
-      inserter.flush();
-      return ret;
-    }
-  }
-
-  @Nonnull
   public static TreeSnapshot load(ObjectId id, ObjectReader reader) throws IOException {
     SortedMap<String, GitFileEntry> ret = new TreeMap<>();
     try(TreeWalk tw = TreeUtils.newTreeWalk(id, reader)) {
