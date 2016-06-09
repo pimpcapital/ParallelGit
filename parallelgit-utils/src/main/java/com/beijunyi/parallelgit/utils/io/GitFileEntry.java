@@ -1,10 +1,11 @@
 package com.beijunyi.parallelgit.utils.io;
 
+import java.io.IOException;
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 
-import org.eclipse.jgit.lib.FileMode;
-import org.eclipse.jgit.lib.ObjectId;
+import com.beijunyi.parallelgit.utils.TreeUtils;
+import org.eclipse.jgit.lib.*;
 import org.eclipse.jgit.treewalk.TreeWalk;
 
 import static org.eclipse.jgit.lib.FileMode.*;
@@ -36,6 +37,19 @@ public class GitFileEntry {
   @Nonnull
   public static GitFileEntry newEntry(TreeWalk tw) {
     return newEntry(tw, 0);
+  }
+
+  @Nonnull
+  public static GitFileEntry newEntry(String path, AnyObjectId tree, ObjectReader reader) throws IOException {
+    TreeWalk tw = TreeUtils.forPath(path, tree, reader);
+    return tw != null ? newEntry(tw) : missingEntry();
+  }
+
+  @Nonnull
+  public static GitFileEntry newEntry(String path, AnyObjectId tree, Repository repo) throws IOException {
+    try(ObjectReader reader = repo.newObjectReader()) {
+      return newEntry(path, tree, reader);
+    }
   }
 
   @Nonnull
