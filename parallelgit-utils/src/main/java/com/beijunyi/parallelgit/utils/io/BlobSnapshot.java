@@ -28,7 +28,7 @@ public class BlobSnapshot extends ObjectSnapshot<byte[]> {
 
   @Nonnull
   @Override
-  public ObjectId persist(ObjectInserter inserter) throws IOException {
+  public ObjectId save(ObjectInserter inserter) throws IOException {
     return inserter.insert(OBJ_BLOB, getData());
   }
 

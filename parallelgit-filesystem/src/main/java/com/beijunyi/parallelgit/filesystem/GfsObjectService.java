@@ -6,7 +6,6 @@ import java.nio.file.ClosedFileSystemException;
 import javax.annotation.Nonnull;
 
 import com.beijunyi.parallelgit.utils.BlobUtils;
-import com.beijunyi.parallelgit.utils.TreeUtils;
 import com.beijunyi.parallelgit.utils.io.*;
 import org.eclipse.jgit.lib.*;
 
@@ -74,7 +73,7 @@ public class GfsObjectService implements Closeable {
   public TreeSnapshot readTree(ObjectId id) throws IOException {
     checkClosed();
     synchronized(reader) {
-      return TreeUtils.readTree(id, reader);
+      return TreeSnapshot.load(id, reader);
     }
   }
 

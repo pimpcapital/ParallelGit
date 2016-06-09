@@ -5,28 +5,33 @@ import java.util.Map;
 import java.util.SortedMap;
 import java.util.TreeMap;
 import javax.annotation.Nonnull;
-import javax.annotation.Nullable;
 
 import com.beijunyi.parallelgit.utils.TreeUtils;
 import org.eclipse.jgit.lib.*;
 import org.eclipse.jgit.treewalk.TreeWalk;
 
-import static com.beijunyi.parallelgit.utils.io.GitFileEntry.newEntry;
+import static com.beijunyi.parallelgit.utils.io.GitFileEntry.*;
+import static java.util.Collections.unmodifiableSortedMap;
 import static org.eclipse.jgit.lib.Constants.OBJ_TREE;
 
 public class TreeSnapshot extends ObjectSnapshot<SortedMap<String, GitFileEntry>> {
 
   private TreeSnapshot(ObjectId id, SortedMap<String, GitFileEntry> data) {
-    super(id, data);
+    super(id, unmodifiableSortedMap(data));
   }
 
-  @Nullable
-  public GitFileEntry getChild(String name) {
-    return data.get(name);
+  public boolean hasChild(String name) {
+    return data.containsKey(name);
   }
 
   @Nonnull
-  public ObjectId persist(ObjectInserter inserter) throws IOException {
+  public GitFileEntry getChild(String name) {
+    GitFileEntry entry = data.get(name);
+    return entry != null ? entry : missingEntry();
+  }
+
+  @Nonnull
+  public ObjectId save(ObjectInserter inserter) throws IOException {
     return inserter.insert(format(data));
   }
 
@@ -37,6 +42,13 @@ public class TreeSnapshot extends ObjectSnapshot<SortedMap<String, GitFileEntry>
       while(tw.next()) ret.put(tw.getNameString(), newEntry(tw));
     }
     return new TreeSnapshot(id, ret);
+  }
+
+  @Nonnull
+  public static TreeSnapshot load(ObjectId id, Repository repo) throws IOException {
+    try(ObjectReader reader = repo.newObjectReader()) {
+      return load(id, reader);
+    }
   }
 
   @Nonnull

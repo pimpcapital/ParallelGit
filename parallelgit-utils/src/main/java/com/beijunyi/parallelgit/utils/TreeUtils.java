@@ -7,7 +7,6 @@ import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 
 import com.beijunyi.parallelgit.utils.io.BlobSnapshot;
-import com.beijunyi.parallelgit.utils.io.TreeSnapshot;
 import org.eclipse.jgit.lib.*;
 import org.eclipse.jgit.treewalk.TreeWalk;
 
@@ -180,18 +179,6 @@ public final class TreeUtils {
       ObjectId treeId = inserter.insert(tf);
       inserter.flush();
       return treeId;
-    }
-  }
-
-  @Nonnull
-  public static TreeSnapshot readTree(ObjectId id, ObjectReader reader) throws IOException {
-    return TreeSnapshot.load(id, reader);
-  }
-
-  @Nonnull
-  public static TreeSnapshot readTree(ObjectId id, Repository repo) throws IOException {
-    try(ObjectReader reader = repo.newObjectReader()) {
-      return readTree(id, reader);
     }
   }
 

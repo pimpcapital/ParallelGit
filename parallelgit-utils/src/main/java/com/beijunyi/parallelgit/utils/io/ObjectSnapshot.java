@@ -29,11 +29,11 @@ public abstract class ObjectSnapshot<Data> {
 
   @Nonnull
   public ObjectId insert(ObjectInserter inserter) throws IOException {
-    return persist(inserter);
+    return save(inserter);
   }
 
   @Nonnull
-  protected abstract ObjectId persist(ObjectInserter inserter) throws IOException;
+  protected abstract ObjectId save(ObjectInserter inserter) throws IOException;
 
   @Override
   public boolean equals(@Nullable Object that) {

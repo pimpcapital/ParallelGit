@@ -153,8 +153,7 @@ public class DirectoryNode extends Node<TreeSnapshot, Map<String, Node>> {
       return false;
     if(snapshot != null) {
       GitFileEntry origin = snapshot.getChild(name);
-      if(origin != null)
-        child.updateOrigin(origin);
+      if(!origin.isMissing()) child.updateOrigin(origin);
     }
     getData().put(name, child);
     id = null;
