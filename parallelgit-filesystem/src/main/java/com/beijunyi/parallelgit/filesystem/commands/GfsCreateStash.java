@@ -46,8 +46,14 @@ public class GfsCreateStash extends GfsCommand<GfsCreateStash.Result> {
   }
 
   @Nonnull
-  public GfsCreateStash indexMessage(String indexMessage) {
-    this.indexMessage = indexMessage;
+  public GfsCreateStash indexMessage(String message) {
+    this.indexMessage = message;
+    return this;
+  }
+
+  @Nonnull
+  public GfsCreateStash workingDirectoryMessage(String message) {
+    this.workingDirectoryMessage = message;
     return this;
   }
 
@@ -76,19 +82,16 @@ public class GfsCreateStash extends GfsCommand<GfsCreateStash.Result> {
   }
 
   private void prepareBranch() {
-    if(!status.isAttached())
-      throw new NoBranchException();
+    if(!status.isAttached()) throw new NoBranchException();
     branch = Repository.shortenRefName(status.branch());
   }
 
   private void prepareCommitter() {
-    if(committer == null)
-      committer = new PersonIdent(repo);
+    if(committer == null) committer = new PersonIdent(repo);
   }
 
   private void prepareParent() {
-    if(!status.isInitialized())
-      throw new NoHeadCommitException();
+    if(!status.isInitialized()) throw new NoHeadCommitException();
     parent = status.commit();
   }
 
