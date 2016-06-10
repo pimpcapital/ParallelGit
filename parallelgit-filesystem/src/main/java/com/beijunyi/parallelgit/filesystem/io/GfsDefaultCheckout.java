@@ -104,9 +104,9 @@ public class GfsDefaultCheckout {
     if(target.equals(worktree) || target.equals(head)) return false;
     if(head.equals(worktree)) {
       changes.addChange(path, target);
-      return target.isNewDirectory();
+      return target.isVirtualSubtree();
     }
-    if(target.isDirectory() && worktree.isDirectory()) return true;
+    if(target.isSubtree() && worktree.isSubtree()) return true;
     changes.addConflict(threeWayConflict(path, head, target, worktree));
     return false;
   }

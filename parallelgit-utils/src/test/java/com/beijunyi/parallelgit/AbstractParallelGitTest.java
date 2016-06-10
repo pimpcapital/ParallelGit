@@ -18,6 +18,7 @@ import org.eclipse.jgit.util.FileUtils;
 import org.junit.After;
 import org.junit.Before;
 
+import static com.beijunyi.parallelgit.utils.CacheUtils.*;
 import static java.util.UUID.randomUUID;
 import static org.eclipse.jgit.lib.Constants.*;
 import static org.eclipse.jgit.lib.FileMode.REGULAR_FILE;
@@ -45,7 +46,11 @@ public abstract class AbstractParallelGitTest {
   @Nonnull
   protected ObjectId writeToCache(String path, byte[] content, FileMode mode) throws IOException {
     ObjectId blobId = repo != null ? BlobUtils.insertBlob(content, repo) : calculateBlobId(content);
-    CacheUtils.addFile(path, mode, blobId, cache);
+    if(findEntry(path, cache) >= 0) {
+      updateFile(path, content, mode);
+    } else {
+      addFile(path, mode, blobId, cache);
+    }
     return blobId;
   }
 
@@ -73,9 +78,16 @@ public abstract class AbstractParallelGitTest {
     DirCacheBuilder builder = CacheUtils.keepEverything(cache);
     for(String path : paths) {
       AnyObjectId blobId = repo != null ? BlobUtils.insertBlob(someBytes(), repo) : someObjectId();
-      CacheUtils.addFile(path, REGULAR_FILE, blobId, builder);
+      addFile(path, REGULAR_FILE, blobId, builder);
     }
     builder.finish();
+  }
+
+  @Nonnull
+  protected ObjectId updateFile(String path, byte[] content, FileMode mode) throws IOException {
+    ObjectId blobId = BlobUtils.insertBlob(content, repo);
+    CacheUtils.updateFileBlob(path, blobId, mode, cache);
+    return blobId;
   }
 
   @Nonnull

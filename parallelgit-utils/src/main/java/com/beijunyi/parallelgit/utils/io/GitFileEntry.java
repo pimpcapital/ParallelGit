@@ -14,7 +14,7 @@ import static org.eclipse.jgit.lib.ObjectId.zeroId;
 public class GitFileEntry {
 
   private static final GitFileEntry MISSING_ENTRY = new GitFileEntry(zeroId(), MISSING);
-  private static final GitFileEntry NEW_DIRECTORY_ENTRY = new GitFileEntry(zeroId(), TREE);
+  private static final GitFileEntry VIRTUAL_SUBTREE_ENTRY = new GitFileEntry(zeroId(), TREE);
 
   private final ObjectId id;
   private final FileMode mode;
@@ -72,12 +72,12 @@ public class GitFileEntry {
     return mode;
   }
 
-  public boolean isDirectory() {
+  public boolean isSubtree() {
     return mode.equals(TREE);
   }
 
-  public boolean isNewDirectory() {
-    return NEW_DIRECTORY_ENTRY.equals(this);
+  public boolean isVirtualSubtree() {
+    return VIRTUAL_SUBTREE_ENTRY.equals(this);
   }
 
   public boolean isMissing() {

@@ -36,7 +36,7 @@ public class GfsChangesCollector {
     GfsChange change;
     if(entry.isMissing())
       change = DELETE_NODE;
-    else if(entry.isNewDirectory())
+    else if(entry.isVirtualSubtree())
       change = PREPARE_DIRECTORY;
     else
       change = new UpdateNode(entry);

@@ -154,6 +154,10 @@ public final class CacheUtils {
     editor.finish();
   }
 
+  public static void updateFileBlob(String path, ObjectId blob, FileMode mode, DirCache cache) {
+    updateFile(new CacheEntryUpdate(path).setNewBlob(blob).setNewFileMode(mode), cache);
+  }
+
   public static void updateFileBlob(String path, ObjectId blob, DirCache cache) {
     updateFile(new CacheEntryUpdate(path).setNewBlob(blob), cache);
   }

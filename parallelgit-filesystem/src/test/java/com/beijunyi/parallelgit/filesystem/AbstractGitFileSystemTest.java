@@ -7,6 +7,8 @@ import com.beijunyi.parallelgit.AbstractParallelGitTest;
 import org.eclipse.jgit.lib.Constants;
 import org.junit.After;
 
+import static org.eclipse.jgit.lib.Constants.MASTER;
+
 public abstract class AbstractGitFileSystemTest extends AbstractParallelGitTest {
 
   protected final GitFileSystemProvider provider = GitFileSystemProvider.getInstance();
@@ -55,7 +57,7 @@ public abstract class AbstractGitFileSystemTest extends AbstractParallelGitTest 
       writeMultipleToCache(files);
       commitToMaster();
     }
-    initGitFileSystemForBranch(Constants.MASTER);
+    initGitFileSystemForBranch(MASTER);
   }
 
   protected void injectGitFileSystem(GitFileSystem gfs) {

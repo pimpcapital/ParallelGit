@@ -1,9 +1,9 @@
 package com.beijunyi.parallelgit.filesystem.commands;
 
 import java.io.IOException;
+import java.util.Collections;
 import java.util.Map;
 import javax.annotation.Nonnull;
-import javax.annotation.Nullable;
 
 import com.beijunyi.parallelgit.filesystem.GfsState;
 import com.beijunyi.parallelgit.filesystem.GfsStatusProvider;
@@ -19,6 +19,7 @@ import org.eclipse.jgit.lib.Ref;
 import org.eclipse.jgit.revwalk.RevCommit;
 
 import static com.beijunyi.parallelgit.filesystem.GfsState.NORMAL;
+import static java.util.Collections.unmodifiableMap;
 
 public final class GfsCheckout extends GfsCommand<GfsCheckout.Result> {
 
@@ -56,7 +57,7 @@ public final class GfsCheckout extends GfsCommand<GfsCheckout.Result> {
   }
 
   @Nonnull
-  public GfsCheckout setTarget(String target) {
+  public GfsCheckout target(String target) {
     this.target = target;
     return this;
   }
@@ -68,8 +69,8 @@ public final class GfsCheckout extends GfsCommand<GfsCheckout.Result> {
   }
 
   @Nonnull
-  public GfsCheckout detach(boolean force) {
-    this.force = force;
+  public GfsCheckout detach(boolean detach) {
+    this.detach = detach;
     return this;
   }
 
@@ -109,14 +110,14 @@ public final class GfsCheckout extends GfsCommand<GfsCheckout.Result> {
     private final boolean successful;
     private final Map<String, GfsCheckoutConflict> conflicts;
 
-    private Result(boolean successful, @Nullable Map<String, GfsCheckoutConflict> conflicts) {
+    private Result(boolean successful, Map<String, GfsCheckoutConflict> conflicts) {
       this.successful = successful;
-      this.conflicts = conflicts;
+      this.conflicts = unmodifiableMap(conflicts);
     }
 
     @Nonnull
     public static Result success() {
-      return new Result(true, null);
+      return new Result(true, Collections.<String, GfsCheckoutConflict>emptyMap());
     }
 
     @Nonnull
@@ -130,13 +131,11 @@ public final class GfsCheckout extends GfsCommand<GfsCheckout.Result> {
     }
 
     public boolean hasConflicts() {
-      return conflicts != null;
+      return !conflicts.isEmpty();
     }
 
     @Nonnull
     public Map<String, GfsCheckoutConflict> getConflicts() {
-      if(conflicts == null)
-        throw new IllegalStateException();
       return conflicts;
     }
   }

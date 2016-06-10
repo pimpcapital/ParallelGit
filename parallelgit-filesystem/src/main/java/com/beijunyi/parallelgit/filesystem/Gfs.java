@@ -81,7 +81,7 @@ public final class Gfs {
   public static void detach(GitFileSystem gfs) throws IOException {
     GfsStatusProvider status = gfs.getStatusProvider();
     if(status.isAttached()) {
-      checkout(gfs).setTarget(status.commit().getName()).execute();
+      checkout(gfs).target(status.commit().getName()).execute();
     }
   }
 

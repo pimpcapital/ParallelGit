@@ -60,7 +60,7 @@ public class DirectoryNode extends Node<TreeSnapshot, Map<String, Node>> {
   public void updateOrigin(GitFileEntry entry) throws IOException {
     super.updateOrigin(entry);
     if(isInitialized()) {
-      if(origin.isDirectory()) {
+      if(origin.isSubtree()) {
         snapshot = objService.readTree(entry.getId());
         Set<String> updatedChildren = updateChildrenOrigins();
         Collection<Node> notUpdatedNodes = findNotUpdatedChildren(updatedChildren);

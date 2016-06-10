@@ -130,7 +130,7 @@ public class GfsMergerNoConflictMergeTest extends AbstractParallelGitTest {
 //    AnyObjectId ours = clearAndWrite("/target/some_file.txt", base);
 //    AnyObjectId theirs = clearAndWrite("/target/some_other_file.txt", base);
 //    AnyObjectId result = merge(ours, theirs);
-//    assertTrue(TreeUtils.isDirectory("/target", result, repo));
+//    assertTrue(TreeUtils.isSubtree("/target", result, repo));
 //  }
 //
 //  @Test

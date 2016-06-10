@@ -18,7 +18,7 @@ public abstract class GfsFileAttributeView implements FileAttributeView {
   public static final String LAST_ACCESS_TIME_NAME = "lastAccessTime";
   public static final String LAST_MODIFIED_TIME_NAME = "lastModifiedTime";
   public static final String FILE_KEY_NAME = "fileKey";
-  public static final String IS_DIRECTORY_NAME = "isDirectory";
+  public static final String IS_DIRECTORY_NAME = "isSubtree";
   public static final String IS_REGULAR_FILE_NAME = "isRegularFile";
   public static final String IS_SYMBOLIC_LINK_NAME = "isSymbolicLink";
   public static final String IS_OTHER_NAME = "isOther";
