@@ -51,21 +51,19 @@ public class GfsReset extends GfsCommand<GfsReset.Result> {
     RevCommit commit = getCommit(revision, repo);
     BranchUtils.resetBranchHead(branch, commit, repo);
     gfs.updateOrigin(commit.getTree());
-    if(!soft)
-      gfs.reset();
+    if(!soft) gfs.reset();
+    update.commit(commit);
     return Result.success();
   }
 
   private void prepareBranch() {
-    if(!status.isAttached())
-      throw new NoBranchException();
+    if(!status.isAttached()) throw new NoBranchException();
     branch = status.branch();
   }
 
   private void prepareCommit() throws IOException {
     if(revision == null) {
-      if(!status.isInitialized())
-        throw new NoHeadCommitException();
+      if(!status.isInitialized()) throw new NoHeadCommitException();
       revision = status.commit().getName();
     }
   }

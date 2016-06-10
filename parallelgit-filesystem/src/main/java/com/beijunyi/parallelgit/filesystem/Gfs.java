@@ -70,6 +70,11 @@ public final class Gfs {
   }
 
   @Nonnull
+  public static GfsReset reset(GitFileSystem gfs) {
+    return new GfsReset(gfs);
+  }
+
+  @Nonnull
   public static GfsCreateStash stash(GitFileSystem gfs) {
     return new GfsCreateStash(gfs);
   }

@@ -28,7 +28,7 @@ public class GfsCheckoutWithNoConflictTest extends PreSetupGitFileSystemTest {
   }
 
   @Test
-  public void checkoutWhenLocalChangesDoNotCauseConflict_localChangesShouldBePreserved() throws IOException {
+  public void checkoutWhenLocalChangesDoNotCauseConflict_localChangesShouldBeKept() throws IOException {
     writeSomethingToCache();
     commitToBranch("test_branch");
     writeToGfs("non_conflicting_file.txt");
