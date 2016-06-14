@@ -56,6 +56,7 @@ public class GfsApplyStash extends GfsCommand<GfsApplyStash.Result> {
   @Nonnull
   @Override
   protected GfsApplyStash.Result doExecute(GfsStatusProvider.Update update) throws IOException {
+    prepareHead();
     prepareStash();
     prepareMerger();
     return mergeStash(update);
