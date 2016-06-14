@@ -138,11 +138,11 @@ public class GfsMergeTest extends AbstractParallelGitTest {
     prepareBranches(ours, theirs);
     try(GitFileSystem gfs = prepareFileSystem()) {
       merge(gfs).source("theirs").execute();
-      assertArrayEquals(("<<<<<<< refs/heads/theirs\n" +
+      assertArrayEquals(("<<<<<<< refs/heads/ours\n" +
                                  "other stuff\n" +
                                  "=======\n" +
                                  "completely different stuff\n" +
-                                 ">>>>>>> refs/heads/ours\n").getBytes(), Files.readAllBytes(gfs.getPath("/test_file.txt")));
+                                 ">>>>>>> refs/heads/theirs\n").getBytes(), Files.readAllBytes(gfs.getPath("/test_file.txt")));
     }
   }
 
