@@ -75,8 +75,13 @@ public final class Gfs {
   }
 
   @Nonnull
-  public static GfsCreateStash stash(GitFileSystem gfs) {
+  public static GfsCreateStash createStash(GitFileSystem gfs) {
     return new GfsCreateStash(gfs);
+  }
+
+  @Nonnull
+  public static GfsApplyStash applyStash(GitFileSystem gfs) {
+    return new GfsApplyStash(gfs);
   }
 
   public static boolean isDirty(GitFileSystem gfs) throws IOException {

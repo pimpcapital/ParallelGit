@@ -12,17 +12,17 @@ import com.beijunyi.parallelgit.filesystem.GitFileSystem;
 import com.beijunyi.parallelgit.filesystem.exceptions.NoBranchException;
 import com.beijunyi.parallelgit.filesystem.exceptions.NoHeadCommitException;
 import com.beijunyi.parallelgit.filesystem.exceptions.UnsuccessfulOperationException;
-import com.beijunyi.parallelgit.utils.StashUtils;
 import org.eclipse.jgit.lib.AnyObjectId;
 import org.eclipse.jgit.lib.PersonIdent;
-import org.eclipse.jgit.lib.Repository;
 import org.eclipse.jgit.revwalk.RevCommit;
 
 import static com.beijunyi.parallelgit.filesystem.commands.GfsCreateStash.Result.*;
 import static com.beijunyi.parallelgit.filesystem.commands.GfsCreateStash.Status.*;
 import static com.beijunyi.parallelgit.utils.CommitUtils.*;
+import static com.beijunyi.parallelgit.utils.StashUtils.addToStash;
 import static java.util.Arrays.asList;
 import static java.util.Collections.singletonList;
+import static org.eclipse.jgit.lib.Repository.shortenRefName;
 
 public class GfsCreateStash extends GfsCommand<GfsCreateStash.Result> {
 
@@ -76,14 +76,13 @@ public class GfsCreateStash extends GfsCommand<GfsCreateStash.Result> {
       return noChange();
     RevCommit indexCommit = makeIndexCommit(resultTree);
     RevCommit stashCommit = makeWorkingDirectoryCommit(indexCommit);
-    StashUtils.addToStash(stashCommit, repo);
-    resetHead();
+    addToStash(stashCommit, repo);
     return success(stashCommit);
   }
 
   private void prepareBranch() {
     if(!status.isAttached()) throw new NoBranchException();
-    branch = Repository.shortenRefName(status.branch());
+    branch = shortenRefName(status.branch());
   }
 
   private void prepareCommitter() {
@@ -116,10 +115,6 @@ public class GfsCreateStash extends GfsCommand<GfsCreateStash.Result> {
     AnyObjectId tree = indexCommit.getTree();
     List<RevCommit> parents = asList(parent, indexCommit);
     return createCommit(workingDirectoryMessage, tree, committer, committer, parents, repo);
-  }
-
-  private void resetHead() throws IOException {
-    gfs.reset();
   }
 
   public enum Status {
