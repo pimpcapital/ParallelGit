@@ -1,51 +1,30 @@
 package com.beijunyi.parallelgit.filesystem.merge;
 
-import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.util.Map;
 import javax.annotation.Nonnull;
 
 import com.beijunyi.parallelgit.filesystem.GitFileSystem;
 import com.beijunyi.parallelgit.filesystem.io.GfsDefaultCheckout;
-import org.eclipse.jgit.diff.Sequence;
 import org.eclipse.jgit.merge.MergeFormatter;
-import org.eclipse.jgit.merge.MergeResult;
 
-import static org.eclipse.jgit.lib.Constants.CHARACTER_ENCODING;
 import static org.eclipse.jgit.lib.FileMode.REGULAR_FILE;
 
 public class GfsMergeCheckout extends GfsDefaultCheckout {
 
-  private String base = "BASE";
-  private String ours = "OURS";
-  private String theirs = "THEIRS";
-  private Map<String, MergeResult<? extends Sequence>> conflicts;
+  private Map<String, MergeConflict> conflicts;
   private MergeFormatter formatter;
 
-  public GfsMergeCheckout(GitFileSystem gfs) {
+  private GfsMergeCheckout(GitFileSystem gfs) {
     super(gfs);
   }
 
-  @Nonnull
-  public GfsMergeCheckout base(String base) {
-    this.base = base;
-    return this;
+  public static GfsMergeCheckout merge(GitFileSystem gfs) {
+    return new GfsMergeCheckout(gfs);
   }
 
   @Nonnull
-  public GfsMergeCheckout ours(String ours) {
-    this.ours = ours;
-    return this;
-  }
-
-  @Nonnull
-  public GfsMergeCheckout theirs(String theirs) {
-    this.theirs = theirs;
-    return this;
-  }
-
-  @Nonnull
-  public GfsMergeCheckout handleConflicts(Map<String, MergeResult<? extends Sequence>> conflicts) {
+  public GfsMergeCheckout handleConflicts(Map<String, MergeConflict> conflicts) {
     this.conflicts = conflicts;
     return this;
   }
@@ -69,19 +48,11 @@ public class GfsMergeCheckout extends GfsDefaultCheckout {
 
   private void addFormattedConflicts() throws IOException {
     if(conflicts != null) {
-      for(Map.Entry<String, MergeResult<? extends Sequence>> conflict : conflicts.entrySet()) {
+      for(Map.Entry<String, MergeConflict> conflict : conflicts.entrySet()) {
         String path = conflict.getKey();
-        byte[] formatted = formatConflict(conflict.getValue());
+        byte[] formatted = conflict.getValue().format(formatter);
         changes.addChange(path, formatted, REGULAR_FILE);
       }
-    }
-  }
-
-  @Nonnull
-  private byte[] formatConflict(MergeResult<? extends Sequence> conflict) throws IOException {
-    try(ByteArrayOutputStream stream = new ByteArrayOutputStream()) {
-      formatter.formatMerge(stream, conflict, base, theirs, ours, CHARACTER_ENCODING);
-      return stream.toByteArray();
     }
   }
 

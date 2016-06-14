@@ -4,7 +4,10 @@ import java.io.IOException;
 
 import com.beijunyi.parallelgit.AbstractParallelGitTest;
 import org.eclipse.jgit.dircache.DirCache;
+import org.eclipse.jgit.dircache.DirCacheBuilder;
+import org.eclipse.jgit.dircache.DirCacheEntry;
 import org.eclipse.jgit.lib.AnyObjectId;
+import org.eclipse.jgit.lib.FileMode;
 import org.eclipse.jgit.lib.Ref;
 import org.junit.Before;
 import org.junit.Test;
@@ -66,6 +69,26 @@ public class CacheUtilsCreateTest extends AbstractParallelGitTest {
     DirCache cache = CacheUtils.forTree(treeId, repo);
     assertNotNull(CacheUtils.getEntry("/file1.txt", cache));
     assertNotNull(CacheUtils.getEntry("/file2.txt", cache));
+  }
+
+  @Test
+  public void a() {
+    DirCacheBuilder builder = cache.builder();
+    DirCacheEntry entry;
+    entry = new DirCacheEntry("aaa", DirCacheEntry.STAGE_1);
+    entry.setObjectId(someObjectId());
+    entry.setFileMode(FileMode.REGULAR_FILE);
+    builder.add(entry);
+    entry = new DirCacheEntry("aaa", DirCacheEntry.STAGE_2);
+    entry.setObjectId(someObjectId());
+    entry.setFileMode(FileMode.REGULAR_FILE);
+    builder.add(entry);
+    entry = new DirCacheEntry("aaa", DirCacheEntry.STAGE_3);
+    entry.setObjectId(someObjectId());
+    entry.setFileMode(FileMode.REGULAR_FILE);
+    builder.add(entry);
+    builder.finish();
+    DirCacheEntry[] entries = cache.getEntriesWithin("aaa");
   }
 
 }

@@ -76,7 +76,7 @@ public class GfsReset extends GfsCommand<GfsReset.Result> {
 
     private final Status status;
 
-    public Result(Status status) {
+    private Result(Status status) {
       this.status = status;
     }
 

@@ -24,6 +24,11 @@ import static org.eclipse.jgit.treewalk.filter.TreeFilter.ANY_DIFF;
 public final class CommitUtils {
 
   @Nonnull
+  public static String getDefaultCommitName(RevCommit commit) {
+    return commit.getId().abbreviate(7).name() + " " + commit.getShortMessage();
+  }
+
+  @Nonnull
   public static RevCommit getCommit(AnyObjectId commitId, ObjectReader reader) throws IOException {
     try(RevWalk revWalk = new RevWalk(reader)) {
       return revWalk.parseCommit(commitId);

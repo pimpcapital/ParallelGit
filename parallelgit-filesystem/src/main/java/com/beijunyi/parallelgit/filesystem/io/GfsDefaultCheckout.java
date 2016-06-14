@@ -40,6 +40,10 @@ public class GfsDefaultCheckout {
     this(gfs, true);
   }
 
+  public static void checkout(GitFileSystem gfs, AnyObjectId tree) throws IOException {
+    new GfsDefaultCheckout(gfs).checkout(tree);
+  }
+
   @Nonnull
   public GfsDefaultCheckout ignoredFiles(Collection<String> ignoredFiles) {
     this.ignoredFiles = new HashSet<>(ignoredFiles);
