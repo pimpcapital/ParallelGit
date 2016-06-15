@@ -36,7 +36,7 @@ public class DirectoryNode extends Node<TreeSnapshot, Map<String, Node>> {
   }
 
   @Nonnull
-  public static DirectoryNode fromObject(ObjectId id, DirectoryNode parent) {
+  public static DirectoryNode fromTree(ObjectId id, DirectoryNode parent) {
     return new DirectoryNode(id, parent);
   }
 
@@ -125,7 +125,7 @@ public class DirectoryNode extends Node<TreeSnapshot, Map<String, Node>> {
         ret.addChild(name, node.clone(ret), false);
       }
     } else if(id != null) {
-      ret = DirectoryNode.fromObject(id, parent);
+      ret = DirectoryNode.fromTree(id, parent);
       parent.getObjectService().pullObject(id, objService);
     } else
       throw new IllegalStateException();

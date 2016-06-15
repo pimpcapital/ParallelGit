@@ -95,8 +95,7 @@ public class GfsObjectService implements Closeable {
         default:
           throw new UnsupportedOperationException(id.toString());
       }
-      if(flush)
-        flush();
+      if(flush) flush();
     }
   }
 
@@ -133,8 +132,7 @@ public class GfsObjectService implements Closeable {
   }
 
   private void checkClosed() {
-    if(closed)
-      throw new ClosedFileSystemException();
+    if(closed) throw new ClosedFileSystemException();
   }
 
 }

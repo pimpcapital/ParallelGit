@@ -9,6 +9,7 @@ import javax.annotation.Nullable;
 import org.eclipse.jgit.lib.FileMode;
 
 import static java.nio.file.attribute.PosixFilePermission.OWNER_EXECUTE;
+import static java.util.Collections.*;
 import static org.eclipse.jgit.lib.FileMode.*;
 
 public abstract class GfsFileAttributeView implements FileAttributeView {
@@ -143,7 +144,7 @@ public abstract class GfsFileAttributeView implements FileAttributeView {
             throw new UnsupportedOperationException("Attribute \"" + key + "\" is not supported");
         }
       }
-      return Collections.unmodifiableMap(result);
+      return unmodifiableMap(result);
     }
 
     @Nonnull
@@ -159,7 +160,7 @@ public abstract class GfsFileAttributeView implements FileAttributeView {
         IS_SYMBOLIC_LINK_NAME,
         IS_OTHER_NAME
       ));
-      return Collections.unmodifiableSet(ret);
+      return unmodifiableSet(ret);
     }
 
   }
@@ -195,7 +196,7 @@ public abstract class GfsFileAttributeView implements FileAttributeView {
       Set<PosixFilePermission> perms = new HashSet<>(DEFAULT_PERMISSIONS);
       if(node.isExecutableFile())
         perms.add(OWNER_EXECUTE);
-      return Collections.unmodifiableSet(perms);
+      return unmodifiableSet(perms);
     }
 
 
@@ -244,7 +245,7 @@ public abstract class GfsFileAttributeView implements FileAttributeView {
             throw new UnsupportedOperationException("Attribute \"" + key + "\" is not supported");
         }
       }
-      return Collections.unmodifiableMap(result);
+      return unmodifiableMap(result);
     }
 
     @Nonnull
@@ -256,7 +257,7 @@ public abstract class GfsFileAttributeView implements FileAttributeView {
         OWNER_NAME,
         GROUP_NAME
       ));
-      return Collections.unmodifiableSet(ret);
+      return unmodifiableSet(ret);
     }
 
   }
@@ -312,7 +313,7 @@ public abstract class GfsFileAttributeView implements FileAttributeView {
             throw new UnsupportedOperationException(key);
         }
       }
-      return Collections.unmodifiableMap(result);
+      return unmodifiableMap(result);
     }
 
     @Nonnull
@@ -325,7 +326,7 @@ public abstract class GfsFileAttributeView implements FileAttributeView {
         OBJECT_ID,
         FILE_MODE
       ));
-      return Collections.unmodifiableSet(ret);
+      return unmodifiableSet(ret);
     }
 
   }

@@ -10,6 +10,8 @@ import com.beijunyi.parallelgit.utils.io.ObjectSnapshot;
 import org.eclipse.jgit.lib.FileMode;
 import org.eclipse.jgit.lib.ObjectId;
 
+import static com.beijunyi.parallelgit.filesystem.io.DirectoryNode.fromTree;
+import static com.beijunyi.parallelgit.filesystem.io.FileNode.fromBlob;
 import static com.beijunyi.parallelgit.utils.io.GitFileEntry.missingEntry;
 import static org.eclipse.jgit.lib.FileMode.*;
 import static org.eclipse.jgit.lib.ObjectId.zeroId;
@@ -54,9 +56,9 @@ public abstract class Node<Snapshot extends ObjectSnapshot, Data> {
 
   @Nonnull
   public static Node fromEntry(GitFileEntry entry, DirectoryNode parent) {
-    if(entry.getMode().equals(TREE))
-      return DirectoryNode.fromObject(entry.getId(), parent);
-    return FileNode.fromObject(entry.getId(), entry.getMode(), parent);
+    return TREE.equals(entry.getMode())
+             ? fromTree(entry.getId(), parent)
+             : fromBlob(entry.getId(), entry.getMode(), parent);
   }
 
   @Nonnull
@@ -122,8 +124,7 @@ public abstract class Node<Snapshot extends ObjectSnapshot, Data> {
   protected Data getData() throws IOException {
     if(data != null)
       return data;
-    if(id == null)
-      throw new IllegalStateException();
+    if(id == null) throw new IllegalStateException();
     data = loadData(loadSnapshot(id));
     return data;
   }
@@ -142,23 +143,11 @@ public abstract class Node<Snapshot extends ObjectSnapshot, Data> {
 
   @Nullable
   protected Snapshot takeSnapshot(boolean persist) throws IOException {
-    if(data == null)
-      throw new IllegalStateException();
-    if(isTrivial(data))
-      return null;
+    if(data == null) throw new IllegalStateException();
+    if(isTrivial(data)) return null;
     Snapshot snapshot = captureData(data, persist);
-    if(persist)
-      objService.write(snapshot);
+    if(persist) objService.write(snapshot);
     return snapshot;
-  }
-
-  @Nullable
-  public Snapshot getSnapshot(boolean persist) throws IOException {
-    if(data != null)
-      return takeSnapshot(persist);
-    if(id == null)
-      throw new IllegalStateException();
-    return loadSnapshot(id);
   }
 
   protected boolean isInitialized() {
@@ -170,8 +159,7 @@ public abstract class Node<Snapshot extends ObjectSnapshot, Data> {
   }
 
   public void reset() {
-    if(origin.isMissing())
-      throw new IllegalStateException();
+    if(origin.isMissing()) throw new IllegalStateException();
     reset(origin);
   }
 

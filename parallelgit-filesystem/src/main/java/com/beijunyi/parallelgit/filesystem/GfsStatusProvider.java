@@ -74,13 +74,11 @@ public class GfsStatusProvider implements AutoCloseable {
 
   @Override
   public void close() {
-    if(!closed)
-      closed = true;
+    if(!closed) closed = true;
   }
 
   private void checkClosed() {
-    if(closed)
-      throw new ClosedFileSystemException();
+    if(closed) throw new ClosedFileSystemException();
   }
 
   public class Update implements Closeable {

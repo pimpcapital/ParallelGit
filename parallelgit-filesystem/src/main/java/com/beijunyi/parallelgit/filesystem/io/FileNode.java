@@ -29,7 +29,7 @@ public class FileNode extends Node<BlobSnapshot, byte[]> {
   }
 
   @Nonnull
-  protected static FileNode fromObject(ObjectId id, FileMode mode, DirectoryNode parent) {
+  protected static FileNode fromBlob(ObjectId id, FileMode mode, DirectoryNode parent) {
     return new FileNode(id, mode, parent);
   }
 
@@ -92,7 +92,7 @@ public class FileNode extends Node<BlobSnapshot, byte[]> {
       ret.data = data;
       ret.size = data.length;
     } else if(id != null) {
-      ret = FileNode.fromObject(id , mode, parent);
+      ret = FileNode.fromBlob(id , mode, parent);
       parent.getObjectService().pullObject(id, objService);
     } else
       throw new IllegalStateException();

@@ -167,12 +167,15 @@ public class GitFileSystemProvider extends FileSystemProvider {
   @Override
   public <A extends BasicFileAttributes> A readAttributes(Path path, Class<A> type, LinkOption... options) throws IOException {
     Class<? extends BasicFileAttributeView> viewType;
-    if(type.isAssignableFrom(GfsFileAttributes.Basic.class))
+    if(type.isAssignableFrom(GfsFileAttributes.Basic.class)) {
       viewType = GfsFileAttributeView.Basic.class;
-    else if(type.isAssignableFrom(GfsFileAttributes.Posix.class))
+    } else if(type.isAssignableFrom(GfsFileAttributes.Posix.class)) {
       viewType = GfsFileAttributeView.Posix.class;
-    else
+    } else if(type.isAssignableFrom(GfsFileAttributes.Git.class)) {
+      viewType = GfsFileAttributeView.Git.class;
+    } else {
       throw new UnsupportedOperationException(type.getName());
+    }
     BasicFileAttributeView view = getFileAttributeView(path, viewType, options);
     if(view == null)
       throw new NoSuchFileException(path.toString());
