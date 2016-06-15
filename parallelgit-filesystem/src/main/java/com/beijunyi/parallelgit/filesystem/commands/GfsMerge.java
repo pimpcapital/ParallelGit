@@ -251,8 +251,7 @@ public class GfsMerge extends GfsCommand<GfsMerge.Result> {
   }
 
   private void prepareCommitter() {
-    if(committer == null)
-      committer = new PersonIdent(repo);
+    if(committer == null) committer = new PersonIdent(repo);
   }
 
   @Nonnull
@@ -330,8 +329,7 @@ public class GfsMerge extends GfsCommand<GfsMerge.Result> {
 
     @Nonnull
     public RevCommit getCommit() {
-      if(commit == null)
-        throw new UnsuccessfulOperationException();
+      if(commit == null) throw new UnsuccessfulOperationException();
       return commit;
     }
 

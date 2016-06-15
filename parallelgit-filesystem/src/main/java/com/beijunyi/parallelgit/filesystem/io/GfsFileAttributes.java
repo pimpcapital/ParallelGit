@@ -10,7 +10,10 @@ import javax.annotation.Nullable;
 import org.eclipse.jgit.lib.FileMode;
 import org.eclipse.jgit.lib.ObjectId;
 
+import static com.beijunyi.parallelgit.filesystem.io.GfsFileAttributeView.Basic.BASIC_KEYS;
 import static com.beijunyi.parallelgit.filesystem.io.GfsFileAttributeView.*;
+import static com.beijunyi.parallelgit.filesystem.io.GfsFileAttributeView.Git.GIT_KEYS;
+import static com.beijunyi.parallelgit.filesystem.io.GfsFileAttributeView.Posix.POSIX_KEYS;
 
 public abstract class GfsFileAttributes {
 
