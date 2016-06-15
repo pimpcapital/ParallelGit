@@ -6,23 +6,16 @@ import javax.annotation.Nullable;
 public abstract class GfsChange {
 
   public void applyTo(DirectoryNode dir, String name) throws IOException {
-    Node currentNode = ignoresCurrentNode() ? null : dir.getChild(name);
-
-    if(shouldDelete(currentNode)) {
+    Node currentNode = dir.getChild(name);
+    Node newNode = convertNode(currentNode, dir);
+    if(newNode == null) {
       dir.removeChild(name);
-      return;
-    }
-
-    Node newNode = createNode(currentNode, dir);
-    if(newNode != null)
+    } else {
       dir.addChild(name, newNode, true);
+    }
   }
 
-  protected abstract boolean ignoresCurrentNode();
-
-  protected abstract boolean shouldDelete(@Nullable Node currentNode);
-
   @Nullable
-  protected abstract Node createNode(@Nullable Node currentNode, DirectoryNode parent);
+  protected abstract Node convertNode(@Nullable Node node, DirectoryNode parent);
 
 }

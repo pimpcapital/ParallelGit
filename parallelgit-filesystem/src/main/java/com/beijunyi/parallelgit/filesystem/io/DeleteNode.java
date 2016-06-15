@@ -4,20 +4,10 @@ import javax.annotation.Nullable;
 
 public class DeleteNode extends GfsChange {
 
-  @Override
-  protected boolean ignoresCurrentNode() {
-    return true;
-  }
-
-  @Override
-  protected boolean shouldDelete(@Nullable Node currentNode) {
-    return true;
-  }
-
   @Nullable
   @Override
-  protected Node createNode(@Nullable Node currentNode, DirectoryNode parent) {
-    throw new IllegalStateException();
+  protected Node convertNode(@Nullable Node node, DirectoryNode parent) {
+    return null;
   }
 
 }

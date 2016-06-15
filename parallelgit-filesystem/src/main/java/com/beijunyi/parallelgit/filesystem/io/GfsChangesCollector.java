@@ -13,7 +13,7 @@ import static com.beijunyi.parallelgit.filesystem.utils.GfsPathUtils.*;
 public class GfsChangesCollector {
 
   private static final GfsChange DELETE_NODE = new DeleteNode();
-  private static final GfsChange PREPARE_DIRECTORY = new PrepareDirectory();
+  private static final GfsChange PREPARE_DIRECTORY = new MakeDirectory();
 
   private final Map<String, GfsChange> changes = new HashMap<>();
   private final Map<String, Set<String>> changedDirs = new HashMap<>();
