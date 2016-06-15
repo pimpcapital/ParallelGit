@@ -84,15 +84,4 @@ public final class Gfs {
     return new GfsApplyStash(gfs);
   }
 
-  public static boolean isDirty(GitFileSystem gfs) throws IOException {
-    return gfs.getFileStore().getRoot().isModified();
-  }
-
-  public static void detach(GitFileSystem gfs) throws IOException {
-    GfsStatusProvider status = gfs.getStatusProvider();
-    if(status.isAttached()) {
-      checkout(gfs).target(status.commit().getName()).execute();
-    }
-  }
-
 }
