@@ -64,8 +64,7 @@ public class GfsApplyStash extends GfsCommand<GfsApplyStash.Result> {
   }
 
   private void prepareHead() throws IOException {
-    if(!status.isInitialized())
-      throw new NoHeadCommitException();
+    if(!status.isInitialized()) throw new NoHeadCommitException();
     head = status.commit();
   }
 
@@ -77,6 +76,7 @@ public class GfsApplyStash extends GfsCommand<GfsApplyStash.Result> {
   private void prepareMerger() throws IOException {
     merger = (ResolveMerger)strategy.newMerger(repo, true);
     merger.setBase(stash.getParent(0));
+    merger.setCommitNames(new String[] {"BASE", "Updated upstream", "Stashed changes"});
     merger.setWorkingTreeIterator(new GfsTreeIterator(gfs));
   }
 
@@ -139,6 +139,10 @@ public class GfsApplyStash extends GfsCommand<GfsApplyStash.Result> {
     @Override
     public boolean isSuccessful() {
       return SUCCESS == status;
+    }
+
+    public boolean hasConflicts() {
+      return CONFLICTING == status;
     }
 
     @Nonnull

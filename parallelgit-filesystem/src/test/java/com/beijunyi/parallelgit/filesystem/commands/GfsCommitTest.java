@@ -15,7 +15,7 @@ public class GfsCommitTest extends PreSetupGitFileSystemTest {
 
   @Test
   public void commitInBranch_theResultCommitShouldEqualTheHeadOfTheAttachedBranch() throws IOException {
-    writeSomeFileToGfs();
+    writeSomethingToGfs();
     Result result = Gfs.commit(gfs).execute();
     assertEquals(repo.resolve(gfs.getStatusProvider().branch()), result.getCommit());
   }
@@ -48,14 +48,14 @@ public class GfsCommitTest extends PreSetupGitFileSystemTest {
 
   @Test
   public void commitWithMessage_theResultCommitShouldHaveTheSpecifiedMessage() throws IOException {
-    writeSomeFileToGfs();
+    writeSomethingToGfs();
     Result result = Gfs.commit(gfs).message("test_message").execute();
     assertEquals("test_message", result.getCommit().getFullMessage());
   }
 
   @Test
   public void commitWithAuthor_theResultCommitShouldHaveTheSpecifiedAuthor() throws IOException {
-    writeSomeFileToGfs();
+    writeSomethingToGfs();
     PersonIdent author = new PersonIdent("test_author_name", "test_author@email.com");
     Result result = Gfs.commit(gfs).author(author).execute();
     assertEquals(author, result.getCommit().getAuthorIdent());
@@ -63,7 +63,7 @@ public class GfsCommitTest extends PreSetupGitFileSystemTest {
 
   @Test
   public void commitWithCommitter_theResultCommitShouldHaveTheSpecifiedCommitter() throws IOException {
-    writeSomeFileToGfs();
+    writeSomethingToGfs();
     PersonIdent committer = new PersonIdent("test_committer_name", "test_committer@email.com");
     Result result = Gfs.commit(gfs).committer(committer).execute();
     assertEquals(committer, result.getCommit().getCommitterIdent());
@@ -71,7 +71,7 @@ public class GfsCommitTest extends PreSetupGitFileSystemTest {
 
   @Test
   public void commitWithCommitterOnly_theResultCommitAuthorShouldDefaultToBeTheSameAsTheSpecifiedCommitter() throws IOException {
-    writeSomeFileToGfs();
+    writeSomethingToGfs();
     PersonIdent committer = new PersonIdent("test_committer_name", "test_committer@email.com");
     Result result = Gfs.commit(gfs).committer(committer).execute();
     assertEquals(committer, result.getCommit().getAuthorIdent());
@@ -79,7 +79,7 @@ public class GfsCommitTest extends PreSetupGitFileSystemTest {
 
   @Test
   public void commitWithAuthorAndCommitter_theResultCommitShouldHaveTheSpecifiedAuthorAndCommitter() throws IOException {
-    writeSomeFileToGfs();
+    writeSomethingToGfs();
     PersonIdent author = new PersonIdent("test_author_name", "test_author@email.com");
     PersonIdent committer = new PersonIdent("test_committer_name", "test_committer@email.com");
     Result result = Gfs.commit(gfs).committer(committer).author(author).execute();
@@ -91,14 +91,14 @@ public class GfsCommitTest extends PreSetupGitFileSystemTest {
   @Test
   public void amendCommit_theResultCommitShouldHaveTheSameParentsAsTheAmendedCommit() throws IOException {
     RevCommit[] parents = gfs.getStatusProvider().commit().getParents();
-    writeSomeFileToGfs();
+    writeSomethingToGfs();
     Result result = Gfs.commit(gfs).amend(true).execute();
     assertArrayEquals(parents, result.getCommit().getParents());
   }
 
   @Test
   public void amendInBranch_theResultCommitShouldEqualTheHeadOfTheAttachedBranch() throws IOException {
-    writeSomeFileToGfs();
+    writeSomethingToGfs();
     Result result = Gfs.commit(gfs).amend(true).execute();
     assertEquals(repo.resolve(gfs.getStatusProvider().branch()), result.getCommit());
   }

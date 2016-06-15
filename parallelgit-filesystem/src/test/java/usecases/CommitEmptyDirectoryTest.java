@@ -22,7 +22,7 @@ public class CommitEmptyDirectoryTest extends AbstractGitFileSystemTest {
 
   @Test
   public void commitEmptyDirectory_theEmptyDirectoryShouldNotExistInTheResultCommit() throws IOException {
-    writeSomeFileToGfs();
+    writeSomethingToGfs();
     Path dir = gfs.getPath("/empty_dir");
     Files.createDirectory(dir);
     RevCommit commit = Gfs.commit(gfs).execute().getCommit();
@@ -31,7 +31,7 @@ public class CommitEmptyDirectoryTest extends AbstractGitFileSystemTest {
 
   @Test
   public void commitEmptyDirectories_theEmptyDirectoriesShouldNotExistInTheResultCommit() throws IOException {
-    writeSomeFileToGfs();
+    writeSomethingToGfs();
     Path dir = gfs.getPath("/dir1/dir2");
     Files.createDirectories(dir);
     RevCommit commit = Gfs.commit(gfs).execute().getCommit();
@@ -40,7 +40,7 @@ public class CommitEmptyDirectoryTest extends AbstractGitFileSystemTest {
 
   @Test
   public void commitEmptyDirectory_theEmptyDirectoryShouldExistInTheFileSystemAfterTheOperation() throws IOException {
-    writeSomeFileToGfs();
+    writeSomethingToGfs();
     Path dir = gfs.getPath("/empty_dir");
     Files.createDirectory(dir);
     Gfs.commit(gfs).execute();

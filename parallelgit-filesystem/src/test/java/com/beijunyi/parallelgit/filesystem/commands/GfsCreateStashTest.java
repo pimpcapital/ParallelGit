@@ -31,7 +31,7 @@ public class GfsCreateStashTest extends PreSetupGitFileSystemTest {
 
   @Test
   public void stashWithWorkingDirectoryMessage_theWorkingDirectoryCommitMessageShouldContainTheSpecifiedMessage() throws IOException {
-    writeSomeFileToGfs();
+    writeSomethingToGfs();
     String message = "test working directory message";
     RevCommit workDirCommit = createStash(gfs).workingDirectoryMessage(message).execute().getCommit();
     assertTrue(workDirCommit.getFullMessage().equals(message));
@@ -39,7 +39,7 @@ public class GfsCreateStashTest extends PreSetupGitFileSystemTest {
 
   @Test
   public void getParentCountOfTheStashCommit_shouldReturnTwo() throws IOException {
-    writeSomeFileToGfs();
+    writeSomethingToGfs();
     Result result = createStash(gfs).execute();
     RevCommit workDirCommit = result.getCommit();
     assertEquals(2, workDirCommit.getParentCount());
@@ -47,7 +47,7 @@ public class GfsCreateStashTest extends PreSetupGitFileSystemTest {
 
   @Test
   public void getFirstParentOfTheWorkDirCommitCommit_shouldReturnTheHeadCommit() throws IOException {
-    writeSomeFileToGfs();
+    writeSomethingToGfs();
     RevCommit head = gfs.getStatusProvider().commit();
     Result result = createStash(gfs).execute();
     RevCommit workDirCommit = result.getCommit();
@@ -56,7 +56,7 @@ public class GfsCreateStashTest extends PreSetupGitFileSystemTest {
 
   @Test
   public void getSecondParentOfTheWorkDirCommitCommit_shouldReturnTheIndexCommitWhichHasTheSameTreeAsTheStashCommit() throws IOException {
-    writeSomeFileToGfs();
+    writeSomethingToGfs();
     Result result = createStash(gfs).execute();
     RevCommit workDirCommit = result.getCommit();
     RevCommit indexCommit = CommitUtils.getCommit(workDirCommit.getParent(1), repo);
@@ -65,7 +65,7 @@ public class GfsCreateStashTest extends PreSetupGitFileSystemTest {
 
   @Test
   public void stashWithIndexMessage_theSecondParentOfTheWorkDirCommitMessageShouldContainTheSpecifiedMessage() throws IOException {
-    writeSomeFileToGfs();
+    writeSomethingToGfs();
     String message = "test index message";
     RevCommit stash = createStash(gfs).indexMessage(message).execute().getCommit();
     assertTrue(CommitUtils.getCommit(stash.getParent(1), repo).getFullMessage().equals(message));
@@ -73,7 +73,7 @@ public class GfsCreateStashTest extends PreSetupGitFileSystemTest {
 
   @Test
   public void stashWithCommitter_bothWorkingDirectoryCommitAndIndexCommitShouldBeCommittedByTheSpecifiedCommitter() throws IOException {
-    writeSomeFileToGfs();
+    writeSomethingToGfs();
     PersonIdent committer = somePersonIdent();
     RevCommit workDirCommit = createStash(gfs).committer(committer).execute().getCommit();
     assertEquals(committer, workDirCommit.getCommitterIdent());

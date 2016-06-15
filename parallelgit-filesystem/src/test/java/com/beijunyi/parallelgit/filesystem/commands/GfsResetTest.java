@@ -32,7 +32,7 @@ public class GfsResetTest extends PreSetupGitFileSystemTest {
 
   @Test
   public void resetWhenThereAreLocalChanges_fileSystemShouldBecomeClean() throws IOException {
-    writeSomeFileToGfs();
+    writeSomethingToGfs();
     GfsReset.Result result = Gfs.reset(gfs).execute();
 
     assertTrue(result.isSuccessful());
@@ -55,7 +55,7 @@ public class GfsResetTest extends PreSetupGitFileSystemTest {
   public void resetToRevision_fileSystemRootTreeShouldBecomeTheSameAsRevisionRootTree() throws IOException {
     writeSomethingToCache();
     RevCommit revision = commit();
-    writeSomeFileToGfs();
+    writeSomethingToGfs();
     GfsReset.Result result = Gfs.reset(gfs).revision(revision.getName()).execute();
 
     assertTrue(result.isSuccessful());
@@ -66,7 +66,7 @@ public class GfsResetTest extends PreSetupGitFileSystemTest {
   public void resetWithSoftOption_fileSystemRootTreeShouldNotBeChanged() throws IOException {
     writeSomethingToCache();
     RevCommit revision = commit();
-    writeSomeFileToGfs();
+    writeSomethingToGfs();
     ObjectId before = gfs.getFileStore().getRoot().getObjectId(false);
     GfsReset.Result result = Gfs.reset(gfs).revision(revision.getName()).soft(true).execute();
     ObjectId after = gfs.getFileStore().getRoot().getObjectId(false);
@@ -80,7 +80,7 @@ public class GfsResetTest extends PreSetupGitFileSystemTest {
   public void resetToRevisionWhenThereAreLocalChanges_branchHeadShouldBecomeTheSpecifiedRevision() throws IOException {
     writeSomethingToCache();
     ObjectId expected = commit();
-    writeSomeFileToGfs();
+    writeSomethingToGfs();
     GfsReset.Result result = Gfs.reset(gfs).revision(expected.getName()).execute();
 
     assertTrue(result.isSuccessful());
@@ -93,7 +93,7 @@ public class GfsResetTest extends PreSetupGitFileSystemTest {
   public void resetWithSoftOptionWhenThereAreLocalChanges_branchHeadShouldBecomeTheSpecifiedRevision() throws IOException {
     writeSomethingToCache();
     ObjectId expected = commit();
-    writeSomeFileToGfs();
+    writeSomethingToGfs();
     GfsReset.Result result = Gfs.reset(gfs).revision(expected.getName()).soft(true).execute();
 
     assertTrue(result.isSuccessful());

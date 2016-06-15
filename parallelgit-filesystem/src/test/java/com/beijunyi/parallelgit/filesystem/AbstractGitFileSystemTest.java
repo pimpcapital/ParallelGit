@@ -40,7 +40,7 @@ public abstract class AbstractGitFileSystemTest extends AbstractParallelGitTest 
     writeToGfs(path, path + "'s unique content");
   }
 
-  protected void writeSomeFileToGfs() throws IOException {
+  protected void writeSomethingToGfs() throws IOException {
     writeToGfs("some_file.txt");
   }
 
