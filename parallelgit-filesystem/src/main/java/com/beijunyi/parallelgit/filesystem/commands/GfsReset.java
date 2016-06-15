@@ -16,6 +16,7 @@ import static com.beijunyi.parallelgit.utils.CommitUtils.getCommit;
 public class GfsReset extends GfsCommand<GfsReset.Result> {
 
   private boolean soft = false;
+  private boolean hard = false;
   private String branch;
   private String revision;
 
@@ -26,6 +27,12 @@ public class GfsReset extends GfsCommand<GfsReset.Result> {
   @Nonnull
   public GfsReset soft(boolean soft) {
     this.soft = soft;
+    return this;
+  }
+
+  @Nonnull
+  public GfsReset hard(boolean hard) {
+    this.hard = hard;
     return this;
   }
 
@@ -44,6 +51,7 @@ public class GfsReset extends GfsCommand<GfsReset.Result> {
     BranchUtils.resetBranchHead(branch, commit, repo);
     gfs.updateOrigin(commit.getTree());
     if(!soft) gfs.reset();
+    if(hard) update.clearMergeNote();
     update.commit(commit);
     return Result.success();
   }
