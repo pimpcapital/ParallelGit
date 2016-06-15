@@ -34,7 +34,7 @@ public class GitFileSystem extends FileSystem {
   private final GfsFileStore fileStore;
   private final GfsStatusProvider statusProvider;
 
-  private volatile boolean closed = false;
+  private boolean closed = false;
 
   public GitFileSystem(GfsConfiguration cfg, String sid) throws IOException {
     this.sid = sid;
@@ -42,7 +42,7 @@ public class GitFileSystem extends FileSystem {
     RevCommit commit = cfg.commit();
     String branch = cfg.branch();
     if(branch == null && commit == null)
-      branch = RefUtils.ensureBranchRefName(MASTER);
+      branch = RefUtils.branchRef(MASTER);
     fileStore = new GfsFileStore(commit, objService);
     statusProvider = new GfsStatusProvider(fileStore, branch, commit);
   }

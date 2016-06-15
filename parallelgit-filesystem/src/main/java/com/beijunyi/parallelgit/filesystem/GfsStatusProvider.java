@@ -111,7 +111,7 @@ public class GfsStatusProvider implements AutoCloseable {
     @Nonnull
     public Update branch(String newBranch) {
       checkClosed();
-      branch = RefUtils.ensureBranchRefName(newBranch);
+      branch = RefUtils.branchRef(newBranch);
       return this;
     }
 

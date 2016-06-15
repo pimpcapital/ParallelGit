@@ -72,12 +72,17 @@ public class GfsCreateStash extends GfsCommand<GfsCreateStash.Result> {
     prepareIndexMessage();
     prepareDirectoryMessage();
     AnyObjectId resultTree = gfs.flush();
-    if(parent != null && parent.getTree().equals(resultTree))
-      return noChange();
-    RevCommit indexCommit = makeIndexCommit(resultTree);
-    RevCommit stashCommit = makeWorkingDirectoryCommit(indexCommit);
-    addToStash(stashCommit, repo);
-    return success(stashCommit);
+    GfsCreateStash.Result result;
+    if(parent != null && parent.getTree().equals(resultTree)) {
+      result = noChange();
+    } else {
+      RevCommit indexCommit = makeIndexCommit(resultTree);
+      RevCommit stashCommit = makeWorkingDirectoryCommit(indexCommit);
+      addToStash(stashCommit, repo);
+      result = success(stashCommit);
+    }
+    update.state(GfsState.NORMAL);
+    return result;
   }
 
   private void prepareBranch() {

@@ -38,7 +38,7 @@ public final class RefUtils {
   }
 
   @Nonnull
-  public static String ensureRefPrefix(String name, String prefix) {
+  public static String appendPrefix(String name, String prefix) {
     if(!matchesPrefix(name, prefix)) {
       if(matchesRefPrefix(name))
         throw new IllegalArgumentException("\"" + prefix + "\" is not the prefix of " + name);
@@ -50,25 +50,25 @@ public final class RefUtils {
   }
 
   @Nonnull
-  public static String ensureBranchRefName(String name) {
-    return ensureRefPrefix(name, R_HEADS);
+  public static String branchRef(String name) {
+    return appendPrefix(name, R_HEADS);
   }
 
   @Nonnull
-  public static String ensureTagRefName(String name) {
-    return ensureRefPrefix(name, R_TAGS);
+  public static String tagRef(String name) {
+    return appendPrefix(name, R_TAGS);
   }
 
   @Nonnull
   public static Ref getBranchRef(String name, Repository repo) throws IOException {
-    Ref ret = repo.exactRef(ensureBranchRefName(name));
+    Ref ret = repo.exactRef(branchRef(name));
     if(ret == null) throw new NoSuchBranchException(name);
     return ret;
   }
 
   @Nullable
   public static Ref getTagRef(String name, Repository repo) throws IOException {
-    return repo.exactRef(ensureTagRefName(name));
+    return repo.exactRef(tagRef(name));
   }
 
   @Nonnull
