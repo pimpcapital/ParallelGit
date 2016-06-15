@@ -5,7 +5,6 @@ import java.util.Collections;
 import java.util.Map;
 import javax.annotation.Nonnull;
 
-import com.beijunyi.parallelgit.filesystem.GfsState;
 import com.beijunyi.parallelgit.filesystem.GfsStatusProvider;
 import com.beijunyi.parallelgit.filesystem.GitFileSystem;
 import com.beijunyi.parallelgit.filesystem.exceptions.NoBranchException;
@@ -18,7 +17,6 @@ import com.beijunyi.parallelgit.utils.exceptions.NoSuchBranchException;
 import org.eclipse.jgit.lib.Ref;
 import org.eclipse.jgit.revwalk.RevCommit;
 
-import static com.beijunyi.parallelgit.filesystem.GfsState.NORMAL;
 import static java.util.Collections.unmodifiableMap;
 
 public final class GfsCheckout extends GfsCommand<GfsCheckout.Result> {
@@ -42,18 +40,11 @@ public final class GfsCheckout extends GfsCommand<GfsCheckout.Result> {
     prepareTarget();
     GfsDefaultCheckout checkout = new GfsDefaultCheckout(gfs, false);
     checkout.checkout(targetCommit.getTree());
-    update.state(NORMAL);
     if(checkout.hasConflicts())
       return Result.checkoutConflicts(checkout.getConflicts());
     store.getRoot().updateOrigin(targetCommit.getTree());
     updateHead(update);
     return Result.success();
-  }
-
-  @Nonnull
-  @Override
-  protected GfsState getCommandState() {
-    return GfsState.CHECKING_OUT;
   }
 
   @Nonnull

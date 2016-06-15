@@ -30,7 +30,7 @@ public class GitFileSystemProvider extends FileSystemProvider {
   private static final Map<String, GitFileSystem> FILE_SYSTEMS = new ConcurrentHashMap<>();
 
   @Nonnull
-  public static GitFileSystemProvider getInstance() {
+  public static GitFileSystemProvider getDefault() {
     return INSTANCE;
   }
 

@@ -11,7 +11,7 @@ import static org.eclipse.jgit.lib.Constants.MASTER;
 
 public abstract class AbstractGitFileSystemTest extends AbstractParallelGitTest {
 
-  protected final GitFileSystemProvider provider = GitFileSystemProvider.getInstance();
+  protected final GitFileSystemProvider provider = GitFileSystemProvider.getDefault();
 
   protected GitFileSystem gfs;
   protected GfsStatusProvider status;

@@ -15,7 +15,7 @@ public final class Gfs {
 
   @Nonnull
   public static GitFileSystem newFileSystem(GfsConfiguration cfg) throws IOException {
-    return GitFileSystemProvider.getInstance().newFileSystem(cfg);
+    return GitFileSystemProvider.getDefault().newFileSystem(cfg);
   }
 
   @Nonnull

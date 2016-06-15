@@ -3,7 +3,6 @@ package com.beijunyi.parallelgit.filesystem.commands;
 import java.io.IOException;
 import javax.annotation.Nonnull;
 
-import com.beijunyi.parallelgit.filesystem.GfsState;
 import com.beijunyi.parallelgit.filesystem.GfsStatusProvider;
 import com.beijunyi.parallelgit.filesystem.GitFileSystem;
 import com.beijunyi.parallelgit.filesystem.exceptions.NoBranchException;
@@ -11,7 +10,6 @@ import com.beijunyi.parallelgit.filesystem.exceptions.NoHeadCommitException;
 import com.beijunyi.parallelgit.utils.BranchUtils;
 import org.eclipse.jgit.revwalk.RevCommit;
 
-import static com.beijunyi.parallelgit.filesystem.GfsState.RESETTING;
 import static com.beijunyi.parallelgit.filesystem.commands.GfsReset.Status.SUCCESS;
 import static com.beijunyi.parallelgit.utils.CommitUtils.getCommit;
 
@@ -35,12 +33,6 @@ public class GfsReset extends GfsCommand<GfsReset.Result> {
   public GfsReset revision(String revision) {
     this.revision = revision;
     return this;
-  }
-
-  @Nonnull
-  @Override
-  protected GfsState getCommandState() {
-    return RESETTING;
   }
 
   @Nonnull

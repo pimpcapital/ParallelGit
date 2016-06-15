@@ -6,7 +6,6 @@ import java.util.List;
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 
-import com.beijunyi.parallelgit.filesystem.GfsState;
 import com.beijunyi.parallelgit.filesystem.GfsStatusProvider;
 import com.beijunyi.parallelgit.filesystem.GitFileSystem;
 import com.beijunyi.parallelgit.filesystem.exceptions.NoBranchException;
@@ -37,12 +36,6 @@ public class GfsCreateStash extends GfsCommand<GfsCreateStash.Result> {
 
   public GfsCreateStash(GitFileSystem gfs) {
     super(gfs);
-  }
-
-  @Nonnull
-  @Override
-  protected GfsState getCommandState() {
-    return GfsState.CREATING_STASH;
   }
 
   @Nonnull
@@ -81,7 +74,6 @@ public class GfsCreateStash extends GfsCommand<GfsCreateStash.Result> {
       addToStash(stashCommit, repo);
       result = success(stashCommit);
     }
-    update.state(GfsState.NORMAL);
     return result;
   }
 

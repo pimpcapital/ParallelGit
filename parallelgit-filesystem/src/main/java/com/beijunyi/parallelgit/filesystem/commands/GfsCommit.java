@@ -1,22 +1,22 @@
 package com.beijunyi.parallelgit.filesystem.commands;
 
 import java.io.IOException;
-import java.util.*;
+import java.util.Arrays;
+import java.util.Collections;
+import java.util.List;
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 
-import com.beijunyi.parallelgit.filesystem.GfsState;
 import com.beijunyi.parallelgit.filesystem.GfsStatusProvider;
 import com.beijunyi.parallelgit.filesystem.GitFileSystem;
 import com.beijunyi.parallelgit.filesystem.exceptions.UnsuccessfulOperationException;
+import com.beijunyi.parallelgit.filesystem.merge.MergeNote;
 import com.beijunyi.parallelgit.utils.BranchUtils;
 import com.beijunyi.parallelgit.utils.CommitUtils;
 import org.eclipse.jgit.lib.AnyObjectId;
 import org.eclipse.jgit.lib.ObjectId;
 import org.eclipse.jgit.lib.PersonIdent;
 import org.eclipse.jgit.revwalk.RevCommit;
-
-import static com.beijunyi.parallelgit.filesystem.GfsState.*;
 
 public final class GfsCommit extends GfsCommand<GfsCommit.Result> {
 
@@ -36,7 +36,6 @@ public final class GfsCommit extends GfsCommand<GfsCommit.Result> {
   protected Result doExecute(GfsStatusProvider.Update update) throws IOException {
     if(status.isAttached()) {
       if(!isHeadSynchronized()) {
-        update.state(NORMAL);
         return Result.outOfSync();
       }
     }
@@ -83,18 +82,6 @@ public final class GfsCommit extends GfsCommand<GfsCommit.Result> {
     return this;
   }
 
-  @Nonnull
-  @Override
-  protected EnumSet<GfsState> getAcceptableStates() {
-    return EnumSet.of(NORMAL, MERGING_CONFLICT, CHERRY_PICKING_CONFLICT);
-  }
-
-  @Nonnull
-  @Override
-  protected GfsState getCommandState() {
-    return GfsState.COMMITTING;
-  }
-
   private boolean isHeadSynchronized() throws IOException {
     if(BranchUtils.branchExists(status.branch(), repo)) {
       RevCommit head = BranchUtils.getHeadCommit(status.branch(), repo);
@@ -105,10 +92,8 @@ public final class GfsCommit extends GfsCommand<GfsCommit.Result> {
 
   private void prepareMessage() {
     if(message == null) {
-      if(status.state() == GfsState.MERGING || status.state() == GfsState.CHERRY_PICKING)
-        message = status.mergeNote().getMessage();
-      else
-        message = "";
+      MergeNote note = status.mergeNote();
+      message = note != null ? note.getMessage() : "";
     }
   }
 

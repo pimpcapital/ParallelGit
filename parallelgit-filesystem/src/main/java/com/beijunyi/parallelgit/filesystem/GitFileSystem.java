@@ -50,7 +50,7 @@ public class GitFileSystem extends FileSystem {
   @Nonnull
   @Override
   public GitFileSystemProvider provider() {
-    return GitFileSystemProvider.getInstance();
+    return GitFileSystemProvider.getDefault();
   }
 
   @Override
@@ -58,7 +58,7 @@ public class GitFileSystem extends FileSystem {
     if(!closed) {
       closed = true;
       objService.close();
-      GitFileSystemProvider.getInstance().unregister(this);
+      GitFileSystemProvider.getDefault().unregister(this);
     }
   }
 
@@ -236,4 +236,5 @@ public class GitFileSystem extends FileSystem {
     super.finalize();
     close();
   }
+
 }

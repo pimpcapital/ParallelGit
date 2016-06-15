@@ -5,13 +5,14 @@ import java.util.*;
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 
-import com.beijunyi.parallelgit.filesystem.GfsState;
 import com.beijunyi.parallelgit.filesystem.GfsStatusProvider;
 import com.beijunyi.parallelgit.filesystem.GitFileSystem;
-import com.beijunyi.parallelgit.filesystem.exceptions.*;
+import com.beijunyi.parallelgit.filesystem.exceptions.GfsCheckoutConflictException;
+import com.beijunyi.parallelgit.filesystem.exceptions.NoBranchException;
+import com.beijunyi.parallelgit.filesystem.exceptions.UnsuccessfulOperationException;
 import com.beijunyi.parallelgit.filesystem.io.GfsTreeIterator;
-import com.beijunyi.parallelgit.filesystem.merge.GfsMergeNote;
 import com.beijunyi.parallelgit.filesystem.merge.MergeConflict;
+import com.beijunyi.parallelgit.filesystem.merge.MergeNote;
 import com.beijunyi.parallelgit.utils.BranchUtils;
 import com.beijunyi.parallelgit.utils.CommitUtils;
 import com.beijunyi.parallelgit.utils.RefUtils;
@@ -24,11 +25,10 @@ import org.eclipse.jgit.lib.Ref;
 import org.eclipse.jgit.merge.*;
 import org.eclipse.jgit.revwalk.RevCommit;
 
-import static com.beijunyi.parallelgit.filesystem.GfsState.*;
 import static com.beijunyi.parallelgit.filesystem.io.GfsDefaultCheckout.checkout;
 import static com.beijunyi.parallelgit.filesystem.merge.GfsMergeCheckout.merge;
-import static com.beijunyi.parallelgit.filesystem.merge.GfsMergeNote.mergeSquash;
 import static com.beijunyi.parallelgit.filesystem.merge.MergeConflict.readConflicts;
+import static com.beijunyi.parallelgit.filesystem.merge.MergeNote.mergeSquash;
 import static com.beijunyi.parallelgit.filesystem.utils.GfsPathUtils.toAbsolutePath;
 import static com.beijunyi.parallelgit.utils.CommitUtils.listUnmergedCommits;
 import static java.util.Collections.singletonList;
@@ -75,7 +75,6 @@ public final class GfsMerge extends GfsCommand<GfsMerge.Result> {
       result = Result.aborted();
 
     if(result != null) {
-      update.state(NORMAL);
       return result;
     }
 
@@ -128,19 +127,6 @@ public final class GfsMerge extends GfsCommand<GfsMerge.Result> {
   public GfsMerge strategy(@Nullable MergeStrategy strategy) {
     this.strategy = strategy;
     return this;
-  }
-
-  @Nonnull
-  @Override
-  protected GfsState getCommandState() {
-    return MERGING;
-  }
-
-  private void prepareGfsState(GfsStatusProvider.Update update) {
-    GfsState state = status.state();
-    if(state != NORMAL)
-      throw new BadGfsStateException(state);
-    update.state(MERGING);
   }
 
   private void prepareBranchHead() throws IOException {
@@ -205,8 +191,6 @@ public final class GfsMerge extends GfsCommand<GfsMerge.Result> {
       return updateFileSystemStatus(update, merger);
     if(merger instanceof ResolveMerger)
       writeConflicts(update, (ResolveMerger)merger);
-    else
-      update.state(NORMAL);
     return Result.conflicting();
   }
 
@@ -221,15 +205,13 @@ public final class GfsMerge extends GfsCommand<GfsMerge.Result> {
       BranchUtils.merge(branch, newCommit, sourceRef, "Merge made by " + strategy.getName() + ".", repo);
     }
     if(!commit) {
-      update.mergeNote(GfsMergeNote.mergeNoCommit(sourceHeadCommit, message));
+      update.mergeNote(MergeNote.mergeNoCommit(sourceHeadCommit, message));
       return Result.mergedNotCommitted();
     }
-    update.state(NORMAL);
     if(squash) {
-      update.mergeNote(GfsMergeNote.mergeSquash(message));
+      update.mergeNote(MergeNote.mergeSquash(message));
       return Result.mergedSquashed();
     }
-    assert newCommit != null;
     return Result.merged(newCommit);
   }
 
@@ -241,11 +223,9 @@ public final class GfsMerge extends GfsCommand<GfsMerge.Result> {
       .checkout(cache);
     message = new MergeMessageFormatter().formatWithConflicts(message, merger.getUnmergedPaths());
     if(squash) {
-      update.mergeNote(GfsMergeNote.mergeSquashConflicting(message));
-      update.state(NORMAL);
+      update.mergeNote(MergeNote.mergeSquashConflicting(message));
     } else {
-      update.mergeNote(GfsMergeNote.mergeConflicting(sourceHeadCommit, message));
-      update.state(MERGING_CONFLICT);
+      update.mergeNote(MergeNote.mergeConflicting(sourceHeadCommit, message));
     }
   }
 

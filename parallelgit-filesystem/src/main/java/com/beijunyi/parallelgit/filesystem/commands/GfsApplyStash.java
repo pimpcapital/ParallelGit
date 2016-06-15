@@ -5,7 +5,6 @@ import java.util.Collections;
 import java.util.Map;
 import javax.annotation.Nonnull;
 
-import com.beijunyi.parallelgit.filesystem.GfsState;
 import com.beijunyi.parallelgit.filesystem.GfsStatusProvider;
 import com.beijunyi.parallelgit.filesystem.GitFileSystem;
 import com.beijunyi.parallelgit.filesystem.exceptions.NoHeadCommitException;
@@ -17,7 +16,6 @@ import org.eclipse.jgit.merge.Merger;
 import org.eclipse.jgit.merge.ResolveMerger;
 import org.eclipse.jgit.revwalk.RevCommit;
 
-import static com.beijunyi.parallelgit.filesystem.GfsState.*;
 import static com.beijunyi.parallelgit.filesystem.commands.GfsApplyStash.Result.*;
 import static com.beijunyi.parallelgit.filesystem.commands.GfsApplyStash.Status.*;
 import static com.beijunyi.parallelgit.filesystem.io.GfsDefaultCheckout.checkout;
@@ -50,12 +48,6 @@ public class GfsApplyStash extends GfsCommand<GfsApplyStash.Result> {
   @Nonnull
   public GfsApplyStash stash(int id) throws IOException {
     return stash(makeStashId(id));
-  }
-
-  @Nonnull
-  @Override
-  protected GfsState getCommandState() {
-    return APPLYING_STASH;
   }
 
   @Nonnull
@@ -94,7 +86,6 @@ public class GfsApplyStash extends GfsCommand<GfsApplyStash.Result> {
     } else {
       ret = conflicting(readConflicts(merger));
     }
-    update.state(NORMAL);
     return ret;
   }
 
