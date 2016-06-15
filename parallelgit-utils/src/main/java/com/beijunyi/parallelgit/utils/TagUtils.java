@@ -16,7 +16,7 @@ import static org.eclipse.jgit.lib.Constants.OBJ_COMMIT;
 public final class TagUtils {
 
   public static boolean tagExists(String name, Repository repo) throws IOException {
-    Ref tagRef = repo.exactRef(RefUtils.tagRef(name));
+    Ref tagRef = repo.exactRef(RefUtils.fullTagRef(name));
     return tagRef != null;
   }
 
@@ -87,13 +87,13 @@ public final class TagUtils {
 
   @Nullable
   public static RevTag getTag(String tagName, Repository repo) throws IOException {
-    Ref tagRef = repo.exactRef(RefUtils.tagRef(tagName));
+    Ref tagRef = repo.exactRef(RefUtils.fullTagRef(tagName));
     return tagRef != null ? getTag(tagRef, repo) : null;
   }
 
   @Nonnull
   private static Ref linkTag(String name, AnyObjectId tag, Repository repo) throws IOException {
-    String refName = RefUtils.tagRef(name);
+    String refName = RefUtils.fullTagRef(name);
     if(tagExists(name, repo))
       throw new TagAlreadyExistsException(refName);
     RefUpdate update = repo.updateRef(refName);

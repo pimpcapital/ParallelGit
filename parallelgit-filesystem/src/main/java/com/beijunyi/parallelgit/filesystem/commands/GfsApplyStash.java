@@ -10,18 +10,19 @@ import com.beijunyi.parallelgit.filesystem.GitFileSystem;
 import com.beijunyi.parallelgit.filesystem.exceptions.NoHeadCommitException;
 import com.beijunyi.parallelgit.filesystem.io.GfsTreeIterator;
 import com.beijunyi.parallelgit.filesystem.merge.MergeConflict;
+import org.eclipse.jgit.dircache.DirCache;
 import org.eclipse.jgit.lib.AnyObjectId;
-import org.eclipse.jgit.merge.MergeStrategy;
-import org.eclipse.jgit.merge.Merger;
-import org.eclipse.jgit.merge.ResolveMerger;
+import org.eclipse.jgit.merge.*;
 import org.eclipse.jgit.revwalk.RevCommit;
 
 import static com.beijunyi.parallelgit.filesystem.commands.GfsApplyStash.Result.*;
 import static com.beijunyi.parallelgit.filesystem.commands.GfsApplyStash.Status.*;
 import static com.beijunyi.parallelgit.filesystem.io.GfsDefaultCheckout.checkout;
+import static com.beijunyi.parallelgit.filesystem.merge.GfsMergeCheckout.handleConflicts;
 import static com.beijunyi.parallelgit.filesystem.merge.MergeConflict.readConflicts;
 import static com.beijunyi.parallelgit.utils.CommitUtils.getCommit;
 import static java.util.Collections.unmodifiableMap;
+import static org.eclipse.jgit.dircache.DirCache.newInCore;
 import static org.eclipse.jgit.lib.Constants.STASH;
 import static org.eclipse.jgit.merge.MergeStrategy.RECURSIVE;
 
@@ -29,10 +30,13 @@ public class GfsApplyStash extends GfsCommand<GfsApplyStash.Result> {
 
   private static final String LAST_STASH = makeStashId(0);
 
+  private MergeStrategy strategy = RECURSIVE;
+  private MergeFormatter formatter = new MergeFormatter();
+  private DirCache cache = newInCore();
+
   private RevCommit head;
   private String stashId;
   private RevCommit stash;
-  private MergeStrategy strategy = RECURSIVE;
   private ResolveMerger merger;
 
   public GfsApplyStash(GitFileSystem gfs) {
@@ -40,8 +44,8 @@ public class GfsApplyStash extends GfsCommand<GfsApplyStash.Result> {
   }
 
   @Nonnull
-  public GfsApplyStash stash(String stashId) throws IOException {
-    this.stashId = stashId;
+  public GfsApplyStash stash(String id) throws IOException {
+    this.stashId = id;
     return this;
   }
 
@@ -56,7 +60,7 @@ public class GfsApplyStash extends GfsCommand<GfsApplyStash.Result> {
     prepareHead();
     prepareStash();
     prepareMerger();
-    return mergeStash(update);
+    return mergeStash();
   }
 
   private void prepareHead() throws IOException {
@@ -77,21 +81,29 @@ public class GfsApplyStash extends GfsCommand<GfsApplyStash.Result> {
   }
 
   @Nonnull
-  private GfsApplyStash.Result mergeStash(GfsStatusProvider.Update update) throws IOException {
+  private GfsApplyStash.Result mergeStash() throws IOException {
     boolean success = merger.merge(head, stash);
     GfsApplyStash.Result ret;
     if(success) {
-      updateFiles(merger);
+      checkoutFiles(merger);
       ret = success();
     } else {
+      writeConflicts(merger);
       ret = conflicting(readConflicts(merger));
     }
     return ret;
   }
 
-  private void updateFiles(Merger merger) throws IOException {
+  private void checkoutFiles(Merger merger) throws IOException {
     AnyObjectId treeId = merger.getResultTreeId();
     checkout(gfs, treeId);
+  }
+
+  private void writeConflicts(ResolveMerger merger) throws IOException {
+    Map<String, MergeConflict> conflicts = readConflicts(merger);
+    handleConflicts(gfs, conflicts)
+      .withFormatter(formatter)
+      .checkout(cache);
   }
 
   @Nonnull

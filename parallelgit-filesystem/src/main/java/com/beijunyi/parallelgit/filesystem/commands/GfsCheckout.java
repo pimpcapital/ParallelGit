@@ -19,7 +19,7 @@ import org.eclipse.jgit.revwalk.RevCommit;
 
 import static java.util.Collections.unmodifiableMap;
 
-public final class GfsCheckout extends GfsCommand<GfsCheckout.Result> {
+public class GfsCheckout extends GfsCommand<GfsCheckout.Result> {
 
   private String target;
   private boolean force = false;

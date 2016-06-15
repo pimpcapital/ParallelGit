@@ -42,7 +42,7 @@ public class GitFileSystem extends FileSystem {
     RevCommit commit = cfg.commit();
     String branch = cfg.branch();
     if(branch == null && commit == null)
-      branch = RefUtils.branchRef(MASTER);
+      branch = RefUtils.fullBranchName(MASTER);
     fileStore = new GfsFileStore(commit, objService);
     statusProvider = new GfsStatusProvider(fileStore, branch, commit);
   }

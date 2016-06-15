@@ -1,8 +1,6 @@
 package com.beijunyi.parallelgit.filesystem.commands;
 
 import java.io.IOException;
-import java.util.Arrays;
-import java.util.Collections;
 import java.util.List;
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
@@ -18,7 +16,10 @@ import org.eclipse.jgit.lib.ObjectId;
 import org.eclipse.jgit.lib.PersonIdent;
 import org.eclipse.jgit.revwalk.RevCommit;
 
-public final class GfsCommit extends GfsCommand<GfsCommit.Result> {
+import static java.util.Arrays.asList;
+import static java.util.Collections.*;
+
+public class GfsCommit extends GfsCommand<GfsCommit.Result> {
 
   private PersonIdent author;
   private PersonIdent committer;
@@ -98,8 +99,7 @@ public final class GfsCommit extends GfsCommand<GfsCommit.Result> {
   }
 
   private void prepareCommitter() {
-    if(committer == null)
-      committer = new PersonIdent(repo);
+    if(committer == null) committer = new PersonIdent(repo);
   }
 
   private void prepareAuthor() {
@@ -114,12 +114,14 @@ public final class GfsCommit extends GfsCommand<GfsCommit.Result> {
   private void prepareParents() {
     if(parents == null) {
       if(!amend) {
-        if(status.isInitialized())
-          parents = Collections.singletonList(status.commit());
-        else
-          parents = Collections.emptyList();
-      } else
-        parents = Arrays.asList(status.commit().getParents());
+        if(status.isInitialized()) {
+          parents = singletonList(status.commit());
+        } else {
+          parents = emptyList();
+        }
+      } else {
+        parents = asList(status.commit().getParents());
+      }
     }
   }
 
@@ -129,12 +131,13 @@ public final class GfsCommit extends GfsCommand<GfsCommit.Result> {
 
   private void updateStatus(GfsStatusProvider.Update update, RevCommit newHead) throws IOException {
     if(status.isAttached()) {
-      if(amend)
+      if(amend) {
         BranchUtils.amend(status.branch(), newHead, repo);
-      else if(status.isInitialized())
+      } else if(status.isInitialized()) {
         BranchUtils.newCommit(status.branch(), newHead, repo);
-      else
+      } else {
         BranchUtils.initBranch(status.branch(), newHead, repo);
+      }
     }
     update.commit(newHead);
     update.clearMergeNote();
@@ -178,8 +181,7 @@ public final class GfsCommit extends GfsCommand<GfsCommit.Result> {
 
     @Nonnull
     public RevCommit getCommit() {
-      if(commit == null)
-        throw new UnsuccessfulOperationException();
+      if(commit == null) throw new UnsuccessfulOperationException();
       return commit;
     }
 

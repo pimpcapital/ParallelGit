@@ -40,35 +40,33 @@ public final class RefUtils {
   @Nonnull
   public static String appendPrefix(String name, String prefix) {
     if(!matchesPrefix(name, prefix)) {
-      if(matchesRefPrefix(name))
-        throw new IllegalArgumentException("\"" + prefix + "\" is not the prefix of " + name);
+      if(matchesRefPrefix(name)) throw new IllegalArgumentException("\"" + prefix + "\" is not the prefix of " + name);
       name = prefix + name;
     }
-    if(!Repository.isValidRefName(name))
-      throw new IllegalArgumentException(name + " is not a valid ref name");
+    if(!Repository.isValidRefName(name)) throw new IllegalArgumentException(name + " is not a valid ref name");
     return name;
   }
 
   @Nonnull
-  public static String branchRef(String name) {
+  public static String fullBranchName(String name) {
     return appendPrefix(name, R_HEADS);
   }
 
   @Nonnull
-  public static String tagRef(String name) {
+  public static String fullTagRef(String name) {
     return appendPrefix(name, R_TAGS);
   }
 
   @Nonnull
   public static Ref getBranchRef(String name, Repository repo) throws IOException {
-    Ref ret = repo.exactRef(branchRef(name));
+    Ref ret = repo.exactRef(fullBranchName(name));
     if(ret == null) throw new NoSuchBranchException(name);
     return ret;
   }
 
   @Nullable
   public static Ref getTagRef(String name, Repository repo) throws IOException {
-    return repo.exactRef(tagRef(name));
+    return repo.exactRef(fullTagRef(name));
   }
 
   @Nonnull

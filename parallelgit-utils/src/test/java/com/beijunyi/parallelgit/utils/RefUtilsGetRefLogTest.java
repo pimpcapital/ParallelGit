@@ -17,7 +17,7 @@ public class RefUtilsGetRefLogTest extends AbstractParallelGitTest {
 
   @Test
   public void getRefLogsWithMaxLimit_theResultShouldContainNoMoreThanTheSpecifiedLimit() throws IOException {
-    String ref = RefUtils.branchRef("test_branch");
+    String ref = RefUtils.fullBranchName("test_branch");
     writeSomethingToCache();
     commitToBranch(ref, null);
     writeSomethingToCache();

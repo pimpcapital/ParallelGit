@@ -12,21 +12,16 @@ import static org.eclipse.jgit.lib.FileMode.REGULAR_FILE;
 
 public class GfsMergeCheckout extends GfsDefaultCheckout {
 
-  private Map<String, MergeConflict> conflicts;
+  private final Map<String, MergeConflict> conflicts;
   private MergeFormatter formatter;
 
-  private GfsMergeCheckout(GitFileSystem gfs) {
+  private GfsMergeCheckout(GitFileSystem gfs, Map<String, MergeConflict> conflicts) {
     super(gfs);
-  }
-
-  public static GfsMergeCheckout merge(GitFileSystem gfs) {
-    return new GfsMergeCheckout(gfs);
-  }
-
-  @Nonnull
-  public GfsMergeCheckout handleConflicts(Map<String, MergeConflict> conflicts) {
     this.conflicts = conflicts;
-    return this;
+  }
+
+  public static GfsMergeCheckout handleConflicts(GitFileSystem gfs, Map<String, MergeConflict> conflicts) {
+    return new GfsMergeCheckout(gfs, conflicts);
   }
 
   @Nonnull
