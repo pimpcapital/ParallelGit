@@ -71,7 +71,7 @@ public class GfsApplyStash extends GfsCommand<GfsApplyStash.Result> {
   }
 
   private void prepareMerger() throws IOException {
-    merger = (ResolveMerger)strategy.newMerger(repo);
+    merger = (ResolveMerger)strategy.newMerger(repo, true);
     merger.setBase(stash.getParent(0));
     merger.setWorkingTreeIterator(new GfsTreeIterator(gfs));
   }
