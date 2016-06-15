@@ -17,13 +17,24 @@ public class GfsResetTest extends PreSetupGitFileSystemTest {
   @Test
   public void resetWhenThereIsNoLocalChange_operationShouldBeSuccessful() throws IOException {
     GfsReset.Result result = Gfs.reset(gfs).execute();
+
     assertTrue(result.isSuccessful());
+  }
+
+  @Test
+  public void resetWhenThereAreLocalChanges_changesShouldBeUndone() throws IOException {
+    writeToGfs("/test_file.txt");
+    GfsReset.Result result = Gfs.reset(gfs).execute();
+
+    assertTrue(result.isSuccessful());
+    assertFalse(Files.exists(gfs.getPath("/test_file.txt")));
   }
 
   @Test
   public void resetWhenThereAreLocalChanges_fileSystemShouldBecomeClean() throws IOException {
     writeSomeFileToGfs();
     GfsReset.Result result = Gfs.reset(gfs).execute();
+
     assertTrue(result.isSuccessful());
     assertFalse(status.isDirty());
   }
@@ -52,7 +63,7 @@ public class GfsResetTest extends PreSetupGitFileSystemTest {
   }
 
   @Test
-  public void resetToRevisionWithSoftOption_fileSystemRootTreeShouldNotBeChanged() throws IOException {
+  public void resetWithSoftOption_fileSystemRootTreeShouldNotBeChanged() throws IOException {
     writeSomethingToCache();
     RevCommit revision = commit();
     writeSomeFileToGfs();
@@ -79,7 +90,7 @@ public class GfsResetTest extends PreSetupGitFileSystemTest {
   }
 
   @Test
-  public void resetToRevisionWithSoftOptionWhenThereAreLocalChanges_branchHeadShouldBecomeTheSpecifiedRevision() throws IOException {
+  public void resetWithSoftOptionWhenThereAreLocalChanges_branchHeadShouldBecomeTheSpecifiedRevision() throws IOException {
     writeSomethingToCache();
     ObjectId expected = commit();
     writeSomeFileToGfs();
@@ -92,7 +103,7 @@ public class GfsResetTest extends PreSetupGitFileSystemTest {
 
 
   @Test
-  public void resetToRevisionWithSoftOptionWhenThereAreLocalChanges_localChangeShouldBeKept() throws IOException {
+  public void resetWithSoftOptionWhenThereAreLocalChanges_localChangeShouldBeKept() throws IOException {
     writeSomethingToCache();
     ObjectId expected = commit();
     writeToGfs("/test_file.txt");
@@ -101,6 +112,17 @@ public class GfsResetTest extends PreSetupGitFileSystemTest {
     assertTrue(result.isSuccessful());
     assertTrue(Files.exists(gfs.getPath("/test_file.txt")));
     assertTrue(status.isDirty());
+  }
+
+  @Test
+  public void resetWithHardOptionWhenThereIsMerge_mergeNoteShouldBeCleared() throws IOException {
+    writeSomethingToCache();
+    commitToBranch("some_branch");
+    Gfs.merge(gfs).source("some_branch").commit(false).execute();
+    GfsReset.Result result = Gfs.reset(gfs).hard(true).execute();
+
+    assertTrue(result.isSuccessful());
+    assertNull(status.mergeNote());
   }
 
 
