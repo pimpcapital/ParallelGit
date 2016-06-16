@@ -9,14 +9,12 @@ import com.beijunyi.parallelgit.filesystem.GfsStatusProvider;
 import com.beijunyi.parallelgit.filesystem.GitFileSystem;
 import com.beijunyi.parallelgit.filesystem.exceptions.GfsCheckoutConflictException;
 import com.beijunyi.parallelgit.filesystem.exceptions.NoBranchException;
-import com.beijunyi.parallelgit.filesystem.exceptions.UnsuccessfulOperationException;
 import com.beijunyi.parallelgit.filesystem.io.GfsTreeIterator;
 import com.beijunyi.parallelgit.filesystem.merge.MergeConflict;
 import com.beijunyi.parallelgit.filesystem.merge.MergeNote;
 import com.beijunyi.parallelgit.utils.BranchUtils;
 import com.beijunyi.parallelgit.utils.CommitUtils;
 import com.beijunyi.parallelgit.utils.RefUtils;
-import org.eclipse.jgit.api.MergeResult.MergeStatus;
 import org.eclipse.jgit.diff.Sequence;
 import org.eclipse.jgit.dircache.DirCache;
 import org.eclipse.jgit.lib.AnyObjectId;
@@ -25,6 +23,7 @@ import org.eclipse.jgit.lib.Ref;
 import org.eclipse.jgit.merge.*;
 import org.eclipse.jgit.revwalk.RevCommit;
 
+import static com.beijunyi.parallelgit.filesystem.commands.GfsMerge.Status.*;
 import static com.beijunyi.parallelgit.filesystem.io.GfsDefaultCheckout.checkout;
 import static com.beijunyi.parallelgit.filesystem.merge.GfsMergeCheckout.handleConflicts;
 import static com.beijunyi.parallelgit.filesystem.merge.MergeConflict.readConflicts;
@@ -32,7 +31,6 @@ import static com.beijunyi.parallelgit.filesystem.merge.MergeNote.mergeSquash;
 import static com.beijunyi.parallelgit.filesystem.utils.GfsPathUtils.toAbsolutePath;
 import static com.beijunyi.parallelgit.utils.CommitUtils.listUnmergedCommits;
 import static java.util.Collections.singletonList;
-import static org.eclipse.jgit.api.MergeResult.MergeStatus.*;
 import static org.eclipse.jgit.dircache.DirCache.newInCore;
 import static org.eclipse.jgit.merge.MergeStrategy.RECURSIVE;
 
@@ -53,8 +51,6 @@ public class GfsMerge extends GfsCommand<GfsMerge.Result> {
   private boolean commit = true;
   private PersonIdent committer;
   private String message;
-
-
 
   public GfsMerge(GitFileSystem gfs) {
     super(gfs);
@@ -262,12 +258,24 @@ public class GfsMerge extends GfsCommand<GfsMerge.Result> {
     return ret;
   }
 
+  public enum Status {
+    CHECKOUT_CONFLICT,
+    ABORTED,
+    ALREADY_UP_TO_DATE,
+    FAST_FORWARD,
+    FAST_FORWARD_SQUASHED,
+    MERGED,
+    MERGED_SQUASHED,
+    MERGED_NOT_COMMITTED,
+    CONFLICTING
+  }
+
   public static class Result implements GfsCommandResult {
 
-    private final MergeStatus status;
+    private final Status status;
     private final RevCommit commit;
 
-    private Result(MergeStatus status, @Nullable RevCommit commit) {
+    private Result(Status status, @Nullable RevCommit commit) {
       this.status = status;
       this.commit = commit;
     }
@@ -319,17 +327,26 @@ public class GfsMerge extends GfsCommand<GfsMerge.Result> {
 
     @Override
     public boolean isSuccessful() {
-      return commit != null;
+      switch(status) {
+        case ALREADY_UP_TO_DATE:
+        case FAST_FORWARD:
+        case FAST_FORWARD_SQUASHED:
+        case MERGED:
+        case MERGED_SQUASHED:
+        case MERGED_NOT_COMMITTED:
+          return true;
+        default:
+          return false;
+      }
     }
 
     @Nonnull
-    public MergeStatus getStatus() {
+    public Status getStatus() {
       return status;
     }
 
-    @Nonnull
+    @Nullable
     public RevCommit getCommit() {
-      if(commit == null) throw new UnsuccessfulOperationException();
       return commit;
     }
 

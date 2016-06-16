@@ -1,7 +1,6 @@
 package com.beijunyi.parallelgit.filesystem.commands;
 
 import java.io.IOException;
-import java.nio.file.Files;
 import javax.annotation.Nonnull;
 
 import com.beijunyi.parallelgit.AbstractParallelGitTest;
@@ -12,8 +11,9 @@ import org.junit.Test;
 
 import static com.beijunyi.parallelgit.filesystem.Gfs.*;
 import static com.beijunyi.parallelgit.filesystem.commands.GfsMerge.Result;
+import static com.beijunyi.parallelgit.filesystem.commands.GfsMerge.Status.*;
 import static com.beijunyi.parallelgit.utils.BranchUtils.createBranch;
-import static org.eclipse.jgit.api.MergeResult.MergeStatus.*;
+import static java.nio.file.Files.*;
 import static org.junit.Assert.*;
 
 public class GfsMergeTest extends AbstractParallelGitTest {
@@ -37,7 +37,7 @@ public class GfsMergeTest extends AbstractParallelGitTest {
     prepareBranches(parentCommit, commit(parentCommit));
     Result result;
     try(GitFileSystem gfs = prepareFileSystem()) {
-      Files.write(gfs.getPath("/some_file.txt"), someBytes());
+      write(gfs.getPath("/some_file.txt"), someBytes());
       result = merge(gfs).source("theirs").execute();
     }
     assertEquals(FAST_FORWARD, result.getStatus());
@@ -48,9 +48,9 @@ public class GfsMergeTest extends AbstractParallelGitTest {
     AnyObjectId parentCommit = commit();
     prepareBranches(parentCommit, commit(parentCommit));
     try(GitFileSystem gfs = prepareFileSystem()) {
-      Files.write(gfs.getPath("/test_file.txt"), someBytes());
+      write(gfs.getPath("/test_file.txt"), someBytes());
       merge(gfs).source("theirs").execute();
-      assertTrue(Files.exists(gfs.getPath("/test_file.txt")));
+      assertTrue(exists(gfs.getPath("/test_file.txt")));
     }
   }
 
@@ -74,7 +74,7 @@ public class GfsMergeTest extends AbstractParallelGitTest {
     prepareBranches(ours, theirs);
     try(GitFileSystem gfs = prepareFileSystem()) {
       merge(gfs).source("theirs").execute();
-      assertTrue(Files.exists(gfs.getPath("/test_file.txt")));
+      assertTrue(exists(gfs.getPath("/test_file.txt")));
     }
   }
 
@@ -106,7 +106,7 @@ public class GfsMergeTest extends AbstractParallelGitTest {
     prepareBranches(ours, theirs);
     try(GitFileSystem gfs = prepareFileSystem()) {
       merge(gfs).source("theirs").execute();
-      assertArrayEquals("a\nB\nc\nD\nd\ne".getBytes(), Files.readAllBytes(gfs.getPath("/test_file.txt")));
+      assertArrayEquals("a\nB\nc\nD\nd\ne".getBytes(), readAllBytes(gfs.getPath("/test_file.txt")));
     }
   }
 
@@ -138,11 +138,11 @@ public class GfsMergeTest extends AbstractParallelGitTest {
     prepareBranches(ours, theirs);
     try(GitFileSystem gfs = prepareFileSystem()) {
       merge(gfs).source("theirs").execute();
-      assertArrayEquals(("<<<<<<< refs/heads/ours\n" +
-                                 "other stuff\n" +
-                                 "=======\n" +
-                                 "completely different stuff\n" +
-                                 ">>>>>>> refs/heads/theirs\n").getBytes(), Files.readAllBytes(gfs.getPath("/test_file.txt")));
+      assertEquals("<<<<<<< refs/heads/ours\n" +
+                   "other stuff\n" +
+                   "=======\n" +
+                   "completely different stuff\n" +
+                   ">>>>>>> refs/heads/theirs\n", new String(readAllBytes(gfs.getPath("/test_file.txt"))));
     }
   }
 
