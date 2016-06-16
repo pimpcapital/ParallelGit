@@ -4,6 +4,7 @@ import java.io.IOException;
 
 import com.beijunyi.parallelgit.AbstractParallelGitTest;
 import com.beijunyi.parallelgit.filesystem.GitFileSystem;
+import com.beijunyi.parallelgit.filesystem.ParallelGitMergeTest;
 import com.beijunyi.parallelgit.filesystem.commands.GfsMerge.Result;
 import org.eclipse.jgit.lib.ObjectId;
 import org.junit.After;
@@ -12,14 +13,12 @@ import org.junit.Test;
 
 import static com.beijunyi.parallelgit.filesystem.Gfs.*;
 import static com.beijunyi.parallelgit.filesystem.commands.GfsMerge.Status.*;
-import static com.beijunyi.parallelgit.utils.BranchUtils.createBranch;
+import static com.beijunyi.parallelgit.utils.BranchUtils.getHeadCommit;
 import static java.nio.file.Files.*;
 import static org.junit.Assert.*;
 
-public class GfsMergeFastForwardTest extends AbstractParallelGitTest {
+public class GfsMergeFastForwardTest extends AbstractParallelGitTest implements ParallelGitMergeTest {
 
-  private static final String OURS = "ours";
-  private static final String THEIRS = "theirs";
 
   private GitFileSystem gfs;
 
@@ -27,11 +26,9 @@ public class GfsMergeFastForwardTest extends AbstractParallelGitTest {
   public void setUp() throws IOException {
     initRepository();
     ObjectId base = commit();
-    ObjectId ours = commit(base);
+    ObjectId ours = commitToBranch(OURS, base);
     writeToCache("/their_file.txt");
-    ObjectId theirs = commit(ours);
-    createBranch(OURS, ours, repo);
-    createBranch(THEIRS, theirs, repo);
+    commitToBranch(THEIRS, ours);
     gfs = newFileSystem(OURS, repo);
   }
 
@@ -58,6 +55,15 @@ public class GfsMergeFastForwardTest extends AbstractParallelGitTest {
 
     assertTrue(result.isSuccessful());
     assertEquals(FAST_FORWARD, result.getStatus());
+  }
+
+  @Test
+  public void whenFastForwardSucceedWithNewCommit_theResultCommitShouldBeTheHeadOfSourceBranch() throws IOException {
+    Result result = merge(gfs).source(THEIRS).execute();
+
+    assertTrue(result.isSuccessful());
+    assertEquals(FAST_FORWARD, result.getStatus());
+    assertEquals(getHeadCommit(THEIRS, repo), result.getCommit());
   }
 
   @Test

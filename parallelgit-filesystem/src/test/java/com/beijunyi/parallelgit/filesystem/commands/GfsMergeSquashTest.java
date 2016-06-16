@@ -4,6 +4,7 @@ import java.io.IOException;
 
 import com.beijunyi.parallelgit.AbstractParallelGitTest;
 import com.beijunyi.parallelgit.filesystem.GitFileSystem;
+import com.beijunyi.parallelgit.filesystem.ParallelGitMergeTest;
 import com.beijunyi.parallelgit.filesystem.commands.GfsMerge.Result;
 import com.beijunyi.parallelgit.filesystem.merge.MergeNote;
 import org.eclipse.jgit.lib.ObjectId;
@@ -12,14 +13,10 @@ import org.junit.Before;
 import org.junit.Test;
 
 import static com.beijunyi.parallelgit.filesystem.Gfs.*;
-import static com.beijunyi.parallelgit.utils.BranchUtils.createBranch;
 import static java.nio.file.Files.exists;
 import static org.junit.Assert.*;
 
-public class GfsMergeSquashTest extends AbstractParallelGitTest {
-
-  private static final String OURS = "ours";
-  private static final String THEIRS = "theirs";
+public class GfsMergeSquashTest extends AbstractParallelGitTest implements ParallelGitMergeTest {
 
   private GitFileSystem gfs;
 
@@ -29,14 +26,12 @@ public class GfsMergeSquashTest extends AbstractParallelGitTest {
     ObjectId base = commit();
     clearCache();
     writeToCache("/our_file.txt");
-    ObjectId ours = commit(base);
+    commitToBranch(OURS, base);
     clearCache();
     writeToCache("/their_file1.txt");
-    ObjectId theirs1 = commit(base);
+    commitToBranch(THEIRS, base);
     writeToCache("/their_file2.txt");
-    ObjectId theirs2 = commit(theirs1);
-    createBranch(OURS, ours, repo);
-    createBranch(THEIRS, theirs2, repo);
+    commitToBranch(THEIRS);
     gfs = newFileSystem(OURS, repo);
   }
 
@@ -54,6 +49,15 @@ public class GfsMergeSquashTest extends AbstractParallelGitTest {
 
     assertTrue(result.isSuccessful());
     assertNull(result.getCommit());
+  }
+
+  @Test
+  public void mergeWithSquashOption_headCommitShouldRemainTheSame() throws IOException {
+    ObjectId head = gfs.getStatusProvider().commit();
+    Result result = merge(gfs).source(THEIRS).squash(true).execute();
+
+    assertTrue(result.isSuccessful());
+    assertEquals(head, gfs.getStatusProvider().commit());
   }
 
   @Test

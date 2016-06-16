@@ -34,11 +34,6 @@ public class MergeConflict {
   }
 
   @Nonnull
-  public MergeResult<? extends Sequence> getRawResult() {
-    return result;
-  }
-
-  @Nonnull
   public byte[] format(MergeFormatter formatter) {
     try(ByteArrayOutputStream stream = new ByteArrayOutputStream()) {
       formatter.formatMerge(stream, result, names[0], names[1], names[2], CHARSET.name());

@@ -29,7 +29,7 @@ import static com.beijunyi.parallelgit.filesystem.io.GfsDefaultCheckout.checkout
 import static com.beijunyi.parallelgit.filesystem.merge.GfsMergeCheckout.handleConflicts;
 import static com.beijunyi.parallelgit.filesystem.merge.MergeConflict.readConflicts;
 import static com.beijunyi.parallelgit.filesystem.merge.MergeNote.mergeSquash;
-import static com.beijunyi.parallelgit.utils.CommitUtils.listUnmergedCommits;
+import static com.beijunyi.parallelgit.utils.CommitUtils.*;
 import static java.util.Collections.singletonList;
 import static org.eclipse.jgit.dircache.DirCache.newInCore;
 import static org.eclipse.jgit.merge.MergeStrategy.RECURSIVE;
@@ -61,7 +61,6 @@ public class GfsMerge extends GfsCommand<GfsMerge.Result> {
   protected Result doExecute(GfsStatusProvider.Update update) throws IOException {
     prepareBranchHead();
     prepareSource();
-    prepareSourceCommit();
     prepareMessage();
 
     Result result = null;
@@ -82,12 +81,6 @@ public class GfsMerge extends GfsCommand<GfsMerge.Result> {
   @Nonnull
   public GfsMerge source(@Nullable String branch) {
     this.source = branch;
-    return this;
-  }
-
-  @Nonnull
-  public GfsMerge source(@Nullable Ref branchRef) {
-    this.sourceRef = branchRef;
     return this;
   }
 
@@ -138,10 +131,7 @@ public class GfsMerge extends GfsCommand<GfsMerge.Result> {
   }
 
   private void prepareSource() throws IOException {
-    if(sourceRef == null) sourceRef = RefUtils.getBranchRef(source, repo);
-  }
-
-  private void prepareSourceCommit() throws IOException {
+    sourceRef = RefUtils.getBranchRef(source, repo);
     sourceHeadCommit = CommitUtils.getCommit(sourceRef, repo);
   }
 
@@ -198,8 +188,9 @@ public class GfsMerge extends GfsCommand<GfsMerge.Result> {
     RevCommit newCommit = null;
     if(commit && !squash) {
       prepareCommitter();
-      newCommit = CommitUtils.createCommit(message, treeId, committer, committer, Arrays.asList(headCommit, sourceHeadCommit), repo);
+      newCommit = createCommit(message, treeId, committer, committer, Arrays.asList(headCommit, sourceHeadCommit), repo);
       BranchUtils.merge(branch, newCommit, sourceRef, "Merge made by " + strategy.getName() + ".", repo);
+      update.commit(newCommit);
     }
     if(!commit) {
       update.mergeNote(MergeNote.mergeNoCommit(sourceHeadCommit, message));

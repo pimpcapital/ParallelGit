@@ -5,92 +5,34 @@ import javax.annotation.Nonnull;
 
 import com.beijunyi.parallelgit.AbstractParallelGitTest;
 import com.beijunyi.parallelgit.filesystem.GitFileSystem;
+import com.beijunyi.parallelgit.filesystem.ParallelGitMergeTest;
 import org.eclipse.jgit.lib.AnyObjectId;
+import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
 
 import static com.beijunyi.parallelgit.filesystem.Gfs.*;
 import static com.beijunyi.parallelgit.filesystem.commands.GfsMerge.Result;
-import static com.beijunyi.parallelgit.filesystem.commands.GfsMerge.Status.*;
+import static com.beijunyi.parallelgit.filesystem.commands.GfsMerge.Status.CONFLICTING;
 import static com.beijunyi.parallelgit.utils.BranchUtils.createBranch;
-import static java.nio.file.Files.*;
+import static java.nio.file.Files.readAllBytes;
 import static org.junit.Assert.*;
 
-public class GfsMergeTest extends AbstractParallelGitTest {
+public class GfsMergeContentMergeTest extends AbstractParallelGitTest implements ParallelGitMergeTest {
+
+  private GitFileSystem gfs;
 
   @Before
-  public void setUp() throws Exception {
+  public void setUp() throws IOException {
     initRepository();
   }
 
-  @Test
-  public void whenHeadIsBehindSourceBranch_theResultShouldBeFastForward() throws Exception {
-    AnyObjectId parentCommit = commit();
-    prepareBranches(parentCommit, commit(parentCommit));
-    Result result = mergeBranches();
-    assertEquals(FAST_FORWARD, result.getStatus());
-  }
-
-  @Test
-  public void whenHeadIsBehindWithUnstashedFile_theResultShouldBeFastForward() throws Exception {
-    AnyObjectId parentCommit = commit();
-    prepareBranches(parentCommit, commit(parentCommit));
-    Result result;
-    try(GitFileSystem gfs = prepareFileSystem()) {
-      write(gfs.getPath("/some_file.txt"), someBytes());
-      result = merge(gfs).source("theirs").execute();
+  @After
+  public void tearDown() throws IOException {
+    if(gfs != null) {
+      gfs.close();
+      gfs = null;
     }
-    assertEquals(FAST_FORWARD, result.getStatus());
-  }
-
-  @Test
-  public void whenHeadIsBehindWithUnstashedFile_theFileShouldExistInTheFileSystemAfterMerge() throws Exception {
-    AnyObjectId parentCommit = commit();
-    prepareBranches(parentCommit, commit(parentCommit));
-    try(GitFileSystem gfs = prepareFileSystem()) {
-      write(gfs.getPath("/test_file.txt"), someBytes());
-      merge(gfs).source("theirs").execute();
-      assertTrue(exists(gfs.getPath("/test_file.txt")));
-    }
-  }
-
-  @Test
-  public void whenSourceBranchHasNonConflictingFile_theResultShouldBeMerged() throws IOException {
-    AnyObjectId base = commit();
-    AnyObjectId ours = commit(base);
-    writeToCache("/some_file.txt");
-    AnyObjectId theirs = commit(base);
-    prepareBranches(ours, theirs);
-    Result result = mergeBranches();
-    assertEquals(MERGED, result.getStatus());
-  }
-
-  @Test
-  public void whenSourceBranchHasNonConflictingFile_theFileShouldExistAfterTheOperation() throws IOException {
-    AnyObjectId base = commit();
-    AnyObjectId ours = commit(base);
-    writeToCache("/test_file.txt");
-    AnyObjectId theirs = commit(base);
-    prepareBranches(ours, theirs);
-    try(GitFileSystem gfs = prepareFileSystem()) {
-      merge(gfs).source("theirs").execute();
-      assertTrue(exists(gfs.getPath("/test_file.txt")));
-    }
-  }
-
-  @Test
-  public void whenSourceBranchHasAutoMergeableFile_theResultShouldBeMerged() throws IOException {
-    writeToCache("/test_file.txt", "a\nb\nc\nd\ne");
-    AnyObjectId base = commit();
-    clearCache();
-    writeToCache("/test_file.txt", "a\nB\nc\nd\ne");
-    AnyObjectId ours = commit(base);
-    clearCache();
-    writeToCache("/test_file.txt", "a\nb\nc\nD\nd\ne");
-    AnyObjectId theirs = commit(base);
-    prepareBranches(ours, theirs);
-    Result result = mergeBranches();
-    assertEquals(MERGED, result.getStatus());
   }
 
   @Test
