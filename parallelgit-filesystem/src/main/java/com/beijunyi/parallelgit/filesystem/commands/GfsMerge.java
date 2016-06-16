@@ -16,7 +16,6 @@ import com.beijunyi.parallelgit.filesystem.merge.MergeConflict;
 import com.beijunyi.parallelgit.filesystem.merge.MergeNote;
 import com.beijunyi.parallelgit.utils.BranchUtils;
 import com.beijunyi.parallelgit.utils.CommitUtils;
-import com.beijunyi.parallelgit.utils.RefUtils;
 import org.eclipse.jgit.dircache.DirCache;
 import org.eclipse.jgit.lib.AnyObjectId;
 import org.eclipse.jgit.lib.PersonIdent;
@@ -30,6 +29,7 @@ import static com.beijunyi.parallelgit.filesystem.merge.GfsMergeCheckout.handleC
 import static com.beijunyi.parallelgit.filesystem.merge.MergeConflict.readConflicts;
 import static com.beijunyi.parallelgit.filesystem.merge.MergeNote.mergeSquash;
 import static com.beijunyi.parallelgit.utils.CommitUtils.*;
+import static com.beijunyi.parallelgit.utils.RefUtils.getBranchRef;
 import static java.util.Collections.singletonList;
 import static org.eclipse.jgit.dircache.DirCache.newInCore;
 import static org.eclipse.jgit.merge.MergeStrategy.RECURSIVE;
@@ -124,14 +124,14 @@ public class GfsMerge extends GfsCommand<GfsMerge.Result> {
     if(!status.isAttached())
       throw new NoBranchException();
     branch = status.branch();
-    branchRef = RefUtils.getBranchRef(branch, repo);
+    branchRef = getBranchRef(branch, repo);
 
     if(status.isInitialized())
       headCommit = status.commit();
   }
 
   private void prepareSource() throws IOException {
-    sourceRef = RefUtils.getBranchRef(source, repo);
+    sourceRef = getBranchRef(source, repo);
     sourceHeadCommit = CommitUtils.getCommit(sourceRef, repo);
   }
 
@@ -147,11 +147,11 @@ public class GfsMerge extends GfsCommand<GfsMerge.Result> {
   }
 
   private boolean isUpToDate() throws IOException {
-    return headCommit != null && CommitUtils.isMergedInto(sourceHeadCommit, headCommit, repo);
+    return headCommit != null && isMergedInto(sourceHeadCommit, headCommit, repo);
   }
 
   private boolean canBeFastForwarded() throws IOException {
-    return headCommit == null || CommitUtils.isMergedInto(headCommit, sourceHeadCommit, repo);
+    return headCommit == null || isMergedInto(headCommit, sourceHeadCommit, repo);
   }
 
   @Nonnull
