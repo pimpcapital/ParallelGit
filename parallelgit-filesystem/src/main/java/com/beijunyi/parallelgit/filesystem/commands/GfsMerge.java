@@ -1,7 +1,9 @@
 package com.beijunyi.parallelgit.filesystem.commands;
 
 import java.io.IOException;
-import java.util.*;
+import java.util.Arrays;
+import java.util.List;
+import java.util.Map;
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 
@@ -15,7 +17,6 @@ import com.beijunyi.parallelgit.filesystem.merge.MergeNote;
 import com.beijunyi.parallelgit.utils.BranchUtils;
 import com.beijunyi.parallelgit.utils.CommitUtils;
 import com.beijunyi.parallelgit.utils.RefUtils;
-import org.eclipse.jgit.diff.Sequence;
 import org.eclipse.jgit.dircache.DirCache;
 import org.eclipse.jgit.lib.AnyObjectId;
 import org.eclipse.jgit.lib.PersonIdent;
@@ -28,7 +29,6 @@ import static com.beijunyi.parallelgit.filesystem.io.GfsDefaultCheckout.checkout
 import static com.beijunyi.parallelgit.filesystem.merge.GfsMergeCheckout.handleConflicts;
 import static com.beijunyi.parallelgit.filesystem.merge.MergeConflict.readConflicts;
 import static com.beijunyi.parallelgit.filesystem.merge.MergeNote.mergeSquash;
-import static com.beijunyi.parallelgit.filesystem.utils.GfsPathUtils.toAbsolutePath;
 import static com.beijunyi.parallelgit.utils.CommitUtils.listUnmergedCommits;
 import static java.util.Collections.singletonList;
 import static org.eclipse.jgit.dircache.DirCache.newInCore;
@@ -248,14 +248,6 @@ public class GfsMerge extends GfsCommand<GfsMerge.Result> {
 
   private void prepareCommitter() {
     if(committer == null) committer = new PersonIdent(repo);
-  }
-
-  @Nonnull
-  private static Map<String, MergeResult<? extends Sequence>> getConflicts(ResolveMerger merger) {
-    Map<String, MergeResult<? extends Sequence>> ret = new HashMap<>();
-    for(Map.Entry<String, MergeResult<? extends Sequence>> conflict : merger.getMergeResults().entrySet())
-      ret.put(toAbsolutePath(conflict.getKey()), conflict.getValue());
-    return ret;
   }
 
   public enum Status {
