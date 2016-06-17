@@ -1,9 +1,7 @@
 package com.beijunyi.parallelgit.filesystem.commands;
 
 import java.io.IOException;
-import java.util.Arrays;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 
@@ -30,7 +28,7 @@ import static com.beijunyi.parallelgit.filesystem.merge.MergeConflict.readConfli
 import static com.beijunyi.parallelgit.filesystem.merge.MergeNote.mergeSquash;
 import static com.beijunyi.parallelgit.utils.CommitUtils.*;
 import static com.beijunyi.parallelgit.utils.RefUtils.getBranchRef;
-import static java.util.Collections.singletonList;
+import static java.util.Collections.*;
 import static org.eclipse.jgit.dircache.DirCache.newInCore;
 import static org.eclipse.jgit.merge.MergeStrategy.RECURSIVE;
 
@@ -174,11 +172,29 @@ public class GfsMerge extends GfsCommand<GfsMerge.Result> {
   private Result threeWayMerge(GfsStatusProvider.Update update) throws IOException {
     Merger merger = prepareMerger();
     boolean success = merger.merge(headCommit, sourceHeadCommit);
-    if(success)
+    if(success) {
       return updateFileSystemStatus(update, merger);
-    if(merger instanceof ResolveMerger)
-      writeConflicts(update, (ResolveMerger)merger);
-    return Result.conflicting();
+    } else {
+      Map<String, MergeConflict> conflicts;
+      if(merger instanceof ResolveMerger) {
+        ResolveMerger resolver = (ResolveMerger) merger;
+        conflicts = readConflicts(resolver);
+        writeConflicts(conflicts);
+        writeConflictMergeNote(update, resolver.getUnmergedPaths());
+      } else {
+        conflicts = emptyMap();
+      }
+      return Result.conflicting(conflicts);
+    }
+  }
+
+  private void writeConflictMergeNote(GfsStatusProvider.Update update, List<String> unmergedPaths) {
+    message = new MergeMessageFormatter().formatWithConflicts(message, unmergedPaths);
+    if(squash) {
+      update.mergeNote(MergeNote.mergeSquashConflicting(message));
+    } else {
+      update.mergeNote(MergeNote.mergeConflicting(sourceHeadCommit, message));
+    }
   }
 
   @Nonnull
@@ -203,17 +219,10 @@ public class GfsMerge extends GfsCommand<GfsMerge.Result> {
     return Result.merged(newCommit);
   }
 
-  private void writeConflicts(GfsStatusProvider.Update update, ResolveMerger merger) throws IOException {
-    Map<String, MergeConflict> conflicts = readConflicts(merger);
+  private void writeConflicts(Map<String, MergeConflict> conflicts) throws IOException {
     handleConflicts(gfs, conflicts)
       .withFormatter(formatter)
       .checkout(cache);
-    message = new MergeMessageFormatter().formatWithConflicts(message, merger.getUnmergedPaths());
-    if(squash) {
-      update.mergeNote(MergeNote.mergeSquashConflicting(message));
-    } else {
-      update.mergeNote(MergeNote.mergeConflicting(sourceHeadCommit, message));
-    }
   }
 
   private boolean tryCheckout(AnyObjectId tree) throws IOException {
@@ -256,12 +265,19 @@ public class GfsMerge extends GfsCommand<GfsMerge.Result> {
   public static class Result implements GfsCommandResult {
 
     private final Status status;
+    private final Map<String, MergeConflict> conflicts;
     private final RevCommit commit;
 
-    private Result(Status status, @Nullable RevCommit commit) {
+    private Result(Status status, Map<String, MergeConflict> conflicts, @Nullable RevCommit commit) {
       this.status = status;
+      this.conflicts = conflicts;
       this.commit = commit;
     }
+
+    private Result(Status status, @Nullable RevCommit commit) {
+      this(status, Collections.<String, MergeConflict>emptyMap(), commit);
+    }
+
 
     @Nonnull
     public static Result checkoutConflict() {
@@ -304,8 +320,8 @@ public class GfsMerge extends GfsCommand<GfsMerge.Result> {
     }
 
     @Nonnull
-    public static Result conflicting() {
-      return new Result(CONFLICTING, null);
+    public static Result conflicting(Map<String, MergeConflict> conflicts) {
+      return new Result(CONFLICTING, conflicts, null);
     }
 
     @Override
@@ -326,6 +342,11 @@ public class GfsMerge extends GfsCommand<GfsMerge.Result> {
     @Nonnull
     public Status getStatus() {
       return status;
+    }
+
+    @Nonnull
+    public Map<String, MergeConflict> getConflicts() {
+      return conflicts;
     }
 
     @Nullable

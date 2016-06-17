@@ -25,7 +25,7 @@ public class GfsMergeSquashTest extends AbstractParallelGitTest implements Paral
     initRepository();
     ObjectId base = commit();
     clearCache();
-    writeToCache("/our_file.txt");
+    writeToCache("/test_file.txt", "OUR VERSION");
     commitToBranch(OURS, base);
     clearCache();
     writeToCache("/their_file1.txt");
@@ -75,6 +75,19 @@ public class GfsMergeSquashTest extends AbstractParallelGitTest implements Paral
     MergeNote note = gfs.getStatusProvider().mergeNote();
 
     assertTrue(result.isSuccessful());
+    assertNotNull(note);
+    assertNull(note.getSource());
+    assertNotNull(note.getMessage());
+  }
+
+  @Test
+  public void mergeConflictingBranchWithSquashOption_fileSystemShouldHaveMergeNoteWithMessageAndNoSourceCommit() throws IOException {
+    writeToCache("/test_file.txt", "THEIR VERSION");
+    commitToBranch(THEIRS);
+    Result result = merge(gfs).source(THEIRS).squash(true).execute();
+    MergeNote note = gfs.getStatusProvider().mergeNote();
+
+    assertFalse(result.isSuccessful());
     assertNotNull(note);
     assertNull(note.getSource());
     assertNotNull(note.getMessage());

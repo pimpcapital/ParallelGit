@@ -49,6 +49,12 @@ public class GfsMergeConflictingMergeTest extends AbstractParallelGitTest implem
   }
 
   @Test
+  public void whenSourceBranchHasConflictingFile_resultShouldContainTheConflictingFile() throws IOException {
+    Result result = merge(gfs).source(THEIRS).execute();
+    assertTrue(result.getConflicts().containsKey("/test_file.txt"));
+  }
+
+  @Test
   public void whenSourceBranchHasConflictingFile_theConflictingFileShouldBeFormatted() throws IOException {
     merge(gfs).source(THEIRS).execute();
     assertEquals("<<<<<<< refs/heads/ours\n" +
