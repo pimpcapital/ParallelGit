@@ -5,6 +5,8 @@ import java.nio.file.attribute.PosixFilePermission;
 import java.util.*;
 import javax.annotation.Nonnull;
 
+import static java.nio.file.attribute.PosixFilePermission.OWNER_EXECUTE;
+
 public class FileAttributeReader {
 
   private final Map<String, Object> attributeMap = new HashMap<>();
@@ -22,6 +24,6 @@ public class FileAttributeReader {
   @SuppressWarnings("unchecked")
   public boolean isExecutable() {
     Set<PosixFilePermission> permissions = (Set<PosixFilePermission>) attributeMap.get("posix:permissions");
-    return permissions != null && permissions.contains(PosixFilePermission.OWNER_EXECUTE);
+    return permissions != null && permissions.contains(OWNER_EXECUTE);
   }
 }

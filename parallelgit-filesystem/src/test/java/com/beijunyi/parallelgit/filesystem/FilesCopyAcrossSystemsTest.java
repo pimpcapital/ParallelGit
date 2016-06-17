@@ -10,7 +10,7 @@ import org.junit.Test;
 
 import static org.junit.Assert.*;
 
-public class GitFileSystemProviderMoveAcrossSystemsTest extends AbstractGitFileSystemTest {
+public class FilesCopyAcrossSystemsTest extends AbstractGitFileSystemTest {
 
   private Repository targetRepo;
   private GitFileSystem targetGfs;
@@ -28,7 +28,7 @@ public class GitFileSystemProviderMoveAcrossSystemsTest extends AbstractGitFileS
   }
 
   @Test
-  public void moveFileToAnotherSystem_theTargetFileShouldExist() throws IOException {
+  public void copyFileToAnotherSystem_theTargetFileShouldExist() throws IOException {
     initRepository();
     writeToCache("/source.txt");
     commitToMaster();
@@ -36,25 +36,12 @@ public class GitFileSystemProviderMoveAcrossSystemsTest extends AbstractGitFileS
 
     GitPath source = gfs.getPath("/source.txt");
     GitPath target = targetGfs.getPath("/target.txt");
-    provider.move(source, target);
+    Files.copy(source, target);
     assertTrue(Files.exists(target));
   }
 
   @Test
-  public void moveFile_theSourceFileShouldNotExist() throws IOException {
-    initRepository();
-    writeToCache("/source.txt");
-    commitToMaster();
-    initGitFileSystem();
-
-    GitPath source = gfs.getPath("/source.txt");
-    GitPath target = targetGfs.getPath("/target.txt");
-    provider.move(source, target);
-    assertFalse(Files.exists(source));
-  }
-
-  @Test
-  public void moveFileToAnotherSystem_theTargetFileShouldHaveTheSameData() throws IOException {
+  public void copyFileToAnotherSystem_theTargetFileShouldHaveTheSameData() throws IOException {
     initRepository();
     byte[] expectedData = "expected data".getBytes();
     writeToCache("/source.txt", expectedData);
@@ -63,12 +50,25 @@ public class GitFileSystemProviderMoveAcrossSystemsTest extends AbstractGitFileS
 
     GitPath source = gfs.getPath("/source.txt");
     GitPath target = targetGfs.getPath("/target.txt");
-    provider.move(source, target);
+    Files.copy(source, target);
     assertArrayEquals(expectedData, Files.readAllBytes(target));
   }
 
   @Test
-  public void moveDirectoryToAnotherSystem_theTargetDirectoryShouldExist() throws IOException {
+  public void copyFileToAnotherSystem_theTargetFileSystemShouldBecomeDirty() throws IOException {
+    initRepository();
+    writeToCache("/source.txt");
+    commitToMaster();
+    initGitFileSystem();
+
+    GitPath source = gfs.getPath("/source.txt");
+    GitPath target = targetGfs.getPath("/target.txt");
+    Files.copy(source, target);
+    assertTrue(targetGfs.getStatusProvider().isDirty());
+  }
+
+  @Test
+  public void copyDirectoryToAnotherSystem_theTargetDirectoryShouldExist() throws IOException {
     initRepository();
     writeToCache("/source/file.txt");
     commitToMaster();
@@ -76,25 +76,12 @@ public class GitFileSystemProviderMoveAcrossSystemsTest extends AbstractGitFileS
 
     GitPath source = gfs.getPath("/source");
     GitPath target = targetGfs.getPath("/target");
-    provider.move(source, target);
+    Files.copy(source, target);
     assertTrue(Files.exists(target));
   }
 
   @Test
-  public void moveDirectoryToAnotherSystem_theSourceDirectoryShouldNotExist() throws IOException {
-    initRepository();
-    writeToCache("/source/file.txt");
-    commitToMaster();
-    initGitFileSystem();
-
-    GitPath source = gfs.getPath("/source");
-    GitPath target = targetGfs.getPath("/target");
-    provider.move(source, target);
-    assertFalse(Files.exists(source));
-  }
-
-  @Test
-  public void moveDirectoryToAnotherSystem_theTargetDirectoryShouldHaveTheSameChildren() throws IOException {
+  public void copyDirectoryToAnotherSystem_theTargetDirectoryShouldHaveTheSameChildren() throws IOException {
     initRepository();
     writeToCache("/source/file1.txt");
     writeToCache("/source/file2.txt");
@@ -103,13 +90,13 @@ public class GitFileSystemProviderMoveAcrossSystemsTest extends AbstractGitFileS
 
     GitPath source = gfs.getPath("/source");
     GitPath target = targetGfs.getPath("/target");
-    provider.move(source, target);
+    Files.copy(source, target);
     assertTrue(Files.exists(target.resolve("file1.txt")));
     assertTrue(Files.exists(target.resolve("file2.txt")));
   }
 
   @Test
-  public void moveDirectoryToAnotherSystem_theChildrenInTheTargetDirectoryShouldHaveTheSameData() throws IOException {
+  public void copyDirectoryToAnotherSystem_theChildrenInTheTargetDirectoryShouldHaveTheSameData() throws IOException {
     initRepository();
     byte[] expectedData1 = "expected data 1".getBytes();
     writeToCache("/source/file1.txt", expectedData1);
@@ -120,9 +107,22 @@ public class GitFileSystemProviderMoveAcrossSystemsTest extends AbstractGitFileS
 
     GitPath source = gfs.getPath("/source");
     GitPath target = targetGfs.getPath("/target");
-    provider.move(source, target);
+    Files.copy(source, target);
     assertArrayEquals(expectedData1, Files.readAllBytes(target.resolve("file1.txt")));
     assertArrayEquals(expectedData2, Files.readAllBytes(target.resolve("file2.txt")));
+  }
+
+  @Test
+  public void copyDirectoryToAnotherSystem_theTargetFileSystemShouldBecomeDirty() throws IOException {
+    initRepository();
+    writeToCache("/source/file.txt");
+    commitToMaster();
+    initGitFileSystem();
+
+    GitPath source = gfs.getPath("/source");
+    GitPath target = targetGfs.getPath("/target");
+    Files.copy(source, target);
+    assertTrue(targetGfs.getStatusProvider().isDirty());
   }
 
 }

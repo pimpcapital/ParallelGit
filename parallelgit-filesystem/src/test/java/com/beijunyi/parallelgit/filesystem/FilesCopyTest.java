@@ -11,7 +11,7 @@ import org.junit.Test;
 import static java.nio.file.StandardCopyOption.REPLACE_EXISTING;
 import static org.junit.Assert.*;
 
-public class GitFileSystemProviderCopyTest extends AbstractGitFileSystemTest {
+public class FilesCopyTest extends AbstractGitFileSystemTest {
 
   @Before
   public void setUp() throws IOException {

@@ -7,7 +7,7 @@ import org.junit.Test;
 
 import static org.junit.Assert.*;
 
-public class GitFileSystemProviderMoveTest extends AbstractGitFileSystemTest {
+public class FilesMoveTest extends AbstractGitFileSystemTest {
 
   @Test
   public void moveFile_theTargetFileShouldExist() throws IOException {
@@ -18,7 +18,7 @@ public class GitFileSystemProviderMoveTest extends AbstractGitFileSystemTest {
 
     GitPath source = gfs.getPath("/source.txt");
     GitPath target = gfs.getPath("/target.txt");
-    provider.move(source, target);
+    Files.move(source, target);
     assertTrue(Files.exists(target));
   }
 
@@ -31,7 +31,7 @@ public class GitFileSystemProviderMoveTest extends AbstractGitFileSystemTest {
 
     GitPath source = gfs.getPath("/source.txt");
     GitPath target = gfs.getPath("/target.txt");
-    provider.move(source, target);
+    Files.move(source, target);
     assertFalse(Files.exists(source));
   }
 
@@ -45,7 +45,7 @@ public class GitFileSystemProviderMoveTest extends AbstractGitFileSystemTest {
 
     GitPath source = gfs.getPath("/source.txt");
     GitPath target = gfs.getPath("/target.txt");
-    provider.move(source, target);
+    Files.move(source, target);
     assertArrayEquals(expectedData, Files.readAllBytes(target));
   }
 
@@ -59,7 +59,7 @@ public class GitFileSystemProviderMoveTest extends AbstractGitFileSystemTest {
 
     GitPath source = gfs.getPath("/source.txt");
     GitPath target = gfs.getPath("/target.txt");
-    provider.move(source, target);
+    Files.move(source, target);
   }
 
   @Test
@@ -73,7 +73,7 @@ public class GitFileSystemProviderMoveTest extends AbstractGitFileSystemTest {
     GitPath source = gfs.getPath("/source.txt");
     GitPath target = gfs.getPath("/target.txt");
     try {
-      provider.move(source, target);
+      Files.move(source, target);
     } catch(FileAlreadyExistsException ignore) {
     }
     assertTrue(Files.exists(source));
@@ -90,7 +90,7 @@ public class GitFileSystemProviderMoveTest extends AbstractGitFileSystemTest {
 
     GitPath source = gfs.getPath("/source.txt");
     GitPath target = gfs.getPath("/target.txt");
-    provider.move(source, target, StandardCopyOption.REPLACE_EXISTING);
+    Files.move(source, target, StandardCopyOption.REPLACE_EXISTING);
     assertArrayEquals(expectedData, Files.readAllBytes(target));
   }
 
@@ -103,7 +103,7 @@ public class GitFileSystemProviderMoveTest extends AbstractGitFileSystemTest {
     initGitFileSystem();
 
     GitPath source = gfs.getPath("/source.txt");
-    provider.move(source, source);
+    Files.move(source, source);
     assertArrayEquals(expectedData, Files.readAllBytes(source));
   }
 
@@ -112,7 +112,7 @@ public class GitFileSystemProviderMoveTest extends AbstractGitFileSystemTest {
     initGitFileSystem();
     GitPath source = gfs.getPath("/non_existent_file.txt");
     GitPath target = gfs.getPath("/target.txt");
-    provider.move(source, target);
+    Files.move(source, target);
   }
 
   @Test(expected = FileAlreadyExistsException.class)
@@ -125,7 +125,7 @@ public class GitFileSystemProviderMoveTest extends AbstractGitFileSystemTest {
 
     GitPath source = gfs.getPath("/source.txt");
     GitPath target = gfs.getPath("/target");
-    provider.move(source, target);
+    Files.move(source, target);
   }
 
   @Test
@@ -138,7 +138,7 @@ public class GitFileSystemProviderMoveTest extends AbstractGitFileSystemTest {
 
     GitPath source = gfs.getPath("/source.txt");
     GitPath target = gfs.getPath("/target");
-    provider.move(source, target, StandardCopyOption.REPLACE_EXISTING);
+    Files.move(source, target, StandardCopyOption.REPLACE_EXISTING);
     assertTrue(Files.isRegularFile(target));
   }
 
@@ -153,7 +153,7 @@ public class GitFileSystemProviderMoveTest extends AbstractGitFileSystemTest {
 
     GitPath source = gfs.getPath("/source.txt");
     GitPath target = gfs.getPath("/target");
-    provider.move(source, target, StandardCopyOption.REPLACE_EXISTING);
+    Files.move(source, target, StandardCopyOption.REPLACE_EXISTING);
     assertArrayEquals(expectedData, Files.readAllBytes(target));
   }
 
@@ -166,7 +166,7 @@ public class GitFileSystemProviderMoveTest extends AbstractGitFileSystemTest {
 
     GitPath source = gfs.getPath("/source");
     GitPath target = gfs.getPath("/target");
-    provider.move(source, target);
+    Files.move(source, target);
     assertTrue(Files.exists(target));
   }
 
@@ -179,7 +179,7 @@ public class GitFileSystemProviderMoveTest extends AbstractGitFileSystemTest {
 
     GitPath source = gfs.getPath("/source");
     GitPath target = gfs.getPath("/target");
-    provider.move(source, target);
+    Files.move(source, target);
     assertFalse(Files.exists(source));
   }
 
@@ -192,7 +192,7 @@ public class GitFileSystemProviderMoveTest extends AbstractGitFileSystemTest {
 
     GitPath source = gfs.getPath("/source");
     GitPath target = gfs.getPath("/target");
-    provider.move(source, target);
+    Files.move(source, target);
     assertTrue(Files.isDirectory(target));
   }
 
@@ -206,7 +206,7 @@ public class GitFileSystemProviderMoveTest extends AbstractGitFileSystemTest {
 
     GitPath source = gfs.getPath("/source");
     GitPath target = gfs.getPath("/target");
-    provider.move(source, target);
+    Files.move(source, target);
     assertTrue(Files.exists(target.resolve("file1.txt")));
     assertTrue(Files.exists(target.resolve("file2.txt")));
   }
@@ -223,7 +223,7 @@ public class GitFileSystemProviderMoveTest extends AbstractGitFileSystemTest {
 
     GitPath source = gfs.getPath("/source");
     GitPath target = gfs.getPath("/target");
-    provider.move(source, target);
+    Files.move(source, target);
     assertArrayEquals(expectedData1, Files.readAllBytes(target.resolve("file1.txt")));
     assertArrayEquals(expectedData2, Files.readAllBytes(target.resolve("file2.txt")));
   }

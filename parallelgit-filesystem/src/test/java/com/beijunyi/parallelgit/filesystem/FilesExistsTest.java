@@ -6,7 +6,7 @@ import org.junit.Test;
 
 import static org.junit.Assert.*;
 
-public class GitFileSystemProviderExistTest extends AbstractGitFileSystemTest {
+public class FilesExistsTest extends AbstractGitFileSystemTest {
 
   @Test
   public void rootExistsTest() throws Exception {

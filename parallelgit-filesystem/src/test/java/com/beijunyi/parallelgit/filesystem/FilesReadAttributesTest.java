@@ -1,6 +1,7 @@
 package com.beijunyi.parallelgit.filesystem;
 
 import java.io.IOException;
+import java.nio.file.Files;
 import java.nio.file.NoSuchFileException;
 import java.nio.file.attribute.BasicFileAttributes;
 import java.nio.file.attribute.FileTime;
@@ -12,12 +13,12 @@ import org.junit.Test;
 
 import static org.junit.Assert.assertTrue;
 
-public class GitFileSystemProviderReadAttributesTest extends PreSetupGitFileSystemTest {
+public class FilesReadAttributesTest extends PreSetupGitFileSystemTest {
 
   @Test
   public void readBasicAttributes_theResultShouldContainSpecifiedAttributes() throws IOException {
     writeToGfs("/file.txt");
-    Map<String, Object> attributeMap = provider.readAttributes(gfs.getPath("/file.txt"), "basic:size,isRegularFile");
+    Map<String, Object> attributeMap = Files.readAttributes(gfs.getPath("/file.txt"), "basic:size,isRegularFile");
     assertTrue(attributeMap.containsKey("size"));
     assertTrue(attributeMap.containsKey("isRegularFile"));
   }
@@ -25,7 +26,7 @@ public class GitFileSystemProviderReadAttributesTest extends PreSetupGitFileSyst
   @Test
   public void readBasicAttributesWithoutViewType_theResultShouldContainSpecifiedAttributes() throws IOException {
     writeToGfs("/file.txt");
-    Map<String, Object> attributeMap = provider.readAttributes(gfs.getPath("/file.txt"), "size,isRegularFile");
+    Map<String, Object> attributeMap = Files.readAttributes(gfs.getPath("/file.txt"), "size,isRegularFile");
     assertTrue(attributeMap.containsKey("size"));
     assertTrue(attributeMap.containsKey("isRegularFile"));
   }
@@ -33,7 +34,7 @@ public class GitFileSystemProviderReadAttributesTest extends PreSetupGitFileSyst
   @Test
   public void readPosixAttributes_theResultShouldContainSpecifiedAttributes() throws IOException {
     writeToGfs("/file.txt");
-    Map<String, Object> attributeMap = provider.readAttributes(gfs.getPath("/file.txt"), "posix:permissions,owner");
+    Map<String, Object> attributeMap = Files.readAttributes(gfs.getPath("/file.txt"), "posix:permissions,owner");
     assertTrue(attributeMap.containsKey("permissions"));
     assertTrue(attributeMap.containsKey("owner"));
   }
@@ -107,7 +108,7 @@ public class GitFileSystemProviderReadAttributesTest extends PreSetupGitFileSyst
   @Test(expected = UnsupportedOperationException.class)
   public void readUnsupportedFileAttributes_shouldThrowUnsupportedOperationException2() throws IOException {
     writeToGfs("/file.txt");
-    provider.readAttributes(gfs.getPath("/file.txt"), "some_view:some_attribute");
+    Files.readAttributes(gfs.getPath("/file.txt"), "some_view:some_attribute");
   }
 
 }

@@ -1,13 +1,14 @@
 package com.beijunyi.parallelgit.filesystem;
 
 import java.io.IOException;
+import java.nio.file.Files;
 import java.nio.file.NotDirectoryException;
 
 import org.junit.Test;
 
 import static org.junit.Assert.assertNotNull;
 
-public class GitFileSystemProviderDirectoryStreamTest extends AbstractGitFileSystemTest {
+public class FilesDirectoryStreamTest extends AbstractGitFileSystemTest {
 
  @Test
  public void openDirectory_shouldReturnDirectoryStream() throws IOException {
@@ -15,7 +16,7 @@ public class GitFileSystemProviderDirectoryStreamTest extends AbstractGitFileSys
    writeToCache("/dir/file.txt");
    commitToMaster();
    initGitFileSystem();
-   assertNotNull(provider.newDirectoryStream(gfs.getPath("/dir"), null));
+   assertNotNull(Files.newDirectoryStream(gfs.getPath("/dir")));
  }
 
   @Test(expected = NotDirectoryException.class)
@@ -24,13 +25,13 @@ public class GitFileSystemProviderDirectoryStreamTest extends AbstractGitFileSys
     writeToCache("/file.txt");
     commitToMaster();
     initGitFileSystem();
-    provider.newDirectoryStream(gfs.getPath("/file.txt"), null);
+    Files.newDirectoryStream(gfs.getPath("/file.txt"));
   }
 
   @Test(expected = NotDirectoryException.class)
   public void openNonExistentDirectory_shouldThrowException() throws IOException {
     initGitFileSystem();
-    provider.newDirectoryStream(gfs.getPath("/non_existent_directory"), null);
+    Files.newDirectoryStream(gfs.getPath("/non_existent_directory"));
   }
 
 }

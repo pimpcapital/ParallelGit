@@ -8,7 +8,7 @@ import org.junit.Test;
 
 import static org.junit.Assert.assertTrue;
 
-public class GitFileSystemProviderIsSameFileTest extends AbstractGitFileSystemTest {
+public class FilesIsSameFileTest extends AbstractGitFileSystemTest {
 
   @Before
   public void setupFileSystem() throws IOException {

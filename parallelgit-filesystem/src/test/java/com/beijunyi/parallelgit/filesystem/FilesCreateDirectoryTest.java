@@ -9,13 +9,13 @@ import org.junit.Test;
 
 import static org.junit.Assert.*;
 
-public class GitFileSystemProviderCreateDirectoryTest extends AbstractGitFileSystemTest {
+public class FilesCreateDirectoryTest extends AbstractGitFileSystemTest {
 
   @Test
   public void createNewDirectory_theSpecifiedDirectoryShouldExistAfterTheOperation() throws IOException {
     initGitFileSystem();
     Path dir = gfs.getPath("/dir");
-    provider.createDirectory(dir);
+    Files.createDirectory(dir);
     assertTrue(Files.isDirectory(dir));
   }
 
@@ -23,7 +23,7 @@ public class GitFileSystemProviderCreateDirectoryTest extends AbstractGitFileSys
   public void createNewDirectoryAndCreateChildFile_theChildFileShouldExistAfterTheOperation() throws IOException {
     initGitFileSystem();
     Path dir = gfs.getPath("/dir");
-    provider.createDirectory(dir);
+    Files.createDirectory(dir);
     Path childFile = dir.resolve("file.txt");
     Files.write(childFile, "some text data".getBytes());
     assertTrue(Files.exists(childFile));
@@ -33,26 +33,26 @@ public class GitFileSystemProviderCreateDirectoryTest extends AbstractGitFileSys
   public void createEmptyDirectory_theFileSystemShouldStayClean() throws IOException {
     initGitFileSystem();
     GitPath dir = gfs.getPath("/empty_dir");
-    provider.createDirectory(dir);
+    Files.createDirectory(dir);
     assertFalse(gfs.getStatusProvider().isDirty());
   }
 
   @Test(expected = FileAlreadyExistsException.class)
   public void createNewDirectoryWhenDirectoryExists_shouldThrowFileAlreadyExistsException() throws IOException {
     initGitFileSystem("/a/b.txt");
-    provider.createDirectory(gfs.getPath("/a"));
+    Files.createDirectory(gfs.getPath("/a"));
   }
 
   @Test(expected = FileAlreadyExistsException.class)
   public void createNewDirectoryWhenFileExists_shouldThrowFileAlreadyExistsException() throws IOException {
     initGitFileSystem("/a");
-    provider.createDirectory(gfs.getPath("/a"));
+    Files.createDirectory(gfs.getPath("/a"));
   }
 
   @Test(expected = FileAlreadyExistsException.class)
   public void createRootDirectory_shouldThrowFileAlreadyExistsException() throws IOException {
     initGitFileSystem();
-    provider.createDirectory(gfs.getPath("/"));
+    Files.createDirectory(gfs.getPath("/"));
   }
 
 

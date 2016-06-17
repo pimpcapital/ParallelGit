@@ -8,14 +8,14 @@ import org.junit.Test;
 
 import static org.junit.Assert.*;
 
-public class GitFileSystemProviderDeleteTest extends AbstractGitFileSystemTest {
+public class FilesDeleteTest extends AbstractGitFileSystemTest {
 
   @Test
   public void deleteFile_fileShouldNotExistAfterDeletion() throws IOException {
     initGitFileSystem("/test_file.txt");
 
     GitPath path = gfs.getPath("/test_file.txt");
-    provider.delete(path);
+    Files.delete(path);
     assertFalse(Files.exists(path));
   }
 
@@ -24,7 +24,7 @@ public class GitFileSystemProviderDeleteTest extends AbstractGitFileSystemTest {
     initGitFileSystem("/test_file.txt");
 
     GitPath path = gfs.getPath("/test_file.txt");
-    provider.delete(path);
+    Files.delete(path);
     assertTrue(gfs.getStatusProvider().isDirty());
   }
 
@@ -33,9 +33,9 @@ public class GitFileSystemProviderDeleteTest extends AbstractGitFileSystemTest {
     initGitFileSystem("/dir/some_file.txt");
 
     GitPath file = gfs.getPath("/dir/some_file.txt");
-    provider.delete(file);
+    Files.delete(file);
     GitPath dir = gfs.getPath("/dir");
-    provider.delete(dir);
+    Files.delete(dir);
     assertFalse(Files.exists(dir));
   }
 
@@ -43,8 +43,8 @@ public class GitFileSystemProviderDeleteTest extends AbstractGitFileSystemTest {
   public void createAndDeleteEmptyDirectory_theFileSystemShouldRemainClean() throws IOException {
     initGitFileSystem();
     GitPath dir = gfs.getPath("/empty_dir");
-    provider.createDirectory(dir);
-    provider.delete(dir);
+    Files.createDirectory(dir);
+    Files.delete(dir);
     assertFalse(gfs.getStatusProvider().isDirty());
   }
 
@@ -53,14 +53,14 @@ public class GitFileSystemProviderDeleteTest extends AbstractGitFileSystemTest {
     initGitFileSystem("/dir/some_file.txt");
 
     GitPath dir = gfs.getPath("/dir");
-    provider.delete(dir);
+    Files.delete(dir);
     assertFalse(Files.exists(dir));
   }
 
   @Test(expected = NoSuchFileException.class)
   public void deleteNonExistentFile_shouldThrowException() throws IOException {
     initGitFileSystem();
-    provider.delete(gfs.getPath("/non_existent_file.txt"));
+    Files.delete(gfs.getPath("/non_existent_file.txt"));
   }
 
 }

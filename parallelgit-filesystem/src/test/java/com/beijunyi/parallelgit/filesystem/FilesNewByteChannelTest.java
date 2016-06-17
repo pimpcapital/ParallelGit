@@ -15,7 +15,7 @@ import static java.nio.file.Files.*;
 import static java.nio.file.StandardOpenOption.*;
 import static org.junit.Assert.*;
 
-public class GitFileSystemProviderNewByteChannelTest extends AbstractGitFileSystemTest {
+public class FilesNewByteChannelTest extends AbstractGitFileSystemTest {
 
   private static final byte[] TEST_DATA = someBytes();
 

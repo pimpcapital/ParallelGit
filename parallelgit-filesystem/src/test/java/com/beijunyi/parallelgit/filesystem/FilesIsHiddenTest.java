@@ -8,7 +8,7 @@ import org.junit.Test;
 
 import static org.junit.Assert.*;
 
-public class GitFIleSystemProviderIsHiddenTest extends AbstractGitFileSystemTest {
+public class FilesIsHiddenTest extends AbstractGitFileSystemTest {
 
   @Before
   public void setupFileSystem() throws IOException {
