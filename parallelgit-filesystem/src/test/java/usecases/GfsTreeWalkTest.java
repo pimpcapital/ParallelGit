@@ -85,7 +85,7 @@ public class GfsTreeWalkTest extends AbstractGitFileSystemTest {
 
   @Nonnull
   private TreeWalk prepareTreeWalk(boolean recursive) throws IOException {
-    GfsTreeIterator iterator = new GfsTreeIterator(gfs);
+    GfsTreeIterator iterator = GfsTreeIterator.iterateRoot(gfs);
     TreeWalk ret = new TreeWalk(repo);
     ret.setRecursive(recursive);
     ret.addTree(iterator);

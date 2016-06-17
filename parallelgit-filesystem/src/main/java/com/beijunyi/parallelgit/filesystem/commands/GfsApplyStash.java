@@ -8,7 +8,6 @@ import javax.annotation.Nonnull;
 import com.beijunyi.parallelgit.filesystem.GfsStatusProvider;
 import com.beijunyi.parallelgit.filesystem.GitFileSystem;
 import com.beijunyi.parallelgit.filesystem.exceptions.NoHeadCommitException;
-import com.beijunyi.parallelgit.filesystem.io.GfsTreeIterator;
 import com.beijunyi.parallelgit.filesystem.merge.MergeConflict;
 import org.eclipse.jgit.dircache.DirCache;
 import org.eclipse.jgit.lib.AnyObjectId;
@@ -18,6 +17,7 @@ import org.eclipse.jgit.revwalk.RevCommit;
 import static com.beijunyi.parallelgit.filesystem.commands.GfsApplyStash.Result.*;
 import static com.beijunyi.parallelgit.filesystem.commands.GfsApplyStash.Status.*;
 import static com.beijunyi.parallelgit.filesystem.io.GfsDefaultCheckout.checkout;
+import static com.beijunyi.parallelgit.filesystem.io.GfsTreeIterator.iterateRoot;
 import static com.beijunyi.parallelgit.filesystem.merge.GfsMergeCheckout.handleConflicts;
 import static com.beijunyi.parallelgit.filesystem.merge.MergeConflict.readConflicts;
 import static com.beijunyi.parallelgit.utils.CommitUtils.getCommit;
@@ -77,7 +77,7 @@ public class GfsApplyStash extends GfsCommand<GfsApplyStash.Result> {
     merger = (ResolveMerger)strategy.newMerger(repo, true);
     merger.setBase(stash.getParent(0));
     merger.setCommitNames(new String[] {"BASE", "Updated upstream", "Stashed changes"});
-    merger.setWorkingTreeIterator(new GfsTreeIterator(gfs));
+    merger.setWorkingTreeIterator(iterateRoot(gfs));
   }
 
   @Nonnull

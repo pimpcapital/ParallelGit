@@ -14,6 +14,7 @@ import org.eclipse.jgit.lib.ObjectReader;
 import org.eclipse.jgit.treewalk.*;
 
 import static com.beijunyi.parallelgit.filesystem.io.GfsCheckoutConflict.threeWayConflict;
+import static com.beijunyi.parallelgit.filesystem.io.GfsTreeIterator.iterateRoot;
 import static com.beijunyi.parallelgit.filesystem.utils.GfsPathUtils.toAbsolutePath;
 
 public class GfsDefaultCheckout {
@@ -88,7 +89,7 @@ public class GfsDefaultCheckout {
     TreeWalk ret = new NameConflictTreeWalk(gfs.getRepository());
     ret.addTree(new CanonicalTreeParser(null, reader, status.commit().getTree()));
     ret.addTree(iterator);
-    ret.addTree(new GfsTreeIterator(gfs));
+    ret.addTree(iterateRoot(gfs));
     return ret;
   }
 

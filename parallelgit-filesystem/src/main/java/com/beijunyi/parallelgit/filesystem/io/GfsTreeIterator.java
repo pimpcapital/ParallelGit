@@ -17,6 +17,7 @@ import org.eclipse.jgit.treewalk.AbstractTreeIterator;
 import org.eclipse.jgit.treewalk.WorkingTreeIterator;
 import org.eclipse.jgit.treewalk.WorkingTreeOptions;
 
+import static java.lang.System.arraycopy;
 import static java.util.Collections.*;
 import static org.eclipse.jgit.lib.Constants.*;
 
@@ -46,8 +47,13 @@ public class GfsTreeIterator extends WorkingTreeIterator {
     this(store.getRoot());
   }
 
-  public GfsTreeIterator(GitFileSystem gfs) throws IOException {
+  private GfsTreeIterator(GitFileSystem gfs) throws IOException {
     this(gfs.getFileStore());
+  }
+
+  @Nonnull
+  public static GfsTreeIterator iterateRoot(GitFileSystem gfs) throws IOException {
+    return new GfsTreeIterator(gfs);
   }
 
   @Override
@@ -115,7 +121,7 @@ public class GfsTreeIterator extends WorkingTreeIterator {
 
     byte[] name = encode(entry.getName());
     ensurePathCapacity(pathOffset + name.length, pathOffset);
-    System.arraycopy(name, 0, path, pathOffset, name.length);
+    arraycopy(name, 0, path, pathOffset, name.length);
     pathLen = pathOffset + name.length;
   }
 
@@ -148,7 +154,7 @@ public class GfsTreeIterator extends WorkingTreeIterator {
       try {
         return node.getObjectId(false);
       } catch(IOException e) {
-        throw new IllegalStateException();
+        throw new IllegalStateException(e);
       }
     }
 
