@@ -35,11 +35,6 @@ public class GfsCommit extends GfsCommand<GfsCommit.Result> {
   @Nonnull
   @Override
   protected Result doExecute(GfsStatusProvider.Update update) throws IOException {
-    if(status.isAttached()) {
-      if(!isHeadSynchronized()) {
-        return Result.outOfSync();
-      }
-    }
     prepareMessage();
     prepareCommitter();
     prepareAuthor();
@@ -81,14 +76,6 @@ public class GfsCommit extends GfsCommand<GfsCommit.Result> {
   public GfsCommit allowEmpty(boolean allowEmpty) {
     this.allowEmpty = allowEmpty;
     return this;
-  }
-
-  private boolean isHeadSynchronized() throws IOException {
-    if(BranchUtils.branchExists(status.branch(), repo)) {
-      RevCommit head = BranchUtils.getHeadCommit(status.branch(), repo);
-      return head.equals(status.commit());
-    }
-    return true;
   }
 
   private void prepareMessage() {
@@ -145,8 +132,7 @@ public class GfsCommit extends GfsCommand<GfsCommit.Result> {
 
   public enum Status {
     COMMITTED,
-    NO_CHANGE,
-    OUT_OF_SYNC
+    NO_CHANGE
   }
 
   public static class Result implements GfsCommandResult {
@@ -167,11 +153,6 @@ public class GfsCommit extends GfsCommand<GfsCommit.Result> {
     @Nonnull
     public static Result noChange() {
       return new Result(Status.NO_CHANGE, null);
-    }
-
-    @Nonnull
-    public static Result outOfSync() {
-      return new Result(Status.OUT_OF_SYNC, null);
     }
 
     @Override
