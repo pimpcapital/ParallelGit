@@ -38,7 +38,7 @@ public class GfsPathMatcher implements PathMatcher {
   @Nonnull
   public static GfsPathMatcher newMatcher(String syntaxPattern) {
     int pos = syntaxPattern.indexOf(':');
-    if(pos <= 0 || pos == syntaxPattern.length()) throw new IllegalArgumentException();
+    if(pos <= 0 || pos == syntaxPattern.length()) throw new IllegalArgumentException(syntaxPattern);
     String syntax = syntaxPattern.substring(0, pos);
     String pattern = syntaxPattern.substring(pos + 1);
     return newMatcher(syntax, pattern);
