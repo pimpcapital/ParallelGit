@@ -101,7 +101,10 @@ public class GfsCommit extends GfsCommand<GfsCommit.Result> {
   private void prepareParents() {
     if(parents == null) {
       if(!amend) {
-        if(status.isInitialized()) {
+        MergeNote mergeNote = status.mergeNote();
+        if(mergeNote != null && mergeNote.getSource() != null) {
+          parents = asList(status.commit(), mergeNote.getSource());
+        } else if(status.isInitialized()) {
           parents = singletonList(status.commit());
         } else {
           parents = emptyList();
@@ -118,12 +121,17 @@ public class GfsCommit extends GfsCommand<GfsCommit.Result> {
 
   private void updateStatus(GfsStatusProvider.Update update, RevCommit newHead) throws IOException {
     if(status.isAttached()) {
-      if(amend) {
-        BranchUtils.amend(status.branch(), newHead, repo);
-      } else if(status.isInitialized()) {
-        BranchUtils.newCommit(status.branch(), newHead, repo);
+      MergeNote mergeNote = status.mergeNote();
+      if(!amend) {
+        if(mergeNote != null) {
+          BranchUtils.mergeCommit(status.branch(), newHead, repo);
+        } else if(status.isInitialized()) {
+          BranchUtils.newCommit(status.branch(), newHead, repo);
+        } else {
+          BranchUtils.initBranch(status.branch(), newHead, repo);
+        }
       } else {
-        BranchUtils.initBranch(status.branch(), newHead, repo);
+        BranchUtils.amendCommit(status.branch(), newHead, repo);
       }
     }
     update.commit(newHead);

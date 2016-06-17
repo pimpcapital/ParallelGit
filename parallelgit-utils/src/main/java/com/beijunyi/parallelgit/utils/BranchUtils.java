@@ -12,6 +12,7 @@ import com.beijunyi.parallelgit.utils.exceptions.RefUpdateValidator;
 import org.eclipse.jgit.lib.*;
 import org.eclipse.jgit.revwalk.*;
 
+import static com.beijunyi.parallelgit.utils.CommitUtils.getCommit;
 import static com.beijunyi.parallelgit.utils.RefUtils.fullBranchName;
 import static org.eclipse.jgit.lib.Constants.*;
 import static org.eclipse.jgit.lib.ObjectId.zeroId;
@@ -23,7 +24,7 @@ public final class BranchUtils {
     Ref branchRef = repo.exactRef(fullBranchName(name));
     if(branchRef == null)
       throw new NoSuchBranchException(name);
-    RevCommit head = CommitUtils.getCommit(branchRef, repo);
+    RevCommit head = getCommit(branchRef, repo);
     return CommitUtils.getHistory(head, repo);
   }
 
@@ -40,7 +41,7 @@ public final class BranchUtils {
   @Nonnull
   public static RevCommit getHeadCommit(String name, Repository repo) throws IOException {
     Ref ref = RefUtils.getBranchRef(name, repo);
-    return CommitUtils.getCommit(ref.getObjectId(), repo);
+    return getCommit(ref.getObjectId(), repo);
   }
 
   public static void createBranch(String name, RevTag startPoint, Repository repo) throws IOException {
@@ -81,7 +82,7 @@ public final class BranchUtils {
     if(ref != null)
       createBranch(name, ref, repo);
     else {
-      RevCommit commit = CommitUtils.getCommit(startPoint, repo);
+      RevCommit commit = getCommit(startPoint, repo);
       createBranch(name, commit, repo);
     }
   }
@@ -94,8 +95,12 @@ public final class BranchUtils {
     setBranchHead(name, commitId, repo, makeRefLogMessage("commit", commitId, repo), false);
   }
 
-  public static void amend(String name, AnyObjectId commitId, Repository repo) throws IOException {
+  public static void amendCommit(String name, AnyObjectId commitId, Repository repo) throws IOException {
     setBranchHead(name, commitId, repo, makeRefLogMessage("commit (amend)", commitId, repo), true);
+  }
+
+  public static void mergeCommit(String name, AnyObjectId commitId, Repository repo) throws IOException {
+    setBranchHead(name, commitId, repo, makeRefLogMessage("commit (merge)", commitId, repo), false);
   }
 
   public static void initBranch(String name, AnyObjectId commitId, Repository repo) throws IOException {
@@ -106,8 +111,8 @@ public final class BranchUtils {
     setBranchHead(name, commitId, repo, makeRefLogMessage("cherry-pick", commitId, repo), false);
   }
 
-  public static void merge(String name, AnyObjectId commitId, Ref targetRef, String details, Repository repo) throws IOException {
-    setBranchHead(name, commitId, repo, makeRefLogMessage("merge " + targetRef.getName(), details), false);
+  public static void merge(String name, AnyObjectId commitId, Ref sourceRef, String details, Repository repo) throws IOException {
+    setBranchHead(name, commitId, repo, makeRefLogMessage("merge " + sourceRef.getName(), details), false);
   }
 
   public static void deleteBranch(String name, Repository repo) throws IOException {
@@ -178,7 +183,7 @@ public final class BranchUtils {
 
   @Nonnull
   private static String makeRefLogMessage(String action, AnyObjectId commit, Repository repo) throws IOException {
-    return makeRefLogMessage(action, CommitUtils.getCommit(commit, repo).getShortMessage());
+    return makeRefLogMessage(action, getCommit(commit, repo).getShortMessage());
   }
 
 }
