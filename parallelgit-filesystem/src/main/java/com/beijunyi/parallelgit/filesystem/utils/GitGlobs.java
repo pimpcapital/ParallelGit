@@ -5,22 +5,19 @@ import javax.annotation.Nonnull;
 
 public final class GitGlobs {
 
-  private static final String regexMetaChars = ".^$+{[]|()";
-  private static final String globMetaChars = "\\*?[{";
+  private static final String REGEX_META_CHARS = ".^$+{[]|()";
+  private static final String GLOB_META_CHARS = "\\*?[{";
+  private static final char EOL = 0;
 
   private static boolean isRegexMeta(char c) {
-    return regexMetaChars.indexOf(c) != -1;
+    return REGEX_META_CHARS.indexOf(c) != -1;
   }
-
   private static boolean isGlobMeta(char c) {
-    return globMetaChars.indexOf(c) != -1;
+    return GLOB_META_CHARS.indexOf(c) != -1;
   }
-  private static char EOL = 0;
 
   private static char charAt(String glob, int i) {
-    if (i < glob.length())
-      return glob.charAt(i);
-    return EOL;
+    return i < glob.length() ? glob.charAt(i) : EOL;
   }
 
   @Nonnull
@@ -29,16 +26,14 @@ public final class GitGlobs {
     StringBuilder regex = new StringBuilder("^");
 
     int i = 0;
-    while (i < globPattern.length()) {
+    while(i < globPattern.length()) {
       char c = globPattern.charAt(i++);
-      switch (c) {
+      switch(c) {
         case '\\':
           // escape special characters
-          if(i == globPattern.length())
-            throw new PatternSyntaxException("No character to escape", globPattern, i - 1);
+          if(i == globPattern.length()) throw new PatternSyntaxException("No character to escape", globPattern, i - 1);
           char next = globPattern.charAt(i++);
-          if(isGlobMeta(next) || isRegexMeta(next))
-            regex.append('\\');
+          if(isGlobMeta(next) || isRegexMeta(next)) regex.append('\\');
           regex.append(next);
           break;
         case '/':
@@ -46,44 +41,39 @@ public final class GitGlobs {
           break;
         case '[':
           regex.append("[[^/]&&[");
-          if (charAt(globPattern, i) == '^') {
+          if(charAt(globPattern, i) == '^') {
             // escape the regex negation char if it appears
             regex.append("\\^");
             i++;
           } else {
             // negation
-            if (charAt(globPattern, i) == '!') {
+            if(charAt(globPattern, i) == '!') {
               regex.append('^');
               i++;
             }
             // hyphen allowed at start
-            if (charAt(globPattern, i) == '-') {
+            if(charAt(globPattern, i) == '-') {
               regex.append('-');
               i++;
             }
           }
           boolean hasRangeStart = false;
           char last = 0;
-          while (i < globPattern.length()) {
+          while(i < globPattern.length()) {
             c = globPattern.charAt(i++);
-            if (c == ']')
-              break;
-            if (c == '/')
-              throw new PatternSyntaxException("Explicit 'name separator' in class", globPattern, i - 1);
+            if(c == ']') break;
+            if(c == '/') throw new PatternSyntaxException("Explicit 'name separator' in class", globPattern, i - 1);
             // TBD: how to specify ']' in a class?
-            if (c == '\\' || c == '[' || c == '&' && charAt(globPattern, i) == '&') {
+            if(c == '\\' || c == '[' || c == '&' && charAt(globPattern, i) == '&') {
               // escape '\', '[' or "&&" for regex class
               regex.append('\\');
             }
             regex.append(c);
 
             if(c == '-') {
-              if(!hasRangeStart)
-                throw new PatternSyntaxException("Invalid range", globPattern, i - 1);
-              if((c = charAt(globPattern, i++)) == EOL || c == ']')
-                break;
-              if(c < last)
-                throw new PatternSyntaxException("Invalid range", globPattern, i - 3);
+              if(!hasRangeStart) throw new PatternSyntaxException("Invalid range", globPattern, i - 1);
+              if((c = charAt(globPattern, i++)) == EOL || c == ']') break;
+              if(c < last) throw new PatternSyntaxException("Invalid range", globPattern, i - 3);
               regex.append(c);
               hasRangeStart = false;
             } else {
@@ -91,14 +81,11 @@ public final class GitGlobs {
               last = c;
             }
           }
-          if(c != ']')
-            throw new PatternSyntaxException("Missing ']", globPattern, i - 1);
-
+          if(c != ']') throw new PatternSyntaxException("Missing ']", globPattern, i - 1);
           regex.append("]]");
           break;
         case '{':
-          if(inGroup)
-            throw new PatternSyntaxException("Cannot nest groups", globPattern, i - 1);
+          if(inGroup) throw new PatternSyntaxException("Cannot nest groups", globPattern, i - 1);
           regex.append("(?:(?:");
           inGroup = true;
           break;
@@ -106,39 +93,31 @@ public final class GitGlobs {
           if(inGroup) {
             regex.append("))");
             inGroup = false;
-          } else
+          } else {
             regex.append('}');
+          }
           break;
         case ',':
-          if(inGroup)
-            regex.append(")|(?:");
-          else
-            regex.append(',');
+          if(inGroup) regex.append(")|(?:");
+          else regex.append(',');
           break;
         case '*':
-          if (charAt(globPattern, i) == '*') {
-            // crosses directory boundaries
+          if(charAt(globPattern, i) == '*') { // crosses directory boundaries
             regex.append(".*");
             i++;
-          } else {
-            // within directory boundary
+          } else { // within directory boundary
             regex.append("[^/]*");
           }
           break;
         case '?':
           regex.append("[^/]");
           break;
-
         default:
-          if(isRegexMeta(c))
-            regex.append('\\');
+          if(isRegexMeta(c)) regex.append('\\');
           regex.append(c);
       }
     }
-
-    if(inGroup)
-      throw new PatternSyntaxException("Missing '}", globPattern, i - 1);
-
+    if(inGroup) throw new PatternSyntaxException("Missing '}", globPattern, i - 1);
     return regex.append('$').toString();
   }
 

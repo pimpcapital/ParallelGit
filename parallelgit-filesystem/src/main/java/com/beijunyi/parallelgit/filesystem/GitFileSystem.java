@@ -3,14 +3,14 @@ package com.beijunyi.parallelgit.filesystem;
 import java.io.IOException;
 import java.nio.file.*;
 import java.nio.file.attribute.UserPrincipalLookupService;
-import java.util.*;
-import java.util.regex.Pattern;
+import java.util.Collections;
+import java.util.HashSet;
+import java.util.Set;
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 
 import com.beijunyi.parallelgit.filesystem.io.RootNode;
 import com.beijunyi.parallelgit.filesystem.utils.GfsConfiguration;
-import com.beijunyi.parallelgit.filesystem.utils.GitGlobs;
 import com.beijunyi.parallelgit.utils.RefUtils;
 import org.eclipse.jgit.lib.ObjectId;
 import org.eclipse.jgit.lib.Repository;
@@ -25,9 +25,6 @@ import static org.eclipse.jgit.lib.Constants.MASTER;
 public class GitFileSystem extends FileSystem {
 
   public static final Set<String> SUPPORTED_VIEWS = unmodifiableSet(new HashSet<>(asList(BASIC_VIEW, POSIX_VIEW)));
-
-  private static final String GLOB_SYNTAX = "glob";
-  private static final String REGEX_SYNTAX = "regex";
 
   private final String sid;
   private final GfsObjectService objService;
@@ -81,25 +78,13 @@ public class GitFileSystem extends FileSystem {
   @Nonnull
   @Override
   public Iterable<Path> getRootDirectories() {
-    final List<Path> allowedList = Collections.<Path>singletonList(getRootPath());
-    return new Iterable<Path>() {
-      @Override
-      public Iterator<Path> iterator() {
-        return allowedList.iterator();
-      }
-    };
+    return Collections.<Path>singleton(getRootPath());
   }
 
   @Nonnull
   @Override
   public Iterable<FileStore> getFileStores() {
-    final List<FileStore> allowedList = Collections.<FileStore>singletonList(fileStore);
-    return new Iterable<FileStore>() {
-      @Override
-      public Iterator<FileStore> iterator() {
-        return allowedList.iterator();
-      }
-    };
+    return Collections.<FileStore>singleton(fileStore);
   }
 
   @Nonnull
@@ -112,15 +97,14 @@ public class GitFileSystem extends FileSystem {
   @Override
   public GitPath getPath(String first, String... more) {
     String path;
-    if(more.length == 0)
+    if(more.length == 0) {
       path = first;
-    else {
+    } else {
       StringBuilder sb = new StringBuilder();
       sb.append(first);
       for(String segment: more) {
         if(segment.length() > 0) {
-          if(sb.length() > 0)
-            sb.append('/');
+          if(sb.length() > 0) sb.append('/');
           sb.append(segment);
         }
       }
@@ -132,31 +116,7 @@ public class GitFileSystem extends FileSystem {
   @Nonnull
   @Override
   public PathMatcher getPathMatcher(String syntaxAndInput) {
-    int pos = syntaxAndInput.indexOf(':');
-    if(pos <= 0 || pos == syntaxAndInput.length())
-      throw new IllegalArgumentException();
-
-    String syntax = syntaxAndInput.substring(0, pos);
-    String input = syntaxAndInput.substring(pos + 1);
-
-    String expr;
-    if(syntax.equals(GLOB_SYNTAX))
-      expr = GitGlobs.toRegexPattern(input);
-    else {
-      if(syntax.equals(REGEX_SYNTAX))
-        expr = input;
-      else
-        throw new UnsupportedOperationException("Syntax '" + syntax + "' not recognized");
-    }
-
-    final Pattern pattern = Pattern.compile(expr);
-
-    return new PathMatcher() {
-      @Override
-      public boolean matches(Path path) {
-        return pattern.matcher(path.toString()).matches();
-      }
-    };
+    return GfsPathMatcher.newMatcher(syntaxAndInput);
   }
 
   @Nullable
