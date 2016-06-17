@@ -22,8 +22,8 @@ public class GfsFileStoreSpaceTest extends PreSetupGitFileSystemTest {
 
   @Test
   public void getUsableSpace_shouldReturnTheAmountOfFreeMemory() throws IOException {
-    assertEquals(Runtime.getRuntime().freeMemory(), fileStore.getUsableSpace());
-    assertEquals(Runtime.getRuntime().freeMemory(), fileStore.getAttribute("usableSpace"));
+    assertEquals(0L, fileStore.getUsableSpace());
+    assertEquals(0L, fileStore.getAttribute("usableSpace"));
   }
 
 

@@ -46,7 +46,7 @@ public class GfsFileStore extends FileStore {
 
   @Override
   public long getUsableSpace() {
-    return Runtime.getRuntime().freeMemory();
+    return 0;
   }
 
   @Override
@@ -56,8 +56,10 @@ public class GfsFileStore extends FileStore {
 
   @Override
   public boolean supportsFileAttributeView(Class<? extends FileAttributeView> type) {
-    return type.isAssignableFrom(GfsFileAttributeView.Basic.class)
-             || type.isAssignableFrom(GfsFileAttributeView.Posix.class) ;
+    return
+      type.isAssignableFrom(GfsFileAttributeView.Basic.class)
+        || type.isAssignableFrom(GfsFileAttributeView.Posix.class)
+        || type.isAssignableFrom(GfsFileAttributeView.Git.class);
   }
 
   @Override
@@ -65,6 +67,7 @@ public class GfsFileStore extends FileStore {
     switch(name) {
       case GfsFileAttributeView.Basic.BASIC_VIEW:
       case GfsFileAttributeView.Posix.POSIX_VIEW:
+      case GfsFileAttributeView.Git.GIT_VIEW:
         return true;
       default:
         return false;

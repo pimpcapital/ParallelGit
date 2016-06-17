@@ -4,9 +4,11 @@ import java.io.IOException;
 import java.nio.ByteBuffer;
 import java.nio.channels.*;
 import java.nio.file.OpenOption;
-import java.nio.file.StandardOpenOption;
-import java.util.Set;
+import java.util.Collection;
 import javax.annotation.Nonnull;
+
+import static java.lang.System.arraycopy;
+import static java.nio.file.StandardOpenOption.*;
 
 public class GfsSeekableByteChannel implements SeekableByteChannel {
 
@@ -16,13 +18,12 @@ public class GfsSeekableByteChannel implements SeekableByteChannel {
   private ByteBuffer buffer;
   private volatile boolean closed = false;
 
-  GfsSeekableByteChannel(FileNode file, Set<? extends OpenOption> options) throws IOException {
+  GfsSeekableByteChannel(FileNode file, Collection<? extends OpenOption> options) throws IOException {
     this.file = file;
-    buffer = ByteBuffer.wrap(options.contains(StandardOpenOption.TRUNCATE_EXISTING) ? new byte[0] : file.getData().clone());
-    readable = options.contains(StandardOpenOption.READ);
-    writable = options.contains(StandardOpenOption.WRITE);
-    if(options.contains(StandardOpenOption.APPEND))
-      buffer.position(buffer.limit());
+    buffer = ByteBuffer.wrap(options.contains(TRUNCATE_EXISTING) ? new byte[0] : file.getData());
+    readable = options.contains(READ);
+    writable = options.contains(WRITE);
+    if(options.contains(APPEND)) buffer.position(buffer.limit());
   }
 
   @Override
@@ -42,7 +43,7 @@ public class GfsSeekableByteChannel implements SeekableByteChannel {
       if(buffer.remaining() < src.remaining()) {
         int position = buffer.position();
         byte[] bytes = new byte[position + src.remaining()];
-        System.arraycopy(buffer.array(), 0, bytes, 0, position);
+        arraycopy(buffer.array(), 0, bytes, 0, position);
         buffer = ByteBuffer.wrap(bytes);
         buffer.position(position);
       }
@@ -56,7 +57,7 @@ public class GfsSeekableByteChannel implements SeekableByteChannel {
     return buffer.position();
   }
 
-  private static int long2Int(long num) {
+  private static int toInt(long num) {
     if(num < 0 || num >= Integer.MAX_VALUE)
       throw new IllegalArgumentException("Input must be between 0 and " + Integer.MAX_VALUE);
     return (int) num;
@@ -66,7 +67,7 @@ public class GfsSeekableByteChannel implements SeekableByteChannel {
   public GfsSeekableByteChannel position(long newPosition) throws ClosedChannelException {
     checkClosed();
     synchronized(this) {
-      buffer.position(long2Int(newPosition));
+      buffer.position(toInt(newPosition));
     }
     return this;
   }
@@ -82,7 +83,7 @@ public class GfsSeekableByteChannel implements SeekableByteChannel {
     checkClosed();
     checkWriteAccess();
     synchronized(this) {
-      buffer.limit(long2Int(size));
+      buffer.limit(toInt(size));
     }
     return this;
   }
@@ -92,19 +93,11 @@ public class GfsSeekableByteChannel implements SeekableByteChannel {
     return !closed;
   }
 
-  public boolean isReadable() {
-    return readable;
-  }
-
-  public boolean isWritable() {
-    return writable;
-  }
-
   @Nonnull
   public byte[] getBytes() {
     synchronized(this) {
       byte[] bytes = new byte[buffer.limit()];
-      System.arraycopy(buffer.array(), 0, bytes, 0, bytes.length);
+      arraycopy(buffer.array(), 0, bytes, 0, bytes.length);
       return bytes;
     }
 
@@ -123,18 +116,15 @@ public class GfsSeekableByteChannel implements SeekableByteChannel {
   }
 
   private void checkClosed() throws ClosedChannelException {
-    if(!isOpen())
-      throw new ClosedChannelException();
+    if(!isOpen()) throw new ClosedChannelException();
   }
 
   private void checkReadAccess() throws NonReadableChannelException {
-    if(!readable)
-      throw new NonReadableChannelException();
+    if(!readable) throw new NonReadableChannelException();
   }
 
   private void checkWriteAccess() throws NonWritableChannelException {
-    if(!writable)
-      throw new NonWritableChannelException();
+    if(!writable) throw new NonWritableChannelException();
   }
 
   private static int copyBytes(ByteBuffer dst, ByteBuffer src) {

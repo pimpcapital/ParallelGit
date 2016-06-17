@@ -103,33 +103,33 @@ public abstract class AbstractParallelGitTest {
   }
 
   @Nonnull
-  protected String someText() {
+  protected static String someText() {
     return randomUUID().toString();
   }
 
   @Nonnull
-  protected String someFilename() {
+  protected static String someFilename() {
     return someText() + ".txt";
   }
 
   @Nonnull
-  protected byte[] someBytes() {
+  protected static byte[] someBytes() {
     return someText().getBytes();
   }
 
   @Nonnull
-  protected ObjectId someObjectId() {
+  protected static ObjectId someObjectId() {
     return calculateBlobId(someBytes());
   }
 
   @Nonnull
-  protected String someCommitMessage() {
-    return getClass().getSimpleName() + " commit: " + someText();
+  protected static String someCommitMessage() {
+    return someText() + " commit: " + someText();
   }
 
   @Nonnull
-  protected PersonIdent somePersonIdent() {
-    String name = getClass().getSimpleName();
+  protected static PersonIdent somePersonIdent() {
+    String name = someText();
     return new PersonIdent(name, name + "@test.com");
   }
 

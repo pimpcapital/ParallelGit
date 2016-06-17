@@ -1,192 +1,206 @@
 package com.beijunyi.parallelgit.filesystem;
 
 import java.io.IOException;
+import java.nio.ByteBuffer;
+import java.nio.channels.SeekableByteChannel;
 import java.nio.file.*;
+import javax.annotation.Nonnull;
 
-import com.beijunyi.parallelgit.filesystem.io.GfsSeekableByteChannel;
+import org.junit.After;
+import org.junit.Before;
 import org.junit.Test;
 
+import static java.lang.System.arraycopy;
+import static java.nio.file.Files.*;
+import static java.nio.file.StandardOpenOption.*;
 import static org.junit.Assert.*;
 
 public class GitFileSystemProviderNewByteChannelTest extends AbstractGitFileSystemTest {
 
-  private static final byte[] ORIGINAL_TEXT_BYTES = "some plain text data".getBytes();
+  private static final byte[] TEST_DATA = someBytes();
 
-  @Test
-  public void newReadOnlyByteChannelOfExistingFileTest() throws IOException {
+  private SeekableByteChannel channel;
+
+  @Before
+  public void setUp() throws IOException {
     initRepository();
-    writeToCache("dir/file.txt", ORIGINAL_TEXT_BYTES);
+    writeToCache("/dir/file.txt", TEST_DATA);
     commitToMaster();
     initGitFileSystem();
-    try(GfsSeekableByteChannel channel = (GfsSeekableByteChannel) Files.newByteChannel(gfs.getPath("/dir/file.txt"), StandardOpenOption.READ)) {
-      assertTrue(channel.isReadable());
-      assertFalse(channel.isWritable());
-      assertEquals(0, channel.position());
-      assertEquals(ORIGINAL_TEXT_BYTES.length, channel.size());
+  }
+
+  @After
+  public void tearDown() throws IOException {
+    if(channel != null) {
+      channel.close();
+      channel = null;
     }
+  }
+
+  @Test
+  public void createNewReadOnlyChannelFromExistingFile_resultChannelShouldAllowReadAccess() throws IOException {
+    channel = newByteChannel(gfs.getPath("/dir/file.txt"), READ);
+    assertArrayEquals(TEST_DATA, readChannel(channel));
   }
 
   @Test(expected = NoSuchFileException.class)
-  public void newReadOnlyByteChannelOfNonExistentFileTest() throws IOException {
-    initGitFileSystem();
-    Files.newByteChannel(gfs.getPath("/dir/file.txt"), StandardOpenOption.READ);
+  public void createNewReadOnlyChannelFromNonExistentFile_shouldThrowNoSuchFileException() throws IOException {
+    newByteChannel(gfs.getPath("/non_existent_file.txt"), READ);
   }
 
   @Test(expected = AccessDeniedException.class)
-  public void newReadOnlyByteChannelOfDirectoryTest() throws IOException {
-    initRepository();
-    writeToCache("dir/file.txt");
-    commitToMaster();
-    initGitFileSystem();
-    Files.newByteChannel(gfs.getPath("/dir"), StandardOpenOption.READ);
+  public void createNewReadOnlyChannelFromDirectory_shouldThrowAccessDeniedException() throws IOException {
+    newByteChannel(gfs.getPath("/dir"), READ);
   }
 
   @Test
-  public void newWriteOnlyByteChannelOfExistingFileTest() throws IOException {
-    initRepository();
-    writeToCache("dir/file.txt", ORIGINAL_TEXT_BYTES);
-    commitToMaster();
-    initGitFileSystem();
-    try(GfsSeekableByteChannel channel = (GfsSeekableByteChannel) Files.newByteChannel(gfs.getPath("/dir/file.txt"), StandardOpenOption.WRITE)) {
-      assertFalse(channel.isReadable());
-      assertTrue(channel.isWritable());
-      assertEquals(0, channel.position());
-      assertEquals(ORIGINAL_TEXT_BYTES.length, channel.size());
-    }
+  public void createNewWriteOnlyChannelFromExistingFile_resultChannelShouldAllowWriteAccess() throws IOException {
+    channel = newByteChannel(gfs.getPath("/dir/file.txt"), WRITE);
+    writeChannel(channel, someBytes());
+  }
+
+  @Test
+  public void writeToWritableChannel_shouldOverwriteFileDataFromBeginning() throws IOException {
+    channel = newByteChannel(gfs.getPath("/dir/file.txt"), WRITE);
+    byte[] overwrite = "!!!".getBytes();
+    writeChannel(channel, overwrite);
+    byte[] expected = new byte[TEST_DATA.length];
+    arraycopy(TEST_DATA, 0, expected, 0, TEST_DATA.length);
+    arraycopy(overwrite, 0, expected, 0, overwrite.length);
+    assertArrayEquals(expected, readAllBytes(gfs.getPath("/dir/file.txt")));
+  }
+
+  @Test
+  public void writeToWritableChannelWithTruncateExistingOption_shouldOverwriteEntireFileData() throws IOException {
+    channel = newByteChannel(gfs.getPath("/dir/file.txt"), WRITE, TRUNCATE_EXISTING);
+    byte[] overwrite = "!!!".getBytes();
+    writeChannel(channel, overwrite);
+    channel.close();
+    assertArrayEquals(overwrite, readAllBytes(gfs.getPath("/dir/file.txt")));
+  }
+
+  @Test
+  public void writeToWritableChannelWithAppendOption_shouldAppendDataToTheEndOfTheFile() throws IOException {
+    channel = newByteChannel(gfs.getPath("/dir/file.txt"), WRITE, APPEND);
+    byte[] append = "!!!".getBytes();
+    writeChannel(channel, append);
+    channel.close();
+    byte[] expected = new byte[TEST_DATA.length + append.length];
+    arraycopy(TEST_DATA, 0, expected, 0, TEST_DATA.length);
+    arraycopy(append, 0, expected, TEST_DATA.length, append.length);
+    assertArrayEquals(expected, readAllBytes(gfs.getPath("/dir/file.txt")));
   }
 
   @Test(expected = NoSuchFileException.class)
-  public void newWriteOnlyByteChannelOfNonExistentFileTest() throws IOException {
-    initGitFileSystem();
-    Files.newByteChannel(gfs.getPath("/dir/file.txt"), StandardOpenOption.WRITE);
+  public void createNewWriteOnlyChannelFromNonExistentFile_shouldThrowNoSuchFileException() throws IOException {
+    newByteChannel(gfs.getPath("/non_existent_file.txt"), WRITE);
   }
 
   @Test(expected = AccessDeniedException.class)
-  public void newWriteOnlyByteChannelOfDirectoryTest() throws IOException {
-    initRepository();
-    writeToCache("dir/file.txt");
-    commitToMaster();
-    initGitFileSystem();
-    Files.newByteChannel(gfs.getPath("/dir"), StandardOpenOption.WRITE);
+  public void createNewWriteOnlyChannelFromDirectory_shouldThrowAccessDeniedException() throws IOException {
+    newByteChannel(gfs.getPath("/dir"), WRITE);
   }
 
   @Test
-  public void newReadWriteByteChannelTest() throws IOException {
-    initRepository();
-    writeToCache("dir/file.txt", ORIGINAL_TEXT_BYTES);
-    commitToMaster();
-    initGitFileSystem();
-    try(GfsSeekableByteChannel channel = (GfsSeekableByteChannel) Files.newByteChannel(gfs.getPath("/dir/file.txt"), StandardOpenOption.READ, StandardOpenOption.WRITE)) {
-      assertTrue(channel.isReadable());
-      assertTrue(channel.isWritable());
-      assertEquals(0, channel.position());
-      assertEquals(ORIGINAL_TEXT_BYTES.length, channel.size());
-    }
+  public void createReadWriteChannel_resultChannelShouldAllowReadWriteAccess() throws IOException {
+    channel = newByteChannel(gfs.getPath("/dir/file.txt"), READ, WRITE);
+    byte[] overwrite = "!!!".getBytes();
+    writeChannel(channel, overwrite);
+    byte[] expected = new byte[TEST_DATA.length];
+    arraycopy(TEST_DATA, 0, expected, 0, TEST_DATA.length);
+    arraycopy(overwrite, 0, expected, 0, overwrite.length);
+    channel.position(0);
+    assertArrayEquals(expected, readChannel(channel));
   }
 
   @Test
-  public void newByteChannelWithoutSpecifiedOpenOptionTest() throws IOException {
-    initRepository();
-    writeToCache("dir/file.txt", ORIGINAL_TEXT_BYTES);
-    commitToMaster();
-    initGitFileSystem();
-    try(GfsSeekableByteChannel channel = (GfsSeekableByteChannel) Files.newByteChannel(gfs.getPath("/dir/file.txt"))) {
-      assertTrue(channel.isReadable());
-      assertFalse(channel.isWritable());
-      assertEquals(0, channel.position());
-      assertEquals(ORIGINAL_TEXT_BYTES.length, channel.size());
-    }
+  public void createChannelWithNoExplicitOption_resultChannelShouldAllowReadAccess() throws IOException {
+    channel = newByteChannel(gfs.getPath("/dir/file.txt"));
+    assertArrayEquals(TEST_DATA, readChannel(channel));
   }
 
   @Test
-  public void newByteChannelWithAppendOpenOptionTest() throws IOException {
-    initRepository();
-    writeToCache("dir/file.txt", ORIGINAL_TEXT_BYTES);
-    commitToMaster();
-    initGitFileSystem();
-    try(GfsSeekableByteChannel channel = (GfsSeekableByteChannel) Files.newByteChannel(gfs.getPath("/dir/file.txt"), StandardOpenOption.APPEND)) {
-      assertFalse(channel.isReadable());
-      assertTrue(channel.isWritable());
-      assertEquals(ORIGINAL_TEXT_BYTES.length, channel.position());
-      assertEquals(ORIGINAL_TEXT_BYTES.length, channel.size());
-    }
+  public void createChannelWithReadOption_positionShouldBeTheEndOfTheFile() throws IOException {
+    channel = newByteChannel(gfs.getPath("/dir/file.txt"), READ);
+    assertEquals(0, channel.position());
   }
 
   @Test
-  public void newByteChannelOfExistingFileWithCreateOpenOptionTest() throws IOException {
-    initRepository();
-    writeToCache("dir/file.txt", ORIGINAL_TEXT_BYTES);
-    commitToMaster();
-    initGitFileSystem();
-    try(GfsSeekableByteChannel channel = (GfsSeekableByteChannel) Files.newByteChannel(gfs.getPath("/dir/file.txt"), StandardOpenOption.CREATE)) {
-      assertTrue(channel.isReadable());
-      assertFalse(channel.isWritable());
-      assertEquals(0, channel.position());
-      assertEquals(ORIGINAL_TEXT_BYTES.length, channel.size());
-    }
+  public void createChannelWithWriteOption_positionShouldBeTheEndOfTheFile() throws IOException {
+    channel = newByteChannel(gfs.getPath("/dir/file.txt"), WRITE);
+    assertEquals(0, channel.position());
   }
 
   @Test
-  public void newByteChannelOfNonExistingFileWithCreateOpenOptionTest() throws IOException {
-    initGitFileSystem();
-    try(GfsSeekableByteChannel channel = (GfsSeekableByteChannel) Files.newByteChannel(gfs.getPath("/file.txt"), StandardOpenOption.CREATE)) {
-      assertTrue(channel.isReadable());
-      assertFalse(channel.isWritable());
-      assertEquals(0, channel.position());
-      assertEquals(0, channel.size());
-    }
+  public void createChannelWithAppendOption_resultChannelShouldAllowWriteAccess() throws IOException {
+    channel = newByteChannel(gfs.getPath("/dir/file.txt"), APPEND);
+    writeChannel(channel, someBytes());
+  }
+
+  @Test
+  public void createChannelWithAppendOption_positionShouldBeTheEndOfTheFile() throws IOException {
+    channel = newByteChannel(gfs.getPath("/dir/file.txt"), APPEND);
+    assertEquals(channel.size(), channel.position());
+  }
+
+  @Test
+  public void createChannelWithTruncateExistingOption_sizeShouldBecomeZero() throws IOException {
+    channel = newByteChannel(gfs.getPath("/dir/file.txt"), WRITE, TRUNCATE_EXISTING);
+    assertEquals(0, channel.size());
+  }
+
+  @Test
+  public void createChannelWithCreateOptionFromExistingFile_shouldReturnReadableChannel() throws IOException {
+    channel = newByteChannel(gfs.getPath("/dir/file.txt"), CREATE);
+    assertArrayEquals(TEST_DATA, readChannel(channel));
+  }
+
+  @Test
+  public void createChannelWithCreateOptionFromNonExistentFile_shouldReturnEmptyReadableChannel() throws IOException {
+    channel = newByteChannel(gfs.getPath("/non_existent_file.txt"), CREATE);
+    assertArrayEquals(new byte[0], readChannel(channel));
+  }
+
+  @Test
+  public void createChannelWithCreateOptionFromNonExistentFile_fileShouldBeCreated() throws IOException {
+    Path newFile = gfs.getPath("/new_file.txt");
+    channel = newByteChannel(newFile, CREATE);
+    exists(newFile);
   }
 
   @Test(expected = FileAlreadyExistsException.class)
-  public void newByteChannelOfExistingFileWithCreateNewOpenOptionTest() throws IOException {
-    initRepository();
-    writeToCache("dir/file.txt", ORIGINAL_TEXT_BYTES);
-    commitToMaster();
-    initGitFileSystem();
-    Files.newByteChannel(gfs.getPath("/dir/file.txt"), StandardOpenOption.CREATE_NEW);
-  }
-
-  @Test(expected = FileAlreadyExistsException.class)
-  public void newByteChannelOfModifiedFileWithCreateNewOpenOptionTest() throws IOException {
-    initGitFileSystem();
-    GitPath path = gfs.getPath("/file.txt");
-    Files.write(path, "some data".getBytes());
-    Files.newByteChannel(path, StandardOpenOption.CREATE_NEW);
+  public void createChannelWithCreateNewOptionFromExistingFile_shouldThrowFileAlreadyExistsException() throws IOException {
+    newByteChannel(gfs.getPath("/dir/file.txt"), CREATE_NEW);
   }
 
   @Test
-  public void newByteChannelOfNonExistingFileWithCreateNewOpenOptionTest() throws IOException {
-    initGitFileSystem();
-    try(GfsSeekableByteChannel channel = (GfsSeekableByteChannel) Files.newByteChannel(gfs.getPath("/file.txt"), StandardOpenOption.CREATE_NEW)) {
-      assertTrue(channel.isReadable());
-      assertFalse(channel.isWritable());
-      assertEquals(0, channel.position());
-      assertEquals(0, channel.size());
-    }
+  public void createChannelWithCreateNewOptionFromNonExistentFile_shouldReturnEmptyReadableChannel() throws IOException {
+    channel = newByteChannel(gfs.getPath("/non_existent_file.txt"), CREATE_NEW);
+    assertArrayEquals(new byte[0], readChannel(channel));
   }
 
   @Test
-  public void newByteChannelOfExistingFileWithTruncateExistingOpenOptionTest() throws IOException {
-    initRepository();
-    writeToCache("dir/file.txt", ORIGINAL_TEXT_BYTES);
-    commitToMaster();
-    initGitFileSystem();
-    try(GfsSeekableByteChannel channel = (GfsSeekableByteChannel) Files.newByteChannel(gfs.getPath("/dir/file.txt"), StandardOpenOption.WRITE, StandardOpenOption.TRUNCATE_EXISTING)) {
-      assertTrue(channel.isWritable());
-      assertFalse(channel.isReadable());
-      assertEquals(0, channel.position());
-      assertEquals(0, channel.size());
-    }
+  public void createChannelWithCreateNewOptionFromNonExistentFile_fileShouldBeCreated() throws IOException {
+    Path newFile = gfs.getPath("/new_file.txt");
+    channel = newByteChannel(newFile, CREATE_NEW);
+    exists(newFile);
   }
 
   @Test(expected = UnsupportedOperationException.class)
-  public void newByteChannelWithUnsupportedOpenOption() throws IOException {
-    initRepository();
-    writeToCache("dir/file.txt");
-    commitToMaster();
-    initGitFileSystem();
-    Files.newByteChannel(gfs.getPath("/dir"), StandardOpenOption.DELETE_ON_CLOSE);
+  public void createChannelWitUnsupportedOption_shouldThrowUnsupportedOperationException() throws IOException {
+    newByteChannel(gfs.getPath("/dir"), DELETE_ON_CLOSE);
   }
 
+  @Nonnull
+  private static byte[] readChannel(SeekableByteChannel channel) throws IOException {
+    ByteBuffer buffer = ByteBuffer.allocate((int) channel.size());
+    channel.read(buffer);
+    return buffer.array();
+  }
+
+  private static void writeChannel(SeekableByteChannel channel, byte[] bytes) throws IOException {
+    ByteBuffer buffer = ByteBuffer.wrap(bytes);
+    channel.write(buffer);
+  }
 
 }
