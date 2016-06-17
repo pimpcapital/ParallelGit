@@ -200,9 +200,6 @@ public abstract class AbstractParallelGitTest {
 
   @Nonnull
   protected RevCommit initContent() throws IOException {
-    writeToCache("existing_file.txt");
-    commitToMaster();
-    writeToCache("some_other_file.txt");
     RevCommit head = commitToMaster();
     clearCache();
     return head;
