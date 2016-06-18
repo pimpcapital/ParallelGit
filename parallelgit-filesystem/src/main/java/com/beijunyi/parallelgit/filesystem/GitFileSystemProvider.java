@@ -17,6 +17,7 @@ import com.beijunyi.parallelgit.filesystem.utils.GfsUriUtils;
 
 import static java.nio.file.StandardOpenOption.*;
 import static java.util.Arrays.asList;
+import static java.util.Collections.unmodifiableList;
 import static java.util.UUID.randomUUID;
 
 public class GitFileSystemProvider extends FileSystemProvider {
@@ -24,7 +25,7 @@ public class GitFileSystemProvider extends FileSystemProvider {
   public static final String GFS = "gfs";
   public static final String BRANCH = "branch";
   public static final String COMMIT = "commit";
-  public static final Set<OpenOption> SUPPORTED_OPEN_OPTIONS = new HashSet<>(Arrays.<OpenOption>asList(READ, SPARSE, CREATE, CREATE_NEW, WRITE, APPEND, TRUNCATE_EXISTING));
+  public static final Collection<OpenOption> SUPPORTED_OPEN_OPTIONS = supportedOpenOption();
 
   private static final GitFileSystemProvider INSTANCE = getInstalledProvider();
   private static final Map<String, GitFileSystem> FILE_SYSTEMS = new ConcurrentHashMap<>();
@@ -94,8 +95,7 @@ public class GitFileSystemProvider extends FileSystemProvider {
   public SeekableByteChannel newByteChannel(Path path, Set<? extends OpenOption> options, FileAttribute<?>... attrs) throws IOException, UnsupportedOperationException {
     Set<OpenOption> amended = new HashSet<>();
     for(OpenOption option : options) {
-      if(!SUPPORTED_OPEN_OPTIONS.contains(option))
-        throw new UnsupportedOperationException(option.toString());
+      if(!SUPPORTED_OPEN_OPTIONS.contains(option)) throw new UnsupportedOperationException(option.toString());
       if(option == APPEND) amended.add(WRITE);
       amended.add(option);
     }
@@ -225,6 +225,12 @@ public class GitFileSystemProvider extends FileSystemProvider {
     if(ret == null)
       ret = new GitFileSystemProvider();
     return ret;
+  }
+
+  @Nonnull
+  private static Collection<OpenOption> supportedOpenOption() {
+    List<OpenOption> options = Arrays.<OpenOption>asList(READ, SPARSE, CREATE, CREATE_NEW, WRITE, APPEND, TRUNCATE_EXISTING);
+    return unmodifiableList(options);
   }
 
 }

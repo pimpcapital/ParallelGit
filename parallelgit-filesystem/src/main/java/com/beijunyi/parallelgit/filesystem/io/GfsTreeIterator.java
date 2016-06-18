@@ -1,9 +1,7 @@
 package com.beijunyi.parallelgit.filesystem.io;
 
 import java.io.IOException;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 
@@ -125,7 +123,7 @@ public class GfsTreeIterator extends WorkingTreeIterator {
     pathLen = pathOffset + name.length;
   }
 
-  private static class GfsTreeEntry implements Comparable<GfsTreeEntry> {
+  private static class GfsTreeEntry {
     private final String name;
     private final Node node;
 
@@ -137,11 +135,6 @@ public class GfsTreeIterator extends WorkingTreeIterator {
     @Nonnull
     public static GfsTreeEntry forNode(String name, Node node) {
       return new GfsTreeEntry(name, node);
-    }
-
-    @Override
-    public int compareTo(GfsTreeEntry that) {
-      return getName().compareTo(that.getName());
     }
 
     @Nonnull
@@ -177,9 +170,20 @@ public class GfsTreeIterator extends WorkingTreeIterator {
         Node node = child.getValue();
         if(!node.isTrivial()) ret.add(forNode(child.getKey(), node));
       }
-      sort(ret);
+      sort(ret, TreeEntryComparator.ASCENDING);
       return unmodifiableList(ret);
     }
+  }
+
+  private static class TreeEntryComparator implements Comparator<GfsTreeEntry> {
+
+    private static TreeEntryComparator ASCENDING = new TreeEntryComparator();
+
+    @Override
+    public int compare(GfsTreeEntry o1, GfsTreeEntry o2) {
+      return o1.getName().compareTo(o2.getName());
+    }
+
   }
 
 }

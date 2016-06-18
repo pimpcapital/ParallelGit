@@ -5,7 +5,6 @@ import java.nio.file.Files;
 import java.nio.file.attribute.BasicFileAttributeView;
 import java.nio.file.attribute.FileAttributeView;
 import java.nio.file.attribute.PosixFileAttributeView;
-import javax.annotation.Nonnull;
 
 import org.junit.Test;
 
@@ -44,21 +43,6 @@ public class FilesGetAttributeViewTest extends AbstractGitFileSystemTest {
     commitToMaster();
     initGitFileSystem();
     assertNotNull(Files.getFileAttributeView(gfs.getPath("/file.txt"), PosixFileAttributeView.class));
-  }
-
-  @Test(expected = UnsupportedOperationException.class)
-  public void getUnsupportedFileAttributeViewFromFile_shouldThrowUnsupportedOperationException() throws IOException {
-    initRepository();
-    writeToCache("/file.txt");
-    commitToMaster();
-    initGitFileSystem();
-    assertNotNull(Files.getFileAttributeView(gfs.getPath("/file.txt"), new FileAttributeView() {
-      @Nonnull
-      @Override
-      public String name() {
-        return "some_unsupported_view";
-      }
-    }.getClass()));
   }
 
 }

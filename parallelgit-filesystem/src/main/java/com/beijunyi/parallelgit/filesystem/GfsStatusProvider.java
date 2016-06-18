@@ -25,7 +25,7 @@ public class GfsStatusProvider implements AutoCloseable {
   private RevCommit commit;
   private MergeNote mergeNote;
 
-  private boolean closed = false;
+  private volatile boolean closed = false;
 
   public GfsStatusProvider(GfsFileStore fileStore, @Nullable String branch, @Nullable RevCommit commit) {
     this.fileStore = fileStore;
@@ -73,7 +73,7 @@ public class GfsStatusProvider implements AutoCloseable {
   }
 
   @Override
-  public void close() {
+  public synchronized void close() {
     if(!closed) closed = true;
   }
 

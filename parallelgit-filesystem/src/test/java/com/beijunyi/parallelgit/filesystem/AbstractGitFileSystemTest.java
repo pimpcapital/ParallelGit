@@ -2,12 +2,15 @@ package com.beijunyi.parallelgit.filesystem;
 
 import java.io.IOException;
 import java.nio.file.Files;
+import java.nio.file.Path;
+import javax.annotation.Nonnull;
 
 import com.beijunyi.parallelgit.AbstractParallelGitTest;
-import org.eclipse.jgit.lib.Constants;
 import org.junit.After;
 
-import static org.eclipse.jgit.lib.Constants.MASTER;
+import static java.nio.file.Files.readAllBytes;
+import static org.eclipse.jgit.lib.Constants.*;
+import static org.eclipse.jgit.util.RawParseUtils.decode;
 
 public abstract class AbstractGitFileSystemTest extends AbstractParallelGitTest {
 
@@ -20,8 +23,10 @@ public abstract class AbstractGitFileSystemTest extends AbstractParallelGitTest 
 
   @After
   public void closeFileSystem() throws IOException {
-    if(gfs != null)
+    if(gfs != null) {
       gfs.close();
+      gfs = null;
+    }
   }
 
   protected void writeToGfs(String path, byte[] data) throws IOException {
@@ -33,7 +38,7 @@ public abstract class AbstractGitFileSystemTest extends AbstractParallelGitTest 
   }
 
   protected void writeToGfs(String path, String content) throws IOException {
-    writeToGfs(path, Constants.encode(content));
+    writeToGfs(path, encode(content));
   }
 
   protected void writeToGfs(String path) throws IOException {
@@ -65,6 +70,11 @@ public abstract class AbstractGitFileSystemTest extends AbstractParallelGitTest 
     root = gfs.getRootPath();
     status = gfs.getStatusProvider();
     objService = gfs.getObjectService();
+  }
+
+  @Nonnull
+  protected static String readAsString(Path path) throws IOException {
+    return decode(readAllBytes(path));
   }
 
 }

@@ -19,6 +19,7 @@ public class FilesCopyAcrossSystemsTest extends AbstractGitFileSystemTest {
   public void setupTargetSystem() throws IOException {
     targetRepo = new TestRepository();
     targetGfs = Gfs.newFileSystem(targetRepo);
+    initRepository();
   }
 
   @After
@@ -29,7 +30,6 @@ public class FilesCopyAcrossSystemsTest extends AbstractGitFileSystemTest {
 
   @Test
   public void copyFileToAnotherSystem_theTargetFileShouldExist() throws IOException {
-    initRepository();
     writeToCache("/source.txt");
     commitToMaster();
     initGitFileSystem();
@@ -42,21 +42,19 @@ public class FilesCopyAcrossSystemsTest extends AbstractGitFileSystemTest {
 
   @Test
   public void copyFileToAnotherSystem_theTargetFileShouldHaveTheSameData() throws IOException {
-    initRepository();
-    byte[] expectedData = "expected data".getBytes();
-    writeToCache("/source.txt", expectedData);
+    byte[] expected = someBytes();
+    writeToCache("/source.txt", expected);
     commitToMaster();
     initGitFileSystem();
 
     GitPath source = gfs.getPath("/source.txt");
     GitPath target = targetGfs.getPath("/target.txt");
     Files.copy(source, target);
-    assertArrayEquals(expectedData, Files.readAllBytes(target));
+    assertArrayEquals(expected, Files.readAllBytes(target));
   }
 
   @Test
   public void copyFileToAnotherSystem_theTargetFileSystemShouldBecomeDirty() throws IOException {
-    initRepository();
     writeToCache("/source.txt");
     commitToMaster();
     initGitFileSystem();
@@ -69,7 +67,6 @@ public class FilesCopyAcrossSystemsTest extends AbstractGitFileSystemTest {
 
   @Test
   public void copyDirectoryToAnotherSystem_theTargetDirectoryShouldExist() throws IOException {
-    initRepository();
     writeToCache("/source/file.txt");
     commitToMaster();
     initGitFileSystem();
@@ -82,7 +79,6 @@ public class FilesCopyAcrossSystemsTest extends AbstractGitFileSystemTest {
 
   @Test
   public void copyDirectoryToAnotherSystem_theTargetDirectoryShouldHaveTheSameChildren() throws IOException {
-    initRepository();
     writeToCache("/source/file1.txt");
     writeToCache("/source/file2.txt");
     commitToMaster();
@@ -97,10 +93,9 @@ public class FilesCopyAcrossSystemsTest extends AbstractGitFileSystemTest {
 
   @Test
   public void copyDirectoryToAnotherSystem_theChildrenInTheTargetDirectoryShouldHaveTheSameData() throws IOException {
-    initRepository();
-    byte[] expectedData1 = "expected data 1".getBytes();
+    byte[] expectedData1 = someBytes();
     writeToCache("/source/file1.txt", expectedData1);
-    byte[] expectedData2 = "expected data 2".getBytes();
+    byte[] expectedData2 = someBytes();
     writeToCache("/source/file2.txt", expectedData2);
     commitToMaster();
     initGitFileSystem();
@@ -114,7 +109,6 @@ public class FilesCopyAcrossSystemsTest extends AbstractGitFileSystemTest {
 
   @Test
   public void copyDirectoryToAnotherSystem_theTargetFileSystemShouldBecomeDirty() throws IOException {
-    initRepository();
     writeToCache("/source/file.txt");
     commitToMaster();
     initGitFileSystem();

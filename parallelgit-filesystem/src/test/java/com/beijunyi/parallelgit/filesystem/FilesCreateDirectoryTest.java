@@ -25,7 +25,7 @@ public class FilesCreateDirectoryTest extends AbstractGitFileSystemTest {
     Path dir = gfs.getPath("/dir");
     Files.createDirectory(dir);
     Path childFile = dir.resolve("file.txt");
-    Files.write(childFile, "some text data".getBytes());
+    Files.write(childFile, someBytes());
     assertTrue(Files.exists(childFile));
   }
 

@@ -2,12 +2,11 @@ package com.beijunyi.parallelgit.filesystem.commands;
 
 import java.io.IOException;
 
-import com.beijunyi.parallelgit.AbstractParallelGitTest;
+import com.beijunyi.parallelgit.filesystem.AbstractGitFileSystemTest;
 import com.beijunyi.parallelgit.filesystem.GitFileSystem;
 import com.beijunyi.parallelgit.filesystem.ParallelGitMergeTest;
 import com.beijunyi.parallelgit.filesystem.merge.MergeNote;
 import org.eclipse.jgit.lib.AnyObjectId;
-import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
 
@@ -15,10 +14,9 @@ import static com.beijunyi.parallelgit.filesystem.Gfs.*;
 import static com.beijunyi.parallelgit.filesystem.commands.GfsMerge.Result;
 import static com.beijunyi.parallelgit.filesystem.commands.GfsMerge.Status.CONFLICTING;
 import static com.beijunyi.parallelgit.utils.BranchUtils.getHeadCommit;
-import static java.nio.file.Files.readAllBytes;
 import static org.junit.Assert.*;
 
-public class GfsMergeConflictingMergeTest extends AbstractParallelGitTest implements ParallelGitMergeTest {
+public class GfsMergeConflictingMergeTest extends AbstractGitFileSystemTest implements ParallelGitMergeTest {
 
   private GitFileSystem gfs;
 
@@ -32,14 +30,6 @@ public class GfsMergeConflictingMergeTest extends AbstractParallelGitTest implem
     writeToCache("/test_file.txt", "base stuff + other stuff");
     commitToBranch(THEIRS, base);
     gfs = newFileSystem(OURS, repo);
-  }
-
-  @After
-  public void tearDown() throws IOException {
-    if(gfs != null) {
-      gfs.close();
-      gfs = null;
-    }
   }
 
   @Test
@@ -61,7 +51,7 @@ public class GfsMergeConflictingMergeTest extends AbstractParallelGitTest implem
                  "base stuff + some stuff\n" +
                  "=======\n" +
                  "base stuff + other stuff\n" +
-                 ">>>>>>> refs/heads/theirs\n", new String(readAllBytes(gfs.getPath("/test_file.txt"))));
+                 ">>>>>>> refs/heads/theirs\n", readAsString(gfs.getPath("/test_file.txt")));
   }
 
   @Test

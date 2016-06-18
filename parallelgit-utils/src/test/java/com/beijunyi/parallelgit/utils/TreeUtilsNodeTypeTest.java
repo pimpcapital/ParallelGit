@@ -48,7 +48,7 @@ public class TreeUtilsNodeTypeTest extends AbstractParallelGitTest {
 
   @Test
   public void testIsRegularFileOnExecutableFile_shouldReturnTrue() throws IOException {
-    writeToCache("/test_file.txt", "some executable data".getBytes(), EXECUTABLE_FILE);
+    writeToCache("/test_file.txt", someBytes(), EXECUTABLE_FILE);
     AnyObjectId rootTree = commitToMaster().getTree();
     assertTrue(TreeUtils.isFile("/test_file.txt", rootTree, repo));
   }
@@ -69,7 +69,7 @@ public class TreeUtilsNodeTypeTest extends AbstractParallelGitTest {
 
   @Test
   public void testIsSymbolicLinkOnSymbolicLink_shouldReturnTrue() throws IOException {
-    writeToCache("/test_file.txt", "some link data".getBytes(), SYMLINK);
+    writeToCache("/test_file.txt", someBytes(), SYMLINK);
     AnyObjectId rootTree = commitToMaster().getTree();
     assertTrue(TreeUtils.isSymbolicLink("/test_file.txt", rootTree, repo));
   }

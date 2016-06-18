@@ -207,9 +207,9 @@ public class FilesCopyTest extends AbstractGitFileSystemTest {
 
   @Test
   public void copyDirectory_theChildrenInTheTargetDirectoryShouldHaveTheSameData() throws IOException {
-    byte[] expectedData1 = "expected data 1".getBytes();
+    byte[] expectedData1 = someBytes();
     writeToCache("/source/file1.txt", expectedData1);
-    byte[] expectedData2 = "expected data 2".getBytes();
+    byte[] expectedData2 = someBytes();
     writeToCache("/source/file2.txt", expectedData2);
     commitToMaster();
     initGitFileSystem();

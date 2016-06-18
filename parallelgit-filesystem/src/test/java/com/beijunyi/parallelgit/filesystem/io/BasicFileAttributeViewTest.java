@@ -9,6 +9,7 @@ import com.beijunyi.parallelgit.filesystem.AbstractGitFileSystemTest;
 import org.junit.Before;
 import org.junit.Test;
 
+import static org.eclipse.jgit.lib.Constants.encodeASCII;
 import static org.eclipse.jgit.lib.FileMode.*;
 import static org.junit.Assert.*;
 
@@ -48,7 +49,7 @@ public class BasicFileAttributeViewTest extends AbstractGitFileSystemTest {
 
   @Test
   public void getSizeAttributeOfFile_shouldReturnTheFileSize() throws IOException {
-    byte[] data = "13 bytes data".getBytes();
+    byte[] data = encodeASCII("13 bytes data");
     writeToCache("/file.txt", data);
     commitToMaster();
     initGitFileSystem();
@@ -148,7 +149,7 @@ public class BasicFileAttributeViewTest extends AbstractGitFileSystemTest {
 
   @Test
   public void getIsRegularFileAttributeOfExecutableFile_shouldReturnTrue() throws IOException {
-    writeToCache("/file.txt", "some data".getBytes(), EXECUTABLE_FILE);
+    writeToCache("/file.txt", someBytes(), EXECUTABLE_FILE);
     commitToMaster();
     initGitFileSystem();
 
@@ -181,7 +182,7 @@ public class BasicFileAttributeViewTest extends AbstractGitFileSystemTest {
 
   @Test
   public void getIsSymbolicLinkAttributeOfSymbolicLink_shouldReturnTrue() throws IOException {
-    writeToCache("/file.txt", "some link".getBytes(), SYMLINK);
+    writeToCache("/file.txt", someBytes(), SYMLINK);
     commitToMaster();
     initGitFileSystem();
 

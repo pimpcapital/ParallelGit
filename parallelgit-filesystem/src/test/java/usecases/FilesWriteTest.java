@@ -7,7 +7,6 @@ import java.nio.file.Path;
 
 import com.beijunyi.parallelgit.filesystem.AbstractGitFileSystemTest;
 import com.beijunyi.parallelgit.filesystem.GitPath;
-import org.eclipse.jgit.lib.Constants;
 import org.junit.Test;
 
 import static org.junit.Assert.*;
@@ -20,7 +19,7 @@ public class FilesWriteTest extends AbstractGitFileSystemTest {
     writeToCache("/file.txt", "old content");
     commitToMaster();
     initGitFileSystem();
-    byte[] data = Constants.encode("some plain text data");
+    byte[] data =someBytes();
     Path file = gfs.getPath("/file.txt");
     Files.write(file, data);
     assertArrayEquals(data, Files.readAllBytes(file));
@@ -30,7 +29,7 @@ public class FilesWriteTest extends AbstractGitFileSystemTest {
   public void writeNonExistentFile_shouldCreateNewFile() throws IOException {
     initGitFileSystem();
     GitPath file = gfs.getPath("/file.txt");
-    Files.write(file, Constants.encode("some plain text data"));
+    Files.write(file, someBytes());
     assertTrue(Files.exists(file));
   }
 
@@ -41,13 +40,13 @@ public class FilesWriteTest extends AbstractGitFileSystemTest {
     commitToMaster();
     initGitFileSystem();
     GitPath dir = gfs.getPath("/dir");
-    Files.write(dir, Constants.encode("some plain text data"));
+    Files.write(dir, someBytes());
   }
 
   @Test(expected = AccessDeniedException.class)
   public void writeRoot_shouldThrowAccessDeniedException() throws IOException {
     initGitFileSystem();
-    Files.write(root, Constants.encode("some plain text data"));
+    Files.write(root, someBytes());
   }
 
 

@@ -7,7 +7,6 @@ import java.nio.file.NoSuchFileException;
 
 import com.beijunyi.parallelgit.filesystem.AbstractGitFileSystemTest;
 import com.beijunyi.parallelgit.filesystem.GitPath;
-import org.eclipse.jgit.lib.Constants;
 import org.junit.Test;
 
 import static org.junit.Assert.assertArrayEquals;
@@ -17,7 +16,7 @@ public class FilesReadAllBytesTest extends AbstractGitFileSystemTest {
   @Test
   public void readAllBytes_shouldReturnTheContentOfTheFileAsBytes() throws IOException {
     initRepository();
-    byte[] data = Constants.encode("some plain text data");
+    byte[] data = someBytes();
     writeToCache("/file.txt", data);
     commitToMaster();
     initGitFileSystem();

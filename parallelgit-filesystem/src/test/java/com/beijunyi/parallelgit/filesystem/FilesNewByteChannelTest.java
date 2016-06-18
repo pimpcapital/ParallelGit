@@ -13,6 +13,7 @@ import org.junit.Test;
 import static java.lang.System.arraycopy;
 import static java.nio.file.Files.*;
 import static java.nio.file.StandardOpenOption.*;
+import static org.eclipse.jgit.lib.Constants.encodeASCII;
 import static org.junit.Assert.*;
 
 public class FilesNewByteChannelTest extends AbstractGitFileSystemTest {
@@ -62,7 +63,7 @@ public class FilesNewByteChannelTest extends AbstractGitFileSystemTest {
   @Test
   public void writeToWritableChannel_shouldOverwriteFileDataFromBeginning() throws IOException {
     channel = newByteChannel(gfs.getPath("/dir/file.txt"), WRITE);
-    byte[] overwrite = "!!!".getBytes();
+    byte[] overwrite = encodeASCII("!!!");
     writeChannel(channel, overwrite);
     byte[] expected = new byte[TEST_DATA.length];
     arraycopy(TEST_DATA, 0, expected, 0, TEST_DATA.length);
@@ -73,7 +74,7 @@ public class FilesNewByteChannelTest extends AbstractGitFileSystemTest {
   @Test
   public void writeToWritableChannelWithTruncateExistingOption_shouldOverwriteEntireFileData() throws IOException {
     channel = newByteChannel(gfs.getPath("/dir/file.txt"), WRITE, TRUNCATE_EXISTING);
-    byte[] overwrite = "!!!".getBytes();
+    byte[] overwrite = encodeASCII("!!!");
     writeChannel(channel, overwrite);
     channel.close();
     assertArrayEquals(overwrite, readAllBytes(gfs.getPath("/dir/file.txt")));
@@ -82,7 +83,7 @@ public class FilesNewByteChannelTest extends AbstractGitFileSystemTest {
   @Test
   public void writeToWritableChannelWithAppendOption_shouldAppendDataToTheEndOfTheFile() throws IOException {
     channel = newByteChannel(gfs.getPath("/dir/file.txt"), WRITE, APPEND);
-    byte[] append = "!!!".getBytes();
+    byte[] append = encodeASCII("!!!");
     writeChannel(channel, append);
     channel.close();
     byte[] expected = new byte[TEST_DATA.length + append.length];
@@ -104,7 +105,7 @@ public class FilesNewByteChannelTest extends AbstractGitFileSystemTest {
   @Test
   public void createReadWriteChannel_resultChannelShouldAllowReadWriteAccess() throws IOException {
     channel = newByteChannel(gfs.getPath("/dir/file.txt"), READ, WRITE);
-    byte[] overwrite = "!!!".getBytes();
+    byte[] overwrite = encodeASCII("!!!");
     writeChannel(channel, overwrite);
     byte[] expected = new byte[TEST_DATA.length];
     arraycopy(TEST_DATA, 0, expected, 0, TEST_DATA.length);

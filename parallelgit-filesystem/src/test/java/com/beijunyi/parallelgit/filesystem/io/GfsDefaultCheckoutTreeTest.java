@@ -15,6 +15,7 @@ import org.eclipse.jgit.lib.AnyObjectId;
 import org.eclipse.jgit.lib.ObjectId;
 import org.junit.Test;
 
+import static java.nio.file.Files.createDirectories;
 import static org.eclipse.jgit.lib.FileMode.REGULAR_FILE;
 import static org.junit.Assert.*;
 
@@ -171,7 +172,8 @@ public class GfsDefaultCheckoutTreeTest extends AbstractGitFileSystemTest {
   private void clearWorktreeAndWrite(String path, byte[] bytes) throws IOException {
     clearWorktree();
     Path file = gfs.getPath(path);
-    Files.createDirectories(file.getParent());
+    Path parent = file.getParent();
+    if(parent != null) createDirectories(parent);
     Files.write(file, bytes);
   }
 

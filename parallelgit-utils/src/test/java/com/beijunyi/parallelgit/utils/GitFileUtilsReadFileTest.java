@@ -19,7 +19,7 @@ public class GitFileUtilsReadFileTest extends AbstractParallelGitTest {
 
   @Test
   public void readFile_theResultShouldEqualToTheFileContent() throws IOException {
-    byte[] expected = "test data".getBytes();
+    byte[] expected = someBytes();
     writeToCache("/test_file.txt", expected);
     AnyObjectId commit = commitToMaster();
     byte[] actual = GitFileUtils.readFile("/test_file.txt", commit.getName(), repo).getData();

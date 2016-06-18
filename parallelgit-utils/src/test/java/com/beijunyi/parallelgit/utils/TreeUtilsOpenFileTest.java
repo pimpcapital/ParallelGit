@@ -21,7 +21,7 @@ public class TreeUtilsOpenFileTest extends AbstractParallelGitTest {
 
   @Test
   public void openFile_theResultInputStreamShouldProvideTheDataOfTheFile() throws IOException {
-    byte[] expected = "test data".getBytes();
+    byte[] expected = someBytes();
     writeToCache("/test_file.txt", expected);
     RevCommit commit = commitToMaster();
     byte[] actual = new byte[expected.length];

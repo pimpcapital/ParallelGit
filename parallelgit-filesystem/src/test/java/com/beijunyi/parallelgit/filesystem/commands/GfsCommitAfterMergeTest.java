@@ -8,6 +8,7 @@ import com.beijunyi.parallelgit.filesystem.GitFileSystem;
 import com.beijunyi.parallelgit.filesystem.ParallelGitMergeTest;
 import com.beijunyi.parallelgit.filesystem.merge.MergeNote;
 import org.eclipse.jgit.lib.AnyObjectId;
+import org.eclipse.jgit.lib.Constants;
 import org.eclipse.jgit.lib.ObjectId;
 import org.eclipse.jgit.revwalk.RevCommit;
 import org.junit.After;
@@ -84,7 +85,7 @@ public class GfsCommitAfterMergeTest extends AbstractParallelGitTest implements 
     commitToBranch(THEIRS);
     Gfs.merge(gfs).source(THEIRS).execute();
     MergeNote note = gfs.getStatusProvider().mergeNote();
-    write(gfs.getPath("/test_file.txt"), "COMBINED VERSION".getBytes());
+    write(gfs.getPath("/test_file.txt"), Constants.encodeASCII("COMBINED VERSION"));
     RevCommit commit = Gfs.commit(gfs).execute().getCommit();
 
     assertNotNull(note);

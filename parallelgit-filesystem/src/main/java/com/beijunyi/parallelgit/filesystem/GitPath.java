@@ -15,6 +15,9 @@ import javax.annotation.Nullable;
 
 import com.beijunyi.parallelgit.filesystem.utils.GfsUriBuilder;
 
+import static org.eclipse.jgit.lib.Constants.CHARSET;
+import static org.eclipse.jgit.util.RawParseUtils.decode;
+
 public class GitPath implements Path {
 
   private static ThreadLocal<SoftReference<CharsetEncoder>> encoder = new ThreadLocal<>();
@@ -674,9 +677,7 @@ public class GitPath implements Path {
   @Nonnull
   @Override
   public String toString() {
-    if(stringValue == null)
-      stringValue = new String(path);
-
+    if(stringValue == null)stringValue = decode(CHARSET, path);
     return stringValue;
   }
 

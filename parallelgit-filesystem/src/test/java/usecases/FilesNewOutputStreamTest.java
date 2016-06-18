@@ -37,7 +37,7 @@ public class FilesNewOutputStreamTest extends AbstractGitFileSystemTest {
     initGitFileSystem();
     GitPath file = gfs.getPath("/non_existent_file.txt");
     try(OutputStream stream = Files.newOutputStream(file)) {
-      stream.write("some text data".getBytes());
+      stream.write(someBytes());
       assertEquals(0, Files.size(file));
     }
   }
@@ -46,7 +46,7 @@ public class FilesNewOutputStreamTest extends AbstractGitFileSystemTest {
   public void openNewOutputStreamWhenFileDoesNotExist_theNewFileHasTheOutputDataAfterStreamCloses() throws IOException {
     initGitFileSystem();
 
-    byte[] expected = "test data".getBytes();
+    byte[] expected = someBytes();
     GitPath file = gfs.getPath("/test_file.txt");
     try(OutputStream stream = Files.newOutputStream(file)) {
       stream.write(expected);

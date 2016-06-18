@@ -21,13 +21,13 @@ public class GitFileSystemFlushTest extends PreSetupGitFileSystemTest {
   @Test
   public void flushAfterChangeIsMade_theResultShouldNotEqualToThePreviousTree() throws IOException {
     AnyObjectId previousTree = gfs.getStatusProvider().commit().getTree();
-    write(gfs.getPath("/some_file.txt"), "some text content".getBytes());
+    write(gfs.getPath("/some_file.txt"), someBytes());
     assertNotEquals(previousTree, gfs.flush());
   }
 
   @Test
   public void flushAfterChangeIsMade_theResultShouldReflectTheChanges() throws IOException {
-    byte[] expectedContent = "some text content".getBytes();
+    byte[] expectedContent = someBytes();
     write(gfs.getPath("/some_file.txt"), expectedContent);
     AnyObjectId result = gfs.flush();
     try(TreeWalk tw = TreeUtils.forPath("/some_file.txt", result, repo)) {

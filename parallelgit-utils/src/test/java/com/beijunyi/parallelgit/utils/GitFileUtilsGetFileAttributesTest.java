@@ -47,7 +47,7 @@ public class GitFileUtilsGetFileAttributesTest extends AbstractParallelGitTest {
 
   @Test
   public void testIsFileWhenExecutableFileExists_shouldReturnFalse() throws IOException {
-    writeToCache("/test_file.sh", "some excutable data".getBytes(), EXECUTABLE_FILE);
+    writeToCache("/test_file.sh", someBytes(), EXECUTABLE_FILE);
     RevCommit commit = commit();
     assertTrue(GitFileUtils.isFile("/test_file.sh", commit.getName(), repo));
   }
@@ -61,7 +61,7 @@ public class GitFileUtilsGetFileAttributesTest extends AbstractParallelGitTest {
 
   @Test
   public void testIsFileWhenSymbolicLinkExists_shouldReturnFalse() throws IOException {
-    writeToCache("/test_file", "some link data".getBytes(), SYMLINK);
+    writeToCache("/test_file", someBytes(), SYMLINK);
     RevCommit commit = commit();
     assertFalse(GitFileUtils.isFile("/test_file", commit.getName(), repo));
   }
@@ -89,7 +89,7 @@ public class GitFileUtilsGetFileAttributesTest extends AbstractParallelGitTest {
 
   @Test
   public void testIsSymbolicLinkWhenSymbolicLinkExists_shouldReturnTrue() throws IOException {
-    writeToCache("/test_file.txt", "some link data".getBytes(), SYMLINK);
+    writeToCache("/test_file.txt", someBytes(), SYMLINK);
     RevCommit commit = commit();
     assertTrue(GitFileUtils.isSymbolicLink("/test_file.txt", commit.getName(), repo));
   }

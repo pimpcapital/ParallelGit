@@ -20,7 +20,7 @@ public class TreeUtilsReadFileTest extends AbstractParallelGitTest {
 
   @Test
   public void readFile_theResultShouldEqualToTheFileContent() throws IOException {
-    byte[] expected = "test data".getBytes();
+    byte[] expected = someBytes();
     writeToCache("/test_file.txt", expected);
     RevCommit commit = commitToMaster();
     byte[] actual = TreeUtils.readFile("/test_file.txt", commit.getTree(), repo).getData();

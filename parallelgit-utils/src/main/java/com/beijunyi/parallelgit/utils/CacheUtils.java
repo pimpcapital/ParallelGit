@@ -15,6 +15,8 @@ import org.eclipse.jgit.dircache.*;
 import org.eclipse.jgit.lib.*;
 
 import static com.beijunyi.parallelgit.utils.TreeUtils.normalizeNodePath;
+import static org.eclipse.jgit.dircache.DirCacheEntry.STAGE_0;
+import static org.eclipse.jgit.lib.Constants.encode;
 import static org.eclipse.jgit.lib.FileMode.*;
 
 public final class CacheUtils {
@@ -93,7 +95,7 @@ public final class CacheUtils {
   }
 
   public static void addTree(String path, AnyObjectId treeId, DirCacheBuilder builder, ObjectReader reader) throws IOException {
-    builder.addTree(normalizeNodePath(path).getBytes(), DirCacheEntry.STAGE_0, reader, treeId);
+    builder.addTree(encode(normalizeNodePath(path)), STAGE_0, reader, treeId);
   }
 
   public static void addTree(String path, AnyObjectId treeId, DirCache cache, ObjectReader reader) throws IOException {

@@ -11,6 +11,7 @@ import org.junit.Test;
 
 import static com.beijunyi.parallelgit.filesystem.Gfs.*;
 import static java.nio.file.Files.readAllBytes;
+import static org.eclipse.jgit.util.RawParseUtils.decode;
 import static org.junit.Assert.*;
 
 public class GfsApplyStashTest extends AbstractGitFileSystemTest {
@@ -82,7 +83,7 @@ public class GfsApplyStashTest extends AbstractGitFileSystemTest {
                  "version B\n" +
                  "=======\n" +
                  "version A\n" +
-                 ">>>>>>> Stashed changes\n", new String(readAllBytes(gfs.getPath("/test_file.txt"))));
+                 ">>>>>>> Stashed changes\n", decode(readAllBytes(gfs.getPath("/test_file.txt"))));
   }
 
 }

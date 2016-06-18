@@ -84,7 +84,7 @@ public class GfsCreateStashTest extends PreSetupGitFileSystemTest {
 
   @Test
   public void getTreeOfWorkDirCommit_shouldContainTheStashedChanges() throws IOException {
-    byte[] expected = "new file".getBytes();
+    byte[] expected = someBytes();
     writeToGfs("/test_file.txt", expected);
     Result result = createStash(gfs).execute();
     RevCommit stash = result.getCommit();

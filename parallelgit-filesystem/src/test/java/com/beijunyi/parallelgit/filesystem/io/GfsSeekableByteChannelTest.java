@@ -13,11 +13,12 @@ import org.junit.Test;
 import static java.nio.file.StandardOpenOption.*;
 import static java.util.Arrays.asList;
 import static java.util.Collections.singleton;
+import static org.eclipse.jgit.lib.Constants.encodeASCII;
 import static org.junit.Assert.*;
 
 public class GfsSeekableByteChannelTest extends AbstractGitFileSystemTest {
 
-  private static final byte[] FILE_DATA = "18 bytes test data".getBytes();
+  private static final byte[] FILE_DATA = encodeASCII("18 bytes test data");
   private FileNode file;
 
   @Before
@@ -62,9 +63,9 @@ public class GfsSeekableByteChannelTest extends AbstractGitFileSystemTest {
   @Test
   public void writeToChannelOpenedWithWriteOption_shouldWriteInputToFileFromBeginning() throws IOException {
     try(GfsSeekableByteChannel channel = new GfsSeekableByteChannel(file, singleton(WRITE))) {
-      ByteBuffer buffer = ByteBuffer.wrap("18 chars".getBytes());
+      ByteBuffer buffer = ByteBuffer.wrap(encodeASCII("18 chars"));
       channel.write(buffer);
-      assertArrayEquals("18 chars test data".getBytes(), channel.getBytes());
+      assertArrayEquals(encodeASCII("18 chars test data"), channel.getBytes());
     }
   }
 
@@ -78,16 +79,16 @@ public class GfsSeekableByteChannelTest extends AbstractGitFileSystemTest {
   @Test
   public void writeToChannelOpenedWithWriteAndAppendOption_inputShouldBeAppendedToTheEndOfTheFile() throws IOException {
     try(GfsSeekableByteChannel channel = new GfsSeekableByteChannel(file, asList(WRITE, APPEND))) {
-      ByteBuffer buffer = ByteBuffer.wrap(" (not anymore)".getBytes());
+      ByteBuffer buffer = ByteBuffer.wrap(encodeASCII(" (not anymore)"));
       channel.write(buffer);
-      assertArrayEquals("18 bytes test data (not anymore)".getBytes(), channel.getBytes());
+      assertArrayEquals(encodeASCII("18 bytes test data (not anymore)"), channel.getBytes());
     }
   }
 
   @Test
   public void writeToChannelOpenedWithWriteAndTruncateExistingOption_fileDataShouldBeOverwrittenByTheInput() throws IOException {
     try(GfsSeekableByteChannel channel = new GfsSeekableByteChannel(file, asList(WRITE, TRUNCATE_EXISTING))) {
-      byte[] expected = "new short data".getBytes();
+      byte[] expected = encodeASCII("new short data");
       ByteBuffer buffer = ByteBuffer.wrap(expected);
       channel.write(buffer);
       assertArrayEquals(expected, channel.getBytes());

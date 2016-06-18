@@ -1,7 +1,6 @@
 package com.beijunyi.parallelgit.filesystem.commands;
 
 import java.io.IOException;
-import java.nio.file.Files;
 
 import com.beijunyi.parallelgit.filesystem.Gfs;
 import com.beijunyi.parallelgit.filesystem.PreSetupGitFileSystemTest;
@@ -9,6 +8,7 @@ import com.beijunyi.parallelgit.filesystem.io.GfsCheckoutConflict;
 import org.eclipse.jgit.lib.ObjectId;
 import org.junit.Test;
 
+import static org.eclipse.jgit.lib.Constants.encode;
 import static org.junit.Assert.*;
 
 public class GfsCheckoutWithConflictsTest extends PreSetupGitFileSystemTest {
@@ -41,13 +41,12 @@ public class GfsCheckoutWithConflictsTest extends PreSetupGitFileSystemTest {
   public void checkoutWhenConflictsEncountered_localFilesShouldNotChange() throws IOException {
     writeToCache("conflicting_file.txt", "version A");
     commitToBranch("test_branch");
-    byte[] expected = "version B".getBytes();
-    writeToGfs("conflicting_file.txt", expected);
+    writeToGfs("conflicting_file.txt", "version B");
     GfsCheckout.Result result = Gfs.checkout(gfs).target("test_branch").execute();
 
     assertTrue(result.hasConflicts());
     assertFalse(result.isSuccessful());
-    assertArrayEquals(expected, Files.readAllBytes(gfs.getPath("/conflicting_file.txt")));
+    assertEquals("version B", readAsString(gfs.getPath("/conflicting_file.txt")));
   }
 
   @Test
@@ -70,7 +69,7 @@ public class GfsCheckoutWithConflictsTest extends PreSetupGitFileSystemTest {
     commitToBranch("test_branch");
 
     Gfs.checkout(gfs).target(baseCommit.name()).execute();
-    byte[] ours = "version OURS".getBytes();
+    byte[] ours = encode("version OURS");
     writeToGfs("conflicting_file.txt", ours);
     GfsCheckout.Result result = Gfs.checkout(gfs).target("test_branch").execute();
 
@@ -85,14 +84,13 @@ public class GfsCheckoutWithConflictsTest extends PreSetupGitFileSystemTest {
 
   @Test
   public void checkoutWithForceOption_conflictingFilesShouldBeOverwritten() throws IOException {
-    byte[] expected = "version A".getBytes();
-    writeToCache("conflicting_file.txt", expected);
+    writeToCache("conflicting_file.txt", "version A");
     commitToBranch("test_branch");
     writeToGfs("conflicting_file.txt", "version B");
     GfsCheckout.Result result = Gfs.checkout(gfs).target("test_branch").force(true).execute();
 
     assertTrue(result.isSuccessful());
-    assertArrayEquals(expected, Files.readAllBytes(gfs.getPath("/conflicting_file.txt")));
+    assertEquals("version A", readAsString(gfs.getPath("/conflicting_file.txt")));
   }
 
 

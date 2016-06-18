@@ -80,14 +80,13 @@ public class GfsUriBuilder {
 
   @Nullable
   private String buildQuery() {
-    if(params.isEmpty())
-      return null;
-    String query = "";
+    if(params.isEmpty()) return null;
+    StringBuilder query = new StringBuilder();
     for(Map.Entry<String, String> param : params.entrySet()) {
-      if(!query.isEmpty()) query += "&";
-      query += param.getKey() + "=" + param.getValue();
+      if(query.length() > 0) query.append('&');
+      query.append(param.getKey()).append('=').append(param.getValue());
     }
-    return query;
+    return query.toString();
   }
 
   @Nullable

@@ -114,7 +114,7 @@ public abstract class AbstractParallelGitTest {
 
   @Nonnull
   protected static byte[] someBytes() {
-    return someText().getBytes();
+    return encodeASCII(someText());
   }
 
   @Nonnull
@@ -271,7 +271,7 @@ public abstract class AbstractParallelGitTest {
     }
   }
 
-  protected class TestRepository extends InMemoryRepository {
+  protected static class TestRepository extends InMemoryRepository {
 
     private final File directory;
     private final File workTree;

@@ -11,11 +11,12 @@ import com.beijunyi.parallelgit.filesystem.GitPath;
 import org.junit.Before;
 import org.junit.Test;
 
+import static org.eclipse.jgit.lib.Constants.encodeASCII;
 import static org.junit.Assert.*;
 
 public class FilesNewByteChannelTest extends AbstractGitFileSystemTest {
 
-  private static final byte[] ORIGINAL_TEXT_BYTES = "some plain text data".getBytes();
+  private static final byte[] ORIGINAL_TEXT_BYTES = someBytes();
   private GitPath file;
 
   @Before
@@ -63,7 +64,7 @@ public class FilesNewByteChannelTest extends AbstractGitFileSystemTest {
   @Test
   public void gitByteChannelPartialOverwriteFromMiddleTest() throws IOException {
     int overwritePos = 5;
-    byte[] data = "other".getBytes();
+    byte[] data = encodeASCII("other");
     try(SeekableByteChannel channel = Files.newByteChannel(file, StandardOpenOption.WRITE)) {
       ByteBuffer buf = ByteBuffer.wrap(data);
       channel.position(overwritePos);
@@ -77,7 +78,7 @@ public class FilesNewByteChannelTest extends AbstractGitFileSystemTest {
 
   @Test
   public void gitByteChannelPartialOverwriteFromBeginningTest() throws IOException {
-    byte[] data = "test".getBytes();
+    byte[] data = encodeASCII("test");
     try(SeekableByteChannel channel = Files.newByteChannel(file, StandardOpenOption.WRITE)) {
       ByteBuffer buf = ByteBuffer.wrap(data);
       assertEquals(data.length, channel.write(buf));
@@ -91,7 +92,7 @@ public class FilesNewByteChannelTest extends AbstractGitFileSystemTest {
 
   @Test
   public void gitByteChannelCompleteOverwriteTest() throws IOException {
-    byte[] data = "this is a big data array that will completely overwrite".getBytes();
+    byte[] data = encodeASCII("this is a big data array that will completely overwrite");
     try(SeekableByteChannel channel = Files.newByteChannel(file, StandardOpenOption.WRITE)) {
       ByteBuffer buf = ByteBuffer.wrap(data);
       assertEquals(data.length, channel.write(buf));
@@ -139,7 +140,7 @@ public class FilesNewByteChannelTest extends AbstractGitFileSystemTest {
   @Test(expected = NonWritableChannelException.class)
   public void nonWritableGitByteChannelTest() throws IOException {
     try(SeekableByteChannel channel = Files.newByteChannel(file, StandardOpenOption.READ)) {
-      channel.write(ByteBuffer.wrap("some data".getBytes()));
+      channel.write(ByteBuffer.wrap(someBytes()));
     }
   }
 

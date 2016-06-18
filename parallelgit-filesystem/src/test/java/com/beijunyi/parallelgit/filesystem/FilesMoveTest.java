@@ -38,7 +38,7 @@ public class FilesMoveTest extends AbstractGitFileSystemTest {
   @Test
   public void moveFile_theTargetFileShouldHaveTheSameData() throws IOException {
     initRepository();
-    byte[] expectedData = "expected data".getBytes();
+    byte[] expectedData = someBytes();
     writeToCache("/source.txt", expectedData);
     commitToMaster();
     initGitFileSystem();
@@ -82,7 +82,7 @@ public class FilesMoveTest extends AbstractGitFileSystemTest {
   @Test
   public void moveFileWithReplaceExistingOption_shouldOverwriteTheTargetFileData() throws IOException {
     initRepository();
-    byte[] expectedData = "expected data".getBytes();
+    byte[] expectedData = someBytes();
     writeToCache("/source.txt", expectedData);
     writeToCache("/target.txt");
     commitToMaster();
@@ -97,7 +97,7 @@ public class FilesMoveTest extends AbstractGitFileSystemTest {
   @Test
   public void moveFileWhenTargetEqualsSource_shouldHaveNoEffect() throws IOException {
     initRepository();
-    byte[] expectedData = "expected data".getBytes();
+    byte[] expectedData = someBytes();
     writeToCache("/source.txt", expectedData);
     commitToMaster();
     initGitFileSystem();
@@ -145,7 +145,7 @@ public class FilesMoveTest extends AbstractGitFileSystemTest {
   @Test
   public void moveFileReplacingTargetDirectory_theTargetFileShouldHaveTheSameData() throws IOException {
     initRepository();
-    byte[] expectedData = "expected data".getBytes();
+    byte[] expectedData = someBytes();
     writeToCache("/source.txt", expectedData);
     writeToCache("/target/file.txt");
     commitToMaster();
@@ -214,9 +214,9 @@ public class FilesMoveTest extends AbstractGitFileSystemTest {
   @Test
   public void moveDirectory_theChildrenInTheTargetDirectoryShouldHaveTheSameData() throws IOException {
     initRepository();
-    byte[] expectedData1 = "expected data 1".getBytes();
+    byte[] expectedData1 = someBytes();
     writeToCache("/source/file1.txt", expectedData1);
-    byte[] expectedData2 = "expected data 2".getBytes();
+    byte[] expectedData2 = someBytes();
     writeToCache("/source/file2.txt", expectedData2);
     commitToMaster();
     initGitFileSystem();

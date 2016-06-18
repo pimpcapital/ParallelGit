@@ -67,7 +67,7 @@ public class PosixFileAttributesTest extends AbstractGitFileSystemTest {
 
   @Test
   public void getPermissionOfExecutableFile_shouldContainOwnerExecute() throws IOException {
-    writeToCache("/file.txt", "some data".getBytes(), EXECUTABLE_FILE);
+    writeToCache("/file.txt", someBytes(), EXECUTABLE_FILE);
     commitToMaster();
     initGitFileSystem();
 
