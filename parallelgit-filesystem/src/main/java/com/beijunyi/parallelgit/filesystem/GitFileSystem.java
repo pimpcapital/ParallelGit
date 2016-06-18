@@ -55,6 +55,7 @@ public class GitFileSystem extends FileSystem {
     if(!closed) {
       closed = true;
       objService.close();
+      statusProvider.close();
       GitFileSystemProvider.getDefault().unregister(this);
     }
   }
