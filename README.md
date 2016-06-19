@@ -8,47 +8,8 @@ A high performance [Java JDK 7 nio](https://docs.oracle.com/javase/tutorial/esse
 [![Maven Central](https://maven-badges.herokuapp.com/maven-central/com.beijunyi/parallelgit/badge.svg)](https://maven-badges.herokuapp.com/maven-central/com.beijunyi/parallelgit)
 
 
-The problems
-------------
-
-The common usage of Git follows this pattern.
-
-**Checkout a branch &#8594; Make changes to the working directory &#8594; Commit changes**
-
-The standard way of modifying a repository is by changing its [working directory](https://git-scm.com/book/en/v2/Getting-Started-Git-Basics) and creating a commit. This is quite convenient for common
-users since a working directory is just a normal directory on your hard drive and you can use all the OS built-in file system facilities to access the contents inside the directory. When you create a
-commit, files and directories are automatically converted into blobs and trees, which are then persisted in the [secret dot git directory](https://git-scm.com/book/en/v1/Git-Internals).
-
-Everything is smooth and easy until you try to use Git in a server role application. A repository (by default) only has one working directory, and one working directory only has one state (checked out
-revision). When two users want to use one repository, the second user must wait for the first user to exit before he can safely use the repository. The working directory becomes a scarce resource
-which all users fight for. The hard drive becomes a major performance bottleneck as the system has to perform a [force checkout](https://git-scm.com/docs/git-checkout) every time a user enters the repository.
-
-
-The goals
----------
-
-For a Git based application to serve multiple users simultaneously it must be able to :
-
-1. host **multiple working directories** at the same time
-2. **create** new working directories **on demand**
-3. **remove** working directories **on demand**
-
-More importantly, the creation and removal of working directories must be **inexpensive**.
-
-
-The way we play
----------------
-
-ParallelGit is an in-memory file system that implements the Java JDK 7 nio interface. It enables you to create a ```GitFileSystem``` from an arbitrary revision. Contents are **lazily loaded** as
-you navigate through the file tree, hence there is no burst disk reading when you open a commit. As for writing, ```GitFileSystem``` **dynamically creates and adjusts buffers** to stage the 
-changes you made to the file system. When all the work is done, you can commit the changes straight from memory into your repository.
-
-
-Get started
+Quick start
 -----------
-
-Add ParallelGit to your project via build tool.
-
 Maven:
 
 ```xml
@@ -65,184 +26,46 @@ Gradle:
 'com.beijunyi:parallelgit-filesystem:2.0.0'
 ```
 
-Examples
---------
 
-GitFileSystem fully supports the Java JDK 7 nio API. You can access your in-memory working directory the same way as you access a normal directory on your hard drive.
-
-#####Create GitFileSystem
+Basic usages
+------------
+Copy a file from repository to hard drive:
 ```java
-File myRepo = new File("/home/repo");
-GitFileSystem gfs = Gfs.forRevision("my_branch", myRepo));
-```
-
-#####Close GitFileSystem
-Standard ```close()``` method
-
-```java
-GitFileSystem gfs = ...;
-gfs.close();
-```
-
-Java JDK 7 [try-with-resources](https://docs.oracle.com/javase/tutorial/essential/exceptions/tryResourceClose.html) feature
-
-```java
-try(GitFileSystem gfs = ...) {
-  ...
+public void loadSettings() throws IOException {
+  try(GitFileSystem gfs = Gfs.newFileSystem("my_branch", "/project/repository")) {
+    Path source = gfs.getPath("/settings.xml");
+    Path target = Paths.get("/app/config/settings.xml");
+    Files.copy(source, target);
+  }
 }
 ```
 
-#####Read file
-Read bytes
-
+Copy a file to repository and commit:
 ```java
-GitFileSystem gfs = ...;
-Path file = gfs.getPath("/myFile.txt");
-byte[] bytes = Files.readAllBytes(file);
-```
-
-Open ```InputStream```
-
-```java
-GitFileSystem gfs = ...;
-Path file = gfs.getPath("/myFile.txt");
-InputStream input = Files.newInputStream(file);
-```
-
-#####Write file
-Write bytes
-
-```java
-GitFileSystem gfs = ...;
-Path file = gfs.getPath("/myFile.txt");
-byte[] bytes = "my text data".getBytes();
-Files.write(file, bytes);
-```
-
-Open ```OutputStream```
-
-```java
-GitFileSystem gfs = ...;
-Path file = gfs.getPath("/myFile.txt");
-InputStream output = Files.newOutputStream(file);
-```
-
-#####Copy file
-GFS &#8594; GFS
-
-```java
-GitFileSystem gfs = ...;
-Path source = gfs.getPath("/source.txt");
-Path target = gfs.getPath("/target.txt");
-Files.copy(source, target);
-```
-
-Native file system &#8594; GFS
-
-```java
-Path source = Paths.get("/home/source.txt"); // a file on your hard drive
-GitFileSystem gfs = ...;
-Path target = gfs.getPath("/target.txt");
-Files.copy(source, target);
-```
-
-GFS &#8594; Native file system
-
-```java
-Path target = Paths.get("/home/target.txt"); // a file on your hard drive
-GitFileSystem gfs = ...;
-Path source = gfs.getPath("/source.txt");
-Files.copy(source, target);
-```
- 
-#####Move/Rename file
-GFS &#8594; GFS
-
-```java
-GitFileSystem gfs = ...;
-Path source = gfs.getPath("/source.txt");
-Path target = gfs.getPath("/target.txt");
-Files.move(source, target);
-```
-
-Native file system &#8594; GFS
-
-```java
-Path source = Paths.get("/home/source.txt"); // a file on your hard drive
-GitFileSystem gfs = ...;
-Path target = gfs.getPath("/target.txt");
-Files.move(source, target);
-```
-
-GFS &#8594; Native file system
-
-```java
-Path target = Paths.get("/home/target.txt"); // a file on your hard drive
-GitFileSystem gfs = ...;
-Path source = gfs.getPath("/source.txt");
-Files.move(source, target);
-```
-
-#####Delete file
-```java
-GitFileSystem gfs = ...;
-Path file = gfs.getPath("/myFile.txt");
-Files.delete(file);
-```
-
-#####Create directory
-```java
-GitFileSystem gfs = ...;
-Path myDir = gfs.getPath("/myDirectory");
-Files.createDirectory(myDir);
-```
-
-```java
-GitFileSystem gfs = ...;
-Path myDir = gfs.getPath("/dir1/dir2/dir3");
-Files.createDirectories(myDir);
-```
-
-#####Iterate directory
-```java
-GitFileSystem gfs = ...;
-Path myDir = gfs.getPath("/myDirectory");
-DirectoryStream<Path> dirStream = Files.newDirectoryStream(myDir);
-for(Path child : dirStream) {
-  ...
+public void backupSettings() throws IOException {
+  try(GitFileSystem gfs = Gfs.newFileSystem("my_branch", "/project/repository")) {
+    Path source = Paths.get("/app/config/settings.xml");
+    Path target = gfs.getPath("/settings.xml");
+    Files.copy(source, target);
+    Gfs.commit(gfs).message("Update settings").execute();
+  }
 }
 ```
 
-#####Commit changes
-Commit with default user
 
-```java
-GitFileSystem gfs = ...;
-RevCommit commit = Requests.commit(gfs).message("first commit").execute();
+Project purpose explained
+-------------------------
+When you build a server role application, you cannot afford checking out files to your hard drive every time user makes a request. In fact, you should use a bare repository (a normal repository without its work directory) when you are serving multiple users.
+
+How would you interact with a Git repository with no work directory? If you know Git really well, I bet you know the tricks to read a file without checking out the branch/commit. But what if you want to make some changes to a file?
+
+Imagine you have this file in a branch:
 ```
-
-Commit with specified user
-
-```java
-GitFileSystem gfs = ...;
-PersonIdent committer = new PersonIdent("my_name", "my@email.com");
-RevCommit commit = Requests.commit(gfs)
-                           .committer(committer)
-                           .message("first commit")
-                           .execute();
+/app-core/src/main/resources/com/example/config/settings.xml
 ```
+If you want to change this file, there is more than one change you need to make to the repository. In fact, you will need to create 1 blob object, 7 tree objects, 1 commit object and update 1 branch reference. Simple things can be very verbose when you use Git's low level API to interact with a bare repository.
 
-
-For more documentations and examples, please visit our [official site](https://beijunyi.github.io/ParallelGit/#/examples).
-
-
-Donate
-------
-[![Cancer Research UK](http://www.cancerresearchuk.org/sites/all/themes/custom/cruk/logo.png)](http://www.cancerresearchuk.org/support-us/donate)
-
-If this library has helped you, consider a donation to [Cancer Research UK](http://www.cancerresearchuk.org/support-us/donate).
-
-Thank you!
+ParallelGit solves this problem by exposing Git repository through Java's NIO filesystem API. With ParallelGit you can instantly checkout any branch/commit to a in-memory filesystem and perform read/write accesses.
 
 
 License
