@@ -7,8 +7,6 @@ ParallelGit is a high performance [Java JDK 7 nio](https://docs.oracle.com/javas
 [![Coverage Status](https://coveralls.io/repos/beijunyi/ParallelGit/badge.svg?branch=master&service=github)](https://coveralls.io/github/beijunyi/ParallelGit?branch=master)
 [![Maven Central](https://maven-badges.herokuapp.com/maven-central/com.beijunyi/parallelgit/badge.svg)](https://maven-badges.herokuapp.com/maven-central/com.beijunyi/parallelgit)
 
-For more examples and the latest news, please visit our [official site](https://beijunyi.github.io/ParallelGit)! (in progress)
-
 
 The problems
 ------------
@@ -57,14 +55,14 @@ Maven:
 <dependency>
   <groupId>com.beijunyi</groupId>
   <artifactId>parallelgit-filesystem</artifactId>
-  <version>1.0.0</version>
+  <version>2.0.0</version>
 </dependency>
 ```
 
 Gradle:
 
 ```gradle
-'com.beijunyi:parallelgit-filesystem:1.0.0'
+'com.beijunyi:parallelgit-filesystem:2.0.0'
 ```
 
 Examples
