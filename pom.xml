@@ -12,9 +12,7 @@
   </modules>
 
   <name>ParallelGit</name>
-  <description>
-    ParallelGit provides an elegant solution to projects that use a local Git repository as the main data storage.
-  </description>
+  <description>A high performance in-memory filesystem for Git</description>
   <url>http://www.parallelgit.com</url>
 
   <licenses>
