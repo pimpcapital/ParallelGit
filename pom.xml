@@ -44,7 +44,7 @@
     <implementation.build>${maven.build.timestamp}</implementation.build>
 
     <maven-compiler-plugin.version>3.5.1</maven-compiler-plugin.version>
-    <maven-release-plugin.version>3.0.0</maven-release-plugin.version>
+    <maven-release-plugin.version>2.5.3</maven-release-plugin.version>
     <maven-source-plugin.version>3.0.0</maven-source-plugin.version>
     <maven-gpg-plugin.version>1.6</maven-gpg-plugin.version>
     <maven-surefire-plugin.version>2.19.1</maven-surefire-plugin.version>
