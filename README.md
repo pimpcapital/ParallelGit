@@ -70,9 +70,9 @@ ParallelGit solves this problem by exposing Git repository through Java's NIO fi
 
 Performance explained
 ---------------------
-It is very unlikely to receive a request that wants to read all file. It is even more unlikely to have a commit that updates all files in a branch. In most cases, loading an entire commit into memory is an overkill. 
+Git is best at storing changes in many small batches. It is very rare to have a commit that updates all files in a repository. The size of I/O per request is usually very small compared to the total number of objects or files in a repository. Pre-loading everything into memory is usually an overkill for most requests.
 
-Consider a scenario where you have these files in a branch:
+To minimise I/O and memory usage, ParallelGit loads the minimum necessary objects to complete a request. Consider a scenario where you have these files in a branch:
 ```
 ├──app-core
 │   └──src
@@ -82,8 +82,32 @@ Consider a scenario where you have these files in a branch:
 │       └──test
 │           └──ProductionTest.java
 └──app-web
-    └──index.html
+    ├──index.html
+    └──style.css
 ```
+When you check out this branch. The commit object is loaded. It has a reference to the root of this file tree.
+Assuming you want to read file `/app-core/src/main/MyFactory.java`. In order to reach this file, you have to resolve its parent directories (including the root directory) i.e:
+```
+1) /
+2) /app-core
+3) /app-core/src
+4) /app-core/src/main
+```
+The last tree object (`/app-core/src/main`) contains a reference to the blob object of `MyFactory.java`, which you can use to retrieve the content of this file.
+
+Now let's say you want to read the file `/app-core/src/main/MyProduct.java`. This file is in the same directory as the one we previously read. There is no need to read the directories again as they are already in memory. This time we simply read the blob reference from `/app-core/src/main` and use it to retrieve the content of the file.
+
+Saving files to repository follows a similar pattern. Assuming you have made a change to `MyFactory.java` and you want to commit this change. ParallelGit saves the file as a blob and creates the new tree objects from bottom-up i.e:
+```
+1) /app-core/src/main
+2) /app-core/src
+3) /app-core
+4) /
+```
+
+The whole process above involved 2 out of the total 5 files in the branch, and ParallelGit only focuses on reaching the 2 files. The existence of the other 2 files has zero impact to the performance. Your repository can keep on growing and your request handling time remains constant.
+
+
 
 License
 -------
