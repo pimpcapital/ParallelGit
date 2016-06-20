@@ -4,7 +4,7 @@
 
   <groupId>com.beijunyi</groupId>
   <artifactId>parallelgit</artifactId>
-  <version>2.0.0</version>
+  <version>2.0.1-SNAPSHOT</version>
   <packaging>pom</packaging>
   <modules>
     <module>parallelgit-utils</module>
@@ -34,7 +34,7 @@
     <connection>scm:git:git@github.com:beijunyi/ParallelGit.git</connection>
     <developerConnection>scm:git:git@github.com:beijunyi/ParallelGit.git</developerConnection>
     <url>git@github.com:beijunyi/ParallelGit.git</url>
-    <tag>parallelgit-2.0.0</tag>
+    <tag>HEAD</tag>
   </scm>
 
   <properties>
