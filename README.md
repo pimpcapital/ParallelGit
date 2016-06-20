@@ -68,6 +68,23 @@ If you want to change this file, there is more than one change you need to make 
 ParallelGit solves this problem by exposing Git repository through Java's NIO filesystem API. With ParallelGit you can instantly checkout any branch/commit to a in-memory filesystem and perform read/write accesses.
 
 
+Performance explained
+---------------------
+It is very unlikely to receive a request that wants to read all file. It is even more unlikely to have a commit that updates all files in a branch. In most cases, loading an entire commit into memory is an overkill. 
+
+Consider a scenario where you have these files in a branch:
+```
+├──app-core
+│   └──src
+│       ├──main
+│       │   ├──MyFactory.java
+│       │   └──MyProduct.java
+│       └──test
+│           └──ProductionTest.java
+└──app-web
+    └──index.html
+```
+
 License
 -------
 This project is licensed under [Apache License, Version 2.0](http://opensource.org/licenses/apache-2.0).
