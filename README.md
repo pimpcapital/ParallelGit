@@ -55,9 +55,13 @@ public void backupSettings() throws IOException {
 
 Project purpose explained
 -------------------------
-When you build a server role application, you cannot afford checking out files to your hard drive every time user makes a request. In fact, you should use a bare repository (a normal repository without its work directory) when you are serving multiple users.
+Git is an awesome file storage. Its unique data structure offers many features that other file storages and databases don't have such as:
+* Storing history versions at a very low cost
+* Duplication detection
+* Simple local and remote backup
+For a server role application, it is hardly feasible to check out files into hard drive for every request. In fact, a system that serves multiple users should be using a bare repository (a normal repository without its work directory).
 
-How would you interact with a Git repository with no work directory? If you know Git really well, I bet you know the tricks to read a file without checking out the branch/commit. But what if you want to make some changes to a file?
+How would you make a system that interacts with a Git repository with no work directory? If you know Git really well, I bet you know the tricks to read a file without checking out the branch/commit. But what if you want to make some changes to a file?
 
 Imagine you have this file in a branch:
 ```
@@ -105,7 +109,7 @@ Saving files to repository follows a similar pattern. Assuming you have made a c
 4) /
 ```
 
-The whole process above involved 2 out of the total 5 files in the branch, and ParallelGit only focuses on reaching the 2 files. The existence of the other 2 files has zero impact to the performance. Your repository can keep on growing and your request handling time remains constant.
+The whole process above involved 2 out of the total 5 files in the branch, and ParallelGit only focuses on reaching the 2 files. The existence of the other 2 files has nearly zero impact to the performance. Your repository can keep on growing and your request handling time remains constant.
 
 
 
