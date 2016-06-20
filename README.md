@@ -95,7 +95,7 @@ Assuming you want to read file `/app-core/src/main/MyFactory.java`. In order to 
 ```
 The last tree object (`/app-core/src/main`) contains a reference to the blob object of `MyFactory.java`, which you can use to retrieve the content of this file.
 
-Now let's say you want to read the file `/app-core/src/main/MyProduct.java`. This file is in the same directory as the one we previously read. There is no need to read the directories again as they are already in memory. This time we simply read the blob reference from `/app-core/src/main` and use it to retrieve the content of the file.
+Now let's say you want to read the file `/app-core/src/main/MyProduct.java`. This file is in the same directory as the previous one. There is no need to read the directories again as they are already in memory. This time we simply read the blob reference from `/app-core/src/main` and use it to retrieve the content of the file.
 
 Saving files to repository follows a similar pattern. Assuming you have made a change to `MyFactory.java` and you want to commit this change. ParallelGit saves the file as a blob and creates the new tree objects from bottom-up i.e:
 ```
