@@ -55,21 +55,30 @@ public void backupSettings() throws IOException {
 
 Project purpose explained
 -------------------------
-Git is an awesome file storage. Its unique data structure offers many features that other file storages and databases don't have such as:
-* Storing history versions at a very low cost
-* Duplication detection
-* Simple local and remote backup
-For a server role application, it is hardly feasible to check out files into hard drive for every request. In fact, a system that serves multiple users should be using a bare repository (a normal repository without its work directory).
+Git is an awesome data storage. Its special data structure offers many useful features such as:
 
-How would you make a system that interacts with a Git repository with no work directory? If you know Git really well, I bet you know the tricks to read a file without checking out the branch/commit. But what if you want to make some changes to a file?
+* Keeping history snapshots at a very low cost
+* Automatic duplication detection
+* Remote backup
+* Merging and conflict resolution
 
-Imagine you have this file in a branch:
-```
-/app-core/src/main/resources/com/example/config/settings.xml
-```
-If you want to change this file, there is more than one change you need to make to the repository. In fact, you will need to create 1 blob object, 7 tree objects, 1 commit object and update 1 branch reference. Simple things can be very verbose when you use Git's low level API to interact with a bare repository.
+Git is well known and widely used as a VCS, yet few software application uses Git as a internal data storage. One of the reasons is the lack of high level API to interact with Git repository.
 
-ParallelGit solves this problem by exposing Git repository through Java's NIO filesystem API. With ParallelGit you can instantly checkout any branch/commit to a in-memory filesystem and perform read/write accesses.
+When Git is used in software development, the standard process to make changes to Git repository is
+
+Checkout ==> Write file ==> Add file to index ==> Commit
+
+While this model works sufficiently well with developers, it does not fit in the architecture diagram of a server role application. Reasons are:
+
+* Only one branch is checked out
+* Checking out a branch is a heavy I/O task as files need to be deleted and re-created
+* Every context switching needs a check out
+
+There are ways around these problems, but they usually involve manual blob and tree creations, which are verbose and error prone.
+
+ParallelGit is a layer between the application logic and the Git repository. It abstracts away Git's low level object manipulation details and provides a friendly interface which extends the Java 7 NIO filesystem API. The filesystem itself operates in memory with data pulled from hard drive on demand. 
+
+With ParallelGit an application can control a Git repository as it were a normal filesystem. Arbitrary branch and commit can be checked out at minimal CPU and I/O cost. Multiple filesystem instances can be hosted simultaneously with no interference.   
 
 
 Performance explained
