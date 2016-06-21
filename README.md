@@ -55,17 +55,32 @@ public void backupSettings() throws IOException {
 
 Project purpose explained
 -------------------------
-When you build a server role application, you cannot afford checking out files to your hard drive every time user makes a request. In fact, you should use a bare repository (a normal repository without its work directory) when you are serving multiple users.
+Git is an awesome data storage. Its special data structure offers many useful features such as:
 
-How would you interact with a Git repository with no work directory? If you know Git really well, I bet you know the tricks to read a file without checking out the branch/commit. But what if you want to make some changes to a file?
+* Keeping history snapshots at a very low cost
+* Automatic duplication detection
+* Remote backup
+* Merging and conflict resolution
 
-Imagine you have this file in a branch:
+Git is well known and widely used as a VCS, yet few software application uses Git as a internal data storage. One of the reasons is the lack of high level API to interact with Git repository.
+
+Consider the workflow in software development, the standard steps to make changes to Git repository are:
+
 ```
-/app-core/src/main/resources/com/example/config/settings.xml
+Checkout (branch/commit) ==> Write file ==> Add file to index ==> Commit
 ```
-If you want to change this file, there is more than one change you need to make to the repository. In fact, you will need to create 1 blob object, 7 tree objects, 1 commit object and update 1 branch reference. Simple things can be very verbose when you use Git's low level API to interact with a bare repository.
 
-ParallelGit solves this problem by exposing Git repository through Java's NIO filesystem API. With ParallelGit you can instantly checkout any branch/commit to a in-memory filesystem and perform read/write accesses.
+While this model works sufficiently well with developers, it does not fit in the architecture diagram of a server role application. Reasons are:
+
+* Only one branch can be checked out at a time
+* Checking out a branch is a heavy I/O task as files need to be deleted and re-created on hard drive
+* Every context switching needs a check out
+
+There are ways around these problems, but they usually involve manual blob and tree creations, which are verbose and error prone.
+
+ParallelGit is a layer between application logic and Git repository. It abstracts away Git's low level object manipulation details and provides a friendly interface which extends the Java 7 NIO filesystem API. The filesystem itself operates in memory with data pulled from hard drive on demand. 
+
+With ParallelGit an application can control a Git repository as it were a normal filesystem. Arbitrary branch and commit can be checked out at minimal CPU and I/O cost. Multiple filesystem instances can be hosted simultaneously with no interference.   
 
 
 Performance explained
@@ -105,7 +120,7 @@ Saving files to repository follows a similar pattern. Assuming you have made a c
 4) /
 ```
 
-The whole process above involved 2 out of the total 5 files in the branch, and ParallelGit only focuses on reaching the 2 files. The existence of the other 2 files has zero impact to the performance. Your repository can keep on growing and your request handling time remains constant.
+The whole process above involved 2 out of the total 5 files in the branch, and ParallelGit only focuses on reaching the 2 files. The existence of the other 2 files has nearly zero impact to the performance. Your repository can keep on growing and your request handling time remains constant.
 
 
 
