@@ -64,19 +64,21 @@ Git is an awesome data storage. Its special data structure offers many useful fe
 
 Git is well known and widely used as a VCS, yet few software application uses Git as a internal data storage. One of the reasons is the lack of high level API to interact with Git repository.
 
-When Git is used in software development, the standard process to make changes to Git repository is
+Consider the workflow in software development, the standard steps to make changes to Git repository are:
 
-Checkout ==> Write file ==> Add file to index ==> Commit
+```
+Checkout (branch/commit) ==> Write file ==> Add file to index ==> Commit
+```
 
 While this model works sufficiently well with developers, it does not fit in the architecture diagram of a server role application. Reasons are:
 
-* Only one branch is checked out
-* Checking out a branch is a heavy I/O task as files need to be deleted and re-created
+* Only one branch can be checked out at a time
+* Checking out a branch is a heavy I/O task as files need to be deleted and re-created on hard drive
 * Every context switching needs a check out
 
 There are ways around these problems, but they usually involve manual blob and tree creations, which are verbose and error prone.
 
-ParallelGit is a layer between the application logic and the Git repository. It abstracts away Git's low level object manipulation details and provides a friendly interface which extends the Java 7 NIO filesystem API. The filesystem itself operates in memory with data pulled from hard drive on demand. 
+ParallelGit is a layer between application logic and Git repository. It abstracts away Git's low level object manipulation details and provides a friendly interface which extends the Java 7 NIO filesystem API. The filesystem itself operates in memory with data pulled from hard drive on demand. 
 
 With ParallelGit an application can control a Git repository as it were a normal filesystem. Arbitrary branch and commit can be checked out at minimal CPU and I/O cost. Multiple filesystem instances can be hosted simultaneously with no interference.   
 
