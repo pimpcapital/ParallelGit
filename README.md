@@ -123,6 +123,75 @@ Saving files to repository follows a similar pattern. Assuming you have made a c
 The whole process above involved 2 out of the total 5 files in the branch, and ParallelGit only focuses on reaching the 2 files. The existence of the other 2 files has nearly zero impact to the performance. Your repository can keep on growing and your request handling time remains constant.
 
 
+Advanced features
+-----------------
+#### Merge
+```java
+public void mergeFeatureBranch() throws IOException {
+  try(GitFileSystem gfs = Gfs.newFileSystem("master", "/project/repository")) {
+    GfsMerge.Result result = Gfs.merge(gfs).source("feature_branch").execute();
+    assert result.isSuccessful();
+  }
+}
+```
+
+#### Conflict resolution
+```java
+// a magical method that can resolve any conflicts
+public abstract void resolveConflicts(GitFileSystem gfs, Map<String, MergeConflict> conflicts);
+
+public void mergeFeatureBranch() throws IOException {
+  try(GitFileSystem gfs = Gfs.newFileSystem("master", "/project/repository")) {
+    GfsMerge.Result result = Gfs.merge(gfs).source("feature_branch").execute();
+    assert result.getStatus() == GfsMerge.Status.CONFLICTING;
+      
+    resolveConflicts(gfs, result.getConflicts());
+    Gfs.commit(gfs).execute();
+  }
+}
+```
+
+#### Create stash
+```java
+// a magical method that does very interesting work
+public abstract void doSomeWork(GitFileSystem gfs);
+
+public void stashIncompleteWork() throws IOException {
+  try(GitFileSystem gfs = Gfs.newFileSystem("master", "/project/repository")) {
+    doSomeWork(gfs);
+    Gfs.createStash(gfs).execute();
+  }
+}
+```
+
+#### Apply stash
+```java
+// a magical method that does very interesting work
+public abstract void doSomeMoreWork(GitFileSystem gfs);
+
+public void continuePreviousWork() throws IOException {
+  try(GitFileSystem gfs = Gfs.newFileSystem("master", "/project/repository")) {
+    Gfs.applyStash(gfs)
+       .stash(0)  // (optional) to specify the index of the stash to apply 
+       .execute();
+    doSomeMoreWork(gfs);
+  }
+}
+```
+
+#### Reset
+```java
+// a magical method that always makes bad changes the first time
+public abstract void doSomeWork(GitFileSystem gfs);
+
+public void doSomeGoodWork() throws IOException {
+  try(GitFileSystem gfs = Gfs.newFileSystem("master", "/project/repository")) {
+    doSomeWork(gfs);
+    Gfs.reset(gfs).execute();
+    doSomeWork(gfs);
+  }
+}
+```
 
 License
 -------
