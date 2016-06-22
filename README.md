@@ -62,7 +62,7 @@ Git is an awesome data storage. Its special data structure offers many useful fe
 * Remote backup
 * Merging and conflict resolution
 
-Git is well known and widely used as a VCS, yet few software application uses Git as a internal data storage. One of the reasons is the lack of high level API to interact with Git repository.
+Git is well known and widely used as a VCS, yet few software application uses Git as a internal data storage. One of the reasons is the lack of high level API to efficiently communicate with a Git repository.
 
 Consider the workflow in software development, the standard steps to make changes to Git repository are:
 
@@ -78,16 +78,16 @@ While this model works sufficiently well with developers, it does not fit in the
 
 There are ways around these problems, but they usually involve manual blob and tree creations, which are verbose and error prone.
 
-ParallelGit is a layer between application logic and Git repository. It abstracts away Git's low level object manipulation details and provides a friendly interface which extends the Java 7 NIO filesystem API. The filesystem itself operates in memory with data pulled from hard drive on demand. 
+ParallelGit is a layer between application logic and Git. It abstracts away Git's low level object manipulation details and provides a friendly interface which extends the Java 7 NIO filesystem API. The filesystem itself operates in memory with data pulled from hard drive on demand. 
 
-With ParallelGit an application can control a Git repository as it were a normal filesystem. Arbitrary branch and commit can be checked out at minimal CPU and I/O cost. Multiple filesystem instances can be hosted simultaneously with no interference.   
+With ParallelGit an application can control a Git repository as it were a normal filesystem. Arbitrary branch and commit can be checked out at the minimal CPU and I/O cost. Multiple filesystem instances can be hosted simultaneously with no interference.   
 
 
 Performance explained
 ---------------------
-Git is best at storing changes in many small batches. It is very rare to have a commit that updates all files in a repository. The size of I/O per request is usually very small compared to the total number of objects or files in a repository. Pre-loading everything into memory is usually an overkill for most requests.
+Git is best at storing changes in many small batches. It is very rare to have a commit that updates all files in a repository. The size of I/O per request is usually very small compared to the size of the repository. Pre-loading everything into memory is usually an overkill for most tasks.
 
-To minimise I/O and memory usage, ParallelGit loads the minimum necessary objects to complete a request. Consider a scenario where you have these files in a branch:
+To minimise I/O and memory usage, ParallelGit loads the minimum necessary data to complete a request. Consider a scenario where a branch has the file tree below:
 ```
 ├──app-core
 │   └──src
@@ -100,15 +100,16 @@ To minimise I/O and memory usage, ParallelGit loads the minimum necessary object
     ├──index.html
     └──style.css
 ```
-When you check out this branch. The commit object is loaded. It has a reference to the root of this file tree.
-Assuming you want to read file `/app-core/src/main/MyFactory.java`. In order to reach this file, you have to resolve its parent directories (including the root directory) i.e:
+When this branch is checked out. The information of its head commit is loaded into memory. That includes the author and committer details, the commit message and the reference to the root node of this file tree. This reference is a 40-char hash, which can be used to find the tree object representing the root directory. 
+
+Assuming the task requires the content of `/app-core/src/main/MyFactory.java`, before this file can be reached, its parent directories (including the root directory) need to be resolved i.e:
 ```
 1) /
 2) /app-core
 3) /app-core/src
 4) /app-core/src/main
 ```
-The last tree object (`/app-core/src/main`) contains a reference to the blob object of `MyFactory.java`, which you can use to retrieve the content of this file.
+The last directory (`/app-core/src/main`) represented by a Git tree object has the reference to the blob of `MyFactory.java`. This reference is another 40-char hash value that can be used to find the byte array data of this file in constant time.
 
 Now let's say you want to read the file `/app-core/src/main/MyProduct.java`. This file is in the same directory as the previous one. There is no need to read the directories again as they are already in memory. This time we simply read the blob reference from `/app-core/src/main` and use it to retrieve the content of the file.
 
