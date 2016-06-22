@@ -121,7 +121,7 @@ Saving files to repository follows a similar pattern. Assuming you have made a c
 4) /
 ```
 
-The whole process above involved 2 out of the total 5 files in the branch, and ParallelGit only focuses on reaching the 2 files. The existence of the other 2 files has nearly zero impact to the performance. Your repository can keep on growing and your request handling time remains constant.
+The whole process above involved 2 out of the total 5 files in the branch, and ParallelGit only focuses on reaching the 2 files. The existence of the other 3 files causes (nearly) zero impact to the performance. Your repository can keep on growing and your request handling time remains constant.
 
 
 Advanced features
