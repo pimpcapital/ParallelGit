@@ -207,7 +207,7 @@ Package `com.beijunyi.parallelgit.utils` has a collection of utility classes to 
 7. **RepositoryUtils** - *Repository creation, repository settings*
 8. **StashUtils** - *Stash manipulation*
 9. **TagUtils** - *Tag manipulation*
-10. **TreeUtils** - *Tree insertion, tree/subtree retrieval
+10. **TreeUtils** - *Tree insertion, tree/subtree retrieval*
 
 
 
