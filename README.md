@@ -67,7 +67,7 @@ Git is well known and widely used as a VCS, yet few software application uses Gi
 Consider the workflow in software development, the standard steps to make changes to Git repository are:
 
 ```
-Checkout (branch/commit) ==> Write file ==> Add file to index ==> Commit
+Checkout (branch/commit) ⇒ Write file ⇒ Add file to index ⇒ Commit
 ```
 
 While this model works sufficiently well with developers, it does not fit in the architecture diagram of a server role application. Reasons are:
@@ -87,7 +87,11 @@ Performance explained
 ---------------------
 Git is best at storing changes in many small batches. It is very rare to have a commit that updates all files in a repository. The size of I/O per request is usually very small compared to the size of the repository. Pre-loading everything into memory is usually an overkill for most tasks.
 
-To minimise I/O and memory usage, ParallelGit loads the minimum necessary data to complete a request. Consider a scenario where a branch has the file tree below:
+To minimise I/O and memory usage, ParallelGit loads the minimum necessary data to complete a request.
+
+#### Example
+
+Imagine a branch with the below file tree in its head commit. The task is to read the three `.java` files from this branch.
 ```
 ├──app-core
 │   └──src
@@ -97,21 +101,23 @@ To minimise I/O and memory usage, ParallelGit loads the minimum necessary data t
 │       └──test
 │           └──ProductionTest.java
 └──app-web
-    ├──index.html
+    ├──index.jsp
     └──style.css
 ```
-When this branch is checked out. The information of its head commit is loaded into memory. That includes the author and committer details, the commit message and the reference to the root node of this file tree. This reference is a 40-char hash, which can be used to find the tree object representing the root directory. 
+When this branch is checked out, its head commit object is parsed and stored in memory. The commit object has the reference to the root node of the file tree, which can be used to retrieve the tree object that represents the root directory. 
 
-Assuming the task requires the content of `/app-core/src/main/MyFactory.java`, before this file can be reached, its parent directories (including the root directory) need to be resolved i.e:
+To find the first file, `/app-core/src/main/MyFactory.java`, ParallelGit follows the path and resolves its parent directories in order i.e:
 ```
 1) /
 2) /app-core
 3) /app-core/src
 4) /app-core/src/main
 ```
-The last directory (`/app-core/src/main`) represented by a Git tree object has the reference to the blob of `MyFactory.java`. This reference is another 40-char hash value that can be used to find the byte array data of this file in constant time.
+Directories are represented by tree objects. Each tree object has the references to its children nodes. The last tree object, `/app-core/src/main`, has the reference to the blob object of `MyFactory.java`, which can be used to retrieve the byte array data of this file.
 
-Now let's say you want to read the file `/app-core/src/main/MyProduct.java`. This file is in the same directory as the previous one. There is no need to read the directories again as they are already in memory. This time we simply read the blob reference from `/app-core/src/main` and use it to retrieve the content of the file.
+The second file, `/app-core/src/main/MyProduct.java`, lives in the same directory as the previous one. All parent directories are resolved and cached in memory. ParallelGit finds the blob reference from its parent directory and retrieve the data.
+
+The third file, `/app-core/src/test/Production.java`, shares a common 
 
 Saving files to repository follows a similar pattern. Assuming you have made a change to `MyFactory.java` and you want to commit this change. ParallelGit saves the file as a blob and creates the new tree objects from bottom-up i.e:
 ```
