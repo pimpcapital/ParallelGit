@@ -193,6 +193,25 @@ public void doSomeGoodWork() throws IOException {
 }
 ```
 
+
+Handy Utils
+-----------
+Package `com.beijunyi.parallelgit.utils` has a collection of utility classes to perform common Git tasks. 
+
+1. **BlobUtils** - *Blob insertion, byte array retrieval*
+2. **BranchUtils** - *Branch creation, branch head reference update*
+3. **CacheUtils** - *DirCache manipulation*
+4. **CommitUtils** - *Commit creation, commit history retrieval*
+5. **GitFileUtils** - *Shortcuts for readonly file accesses*
+6. **RefUtils** - *Ref name normalisation, Ref-log retrieval*
+7. **RepositoryUtils** - *Repository creation, repository settings*
+8. **StashUtils** - *Stash manipulation*
+9. **TagUtils** - *Tag manipulation*
+10. **TreeUtils** - *Tree insertion, tree/subtree retrieval
+
+
+
+
 License
 -------
 This project is licensed under [Apache License, Version 2.0](http://opensource.org/licenses/apache-2.0).
