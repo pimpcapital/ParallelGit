@@ -200,7 +200,7 @@ Package `com.beijunyi.parallelgit.utils` has a collection of utility classes to 
 
 1. **BlobUtils** - *Blob insertion, byte array retrieval*
 2. **BranchUtils** - *Branch creation, branch head reference update*
-3. **CacheUtils** - *DirCache manipulation*
+3. **CacheUtils** - *Index cache manipulation*
 4. **CommitUtils** - *Commit creation, commit history retrieval*
 5. **GitFileUtils** - *Shortcuts for readonly file accesses*
 6. **RefUtils** - *Ref name normalisation, Ref-log retrieval*
