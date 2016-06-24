@@ -138,11 +138,11 @@ In the same branch, assume a follow up task to change to `MyFactory.java` and co
      ├──index.jsp
      └──style.css
 ```
-Because all object references in Git are the hash values of their contents, whenever a file's content is changed, its hash reference changes and so do their parent directories'.
+Because all object references in Git are the hash values of their contents, whenever a file's content has been changed, its hash value also changes and so do their parent directories'.
 
-All changes are staged in memory before committed to repository. Hence, there is no write access from ParallelGit to hard drive when the file is being updated.
+All changes are staged in memory before committed to the repository. Hence, there is no write request made to the hard drive when `MyFactory.java` is being updated.
 
-When `Gfs.commit(...).execute()` is called, ParallelGit creates a blob object for the updated content and the necessary tree objects to make this blob reachable i.e: 
+When `Gfs.commit(...).execute()` is called, ParallelGit creates a blob object for the updated content. To make this blob reachable, ParallelGit creates the tree objects for its parent directories i.e: 
 ```
 1) /app-core/src/main
 2) /app-core/src
