@@ -120,7 +120,7 @@ After the last tree object is loaded and parsed, ParallelGit finds the blob obje
 
 The second file, `/app-core/src/main/MyProduct.java`, lives in the same directory. As the required tree objects for this request are already available in memory, ParallelGit simply finds the blob reference from its immediate parent and retrieves the data.
 
-The last file, `/app-core/src/test/Production.java`, shares a common ancestor, `/app-core/src`, with the previous two files. Starting from this node ParallelGit pulls its other child `/app-core/src/test` from Git and then resolves `Production.java`.
+The last file, `/app-core/src/test/Production.java`, shares a common ancestor, `/app-core/src`, with the previous two files. Starting from this node ParallelGit pulls its other child `/app-core/src/test` from Git and then resolves `ProductionTest.java`.
 
 #### Write requests
 
