@@ -87,7 +87,7 @@ I/O & performance explained
 ---------------------------
 Like with any data storage, the size of a single request is usually very small compared to the total size of the repository. Pre-loading everything into memory is an overkill in most scenarios.
 
-To minimise I/O and memory usage, ParallelGit adopts the lazy loading strategy by only pulling the necessary data from hard drive for every request.
+To minimise I/O and memory usage, ParallelGit adopts the lazy loading strategy by only pulling the necessary data from hard drive for each request.
 
 #### Read requests
 
