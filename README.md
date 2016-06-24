@@ -80,7 +80,7 @@ There are ways around these problems, but they usually involve manually creating
 
 ParallelGit is a layer between application logic and Git. It abstracts away Git's low level object manipulation details and provides a friendly interface which extends the Java 7 NIO filesystem API. The filesystem itself operates in memory with data pulled from hard drive on demand. 
 
-With ParallelGit an application can control a Git repository as it were a normal filesystem. Arbitrary branch and commit can be checked out instantly at the minimal resource cost. Multiple filesystem instances can be hosted simultaneously with no interference.   
+With ParallelGit an application can control a Git repository as it were a normal filesystem. Arbitrary branch and commit can be checked out instantly at minimal resource cost. Multiple filesystem instances can be hosted simultaneously with no interference.   
 
 
 I/O & performance explained
