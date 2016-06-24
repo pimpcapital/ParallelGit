@@ -83,51 +83,79 @@ ParallelGit is a layer between application logic and Git. It abstracts away Git'
 With ParallelGit an application can control a Git repository as it were a normal filesystem. Arbitrary branch and commit can be checked out at the minimal CPU and I/O cost. Multiple filesystem instances can be hosted simultaneously with no interference.   
 
 
-Performance explained
----------------------
-Git is best at storing changes in many small batches. It is very rare to have a commit that updates all files in a repository. The size of I/O per request is usually very small compared to the size of the repository. Pre-loading everything into memory is usually an overkill for most tasks.
+I/O & performance explained
+---------------------------
+Like with any data storage, the size of a single request is usually very small compared to the size of the repository. Pre-loading everything into memory is often an overkill in most scenarios.
 
-To minimise I/O and memory usage, ParallelGit loads the minimum necessary data to complete a request.
+To minimise I/O and memory usage, ParallelGit adopts the lazy loading strategy by only pulling the minimum necessary data from hard drive.
 
-#### Example
+#### Read requests
 
-Imagine a branch with the below file tree in its head commit. The task is to read the three `.java` files from this branch.
+Imagine a branch with the below file tree in its `HEAD` commit. The task is to read the three `.java` files from this branch.
 ```
-├──app-core
-│   └──src
-│       ├──main
-│       │   ├──MyFactory.java
-│       │   └──MyProduct.java
-│       └──test
-│           └──ProductionTest.java
-└──app-web
-    ├──index.jsp
-    └──style.css
+ /
+ ├──app-core
+ │   └──src
+ │       ├──main
+ │       │   ├──MyFactory.java *(to read)
+ │       │   └──MyProduct.java *(to read)
+ │       └──test
+ │           └──ProductionTest.java *(to read)
+ └──app-web
+     ├──index.jsp
+     └──style.css
 ```
-When this branch is checked out, its head commit object is parsed and stored in memory. The commit object has the reference to the root node of the file tree, which can be used to retrieve the tree object that represents the root directory. 
+Directories and files are stored as tree and blob objects in Git. Every tree object has the references to its children nodes.
 
-To find the first file, `/app-core/src/main/MyFactory.java`, ParallelGit follows the path and resolves its parent directories in order i.e:
+When the branch is checked out, its `HEAD` commit is parsed and stored in memory. The commit has the reference to the tree object that corresponds to the root directory. 
+
+To read file `/app-core/src/main/MyFactory.java`, ParallelGit needs to resolve its parent directories recursively i.e:
 ```
 1) /
 2) /app-core
 3) /app-core/src
 4) /app-core/src/main
 ```
-Directories are represented by tree objects. Each tree object has the references to its children nodes. The last tree object, `/app-core/src/main`, has the reference to the blob object of `MyFactory.java`, which can be used to retrieve the byte array data of this file.
+After the last tree object is loaded and parsed, ParallelGit finds the blob object of `MyFactory.java`, which can be then converted into a `byte[]` or `String` according to the requirement details.
 
-The second file, `/app-core/src/main/MyProduct.java`, lives in the same directory as the previous one. All parent directories are resolved and cached in memory. ParallelGit finds the blob reference from its parent directory and retrieve the data.
+The second file, `/app-core/src/main/MyProduct.java`, lives in the same directory. As the tree objects were already cached from executing the previous request, ParallelGit finds the blob reference from its immediate parent and retrieves the data.
 
-The third file, `/app-core/src/test/Production.java`, shares a common 
+The last file, `/app-core/src/test/Production.java`, shares a common ancestor, `/app-core/src`, with the previous two files. Starting from this node ParallelGit pulls its other child `/app-core/src/test` from Git and then resolves `Production.java`.
 
-Saving files to repository follows a similar pattern. Assuming you have made a change to `MyFactory.java` and you want to commit this change. ParallelGit saves the file as a blob and creates the new tree objects from bottom-up i.e:
+#### Write requests
+
+In the same branch, assume a follow up task to change to `MyFactory.java` and commit the changes.
+```
+ /
+ ├──app-core
+ │   └──src
+ │       ├──main
+ │       │   ├──MyFactory.java *(to update)
+ │       │   └──MyProduct.java
+ │       └──test
+ │           └──ProductionTest.java
+ └──app-web
+     ├──index.jsp
+     └──style.css
+```
+Because all object references in Git are the hash values of their contents, whenever a file's content is changed, its hash reference changes and so do their parent directories'.
+
+All changes are staged in memory before committed to repository. Hence, there is no write access from ParallelGit to hard drive when the file is being updated.
+
+When `Gfs.commit(...).execute()` is called, ParallelGit creates a blob object the updated content and the necessary tree objects to connect this blob object: 
 ```
 1) /app-core/src/main
 2) /app-core/src
 3) /app-core
 4) /
 ```
+After the root tree object is created, ParallelGit creates a commit and makes it the new `HEAD` of the branch.  
 
-The whole process above involved 2 out of the total 5 files in the branch, and ParallelGit only focuses on reaching the 2 files. The existence of the other 3 files causes (nearly) zero impact to the performance. Your repository can keep on growing and your request handling time remains constant.
+#### Complexity
+
+The important property in the performance aspect is the size of the repository has little impact on individual task's runtime and memory foot print. The resource usage per task is predominantly decided by the number and the sizes of the files in the task scope.
+  
+However, it would not be correct to conclude that time and memory complexity are linear to request size as there are overheads generated at different stages. One worth mentioning overhead comes from the siblings of the involved nodes. Each sibling increases the size of the tree object of the parent.
 
 
 Advanced features
@@ -206,7 +234,7 @@ Handy Utils
 Package `com.beijunyi.parallelgit.utils` has a collection of utility classes to perform common Git tasks. 
 
 1. **BlobUtils** - *Blob insertion, byte array retrieval*
-2. **BranchUtils** - *Branch creation, branch head reference update*
+2. **BranchUtils** - *Branch creation, branch `HEAD` reference update*
 3. **CacheUtils** - *Index cache manipulation*
 4. **CommitUtils** - *Commit creation, commit history retrieval*
 5. **GitFileUtils** - *Shortcuts for readonly file accesses*
