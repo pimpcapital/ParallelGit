@@ -62,7 +62,7 @@ Git is a unique type of data storage. Its special data structure offers many use
 * Remote backup
 * Merging and conflict resolution
 
-Git is well known and widely used as a VCS, yet few software application uses Git as a internal data storage. One of the reasons is the lack of high level API that allows efficient communication with Git repository.
+Git is well known and widely used as a VCS, yet few software application uses Git as a internal data storage. One of the reasons is the lack of high level API that allows efficient communication between application program and Git repository.
 
 Consider the workflow in software development, the standard steps to make changes in Git are:
 
