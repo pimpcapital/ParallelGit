@@ -29,23 +29,23 @@ Gradle:
 
 Basic usages
 ------------
-Copy a file from repository to hard drive:
+**Read** - Copy a file from repository to hard drive:
 ```java
 public void loadSettings() throws IOException {
   try(GitFileSystem gfs = Gfs.newFileSystem("my_branch", "/project/repository")) {
-    Path source = gfs.getPath("/settings.xml");
-    Path target = Paths.get("/app/config/settings.xml");
+    Path source = gfs.getPath("/settings.xml"); // repo
+    Path target = Paths.get("/app/config/settings.xml"); // hard drive
     Files.copy(source, target);
   }
 }
 ```
 
-Copy a file to repository and commit:
+**Write** - Copy a file to repository and commit:
 ```java
 public void backupSettings() throws IOException {
   try(GitFileSystem gfs = Gfs.newFileSystem("my_branch", "/project/repository")) {
-    Path source = Paths.get("/app/config/settings.xml");
-    Path target = gfs.getPath("/settings.xml");
+    Path source = Paths.get("/app/config/settings.xml"); // hard drive
+    Path target = gfs.getPath("/settings.xml"); // repo
     Files.copy(source, target);
     Gfs.commit(gfs).message("Update settings").execute();
   }
@@ -55,7 +55,7 @@ public void backupSettings() throws IOException {
 
 Project purpose explained
 -------------------------
-Git is an interesting data storage. Its special data structure offers many useful features such as:
+Git is a unique type of data storage. Its special data structure offers many useful features such as:
 
 * Keeping history snapshots at a very low cost
 * Automatic duplication detection
