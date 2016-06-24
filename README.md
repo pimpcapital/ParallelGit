@@ -76,7 +76,7 @@ While this model works sufficiently well with developers, it does not fit in the
 * Checking out a branch is a heavy I/O task as files need to be deleted and re-created on hard drive
 * Every context switching needs a check out
 
-There are ways around these problems, but they usually involve manual blob and tree creations, which are verbose and error prone.
+There are ways around these problems, but they usually involve manually creating blobs and trees, which is verbose and error prone.
 
 ParallelGit is a layer between application logic and Git. It abstracts away Git's low level object manipulation details and provides a friendly interface which extends the Java 7 NIO filesystem API. The filesystem itself operates in memory with data pulled from hard drive on demand. 
 
