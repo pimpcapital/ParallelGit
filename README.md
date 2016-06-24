@@ -55,16 +55,16 @@ public void backupSettings() throws IOException {
 
 Project purpose explained
 -------------------------
-Git is an awesome data storage. Its special data structure offers many useful features such as:
+Git is an interesting data storage. Its special data structure offers many useful features such as:
 
 * Keeping history snapshots at a very low cost
 * Automatic duplication detection
 * Remote backup
 * Merging and conflict resolution
 
-Git is well known and widely used as a VCS, yet few software application uses Git as a internal data storage. One of the reasons is the lack of high level API to efficiently communicate with a Git repository.
+Git is well known and widely used as a VCS, yet few software application uses Git as a internal data storage. One of the reasons is the lack of high level API that allows efficient communication with Git repository.
 
-Consider the workflow in software development, the standard steps to make changes to Git repository are:
+Consider the workflow in software development, the standard steps to make changes in Git are:
 
 ```
 Checkout (branch/commit) ⇒ Write file ⇒ Add file to index ⇒ Commit
@@ -80,18 +80,18 @@ There are ways around these problems, but they usually involve manual blob and t
 
 ParallelGit is a layer between application logic and Git. It abstracts away Git's low level object manipulation details and provides a friendly interface which extends the Java 7 NIO filesystem API. The filesystem itself operates in memory with data pulled from hard drive on demand. 
 
-With ParallelGit an application can control a Git repository as it were a normal filesystem. Arbitrary branch and commit can be checked out at the minimal CPU and I/O cost. Multiple filesystem instances can be hosted simultaneously with no interference.   
+With ParallelGit an application can control a Git repository as it were a normal filesystem. Arbitrary branch and commit can be checked out at the minimal resource cost. Multiple filesystem instances can be hosted simultaneously with no interference.   
 
 
 I/O & performance explained
 ---------------------------
-Like with any data storage, the size of a single request is usually very small compared to the size of the repository. Pre-loading everything into memory is often an overkill in most scenarios.
+Like with any data storage, the size of a single request is usually very small compared to the total size of the repository. Pre-loading everything into memory is an overkill in most scenarios.
 
-To minimise I/O and memory usage, ParallelGit adopts the lazy loading strategy by only pulling the minimum necessary data from hard drive.
+To minimise I/O and memory usage, ParallelGit adopts the lazy loading strategy by only pulling the necessary data from hard drive for every request.
 
 #### Read requests
 
-Imagine a branch with the below file tree in its `HEAD` commit. The task is to read the three `.java` files from this branch.
+Imagine a branch with the below file tree in its `HEAD` commit and a task is to read the 3 `.java` files from this branch.
 ```
  /
  ├──app-core
@@ -107,7 +107,7 @@ Imagine a branch with the below file tree in its `HEAD` commit. The task is to r
 ```
 Directories and files are stored as tree and blob objects in Git. Every tree object has the references to its children nodes.
 
-When the branch is checked out, its `HEAD` commit is parsed and stored in memory. The commit has the reference to the tree object that corresponds to the root directory. 
+When the branch is checked out, its `HEAD` commit is parsed and stored in memory. The commit object has the reference to the tree object that corresponds to the root directory. 
 
 To read file `/app-core/src/main/MyFactory.java`, ParallelGit needs to resolve its parent directories recursively i.e:
 ```
@@ -118,7 +118,7 @@ To read file `/app-core/src/main/MyFactory.java`, ParallelGit needs to resolve i
 ```
 After the last tree object is loaded and parsed, ParallelGit finds the blob object of `MyFactory.java`, which can be then converted into a `byte[]` or `String` according to the requirement details.
 
-The second file, `/app-core/src/main/MyProduct.java`, lives in the same directory. As the tree objects were already cached from executing the previous request, ParallelGit finds the blob reference from its immediate parent and retrieves the data.
+The second file, `/app-core/src/main/MyProduct.java`, lives in the same directory. As the required tree objects for this request are already available in memory, ParallelGit simply finds the blob reference from its immediate parent and retrieves the data.
 
 The last file, `/app-core/src/test/Production.java`, shares a common ancestor, `/app-core/src`, with the previous two files. Starting from this node ParallelGit pulls its other child `/app-core/src/test` from Git and then resolves `Production.java`.
 
@@ -142,7 +142,7 @@ Because all object references in Git are the hash values of their contents, when
 
 All changes are staged in memory before committed to repository. Hence, there is no write access from ParallelGit to hard drive when the file is being updated.
 
-When `Gfs.commit(...).execute()` is called, ParallelGit creates a blob object the updated content and the necessary tree objects to connect this blob object: 
+When `Gfs.commit(...).execute()` is called, ParallelGit creates a blob object for the updated content and the necessary tree objects to make this blob reachable i.e: 
 ```
 1) /app-core/src/main
 2) /app-core/src
