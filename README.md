@@ -116,7 +116,7 @@ To read file `/app-core/src/main/MyFactory.java`, ParallelGit needs to resolve i
 3) /app-core/src
 4) /app-core/src/main
 ```
-After the last tree object is loaded and parsed, ParallelGit finds the blob object of `MyFactory.java`, which can be then converted into a `byte[]` or `String` according to the requirement details.
+After the last tree object is loaded and parsed, ParallelGit finds the blob object of `MyFactory.java`, which can be then converted into a `byte[]` or `String` depending on the requirement details.
 
 The second file, `/app-core/src/main/MyProduct.java`, lives in the same directory. As the required tree objects for this request are already available in memory, ParallelGit simply finds the blob reference from its immediate parent and retrieves the data.
 
