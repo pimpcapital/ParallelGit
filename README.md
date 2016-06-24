@@ -201,7 +201,7 @@ public void stashIncompleteWork() throws IOException {
 
 #### Apply stash
 ```java
-// a magical method that does very interesting work
+// a magical method that does some more interesting work
 public abstract void doSomeMoreWork(GitFileSystem gfs);
 
 public void continuePreviousWork() throws IOException {
