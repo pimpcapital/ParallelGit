@@ -216,7 +216,7 @@ public void continuePreviousWork() throws IOException {
 
 #### Reset
 ```java
-// a magical method that always makes bad changes the first time
+// a magical method that does good work at the second time
 public abstract void doSomeWork(GitFileSystem gfs);
 
 public void doSomeGoodWork() throws IOException {
