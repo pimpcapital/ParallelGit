@@ -153,7 +153,7 @@ After the root tree object is created, ParallelGit creates a new commit and make
 
 #### Complexity
 
-The important property in the performance aspect is the resource usage per task is linear to the number and the sizes of the files in the task scope. The size of the repository has no impact on individual task's runtime and memory footprint.
+The important property in the performance aspect is the resource usage per task is linear to the size of the task scope. The size of the repository has no impact on individual task's runtime and memory footprint.
 
 Advanced features
 -----------------
