@@ -118,9 +118,9 @@ To read file `/app-core/src/main/MyFactory.java`, ParallelGit needs to resolve i
 ```
 After the last tree object is resolved, ParallelGit finds the blob object of `MyFactory.java`, which can then be parsed and converted into a `byte[]` or `String` depending on the task requirements.
 
-The second file, `/app-core/src/main/MyProduct.java`, lives in the same directory. As the required tree objects for this request are already available in memory, ParallelGit simply finds the blob reference from its immediate parent and retrieves the data.
+The second file, `/app-core/src/main/MyProduct.java`, lives in the same directory. As the required tree objects for this request are already available in memory, ParallelGit simply finds the blob reference from its parent and retrieves the file data.
 
-The last file, `/app-core/src/test/ProductionTest.java`, shares a common ancestor, `/app-core/src`, with the previous two files. Starting from this node ParallelGit pulls its other child `/app-core/src/test` from Git and then resolves `ProductionTest.java`.
+The last file, `/app-core/src/test/ProductionTest.java`, shares a common ancestor, `/app-core/src`, with the previous two files. From this subtree ParallelGit resolves its other child, `/app-core/src/test`, which leads to the blob of `ProductionTest.java`.
 
 #### Write requests
 
@@ -138,24 +138,24 @@ In the same branch, assume there is a follow up task to change `MyFactory.java`.
      ├──index.jsp
      └──style.css
 ```
-Because all object references in Git are the hash values of their contents, whenever a file's content has been changed, its hash value also changes and so do their parent directories'.
+Because all object references in Git are the hash values of their contents, whenever a file's content has changed, its hash value also changes and so do their parent directories'.
 
-**All changes are staged in memory before committed to the repository**. Hence, there is no write access made to the hard drive when `MyFactory.java` is being updated.
+**All changes are staged in memory before committed to the repository**. There is no write access made to the hard drive when `MyFactory.java` is being updated.
 
-When `Gfs.commit(...).execute()` is called, ParallelGit creates a blob object for the updated content. To make this blob reachable, ParallelGit creates the tree objects for its parent directories i.e: 
+When `Gfs.commit(...).execute()` is called, ParallelGit creates a blob object for the new file content. To make this blob reachable, ParallelGit creates the tree objects for its updated parent directories i.e: 
 ```
 1) /app-core/src/main
 2) /app-core/src
 3) /app-core
 4) /
 ```
-After the root tree object is created, ParallelGit creates a commit and makes it the new `HEAD` of the branch.  
+After the root tree object is created, ParallelGit creates a new commit and makes it the `HEAD` of the branch.  
 
 #### Complexity
 
-The important property in the performance aspect is the size of the repository has little impact on individual task's runtime and memory foot print. The resource usage per task is predominantly decided by the number and the sizes of the files in the task scope.
+The important property in the performance aspect is the size of the repository has little influence on individual task's runtime and memory foot print. The resource usage per task is predominantly decided by the number and the sizes of the files in the task scope.
   
-However, it would be incorrect to say the time and space complexities are linear to the size of a request as there are Git has other internal overheads at different stages. One worth mentioning overhead comes from the siblings of the involved nodes. The more sibling a node has, the more references its parent tree object needs to store. e.g Loading a file with 2000 siblings in the same directory takes more time (and CPU cycles) than loading a file with only 2 siblings.
+However, it would be incorrect to say the time and space complexities are linear. A **hidden cost** that wasn't mentioned above is the impact from the files' siblings. The more sibling a file has, the more references its parent tree object needs to store. e.g Loading a file with 2000 siblings in the same directory takes more time (and CPU cycles) than loading a file with only 2 siblings.
 
 
 Advanced features
