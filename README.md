@@ -153,10 +153,7 @@ After the root tree object is created, ParallelGit creates a new commit and make
 
 #### Complexity
 
-The important property in the performance aspect is the size of the repository has little influence on individual task's runtime and memory foot print. The resource usage per task is predominantly decided by the number and the sizes of the files in the task scope.
-  
-However, it would be incorrect to say the time and space complexities are linear. A **hidden cost** that wasn't mentioned above is the impact from the files' siblings. The more sibling a file has, the more references its parent tree object needs to store. e.g Loading a file with 2000 siblings in the same directory takes more time (and CPU cycles) than loading a file with only 2 siblings.
-
+The important property in the performance aspect is the resource usage per task is linear to the number and the sizes of the files in the task scope. The size of the repository has no impact on individual task's runtime and memory footprint.
 
 Advanced features
 -----------------
