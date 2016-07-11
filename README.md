@@ -70,7 +70,7 @@ Consider the workflow in software development, the standard steps to make change
 Checkout a branch ⇒ Write files ⇒ Add files to index ⇒ Commit
 ```
 
-While this model works sufficiently well with developers, it does not fit in the architecture diagram of a server role application. Reasons are:
+While this model works sufficiently well with (human) developers, it does not fit in the architecture diagram of a server role application. Reasons are:
 
 * Only one branch can be checked out at a time
 * Checking out a branch has a heavy I/O overhead as files need to be deleted and re-created on hard drive
@@ -85,9 +85,9 @@ With ParallelGit an application can control a Git repository as it were a normal
 
 I/O & performance explained
 ---------------------------
-Like with any data store, the size of a single request is usually very small compared to the total size of the repository. Pre-loading everything into memory is an overkill in most scenarios.
+Like with any data store, the size of a single request is usually very small compared to the total size of the repository. Checking out all files from a branch at the beginning of a task is an overkill in most scenarios.
 
-To minimise I/O and memory usage, **ParallelGit adopts the lazy loading strategy by only pulling the necessary data from hard drive for each request**.
+For this reason, ParallelGit adopts a lazy loading strategy to minimise I/O and memory usage. For inputs, directories and file contents are only loaded when they are demanded by the task. For outputs, new blobs and trees are only created at commit creation.
 
 #### Read requests
 
