@@ -87,7 +87,7 @@ I/O & performance explained
 ---------------------------
 Like with any data store, the size of a single request is usually very small compared to the size of the store. It would be an overkill to select an entire table from a SQL database when the task asks for one row. Similarly, checking out all files in a branch is not be necessary for most tasks.
 
-ParallelGit adopts a lazy loading strategy to minimise I/O and other resource usages. For inputs, directories and file contents are only loaded when they are demanded by the task. For outputs, new blobs and trees are only created at commit creation.
+ParallelGit adopts a lazy loading strategy to minimise I/O and other resource usages. For inputs, directories and file contents are only loaded when they are demanded by the task. For outputs, new blobs and trees are only created at commit creation stage.
 
 #### Read requests
 
@@ -107,7 +107,7 @@ Imagine a branch with the below file tree in its `HEAD` commit. The task is to r
 ```
 Directories and files are stored as tree and blob objects in Git. Every tree object has the references to its children nodes.
 
-When the branch is checked out, its `HEAD` commit is parsed and stored in memory. The commit object has the reference to the tree object that corresponds to the root directory. 
+When the branch is checked out, its `HEAD` commit is parsed and stored in memory. A commit object has the reference to the tree object that corresponds to its root directory. 
 
 To read file `/app-core/src/main/MyFactory.java`, ParallelGit needs to resolve its parent directories recursively i.e:
 ```
