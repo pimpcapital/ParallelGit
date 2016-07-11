@@ -85,9 +85,9 @@ With ParallelGit an application can control a Git repository as it were a normal
 
 I/O & performance explained
 ---------------------------
-Like with any data store, the size of a single request is usually very small compared to the total size of the repository. Checking out all files from a branch at the beginning of a task is an overkill in most scenarios.
+Like with any data store, the size of a single request is usually very small compared to the size of the store. It would be an overkill to select an entire table from a SQL database when the task asks for one row. Similarly, checking out all files in a branch would not be necessary for most tasks.
 
-For this reason, ParallelGit adopts a lazy loading strategy to minimise I/O and memory usage. For inputs, directories and file contents are only loaded when they are demanded by the task. For outputs, new blobs and trees are only created at commit creation.
+ParallelGit adopts a lazy loading strategy to minimise I/O and other resource usages. For inputs, directories and file contents are only loaded when they are demanded by the task. For outputs, new blobs and trees are only created at commit creation.
 
 #### Read requests
 
