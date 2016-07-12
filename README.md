@@ -138,7 +138,7 @@ In the same branch, assume there is a follow up task to change `MyFactory.java`.
      ├──index.jsp
      └──style.css
 ```
-Because all object references in Git are the hash values of their contents, whenever a file's content has changed, its hash value also changes and so do their parent directories'.
+Because all object references in Git are the hash values of their contents, whenever a file's content has changed, its hash value also changes and so do its parent directories'.
 
 **All changes are staged in memory before committed to the repository**. There is no write access made to the hard drive when `MyFactory.java` is being updated.
 
