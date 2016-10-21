@@ -43,7 +43,7 @@ public class GfsSeekableByteChannel implements SeekableByteChannel {
       if(buffer.remaining() < src.remaining()) {
         int position = buffer.position();
         byte[] bytes = new byte[position + src.remaining()];
-        arraycopy(buffer.array(), 0, bytes, 0, position);
+        arraycopy(buffer.array(), buffer.arrayOffset(), bytes, 0, position);
         buffer = ByteBuffer.wrap(bytes);
         buffer.position(position);
       }
