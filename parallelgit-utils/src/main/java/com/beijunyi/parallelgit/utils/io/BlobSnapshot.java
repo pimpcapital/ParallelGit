@@ -1,5 +1,6 @@
 package com.beijunyi.parallelgit.utils.io;
 
+import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import javax.annotation.Nonnull;
@@ -38,7 +39,22 @@ public class BlobSnapshot extends ObjectSnapshot<byte[]> {
   }
 
   private void loadData() throws IOException {
-    data = reader.open(id).getBytes();
+    synchronized (reader) {
+      ObjectLoader loader = reader.open(id);
+      if (loader.getSize() > Integer.MAX_VALUE - 8) {
+        throw new IOException("Can't load object" + id + ": size is greater than can fit in a Java array");
+      }
+      int len = (int) loader.getSize();
+      data = new byte[len];
+      int offset = 0;
+      while (offset < len) {
+        int bytesRead = loader.openStream().read(data, offset, len - offset);
+        if (bytesRead <= 0) {
+          throw new IOException("Unexpected EOF reading " + id);
+        }
+        offset += bytesRead;
+      }
+    }
   }
 
   @Nonnull
@@ -76,6 +92,8 @@ public class BlobSnapshot extends ObjectSnapshot<byte[]> {
   }
 
   public InputStream getInputStream() throws IOException {
-    return reader.open(id).openStream();
+    synchronized (reader) {
+      return reader.open(id).openStream();
+    }
   }
 }
