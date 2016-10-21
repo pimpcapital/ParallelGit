@@ -129,8 +129,10 @@ public class GfsSeekableByteChannel implements SeekableByteChannel {
 
   private static int copyBytes(ByteBuffer dst, ByteBuffer src) {
     int remaining = Math.min(src.remaining(), dst.remaining());
-    for(int i = 0; i < remaining; i++)
-      dst.put(src.get());
+    ByteBuffer toCopy = src.slice();
+    toCopy.limit(remaining);
+    dst.put(toCopy);
+    src.position(src.position() + remaining);
     return remaining;
   }
 
