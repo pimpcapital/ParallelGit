@@ -1,6 +1,8 @@
 package com.beijunyi.parallelgit.filesystem.io;
 
+import java.io.ByteArrayInputStream;
 import java.io.IOException;
+import java.io.InputStream;
 import javax.annotation.Nonnull;
 
 import com.beijunyi.parallelgit.filesystem.exceptions.IncompatibleFileModeException;
@@ -67,8 +69,20 @@ public class FileNode extends Node<BlobSnapshot, byte[]> {
   }
 
   @Nonnull
+  public InputStream getInputStream() throws IOException {
+    if (id == null && data == null)
+        data = new byte[0];
+    if(data != null) {
+      return new ByteArrayInputStream(data);
+    }
+    BlobSnapshot snapshot = loadSnapshot(id);
+    return snapshot.getInputStream();
+  }
+
+
+  @Nonnull
   @Override
-  protected byte[] loadData(BlobSnapshot snapshot) {
+  protected byte[] loadData(BlobSnapshot snapshot) throws IOException {
     return snapshot.getData();
   }
 

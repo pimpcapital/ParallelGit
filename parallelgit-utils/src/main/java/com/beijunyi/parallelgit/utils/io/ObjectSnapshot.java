@@ -12,7 +12,7 @@ import org.eclipse.jgit.lib.Repository;
 public abstract class ObjectSnapshot<Data> {
 
   protected final ObjectId id;
-  protected final Data data;
+  protected Data data;
 
   protected ObjectSnapshot(Data data, @Nullable ObjectId id) {
     this.data = data;
@@ -20,7 +20,7 @@ public abstract class ObjectSnapshot<Data> {
   }
 
   @Nonnull
-  public Data getData() {
+  public Data getData() throws IOException {
     return data;
   }
 

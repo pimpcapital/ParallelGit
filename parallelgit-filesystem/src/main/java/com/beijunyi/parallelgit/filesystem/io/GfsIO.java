@@ -1,6 +1,7 @@
 package com.beijunyi.parallelgit.filesystem.io;
 
 import java.io.IOException;
+import java.nio.channels.SeekableByteChannel;
 import java.nio.file.*;
 import java.nio.file.attribute.FileAttribute;
 import java.nio.file.attribute.FileAttributeView;
@@ -79,7 +80,7 @@ public final class GfsIO {
   }
 
   @Nonnull
-  public static GfsSeekableByteChannel newByteChannel(GitPath file, Set<? extends OpenOption> options, Collection<? extends FileAttribute> attrs) throws IOException {
+  public static SeekableByteChannel newByteChannel(GitPath file, Set<? extends OpenOption> options, Collection<? extends FileAttribute> attrs) throws IOException {
     if(file.isRoot()) throw new AccessDeniedException(file.toString());
     FileNode node;
     if(options.contains(CREATE) || options.contains(CREATE_NEW)) {
@@ -94,7 +95,11 @@ public final class GfsIO {
     } else {
       node = findFile(file);
     }
-    return new GfsSeekableByteChannel(node, options);
+    if (options.contains(WRITE)) {
+      return new GfsSeekableByteChannel(node, options);
+    } else {
+      return new GfsSeekableReadOnlyByteChannel(node, options);
+    }
   }
 
   @Nonnull
