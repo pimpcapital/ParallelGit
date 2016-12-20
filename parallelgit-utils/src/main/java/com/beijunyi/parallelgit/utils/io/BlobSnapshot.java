@@ -1,6 +1,8 @@
 package com.beijunyi.parallelgit.utils.io;
 
+import java.io.ByteArrayOutputStream;
 import java.io.IOException;
+import java.io.InputStream;
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 
@@ -10,17 +12,54 @@ import static org.eclipse.jgit.lib.Constants.OBJ_BLOB;
 
 public class BlobSnapshot extends ObjectSnapshot<byte[]> {
 
-  private BlobSnapshot(byte[] bytes, @Nullable ObjectId id) {
-    super(bytes, id);
+  private final ObjectReader reader;
+
+  private BlobSnapshot(ObjectReader reader, @Nullable ObjectId id) {
+    super(null, id);
+    this.reader = reader;
   }
 
-  private BlobSnapshot(byte[] bytes) {
-    this(bytes, null);
+  private BlobSnapshot(ObjectReader reader) {
+    this(null, null);
+  }
+
+
+  private BlobSnapshot(byte[] data) {
+    super(data, null);
+    reader = null;
+  }
+
+  @Nonnull
+  @Override
+  public byte[] getData() throws IOException {
+    if (data == null) {
+      loadData();
+    }
+    return data;
+  }
+
+  private void loadData() throws IOException {
+    synchronized (reader) {
+      ObjectLoader loader = reader.open(id);
+      if (loader.getSize() > Integer.MAX_VALUE - 8) {
+        throw new IOException("Can't load object" + id + ": size is greater than can fit in a Java array");
+      }
+      int len = (int) loader.getSize();
+      data = new byte[len];
+      int offset = 0;
+      while (offset < len) {
+        int bytesRead = loader.openStream().read(data, offset, len - offset);
+        if (bytesRead <= 0) {
+          throw new IOException("Unexpected EOF reading " + id);
+        }
+        offset += bytesRead;
+      }
+    }
   }
 
   @Nonnull
   public static BlobSnapshot load(ObjectId id, ObjectReader reader) throws IOException {
-    return new BlobSnapshot(reader.open(id).getBytes(), id);
+    return new BlobSnapshot(reader, id);
   }
 
   @Nonnull
@@ -52,4 +91,9 @@ public class BlobSnapshot extends ObjectSnapshot<byte[]> {
     return bytes;
   }
 
+  public InputStream getInputStream() throws IOException {
+    synchronized (reader) {
+      return reader.open(id).openStream();
+    }
+  }
 }

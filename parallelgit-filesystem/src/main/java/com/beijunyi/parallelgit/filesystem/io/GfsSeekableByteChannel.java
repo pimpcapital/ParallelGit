@@ -43,7 +43,7 @@ public class GfsSeekableByteChannel implements SeekableByteChannel {
       if(buffer.remaining() < src.remaining()) {
         int position = buffer.position();
         byte[] bytes = new byte[position + src.remaining()];
-        arraycopy(buffer.array(), 0, bytes, 0, position);
+        arraycopy(buffer.array(), buffer.arrayOffset(), bytes, 0, position);
         buffer = ByteBuffer.wrap(bytes);
         buffer.position(position);
       }
@@ -129,8 +129,10 @@ public class GfsSeekableByteChannel implements SeekableByteChannel {
 
   private static int copyBytes(ByteBuffer dst, ByteBuffer src) {
     int remaining = Math.min(src.remaining(), dst.remaining());
-    for(int i = 0; i < remaining; i++)
-      dst.put(src.get());
+    ByteBuffer toCopy = src.slice();
+    toCopy.limit(remaining);
+    dst.put(toCopy);
+    src.position(src.position() + remaining);
     return remaining;
   }
 

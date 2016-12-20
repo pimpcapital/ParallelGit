@@ -134,7 +134,7 @@ public abstract class Node<Snapshot extends ObjectSnapshot, Data> {
   }
 
   @Nonnull
-  private Snapshot loadSnapshot(ObjectId id) throws IOException {
+  protected Snapshot loadSnapshot(ObjectId id) throws IOException {
     Snapshot ret = objService.read(id, getSnapshotType());
     if(origin.getId().equals(id))
       snapshot = ret;
