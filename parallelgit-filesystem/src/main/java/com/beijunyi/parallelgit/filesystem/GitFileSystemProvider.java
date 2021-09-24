@@ -215,16 +215,7 @@ public class GitFileSystemProvider extends FileSystemProvider {
 
   @Nonnull
   private static GitFileSystemProvider getInstalledProvider() {
-    GitFileSystemProvider ret = null;
-    for(FileSystemProvider provider : FileSystemProvider.installedProviders()) {
-      if(provider instanceof GitFileSystemProvider) {
-        ret = (GitFileSystemProvider) provider;
-        break;
-      }
-    }
-    if(ret == null)
-      ret = new GitFileSystemProvider();
-    return ret;
+    return new GitFileSystemProvider();
   }
 
   @Nonnull
